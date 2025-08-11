@@ -1,0 +1,333 @@
+import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:artemis_utils/artemis_utils.dart';
+
+// import 'package:mdcs/core/utils_and_services/time_picker/src/board_datetime_widget.dart';
+// import 'package:board_datetime_picker/board_datetime_picker.dart';
+// import 'package:mdcs/core/utils_and_services/time_picker/src/utils/board_enum.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+
+import '../core/constants/ui.dart';
+import '../core/utils_and_services/time_picker/board_datetime_picker.dart';
+
+// import '../core/utils_and_services/time_picker/src/board_datetime_options.dart';
+// import '../core/utils_and_services/time_picker/src/board_datetime_widget.dart';
+
+class MyDatePicker extends StatefulWidget {
+  final FocusNode? focusNode;
+  final TextInputType? keyboardType;
+  final TextCapitalization textCapitalization;
+  final TextInputAction? textInputAction;
+  final TextStyle? style;
+  final StrutStyle? strutStyle;
+  final TextDirection? textDirection;
+  final TextAlign textAlign;
+  final TextAlignVertical? textAlignVertical;
+  final bool autofocus;
+  final bool readOnly;
+  final String? label;
+  final TextEditingController? controller;
+  final String? Function(String v)? validator;
+  final double? fontSize;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
+  final bool isPassword;
+  final ValueChanged<String>? onSubmit;
+  final String? placeholder;
+  final Widget? prefix;
+  final Widget? prefixIcon;
+  final Widget? suffix;
+  final Widget? suffixIcon;
+  final void Function(DateTime? dt) onChanged;
+  final bool showClearButton;
+  final bool locked;
+  final bool required;
+  final double height;
+  final DateTime? value;
+  final DateTime? min;
+  final BorderSide? border;
+  final DateTime? max;
+  final DatePickerEntryMode mode;
+
+  const MyDatePicker({
+    Key? key,
+    this.label,
+    this.value,
+    this.controller,
+    this.focusNode,
+    this.maxLength,
+    this.placeholder,
+    this.height = 40,
+    this.fontSize = 14,
+    this.keyboardType,
+    this.inputFormatters,
+    this.onSubmit,
+    this.textCapitalization = TextCapitalization.none,
+    this.mode = DatePickerEntryMode.calendar,
+    this.textInputAction,
+    this.style,
+    this.min,
+    this.max,
+    this.strutStyle,
+    this.textDirection,
+    this.textAlign = TextAlign.start,
+    this.textAlignVertical,
+    this.showClearButton = false,
+    this.border = BorderSide.none,
+    this.locked = false,
+    this.required = false,
+    this.validator,
+    this.prefix,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.suffix,
+    required this.onChanged,
+    this.autofocus = false,
+    this.isPassword = false,
+    this.readOnly = false,
+  }) : super(key: key);
+
+  @override
+  State<MyDatePicker> createState() => _MyDatePickerState();
+}
+
+class _MyDatePickerState extends State<MyDatePicker> {
+  String? _errorMsg;
+  bool obscureText = false;
+  TextEditingController? controller;
+
+  @override
+  void didUpdateWidget(covariant MyDatePicker oldWidget) {
+    if (widget.value != oldWidget.value) {
+      controller?.text = widget.value?.format_yyyyMMdd ?? '';
+    }
+
+    // setState(() {});
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void initState() {
+    if (mounted) {
+      if (widget.controller != null) {
+        controller = widget.controller;
+      } else {
+        controller = TextEditingController();
+      }
+      controller!.text = widget.value.format_yyyyMMdd;
+      controller!.addListener(() {
+        _errorMsg = widget.validator?.call(widget.controller!.text);
+      });
+      obscureText = widget.isPassword;
+      super.initState();
+    }
+  }
+
+  @override
+  void dispose() {
+    // if(mounted) {
+    //   widget.controller?.removeListener(() { });
+    // }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (context.isDesktop) {
+          showDatePicker(context: context, initialDate: widget.value ?? DateTime.now(), firstDate: widget.min ?? DateTime(1900), lastDate: widget.max ?? DateTime(3000)).then((v) {
+            widget.onChanged(v);
+            controller?.text = v?.format_HHmm ?? '';
+          });
+        } else {
+          showBoardDateTimePicker(
+            context: context,
+            initialDate: widget.value ?? DateTime.now(),
+            pickerType: DateTimePickerType.date,
+            maximumDate: widget.max ?? DateTime(3000),
+            minimumDate: widget.min ?? DateTime(1900),
+            // headerWidget: MyTextField(),
+            options: BoardDateTimeOptions(boardTitle: widget.label),
+          ).then((v) {
+            widget.onChanged(v);
+            if (v == null) return;
+            controller?.text = v.format_yyyyMMdd ?? '';
+          });
+        }
+        // showDatePicker(
+        //   context: context,
+        //
+        //   firstDate:widget.min?? DateTime(1900),
+        //   lastDate:widget.max?? DateTime(3000),
+        //   currentDate: widget.value,
+        //   initialEntryMode: widget.mode,
+        //   keyboardType: const TextInputType.numberWithOptions(signed: true)
+        // ).then((v) {
+        //
+        //   widget.onChanged(v);
+        //   if(v == null) return;
+        //   controller?.text = v?.format_yyyyMMdd ?? '';
+        // });
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Row(
+              children: [
+                Text(
+                  widget.label ?? '',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
+                ),
+                const SizedBox(width: 4),
+                widget.required
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: const Icon(Icons.star_rate_rounded, color: Colors.black, size: 8),
+                      )
+                    : const SizedBox(),
+              ],
+            ),
+          ),
+          Container(
+            height: widget.height,
+            child: TextField(
+              enabled: false,
+              obscureText: obscureText,
+              style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.only(left: 8, right: 8),
+                fillColor: Colors.white,
+                filled: true,
+                hintText: widget.placeholder,
+                hintStyle: const TextStyle(color: Color(0xffb9b9b9), fontWeight: FontWeight.w400),
+                border: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
+                disabledBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
+                focusedBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
+                suffix: const Icon(Icons.date_range, color: Colors.black, size: 12),
+              ),
+              controller: controller,
+            ),
+          ),
+        ],
+      ),
+    );
+    // return SizedBox(
+    //   height: widget.height,
+    //   child: IntrinsicHeight(
+    //     child: Stack(
+    //       children: [
+    //         TextFormField(
+    //           enabled: !widget.locked,
+    //           onFieldSubmitted: widget.onSubmit,
+    //           inputFormatters: widget.inputFormatters,
+    //           maxLength: widget.maxLength,
+    //           controller: widget.controller,
+    //           focusNode: widget.focusNode,
+    //           style: TextStyle(fontSize: widget.fontSize),
+    //           obscureText: obscureText,
+    //           // onChanged: widget.onChanged,
+    //           decoration: InputDecoration(
+    //             fillColor: Colors.white,
+    //             filled: true,
+    //             hintText: widget.placeholder,
+    //             prefixIcon: widget.prefixIcon,
+    //             prefix: widget.prefix,
+    //             suffix: widget.suffix,
+    //             hintStyle: const TextStyle(color: Colors.black26, fontSize: 12),
+    //             suffixIcon: widget.locked
+    //                 ? const Icon(Icons.lock)
+    //                 : Row(
+    //                     mainAxisSize: MainAxisSize.min,
+    //                     children: [
+    //                       widget.isPassword
+    //                           ? GestureDetector(
+    //                               onTap: () {
+    //                                 obscureText = !obscureText;
+    //                                 setState(() {});
+    //                               },
+    //                               child: Icon(obscureText ? Ionicons.eye : Ionicons.eye_off, size: 20))
+    //                           : const SizedBox(),
+    //                       widget.suffixIcon ?? const SizedBox(),
+    //                       widget.showClearButton
+    //                           ? GestureDetector(
+    //                               child: const Icon(Icons.clear),
+    //                               onTap: () {
+    //                                 widget.controller?.clear();
+    //                               },
+    //                             )
+    //                           : const SizedBox()
+    //                     ],
+    //                   ),
+    //             counterText: '',
+    //             label: widget.label == null
+    //                 ? null
+    //                 : widget.required
+    //                     ? Row(
+    //                         mainAxisSize: MainAxisSize.min,
+    //                         children: [
+    //                           Text(widget.label ?? ''),
+    //                           const SizedBox(width: 4),
+    //                           const Icon(Icons.circle, color: Colors.red, size: 7.5),
+    //                         ],
+    //                       )
+    //                     : Text(widget.label!),
+    //             // hintText: widget.label,
+    //             errorText: null,
+    //             // border: OutlineInputBorder(),
+    //             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    //             border: MaterialStateOutlineInputBorder.resolveWith(
+    //               (states) {
+    //                 Color borderColor = MyColors.black;
+    //                 double borderWidth = 1;
+    //                 if (_errorMsg != null) {
+    //                   borderColor = MyColors.red;
+    //                   borderWidth = 2;
+    //                   return OutlineInputBorder(borderSide: BorderSide(color: borderColor, width: borderWidth));
+    //                 }
+    //                 if (states.isEmpty) return const OutlineInputBorder(borderSide: BorderSide(color: Colors.black26));
+    //                 if (states.contains(MaterialState.disabled)) {
+    //                   borderColor = MyColors.greyBG;
+    //                   borderWidth = 1;
+    //                   return OutlineInputBorder(borderSide: BorderSide(color: borderColor, width: borderWidth));
+    //                 }
+    //                 if (states.contains(MaterialState.error) || _errorMsg != null) {
+    //                   borderColor = MyColors.red;
+    //                   borderWidth = 2;
+    //                   return OutlineInputBorder(borderSide: BorderSide(color: borderColor, width: borderWidth));
+    //                 }
+    //                 if (states.contains(MaterialState.focused)) {
+    //                   borderColor = MyColors.boardingBlue;
+    //                   borderWidth = 2;
+    //                   return OutlineInputBorder(borderSide: BorderSide(color: borderColor, width: borderWidth));
+    //                 }
+    //                 if (states.contains(MaterialState.hovered)) {
+    //                   borderColor = MyColors.black1;
+    //                   borderWidth = 1.5;
+    //                   return OutlineInputBorder(borderSide: BorderSide(color: borderColor, width: borderWidth));
+    //                 }
+    //                 return OutlineInputBorder(borderSide: BorderSide(color: borderColor, width: borderWidth));
+    //               },
+    //             ),
+    //           ),
+    //         ),
+    //         Align(
+    //           alignment: Alignment.bottomRight,
+    //           child: Padding(
+    //             padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
+    //             child: Text(
+    //               _errorMsg ?? '',
+    //               style: const TextStyle(color: Colors.red, fontSize: 12),
+    //             ),
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   ),
+    // );
+  }
+}
