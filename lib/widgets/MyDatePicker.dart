@@ -1,4 +1,5 @@
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 
 // import 'package:mdcs/core/utils_and_services/time_picker/src/board_datetime_widget.dart';
@@ -7,6 +8,7 @@ import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:intl/intl.dart';
 
 import '../core/constants/ui.dart';
 import '../core/utils_and_services/time_picker/board_datetime_picker.dart';
@@ -100,7 +102,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
   @override
   void didUpdateWidget(covariant MyDatePicker oldWidget) {
     if (widget.value != oldWidget.value) {
-      controller?.text = widget.value?.format_yyyyMMdd ?? '';
+      controller?.text = widget.value?.format_yyMMddSlash ?? '';
     }
 
     // setState(() {});
@@ -116,7 +118,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
       } else {
         controller = TextEditingController();
       }
-      controller!.text = widget.value.format_yyyyMMdd;
+      controller!.text = widget.value.format_yyMMddSlash;
       controller!.addListener(() {
         _errorMsg = widget.validator?.call(widget.controller!.text);
       });
@@ -154,7 +156,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
           ).then((v) {
             widget.onChanged(v);
             if (v == null) return;
-            controller?.text = v.format_yyyyMMdd ?? '';
+            controller?.text = v.format_yyMMddSlash ?? '';
           });
         }
         // showDatePicker(
@@ -169,51 +171,29 @@ class _MyDatePickerState extends State<MyDatePicker> {
         //
         //   widget.onChanged(v);
         //   if(v == null) return;
-        //   controller?.text = v?.format_yyyyMMdd ?? '';
+        //   controller?.text = v?.format_yyMMddSlash ?? '';
         // });
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              children: [
-                Text(
-                  widget.label ?? '',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
-                ),
-                const SizedBox(width: 4),
-                widget.required
-                    ? Padding(
-                        padding: const EdgeInsets.only(bottom: 4.0),
-                        child: const Icon(Icons.star_rate_rounded, color: Colors.black, size: 8),
-                      )
-                    : const SizedBox(),
-              ],
-            ),
-          ),
-          Container(
-            height: widget.height,
-            child: TextField(
-              enabled: false,
-              obscureText: obscureText,
-              style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.only(left: 8, right: 8),
-                fillColor: Colors.white,
-                filled: true,
-                hintText: widget.placeholder,
-                hintStyle: const TextStyle(color: Color(0xffb9b9b9), fontWeight: FontWeight.w400),
-                border: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-                disabledBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-                focusedBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-                suffix: const Icon(Icons.date_range, color: Colors.black, size: 12),
-              ),
-              controller: controller,
-            ),
-          ),
-        ],
+      child: Container(
+        height: widget.height,
+        child: MyTextField(
+          disabled: true,
+          label: widget.label,
+          labelInRow: true,
+          style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
+          // decoration: InputDecoration(
+          //   contentPadding: EdgeInsets.only(left: 8, right: 8),
+          //   fillColor: Colors.white,
+          //   filled: true,
+          //   hintText: widget.placeholder,
+          //   hintStyle: const TextStyle(color: Color(0xffb9b9b9), fontWeight: FontWeight.w400),
+          //   border: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
+          //   disabledBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
+          //   focusedBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
+          //   suffix: const Icon(Icons.date_range, color: Colors.black, size: 12),
+          // ),
+          controller: controller,
+        ),
       ),
     );
     // return SizedBox(
@@ -329,5 +309,14 @@ class _MyDatePickerState extends State<MyDatePicker> {
     //     ),
     //   ),
     // );
+  }
+}
+
+extension Formm on DateTime? {
+  String get format_yyMMdd {
+    return this == null ? "" : DateFormat("yy-MM-dd").format(this!);
+  }
+  String get format_yyMMddSlash {
+    return this == null ? "" : DateFormat("yy/MM/dd").format(this!);
   }
 }

@@ -79,7 +79,7 @@ class Location {
   };
 
   @override
-  String toString() => "$code3 ($name)";
+  String toString() => "$code3";
 
   @override
   bool operator ==(Object other) =>

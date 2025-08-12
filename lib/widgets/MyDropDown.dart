@@ -88,7 +88,7 @@ class _MyDropDownState extends State<MyDropDown> {
                     const SizedBox(width: 4),
                     widget.required?Padding(
                       padding: const EdgeInsets.only(bottom: 4.0),
-                      child: const Icon(Icons.star_rate_rounded,color: Colors.black,size: 8,),
+                      child: const Icon(Icons.star_rate_rounded,color: Colors.red,size: 8,),
                     ):const SizedBox()
                   ],
                 ),

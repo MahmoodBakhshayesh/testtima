@@ -1,3 +1,4 @@
+import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
