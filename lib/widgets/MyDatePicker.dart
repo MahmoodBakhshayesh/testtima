@@ -178,9 +178,13 @@ class _MyDatePickerState extends State<MyDatePicker> {
         height: widget.height,
         child: MyTextField(
           disabled: true,
-          label: widget.label,
+          label: widget.label?.replaceAll(" Date", ''),
           labelInRow: true,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Icon(Icons.date_range,size: 15,),
+          ),
           // decoration: InputDecoration(
           //   contentPadding: EdgeInsets.only(left: 8, right: 8),
           //   fillColor: Colors.white,
