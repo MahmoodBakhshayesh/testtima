@@ -12,7 +12,8 @@ class HomeController extends ControllerInterface {
 
   void clear() {
     ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
-    ref.read(documentProvider.notifier).update((s) => [DocumentDetail()]);
+    ref.read(visasProvider.notifier).update((s) => [DocumentDetail()]);
+    ref.read(passportsProvider.notifier).update((s) => [DocumentDetail()]);
     ref.read(segmentsProvider.notifier).update((s) => [ItinerarySegment.empty()]);
   }
   // UseCase UseCase = UseCase(repository: Repository());

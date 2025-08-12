@@ -37,7 +37,9 @@ class HomeViewPhone extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timaticRes = ref.watch(timaticResultProvider);
     final tim = BasicClass.timData;
-    final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
+    // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
+    final List<DocumentDetail> passports = ref.watch(passportsProvider);
+    final List<DocumentDetail> visas = ref.watch(visasProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     bool resultMode = timaticRes != null;
@@ -390,9 +392,9 @@ class HomeViewPhone extends ConsumerWidget {
                         Builder(
                           builder: (context) {
                             return Column(
-                              children: documentDetails.map((d) {
-                                int index = documentDetails.indexOf(d);
-                                bool isLast = documentDetails.length == index + 1;
+                              children: passports.map((d) {
+                                int index = passports.indexOf(d);
+                                bool isLast = passports.length == index + 1;
                                 bool isFirst = index == 0;
                                 return Container(
                                   decoration: BoxDecoration(
@@ -415,7 +417,7 @@ class HomeViewPhone extends ConsumerWidget {
                                             label: "Passport",
                                             icon: Icons.add_circle_outline,
                                             onPressed: () {
-                                              ref.read(documentProvider.notifier).update((s) => [...s, DocumentDetail()]);
+                                              ref.read(passportsProvider.notifier).update((s) => [...s, DocumentDetail()]);
                                             },
                                             textColor: Colors.blueAccent,
                                             color: Colors.blueAccent.withOpacity(0.1),
@@ -443,7 +445,7 @@ class HomeViewPhone extends ConsumerWidget {
                                                 color: Colors.red,
                                                 flat: true,
                                                 onPressed: () {
-                                                  ref.read(documentProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                                  ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
                                                 },
                                               ),
                                             ],
@@ -460,7 +462,7 @@ class HomeViewPhone extends ConsumerWidget {
                                                 value: d.documentExpiryDate,
                                                 onChanged: (a) {
                                                   d = d.copyWith(documentExpiryDate: a);
-                                                  ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                  ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                                 },
                                               ),
                                             ),
@@ -493,7 +495,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentCode,
                                               onChange: (a) {
                                                 d = d.copyWith(documentCode: a);
-                                                ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                               },
                                             ),
                                           ),
@@ -506,7 +508,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentFeature,
                                               onChange: (a) {
                                                 d = d.copyWith(documentFeature: a);
-                                                ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                               },
                                             ),
                                           ),
@@ -524,7 +526,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentIssueCountry,
                                               onChange: (a) {
                                                 d = d.copyWith(documentIssueCountry: a);
-                                                ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                               },
                                             ),
                                           ),
@@ -534,7 +536,7 @@ class HomeViewPhone extends ConsumerWidget {
                                             value: d.documentIssueDate,
                                             onChanged: (a) {
                                               d = d.copyWith(documentIssueDate: a);
-                                              ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                              ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                             },
                                           ),)
 
@@ -606,9 +608,9 @@ class HomeViewPhone extends ConsumerWidget {
                         Builder(
                           builder: (context) {
                             return Column(
-                              children: documentDetails.map((d) {
-                                int index = documentDetails.indexOf(d);
-                                bool isLast = documentDetails.length == index + 1;
+                              children: visas.map((d) {
+                                int index = visas.indexOf(d);
+                                bool isLast = visas.length == index + 1;
                                 bool isFirst = index == 0;
                                 return Container(
                                   decoration: BoxDecoration(
@@ -628,10 +630,10 @@ class HomeViewPhone extends ConsumerWidget {
                                           padding: const EdgeInsets.all(8.0),
                                           child: MyButton(
                                             height: 30,
-                                            label: "Passport",
+                                            label: "Visa",
                                             icon: Icons.add_circle_outline,
                                             onPressed: () {
-                                              ref.read(documentProvider.notifier).update((s) => [...s, DocumentDetail()]);
+                                              ref.read(visasProvider.notifier).update((s) => [...s, DocumentDetail()]);
                                             },
                                             textColor: Colors.blueAccent,
                                             color: Colors.blueAccent.withOpacity(0.1),
@@ -659,7 +661,7 @@ class HomeViewPhone extends ConsumerWidget {
                                                 color: Colors.red,
                                                 flat: true,
                                                 onPressed: () {
-                                                  ref.read(documentProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                                  ref.read(visasProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
                                                 },
                                               ),
                                             ],
@@ -676,7 +678,7 @@ class HomeViewPhone extends ConsumerWidget {
                                                 value: d.documentExpiryDate,
                                                 onChanged: (a) {
                                                   d = d.copyWith(documentExpiryDate: a);
-                                                  ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                  ref.read(visasProvider.notifier).update((s) => [...visas]);
                                                 },
                                               ),
                                             ),
@@ -709,7 +711,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentCode,
                                               onChange: (a) {
                                                 d = d.copyWith(documentCode: a);
-                                                ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
                                               },
                                             ),
                                           ),
@@ -722,7 +724,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentFeature,
                                               onChange: (a) {
                                                 d = d.copyWith(documentFeature: a);
-                                                ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
                                               },
                                             ),
                                           ),
@@ -740,7 +742,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentIssueCountry,
                                               onChange: (a) {
                                                 d = d.copyWith(documentIssueCountry: a);
-                                                ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
                                               },
                                             ),
                                           ),
@@ -750,7 +752,7 @@ class HomeViewPhone extends ConsumerWidget {
                                             value: d.documentIssueDate,
                                             onChanged: (a) {
                                               d = d.copyWith(documentIssueDate: a);
-                                              ref.read(documentProvider.notifier).update((s) => [...documentDetails]);
+                                              ref.read(visasProvider.notifier).update((s) => [...visas]);
                                             },
                                           ),)
 
@@ -847,7 +849,7 @@ class HomeViewPhone extends ConsumerWidget {
                           onPressed: () async {
                             final timResult = await myHomeController.timaticApi.submitDocumentRequest(
                               DocumentRequest(
-                                documentDetails: documentDetails,
+                                documentDetails: [...ref.read(passportsProvider),...ref.read(visasProvider)],
                                 itineraryDetails: ItineraryDetails(segments: segments),
                                 passengerDetails: passengerDetails,
                               ),
@@ -1383,44 +1385,44 @@ class ExpiryStatusWidget extends StatelessWidget {
   }
 }
 
-class DocsDataWidget extends ConsumerWidget {
-  DocsDataWidget({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final docs = ref.watch(documentProvider);
-    // if (state.documentDetails.isEmpty) return const SizedBox();
-
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: MyColors.travelDocColor),
-        color: MyColors.travelDocColor.withOpacity(0.10),
-      ),
-      child: ExpansionTile(
-        title: Text("Documents"),
-        children: [
-          ...docs.map((doc) {
-            var index = docs.indexOf(doc);
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // ArtemisCardField(title: "No.", value: (index + 1).toString()),
-                  // ArtemisCardField(title: "Expiry", value: doc.documentExpiryDate?.format_yyyyMMdd ?? ''),
-                  // ArtemisCardField(title: "Issuing Country", value: doc.documentIssueCountry?.code3 ?? ''),
-                  // ArtemisCardField(title: "Nationality", value: doc.nationality?.code3 ?? '-'),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-}
+// class DocsDataWidget extends ConsumerWidget {
+//   DocsDataWidget({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final docs = ref.watch(documentProvider);
+//     // if (state.documentDetails.isEmpty) return const SizedBox();
+//
+//     return Container(
+//       margin: const EdgeInsets.only(top: 8),
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(10),
+//         border: Border.all(color: MyColors.travelDocColor),
+//         color: MyColors.travelDocColor.withOpacity(0.10),
+//       ),
+//       child: ExpansionTile(
+//         title: Text("Documents"),
+//         children: [
+//           ...docs.map((doc) {
+//             var index = docs.indexOf(doc);
+//             return Padding(
+//               padding: const EdgeInsets.only(top: 8.0),
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                 children: [
+//                   // ArtemisCardField(title: "No.", value: (index + 1).toString()),
+//                   // ArtemisCardField(title: "Expiry", value: doc.documentExpiryDate?.format_yyyyMMdd ?? ''),
+//                   // ArtemisCardField(title: "Issuing Country", value: doc.documentIssueCountry?.code3 ?? ''),
+//                   // ArtemisCardField(title: "Nationality", value: doc.nationality?.code3 ?? '-'),
+//                 ],
+//               ),
+//             );
+//           }),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class RegulationWidget extends StatelessWidget {
   late Regulation regulation;

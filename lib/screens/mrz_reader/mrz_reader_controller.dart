@@ -43,7 +43,12 @@ class MrzReaderController extends ControllerInterface {
       birthDate: res.birthDate,
       birthCountry: nationality
     );
-    ref.read(documentProvider.notifier).update((s)=>[documentDetail]);
+    if(res.isPassport){
+      ref.read(passportsProvider.notifier).update((s)=>[documentDetail]);
+    }else{
+      ref.read(visasProvider.notifier).update((s)=>[documentDetail]);
+    }
+
     ref.read(passengerProvider.notifier).update((s)=>passengerDetails);
 
     navigation.pop();

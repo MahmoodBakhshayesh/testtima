@@ -15,7 +15,9 @@ class HomeState extends ChangeNotifier {
 
 
 final timaticResultProvider = StateProvider<DocumentResponse?>((ref) => null);
-final documentProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
+// final documentProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
+final passportsProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
+final visasProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
 final passengerProvider = StateProvider<PassengerDetails>((ref) => PassengerDetails());
 final segmentsProvider = StateProvider<List<ItinerarySegment>>((ref) => [ItinerarySegment.empty()]);
 final documentNumberProvider =  StateProvider<String>((ref) => "");
