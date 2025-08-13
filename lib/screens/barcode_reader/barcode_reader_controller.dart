@@ -21,8 +21,14 @@ class BarcodeReaderController extends ControllerInterface {
       try {
         BoardingPass bp = BoardingPass.fromBarcode(barcode);
         final segment = bp.getFlightLeg;
-
-        ref.read(segmentsProvider.notifier).update((s)=>[segment]);
+        int emptyIndex = ref.read(segmentsProvider).indexWhere((s)=>s.isEmpty);
+        if(emptyIndex == -1){
+          ref.read(segmentsProvider.notifier).update((s)=>[...s,segment]);
+        }else{
+          var current = ref.read(segmentsProvider);
+          current[emptyIndex]=segment;
+          ref.read(segmentsProvider.notifier).update((s)=>[...current]);
+        }
         navigation.pop();
       } catch (e) {
         log(e.toString());

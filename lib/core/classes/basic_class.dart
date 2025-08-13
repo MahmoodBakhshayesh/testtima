@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../classes/config_class.dart';
+import '../constants/ui.dart';
 import '../utils_and_services/settings_class.dart';
 import '../utils_and_services/timatic/artemis_timatic.dart';
 import '../utils_and_services/timatic/src/models/aggregates.dart';
@@ -45,9 +46,9 @@ class BasicClass {
   static Color getColorForEvaluationResult(String evaluationResult) {
     switch (evaluationResult.toUpperCase()) {
       case 'YES':
-        return Colors.green;
+        return MyColors.green2;
       case 'NO':
-        return Colors.redAccent;
+        return MyColors.red;
       case 'CONDITIONAL':
         return Colors.orange;
     }

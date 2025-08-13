@@ -5,7 +5,7 @@ import '../../core/extenstions/context_exp.dart';
 class MyColors {
   MyColors._();
 
-  static const mainColor = Color(0xff001b94);
+  static const mainColor = Color(0xff2A5CFF);
   static const scaffoldBg = Color(0xfff2f3f6);
   static const scaffoldHeader = Color(0xffeaecf2);
   static const shade = Color.fromRGBO(0,0,0,0.12);
@@ -123,7 +123,7 @@ class MyTheme {
 
   static ThemeData lightAbomis(BuildContext con) => ThemeData(
     useMaterial3: true,
-    // fontFamily: "OpenSans",
+    fontFamily: "Inter",
     primaryColor: MyColors.mainColor,
     canvasColor: Colors.transparent,
     brightness: Brightness.light,

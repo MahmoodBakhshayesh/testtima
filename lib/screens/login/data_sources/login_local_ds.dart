@@ -1,3 +1,4 @@
+import '../../../core/interfaces/exception_int.dart';
 import '../../../core/interfaces/local_data_base_int.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';

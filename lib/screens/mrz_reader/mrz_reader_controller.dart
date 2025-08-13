@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
@@ -14,6 +15,9 @@ class MrzReaderController extends ControllerInterface {
 
   void onDocScan(OcrMrzResult res) {
     if (popping) return;
+    // if(!(res.isPassport || res.isVisa)){
+    //   return;
+    // }
     popping = true;
     ParameterValue? docType;
     if (res.isPassport) {
@@ -27,29 +31,43 @@ class MrzReaderController extends ControllerInterface {
     final nationality = BasicClass.getLocationWithCode(res.nationality);
     final issueCountry = BasicClass.getLocationWithCode(res.countryCode);
 
-    log("nationallity ${nationality?.code3} - ${res.nationality};");
-    log("issueCountry ${issueCountry?.code3} - ${res.countryCode};");
     DocumentDetail documentDetail = DocumentDetail(
       documentExpiryDate: res.expiryDate,
       documentIssueCountry: issueCountry,
-      documentCode: docType, fullName: "${res.firstName} ${res.lastName}", documentNumber: res.documentNumber, nationality: nationality,);
-
-
-
-    final gender = Gender.values.firstWhereOrNull((a)=>a.title.startsWith(res.sex));
-    PassengerDetails passengerDetails = PassengerDetails(
+      documentCode: docType,
+      fullName: "${res.firstName} ${res.lastName}",
+      documentNumber: res.documentNumber,
       nationality: nationality,
-      gender: gender,
-      birthDate: res.birthDate,
-      birthCountry: nationality
+      documentFeature: DocumentFeature.mrd,
     );
-    if(res.isPassport){
-      ref.read(passportsProvider.notifier).update((s)=>[documentDetail]);
-    }else{
-      ref.read(visasProvider.notifier).update((s)=>[documentDetail]);
+
+    log("DOC FOUND");
+    log(jsonEncode(documentDetail.toJson()));
+
+
+    final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
+    if (res.isPassport) {
+      int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
+      if (emptyIndex == -1) {
+        ref.read(passportsProvider.notifier).update((s) => [...s, documentDetail]);
+      } else {
+        var current = ref.read(passportsProvider);
+        current[emptyIndex] = documentDetail;
+        ref.read(passportsProvider.notifier).update((s) => [...current]);
+      }
+    } else {
+      int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
+      if (emptyIndex == -1) {
+        ref.read(visasProvider.notifier).update((s) => [...s, documentDetail]);
+      } else {
+        var current = ref.read(visasProvider);
+        current[emptyIndex] = documentDetail;
+        ref.read(visasProvider.notifier).update((s) => [...current]);
+      }
     }
 
-    ref.read(passengerProvider.notifier).update((s)=>passengerDetails);
+    PassengerDetails passengerDetails = PassengerDetails(nationality: nationality, gender: gender, birthDate: res.birthDate, birthCountry: nationality,);
+    ref.read(passengerProvider.notifier).update((s) => passengerDetails);
 
     navigation.pop();
   }

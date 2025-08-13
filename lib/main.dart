@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:tree_navigation/tree_navigation.dart';
 
 import 'core/constants/apis.dart';
 import 'core/constants/assest.dart';
@@ -35,7 +36,7 @@ void main() async {
   };
 
   runZonedGuarded(() {
-    runApp( const ProviderScope(child: MyApp()));
+    runApp(  ProviderScope(child: RouteProvider(child: MyApp())));
   }, (error, stack) {
     _handleError(error, stack);
   });

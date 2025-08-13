@@ -1,5 +1,7 @@
 // auth_response.dart
 
+import '../../../../classes/people_class.dart';
+
 class LoginEnvelope {
   final bool success;
   final int? errorCode;
@@ -52,12 +54,15 @@ class LoginData {
   final bool setPassword;
   final String token;
   final ConstData constData;
+  final List<UserPermission> permissions;
+
 
   const LoginData({
     this.versionCheck,
     required this.profile,
     required this.setPassword,
     required this.token,
+    required this.permissions,
     required this.constData,
   });
 
@@ -67,22 +72,40 @@ class LoginData {
     bool? setPassword,
     String? token,
     ConstData? constData,
+    List<UserPermission>? permissions,
+
   }) {
     return LoginData(
       versionCheck: versionCheck ?? this.versionCheck,
       profile: profile ?? this.profile,
       setPassword: setPassword ?? this.setPassword,
       token: token ?? this.token,
+      permissions: permissions ?? this.permissions,
+
       constData: constData ?? this.constData,
     );
   }
 
   factory LoginData.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> fixedPermissions = json["permissions"]??[];
+    for(var fp in fixedPermissions){
+      Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(fp);
+      fixedPermission["allPermissions"] = json["constData"]["permission"];
+      fp["allPermissions"] = json["constData"]["permission"];
+      fixedPermission.forEach((k,v){
+        if(v is List<dynamic>){
+          for (var a in v) {
+            a["allPermissions"] = json["constData"]["permission"];
+          }
+        }
+      });
+    }
     return LoginData(
       versionCheck: json['versionCheck'],
       profile: Profile.fromJson(json['profile'] ?? {}),
       setPassword: json['setPassword'] ?? false,
       token: json['token'] ?? '',
+      permissions: List<UserPermission>.from((fixedPermissions).map((a)=>UserPermission.fromJson(a))),
       constData: ConstData.fromJson(json['constData'] ?? {}),
     );
   }
@@ -93,6 +116,8 @@ class LoginData {
     'setPassword': setPassword,
     'token': token,
     'constData': constData.toJson(),
+    "permissions": permissions.map((a)=>a.toJson()).toList(),
+
   };
 }
 
@@ -159,44 +184,30 @@ class Profile {
 }
 
 class ConstData {
-  final Map<String, List<PermissionEntry>> permission;
+  AllPermissions userPermissionAttributes;
 
-  const ConstData({required this.permission});
+
+  ConstData({
+    required this.userPermissionAttributes,
+  });
 
   ConstData copyWith({
-    Map<String, List<PermissionEntry>>? permission,
-  }) {
-    return ConstData(
-      permission: permission ?? this.permission,
-    );
-  }
+    AllPermissions? userPermissionAttributes,
 
-  factory ConstData.fromJson(Map<String, dynamic> json) {
-    final permMap = <String, List<PermissionEntry>>{};
-    if (json['permission'] is Map) {
-      (json['permission'] as Map).forEach((key, value) {
-        if (value is List) {
-          permMap[key.toString()] = value
-              .whereType<Map<String, dynamic>>()
-              .map((e) => PermissionEntry.fromJson(e))
-              .toList();
-        }
-      });
-    }
-    return ConstData(permission: permMap);
-  }
+  }) =>
+      ConstData(
+        userPermissionAttributes: userPermissionAttributes ?? this.userPermissionAttributes,
+      );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'permission': permission.map(
-            (key, list) => MapEntry(
-          key,
-          list.map((e) => e.toJson()).toList(),
-        ),
-      ),
-    };
-  }
+  factory ConstData.fromJson(Map<String, dynamic> json) => ConstData(
+    userPermissionAttributes: AllPermissions.fromJson(json["permission"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "permission": userPermissionAttributes.toJson(),
+  };
 }
+
 
 class PermissionEntry {
   final int flag;

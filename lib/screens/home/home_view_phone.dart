@@ -15,10 +15,12 @@ import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/utils_and_services/string_utility.dart';
@@ -32,6 +34,14 @@ class HomeViewPhone extends ConsumerWidget {
   static HomeController myHomeController = getIt<HomeController>();
 
   const HomeViewPhone({super.key});
+
+  Widget countryBuilder(dynamic a) => Row(
+    children: [
+      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      const SizedBox(width: 8),
+      Text("$a (${(a as Location).name})"),
+    ],
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,7 +66,7 @@ class HomeViewPhone extends ConsumerWidget {
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
                         Container(
@@ -71,13 +81,13 @@ class HomeViewPhone extends ConsumerWidget {
                                 child: Text("FLIGHT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
                               ),
                               MyButton(
-                                label: "Scan Boarding Pass",
+                                label: "Scan",
                                 icon: Icons.qr_code_scanner,
                                 onPressed: () {
                                   myHomeController.goNamed(Routes.barcodeReader);
                                 },
-                                color: Colors.white,
-                                textColor: context.mainColor,
+                                textColor: Colors.white,
+                                // textColor: context.mainColor,
                                 borderSide: BorderSide(color: Colors.white),
                                 radius: 12,
                               ),
@@ -136,15 +146,16 @@ class HomeViewPhone extends ConsumerWidget {
                                                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
                                                 ),
                                               ),
-                                              isFirst?SizedBox():
-                                              DotButton(
-                                                icon: Icons.delete,
-                                                color: Colors.red,
-                                                flat: true,
-                                                onPressed: () {
-                                                  ref.read(segmentsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                                },
-                                              ),
+                                              isFirst
+                                                  ? SizedBox()
+                                                  : DotButton(
+                                                      icon: Icons.delete,
+                                                      color: Colors.red,
+                                                      flat: true,
+                                                      onPressed: () {
+                                                        ref.read(segmentsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                                      },
+                                                    ),
                                             ],
                                           ),
                                         ),
@@ -156,7 +167,7 @@ class HomeViewPhone extends ConsumerWidget {
                                                 required: true,
                                                 label: "From",
                                                 placeholder: "City",
-                                                itemToWidget: (dynamic a)=>Text("$a (${(a as Location).name})"),
+                                                itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
                                                 items: tim.locations.of(LocationType.airport),
                                                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
                                                 onChange: (a) {
@@ -174,7 +185,7 @@ class HomeViewPhone extends ConsumerWidget {
                                               child: MyFieldPicker<Location>(
                                                 label: "To",
                                                 placeholder: "City",
-                                                itemToWidget: (dynamic a)=>Text("$a (${(a as Location).name})"),
+                                                itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
                                                 required: true,
                                                 items: tim.locations.of(LocationType.airport),
                                                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
@@ -381,8 +392,8 @@ class HomeViewPhone extends ConsumerWidget {
                                 onPressed: () {
                                   myHomeController.goNamed(Routes.mrzReader);
                                 },
-                                color: Colors.white,
-                                textColor: context.mainColor,
+                                textColor: Colors.white,
+                                // textColor: context.mainColor,
                                 borderSide: BorderSide(color: Colors.white),
                                 radius: 12,
                               ),
@@ -439,15 +450,16 @@ class HomeViewPhone extends ConsumerWidget {
                                                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
                                                 ),
                                               ),
-                                              isFirst?SizedBox():
-                                              DotButton(
-                                                icon: Icons.delete,
-                                                color: Colors.red,
-                                                flat: true,
-                                                onPressed: () {
-                                                  ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                                },
-                                              ),
+                                              isFirst
+                                                  ? SizedBox()
+                                                  : DotButton(
+                                                      icon: Icons.delete,
+                                                      color: Colors.red,
+                                                      flat: true,
+                                                      onPressed: () {
+                                                        ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                                      },
+                                                    ),
                                             ],
                                           ),
                                         ),
@@ -456,12 +468,14 @@ class HomeViewPhone extends ConsumerWidget {
                                           children: [
                                             Expanded(
                                               child: MyDatePicker(
-                                                label: "Expiry Date",
+                                                label: "Expiry",
                                                 required: true,
-                                                placeholder: "Expiry Date",
+                                                placeholder: "Date",
                                                 value: d.documentExpiryDate,
                                                 onChanged: (a) {
                                                   d = d.copyWith(documentExpiryDate: a);
+                                                  passports[index] = d;
+
                                                   ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                                 },
                                               ),
@@ -470,7 +484,9 @@ class HomeViewPhone extends ConsumerWidget {
                                               child: MyFieldPicker<Location>(
                                                 hasSearch: true,
                                                 label: "Nationality",
+                                                required: true,
                                                 placeholder: "Country",
+                                                itemToWidget: countryBuilder,
                                                 items: tim.locations.of(LocationType.country),
                                                 value: passengerDetails.nationality,
                                                 onChange: (a) {
@@ -485,7 +501,7 @@ class HomeViewPhone extends ConsumerWidget {
                                     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
                                     children: [
                                       Row(
-                                        spacing:12,
+                                        spacing: 12,
                                         children: [
                                           Expanded(
                                             child: MyFieldPicker<ParameterValue>(
@@ -495,6 +511,8 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentCode,
                                               onChange: (a) {
                                                 d = d.copyWith(documentCode: a);
+                                                passports[index] = d;
+
                                                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                               },
                                             ),
@@ -508,6 +526,8 @@ class HomeViewPhone extends ConsumerWidget {
                                               value: d.documentFeature,
                                               onChange: (a) {
                                                 d = d.copyWith(documentFeature: a);
+                                                passports[index] = d;
+
                                                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                               },
                                             ),
@@ -522,24 +542,29 @@ class HomeViewPhone extends ConsumerWidget {
                                             child: MyFieldPicker<Location>(
                                               label: "Issuing",
                                               placeholder: "Country",
+                                              itemToWidget: countryBuilder,
                                               items: tim.locations.of(LocationType.country),
                                               value: d.documentIssueCountry,
                                               onChange: (a) {
                                                 d = d.copyWith(documentIssueCountry: a);
+                                                passports[index] = d;
                                                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
                                               },
                                             ),
                                           ),
-                                          Expanded(child: MyDatePicker(
-                                            label: "Issue Date",
-                                            placeholder: "Issue Date",
-                                            value: d.documentIssueDate,
-                                            onChanged: (a) {
-                                              d = d.copyWith(documentIssueDate: a);
-                                              ref.read(passportsProvider.notifier).update((s) => [...passports]);
-                                            },
-                                          ),)
+                                          Expanded(
+                                            child: MyDatePicker(
+                                              label: "Issue Date",
+                                              placeholder: "Issue Date",
+                                              value: d.documentIssueDate,
+                                              onChanged: (a) {
+                                                d = d.copyWith(documentIssueDate: a);
+                                                passports[index] = d;
 
+                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
+                                              },
+                                            ),
+                                          ),
                                         ],
                                       ),
                                       const SizedBox(height: 12),
@@ -548,10 +573,11 @@ class HomeViewPhone extends ConsumerWidget {
                                         children: [
                                           Expanded(
                                             child: MyFieldPicker<Location>(
-                                              label: "Birth",
+                                              label: "Birth Place",
                                               hasSearch: true,
-                                              // placeholder: "Country",
+                                              placeholder: "Country",
                                               items: tim.locations.of(LocationType.country),
+                                              itemToWidget: countryBuilder,
                                               value: passengerDetails.birthCountry,
                                               onChange: (a) {
                                                 ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
@@ -560,6 +586,7 @@ class HomeViewPhone extends ConsumerWidget {
                                           ),
                                           Expanded(
                                             child: MyDatePicker(
+                                              required: true,
                                               label: "Birth Date",
                                               placeholder: "Birth Date",
                                               value: passengerDetails.birthDate,
@@ -568,7 +595,6 @@ class HomeViewPhone extends ConsumerWidget {
                                               },
                                             ),
                                           ),
-
                                         ],
                                       ),
                                     ],
@@ -576,7 +602,6 @@ class HomeViewPhone extends ConsumerWidget {
                                 );
                               }).toList(),
                             );
-
                           },
                         ),
                         const SizedBox(height: 12),
@@ -597,8 +622,8 @@ class HomeViewPhone extends ConsumerWidget {
                                 onPressed: () {
                                   myHomeController.goNamed(Routes.mrzReader);
                                 },
-                                color: Colors.white,
-                                textColor: context.mainColor,
+                                textColor: Colors.white,
+                                // textColor: context.mainColor,
                                 borderSide: BorderSide(color: Colors.white),
                                 radius: 12,
                               ),
@@ -655,15 +680,16 @@ class HomeViewPhone extends ConsumerWidget {
                                                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
                                                 ),
                                               ),
-                                              isFirst?SizedBox():
-                                              DotButton(
-                                                icon: Icons.delete,
-                                                color: Colors.red,
-                                                flat: true,
-                                                onPressed: () {
-                                                  ref.read(visasProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                                },
-                                              ),
+                                              isFirst
+                                                  ? SizedBox()
+                                                  : DotButton(
+                                                      icon: Icons.delete,
+                                                      color: Colors.red,
+                                                      flat: true,
+                                                      onPressed: () {
+                                                        ref.read(visasProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                                      },
+                                                    ),
                                             ],
                                           ),
                                         ),
@@ -672,21 +698,25 @@ class HomeViewPhone extends ConsumerWidget {
                                           children: [
                                             Expanded(
                                               child: MyDatePicker(
-                                                label: "Expiry Date",
+                                                label: "Expiry",
                                                 required: true,
-                                                placeholder: "Expiry Date",
+                                                placeholder: "Date",
                                                 value: d.documentExpiryDate,
                                                 onChanged: (a) {
                                                   d = d.copyWith(documentExpiryDate: a);
+                                                  visas[index] = d;
                                                   ref.read(visasProvider.notifier).update((s) => [...visas]);
+
                                                 },
                                               ),
                                             ),
                                             Expanded(
                                               child: MyFieldPicker<Location>(
                                                 hasSearch: true,
+                                                required: true,
                                                 label: "Nationality",
                                                 placeholder: "Country",
+                                                itemToWidget: countryBuilder,
                                                 items: tim.locations.of(LocationType.country),
                                                 value: passengerDetails.nationality,
                                                 onChange: (a) {
@@ -701,7 +731,7 @@ class HomeViewPhone extends ConsumerWidget {
                                     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
                                     children: [
                                       Row(
-                                        spacing:12,
+                                        spacing: 12,
                                         children: [
                                           Expanded(
                                             child: MyFieldPicker<ParameterValue>(
@@ -739,23 +769,30 @@ class HomeViewPhone extends ConsumerWidget {
                                               label: "Issuing",
                                               placeholder: "Country",
                                               items: tim.locations.of(LocationType.country),
+                                              itemToWidget: countryBuilder,
                                               value: d.documentIssueCountry,
+
                                               onChange: (a) {
                                                 d = d.copyWith(documentIssueCountry: a);
+                                                visas[index] = d;
+                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
+
+                                              },
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: MyDatePicker(
+                                              label: "Issue Date",
+                                              placeholder: "Issue Date",
+                                              value: d.documentIssueDate,
+                                              onChanged: (a) {
+                                                d = d.copyWith(documentIssueDate: a);
+                                                visas[index] = d;
+
                                                 ref.read(visasProvider.notifier).update((s) => [...visas]);
                                               },
                                             ),
                                           ),
-                                          Expanded(child: MyDatePicker(
-                                            label: "Issue Date",
-                                            placeholder: "Issue Date",
-                                            value: d.documentIssueDate,
-                                            onChanged: (a) {
-                                              d = d.copyWith(documentIssueDate: a);
-                                              ref.read(visasProvider.notifier).update((s) => [...visas]);
-                                            },
-                                          ),)
-
                                         ],
                                       ),
                                       const SizedBox(height: 12),
@@ -764,10 +801,12 @@ class HomeViewPhone extends ConsumerWidget {
                                         children: [
                                           Expanded(
                                             child: MyFieldPicker<Location>(
-                                              label: "Birth",
+                                              label: "Birth Place",
                                               hasSearch: true,
+                                              placeholder: "Country",
                                               // placeholder: "Country",
                                               items: tim.locations.of(LocationType.country),
+                                              itemToWidget: countryBuilder,
                                               value: passengerDetails.birthCountry,
                                               onChange: (a) {
                                                 ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
@@ -775,8 +814,11 @@ class HomeViewPhone extends ConsumerWidget {
                                             ),
                                           ),
                                           Expanded(
+
                                             child: MyDatePicker(
                                               label: "Birth Date",
+                                              required: true,
+
                                               placeholder: "Birth Date",
                                               value: passengerDetails.birthDate,
                                               onChanged: (a) {
@@ -784,7 +826,6 @@ class HomeViewPhone extends ConsumerWidget {
                                               },
                                             ),
                                           ),
-
                                         ],
                                       ),
                                     ],
@@ -792,10 +833,8 @@ class HomeViewPhone extends ConsumerWidget {
                                 );
                               }).toList(),
                             );
-
                           },
                         ),
-
                       ],
                     ),
                   ),
@@ -806,7 +845,7 @@ class HomeViewPhone extends ConsumerWidget {
             Container(
               height: 60,
               padding: EdgeInsets.symmetric(horizontal: 12),
-              color: Colors.white,
+              color: MyColors.greyBG,
               child: Row(
                 children: [
                   resultMode
@@ -823,6 +862,7 @@ class HomeViewPhone extends ConsumerWidget {
                         )
                       : MyButton(
                           label: "Clear",
+                          borderSide: BorderSide(color: MyColors.black8),
                           icon: Icons.refresh,
                           onPressed: () {
                             getIt<HomeController>().clear();
@@ -849,7 +889,7 @@ class HomeViewPhone extends ConsumerWidget {
                           onPressed: () async {
                             final timResult = await myHomeController.timaticApi.submitDocumentRequest(
                               DocumentRequest(
-                                documentDetails: [...ref.read(passportsProvider),...ref.read(visasProvider)],
+                                documentDetails: [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a)=>a.documentCode!=null).toList(),
                                 itineraryDetails: ItineraryDetails(segments: segments),
                                 passengerDetails: passengerDetails,
                               ),
@@ -940,6 +980,19 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     trailing: Icon(Icons.info, color: Colors.white),
                                     onTap: () {
                                       showAboutDialog(context: context, applicationName: "ABOMIS Document Check", applicationVersion: "");
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 50,
+                                  width: 200,
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                    dense: true,
+                                    title: Text("User Management", style: TextStyle(color: Colors.white)),
+                                    trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
+                                    onTap: () {
+                                      myHomeController.goNamed(Routes.users);
                                     },
                                   ),
                                 ),
@@ -1209,16 +1262,22 @@ class RuleSetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MyExpansionTile(
-      showFooter: false,
-      title: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: MyColors.greenBg.withOpacity(0.08),
+    return Padding(
+      padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
+      child: MyExpansionTile(
+        showFooter: false,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MyColors.greenBg.withOpacity(0.12)),
+          side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
         ),
-        child: Row(
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
+        ),
+        backgroundColor: ruleSet.getColor.withOpacity(0.08),
+        collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        title: Row(
           children: [
             Expanded(
               child: Text(ruleSet.ruleSetType.name, style: TextStyle(fontWeight: FontWeight.w600)),
@@ -1235,11 +1294,12 @@ class RuleSetWidget extends StatelessWidget {
             ),
           ],
         ),
+        childrenPadding: EdgeInsets.zero,
+        children: [
+          ...ruleSet.regulations.map((r) => RegulationWidget(regulation: r)).toList(),
+          ...ruleSet.documentResults.map((r) => DocumentResultWidget(docRes: r)).toList(),
+        ],
       ),
-      children: [
-        ...ruleSet.regulations.map((r) => RegulationWidget(regulation: r)).toList(),
-        ...ruleSet.documentResults.map((r) => DocumentResultWidget(docRes: r)).toList(),
-      ],
     );
   }
 }
@@ -1518,27 +1578,37 @@ class DocumentResultWidget extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(4),
-      margin: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: MyColors.travelDocColor),
-        color: MyColors.travelDocColor.withOpacity(0.10),
-      ),
+      margin: const EdgeInsets.only(bottom: 12, left: 8, right: 8),
+      // decoration: BoxDecoration(
+      //   borderRadius: BorderRadius.circular(4),
+      //   border: Border.all(color: MyColors.travelDocColor),
+      //   color: MyColors.travelDocColor.withOpacity(0.10),
+      // ),
       child: SizedBox(
         width: width,
         child: Column(
           children:
               <Widget>[] +
               [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(child: Text('Evaluation Result for Document No. ${((docRes.documentIndex ?? 0) + 1)}')),
-                    Text(docRes.evaluationResult.name, style: TextStyle(color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.toString()))),
-                  ],
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: docRes.evaluationResult.getColor.withOpacity(0.4)),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text('Evaluation Result for Document No. ${((docRes.documentIndex ?? 0) + 1)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                      ),
+                      Icon(docRes.evaluationResult.getIcon, size: 15, color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.name.toString())),
+                      Text(docRes.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.name.toString()))),
+                    ],
+                  ),
                 ),
               ] +
-              (docRes.regulations != null ? docRes.regulations!.map((s2) => RegulationWidget(regulation: s2)).toList() : <Widget>[]),
+              (docRes.regulations.map((s2) => RegulationWidget(regulation: s2)).toList()),
         ),
       ),
     );

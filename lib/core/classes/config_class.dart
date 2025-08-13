@@ -27,7 +27,7 @@ class Config {
   );
 
   factory Config.def() {
-    return Config(baseUrl: 'https://databridgecmprs.abomis.com', theme: 'dark', company: 'Abomis');
+    return Config(baseUrl: 'https://timatic.multidcs.com/api/v1', theme: 'dark', company: 'Abomis');
   }
 
   Map<String, dynamic> toJson() => {

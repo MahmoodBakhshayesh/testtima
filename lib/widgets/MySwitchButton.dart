@@ -4,37 +4,50 @@ import '../core/constants/ui.dart';
 
 class MySwitchButton extends StatelessWidget {
   final bool value;
-  final void Function(bool v) onChange;
+  final bool disabled;
+  final void Function(bool v) onChanged;
   final String label;
   final Widget? labelWidget;
   final Color? color;
+  final Color? backgroundColor;
+  final double? height;
+  final EdgeInsetsGeometry? padding;
 
-  const MySwitchButton({Key? key,this.labelWidget, required this.value, required this.onChange, required this.label, this.color}) : super(key: key);
+  const MySwitchButton({super.key, this.labelWidget, required this.value, required this.onChanged, required this.label, this.color, this.padding, this.backgroundColor, this.height = 58, this.disabled=false,});
 
   @override
   Widget build(BuildContext context) {
-
-    return TextButton.icon(
-      style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          backgroundColor: Colors.white,
-          foregroundColor:color?? MyColors.black,
-      ),
-      onPressed: () {
-        onChange(!value);
-      },
-      icon:SizedBox(
-        height: 15,
-        width: 30,
-        child: Transform.scale(
-          scale: 0.75,
-          child: CupertinoSwitch(
-            value: value, onChanged: onChange,activeColor:color?? MyColors.greenishTeal,),
+    return SizedBox(
+      height:height,
+      child: TextButton(
+        style: TextButton.styleFrom(
+          padding: padding ?? EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+          backgroundColor: backgroundColor ?? Colors.white,
+          foregroundColor: color ?? MyColors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
-      ),
-      label: Padding(
-        padding: const EdgeInsets.only(left: 0),
-        child:labelWidget?? Text(label),
+        onPressed:disabled?null: () {
+          onChanged(!value);
+        },
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: labelWidget ?? Text(label),
+            ),
+            SizedBox(
+              child: CupertinoSwitch(
+                value: value,
+
+                onChanged:disabled?null: onChanged,
+                activeColor: color ?? MyColors.green,
+              ),
+            ),
+
+          ],
+        ),
       ),
     );
   }

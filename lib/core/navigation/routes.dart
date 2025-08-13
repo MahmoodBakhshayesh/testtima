@@ -47,6 +47,16 @@ abstract class Routes {
     name: 'barcodeReader',
     isShellRoute: false,
   );
+  static MyRouteInfo users = MyRouteInfo(
+    path: '/users',
+    name: 'users',
+    isShellRoute: false,
+  );
+  static MyRouteInfo addUser = MyRouteInfo(
+    path: '/addUser',
+    name: 'addUser',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,

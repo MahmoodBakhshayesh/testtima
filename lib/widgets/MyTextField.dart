@@ -240,25 +240,27 @@ class _MyTextFieldState extends State<MyTextField> {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          widget.label == null
-              ? const SizedBox()
-              : Row(
+          Expanded(
+            flex: 3,
+            child: widget.label == null
+                ? const SizedBox()
+                : Row(
                   children: [
                     Text(
                       widget.label ?? '',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
                     ),
-                    const SizedBox(width: 4),
                     widget.required
                         ? Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
-                          )
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
+                    )
                         : const SizedBox(),
-                    const SizedBox(width: 4),
                   ],
                 ),
+          ),
           Expanded(
+            flex: 4,
             child: SizedBox(
               height: widget.height,
               child: Center(

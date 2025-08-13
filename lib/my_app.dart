@@ -1,5 +1,7 @@
+import 'package:abds/screens/add_user/add_user_view.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
+import 'package:abds/screens/users/users_view.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,6 +36,8 @@ class _MyAppState extends ConsumerState<MyApp> {
       routeInfoList: Routes.allRoutes,
       routes: [
         TreeRoute(routeInfo: Routes.login, pageWidget: LoginView()),
+        TreeRoute(routeInfo: Routes.users, pageWidget: UsersView()),
+        TreeRoute(routeInfo: Routes.addUser, pageWidget: AddUserView()),
         TreeRoute(
           routeInfo: Routes.home,
           pageWidget: HomeView(),

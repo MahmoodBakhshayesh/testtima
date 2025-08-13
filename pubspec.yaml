@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.3.0+13003
+version: 1.3.0+13005
 
 environment:
   sdk: "3.8.1"
@@ -26,7 +26,9 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  custom_refresh_indicator: ^4.0.1
   go_router: 14.2.0
+  file_picker: ^8.1.2
   get_it: ^8.0.3
   freezed: ^2.5.7
   hooks_riverpod: ^2.6.1
@@ -57,7 +59,9 @@ dependencies:
   google_fonts: ^6.2.1
   percent_indicator: ^4.2.4
   cached_network_image: ^3.4.1
+  image_picker: ^1.1.2
   icons_plus: ^5.0.0
+  http_parser: ^4.1.2
   tree_navigation: ^1.1.1
   ferry: ^0.16.1+2
   gql_http_link: ^1.1.0
@@ -69,9 +73,10 @@ dependencies:
 #  artemis_timatic: ^0.0.12
   dropdown_textfield: ^1.2.0
   flutter_widget_from_html: ^0.17.0
-  ocr_mrz: ^0.0.13
+  ocr_mrz: ^0.0.14
   smart_overlay_menu: ^1.0.3
   dropdown_search: ^6.0.2
+  country_flags: ^3.3.0
 
 
 dev_dependencies:
@@ -108,6 +113,31 @@ flutter:
     - family: BrsIcons
       fonts:
         - asset: assets/fonts/BRSIcons.ttf
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter_18pt-Regular.ttf
+        - asset: assets/fonts/inter/Inter_18pt-Italic.ttf
+          style: italic
+        - asset: assets/fonts/inter/Inter_18pt-Light.ttf
+          weight: 200
+        - asset: assets/fonts/inter/Inter_18pt-LightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: assets/fonts/inter/Inter_18pt-SemiBold.ttf
+          weight: 400
+        - asset: assets/fonts/inter/Inter_18pt-SemiBoldItalic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/inter/Inter_18pt-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/inter/Inter_18pt-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/inter/Inter_18pt-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/inter/Inter_18pt-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
     - family: Consola
       fonts:
         - asset: assets/fonts/consola/Consola.ttf

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,11 +56,13 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
 
   @override
   void initState() {
-    controller = TextEditingController(text: widget.value?.toString()??'');
+    controller = TextEditingController(text: widget.value?.toString() ?? '');
     value.addListener(() {
-      controller.text = value.value.toString() ?? '';
-      widget.onChange?.call(value.value);
-      setState((){});
+      Future(() {
+        controller.text = value.value?.toString() ?? '';
+        widget.onChange?.call(value.value);
+        setState(() {});
+      });
     });
 
     super.initState();
@@ -69,6 +72,17 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
   void dispose() {
     value.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant MyFieldPicker<T> oldWidget) {
+    if (widget.value != oldWidget.value && mounted) {
+      controller.text = widget.value == null ? "" : widget.value.toString();
+      value.value = widget.value;
+      setState(() {});
+    }
+    // controller.dropDownValue =widget.value==null?null: DropDownValueModel(name: widget.value?.toString()??'', value: widget.value, builder: widget.builder);
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -86,20 +100,17 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               builder: (BuildContext context) {
                 return Padding(
                   // This moves content above the keyboard
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child:PickerSheetWidget(items: widget.items, label: widget.placeholder??widget.label??'',itemToWidget: widget.itemToWidget,hasSearch: widget.hasSearch,)
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch),
                 );
-                return PickerSheetWidget(items: widget.items, label: widget.placeholder??widget.label??'',itemToWidget: widget.itemToWidget,hasSearch: widget.hasSearch,);
+                return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
               },
               elevation: 2,
             ).then((v) {
-              if(v!=null) {
+              if (v != null) {
                 dev.log(v.toString());
                 value.value = v;
-                setState((){});
-
+                setState(() {});
               }
             });
           },
@@ -109,7 +120,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               required: widget.required,
               labelInRow: true,
               controller: controller,
-              borderSide: BorderSide(color: Colors.white,width: 1),
+              borderSide: BorderSide(color: Colors.white, width: 1),
               radius: BorderRadius.circular(8),
               label: widget.label,
               placeholder: widget.placeholder,
@@ -135,12 +146,11 @@ class PickerSheetWidget<T> extends StatefulWidget {
 }
 
 class _PickerSheetWidgetState extends State<PickerSheetWidget> {
-
   TextEditingController searchC = TextEditingController();
 
   @override
   void initState() {
-    searchC.addListener(()=>setState((){}));
+    searchC.addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -149,43 +159,50 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
     searchC.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    final items = widget.items.where((a)=>searchC.text.isEmpty || a.toString().toLowerCase().contains(searchC.text.toLowerCase())).toList();
-    items.sort((a,b)=>a.toString().toLowerCase().indexOf(searchC.text.toLowerCase()).compareTo(b.toString().toLowerCase().indexOf(searchC.text.toLowerCase())));
+    final items = widget.items.where((a) => searchC.text.isEmpty || a.toString().toLowerCase().contains(searchC.text.toLowerCase())).toList();
+    items.sort((a, b) => a.toString().toLowerCase().indexOf(searchC.text.toLowerCase()).compareTo(b.toString().toLowerCase().indexOf(searchC.text.toLowerCase())));
 
     return SafeArea(
       child: BottomSheet(
+        backgroundColor: Color(0xffEAECF2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        constraints: BoxConstraints(maxHeight: 250),
+        constraints: BoxConstraints(maxHeight: context.height*0.5),
         onClosing: () {},
         builder: (BuildContext context) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12))
+                ),
                 padding: const EdgeInsets.only(left: 12.0),
                 child: Row(
                   children: [
-                    Expanded(child: Text("Pick ${widget.label}",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)),
-                    CloseButton()
+                    Expanded(
+                      child: Text("Pick ${widget.label}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                    CloseButton(),
                   ],
                 ),
               ),
-              Divider(),
-              widget.hasSearch?Container(
-                decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: MyColors.lineBorderColor))
-                ),
-                child: CupertinoTextField(
-                  padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
-                  controller: searchC,
-                  prefix: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.search),
-                  ),
-                ),
-              ):SizedBox(),
+              // Divider(color: MyColors.black8,),
+              widget.hasSearch
+                  ? Container(
+                      decoration: BoxDecoration(
+                        // border: Border(bottom: BorderSide(color: MyColors.lineBorderColor)),
+                      ),
+                      child: CupertinoTextField(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        controller: searchC,
+                        prefix: Padding(padding: const EdgeInsets.all(8.0), child: Icon(Icons.search)),
+                      ),
+                    )
+                  : SizedBox(),
               Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -193,15 +210,16 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
                   itemBuilder: (c, i) {
                     final item = items[i];
                     return InkWell(
-                      onTap: (){
+                      onTap: () {
                         Navigator.of(context).pop(item);
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          border: Border(bottom: BorderSide(color: MyColors.lineBorderColor))
+                          color: Color(0xffF2F3F6),
+                          border: Border(bottom: BorderSide(color: Colors.white)),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 8),
-                        child: Row(children: [Expanded(child:widget.itemToWidget?.call(item)?? Text(item.toString()))]),
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
+                        child: Row(children: [Expanded(child: widget.itemToWidget?.call(item) ?? Text(item.toString()))]),
                       ),
                     );
                   },

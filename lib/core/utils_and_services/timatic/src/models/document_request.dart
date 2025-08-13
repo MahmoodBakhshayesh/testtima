@@ -123,6 +123,8 @@ class DocumentDetail {
   bool get isExpiring => !isExpired && documentExpiryDate != null && documentExpiryDate!.difference(DateTime.now()).inDays.abs() < 180;
 
   int? get expiryRemain => documentExpiryDate == null ? null : -(DateTime.now().difference(documentExpiryDate!).inDays / 30).floor();
+
+  bool get isEmpty => documentCode == null;
 }
 
 // ---------------- ItineraryDetails ----------------
@@ -199,6 +201,8 @@ class ItinerarySegment {
     );
   }
 
+  bool get isEmpty => departure.point.isEmpty || arrival.point.isEmpty;
+
   Map<String, dynamic> toJson() => {
     'arrival': arrival.toJson(),
     'departure': departure.toJson(),
@@ -207,7 +211,7 @@ class ItinerarySegment {
     'luggageCollected': luggageCollected,
     'purposeOfStay': purposeOfStay?.value,
     'returnOnwardTicket': returnOnwardTicket?.value,
-    'operatingCarrier': operatingCarrier?.toJson(),
+    'operatingCarrier': operatingCarrier?.code,
   };
 }
 

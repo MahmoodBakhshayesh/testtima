@@ -21,14 +21,14 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
   @override
   Future<LoginResponse> login({required LoginRequest request}) async {
     ResponseImplementation res = await networkManager.post(request);
-    LoginResponse loginResponse = await parser.parse(LoginResponse.fromResponse,res);
+    LoginResponse loginResponse = await parser.parse(LoginResponse.fromResponse,res, executionReq: request);
     return loginResponse;
   }
 
   @override
   Future<ServerSelectResponse> serverSelect({required ServerSelectRequest request}) async {
     ResponseImplementation res = await networkManager.post(request);
-    ServerSelectResponse serverSelectResponse = await parser.parse(ServerSelectResponse.fromResponse,res);
+    ServerSelectResponse serverSelectResponse = await parser.parse(ServerSelectResponse.fromResponse,res, executionReq: request);
     return serverSelectResponse;
   }
 }

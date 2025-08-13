@@ -18,7 +18,9 @@ class LoginViewPhone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(backgroundColor: Colors.black54, body: LoginPanel());
+    return const Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.black54, body: LoginPanel());
   }
 }
 
@@ -101,18 +103,17 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
       decoration: BoxDecoration(
         color: MyColors.black8,
         borderRadius: BorderRadius.circular(12),
-        // image: const DecorationImage(
-        //   alignment: Alignment.bottomCenter,
-        //   image: AssetImage(AssetImages.loginBg),
-        //   fit: BoxFit.cover,
-        // ),
+        image: const DecorationImage(
+          alignment: Alignment.bottomCenter,
+          image: AssetImage(AssetImages.loginBg),
+          fit: BoxFit.cover,
+        ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
       child: Column(
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
               borderRadius: BorderRadius.circular(12)
             ),
             padding: const EdgeInsets.only(left: 24, right: 24, top: 0),
@@ -120,10 +121,11 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
             child: ListView(
               shrinkWrap: true,
               children: [
-                const Text("Please Login", style: TextStyles.styleBold16Black),
+                Text("ABOMIS\nDOCUMENT\nCHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36,height: 1,fontWeight: FontWeight.w800)),
                 const SizedBox(height: 32),
                 MyTextField(
                   label: "Username",
+                  borderSide: BorderSide(color: MyColors.lineBorderColor),
                   controller: usernameC,
                   focusNode: usernameFN,
                   onSubmit: (v) {
@@ -133,6 +135,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                 const SizedBox(height: 24),
                 MyTextField(
                   label: "Password",
+                  borderSide: BorderSide(color: MyColors.lineBorderColor),
                   controller: passwordC,
                   focusNode: passwordFN,
                   isPassword: true,

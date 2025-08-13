@@ -1,6 +1,7 @@
 // document_response.dart
 import 'dart:ui';
 
+import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,32 @@ extension EvalResultX on EvalResult {
   }
 
   String toJson() => name.toUpperCase();
+
+  IconData get getIcon {
+    switch(this){
+      case EvalResult.YES:
+        return Icons.check;
+      case EvalResult.NO:
+        return Icons.close;
+      case EvalResult.CONDITIONAL:
+        return Icons.info;
+      case EvalResult.UNKNOWN:
+        return Icons.question_mark;
+    }
+  }
+
+  Color get getColor {
+    switch(this){
+      case EvalResult.YES:
+        return MyColors.green2;
+      case EvalResult.NO:
+       return MyColors.red;
+      case EvalResult.CONDITIONAL:
+        return Colors.orange;
+      case EvalResult.UNKNOWN:
+        return Colors.grey;
+    }
+  }
 }
 
 // -------------------- MODELS --------------------
@@ -190,7 +217,9 @@ class RuleSetEvaluation {
     'regulations': regulations.map((e) => e.toJson()).toList(),
   };
 
-  Color get getColor => applicable ? MyColors.red : MyColors.green2;
+  Color get getColor =>
+      BasicClass.getColorForEvaluationResult(evaluationResult.name);
+      // evaluationResult.name.toLowerCase() == "no" ? MyColors.red : MyColors.green2;
 
   IconData get getIcon => applicable ? Icons.close_outlined : Icons.check;
 }
@@ -207,6 +236,8 @@ class DocumentResult {
   }
 
   Map<String, dynamic> toJson() => {'documentIndex': documentIndex, 'evaluationResult': evaluationResult.toJson(), 'regulations': regulations.map((e) => e.toJson()).toList()};
+
+
 }
 
 class Regulation {

@@ -580,7 +580,6 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
       case TargetPlatform.windows:
         break;
     }
-
     return Semantics(
       hint: semanticsHint,
       onTapHint: onTapHint,
@@ -599,6 +598,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
           // subtitle: _tileController.isExpanded ? SizedBox() : _buildFooter(context, animation),
           trailing: widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation) : null,
           minTileHeight: widget.minTileHeight,
+
           internalAddSemanticForOnTap: widget.internalAddSemanticForOnTap,
         ),
       ),

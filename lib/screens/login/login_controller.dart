@@ -43,7 +43,7 @@ class LoginController extends ControllerInterface {
     final tData = await timaticApi.preloadAll();
     BasicClass.initialize(fakeUser, tData);
     saveLoginData(username: username,password: password);
-    ref.read(userProvider.notifier).update((s)=>fakeUser);
+    ref.read(userProvider.notifier).update((s)=>logRes);
     ref.read(profileProvider.notifier).update((s)=>logRes.profile);
     navigation.goNamed(Routes.home);
     return fakeUser;
