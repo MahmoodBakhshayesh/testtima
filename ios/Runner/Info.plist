@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>In order to scan Documents</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>In order to set Profile picture</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>In order to scan Documents</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
