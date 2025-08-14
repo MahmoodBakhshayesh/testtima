@@ -6,6 +6,7 @@ import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/navigation/routes.dart';
+import 'package:abds/core/utils_and_services/stateControllers/document_details_state_controller.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/widgets/DotButton.dart';
@@ -17,12 +18,14 @@ import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../../core/utils_and_services/string_utility.dart';
 import '../../core/utils_and_services/timatic/artemis_timatic.dart';
 import '../../initialize.dart';
@@ -48,6 +51,7 @@ class HomeViewPhone extends ConsumerWidget {
     final timaticRes = ref.watch(timaticResultProvider);
     final tim = BasicClass.timData;
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
+    // final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> visas = ref.watch(visasProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
@@ -251,127 +255,6 @@ class HomeViewPhone extends ConsumerWidget {
                                 );
                               }).toList(),
                             );
-                            // return MyExpansionTile(
-                            //   backgroundColor: MyColors.scaffoldBg,
-                            //   collapsedBackgroundColor: MyColors.scaffoldBg,
-                            //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(12))),
-                            //   collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(bottom: Radius.circular(12))),
-                            //   tilePadding: EdgeInsets.symmetric(horizontal: 14),
-                            //   footerExtra: Padding(
-                            //     padding: const EdgeInsets.all(8.0),
-                            //     child: MyButton(
-                            //       height: 30,
-                            //       label: "Transit",
-                            //       icon: Icons.add_circle_outline,
-                            //       onPressed: () {
-                            //         ref.read(segmentsProvider.notifier).update((s) => [...s, ItinerarySegment.empty()]);
-                            //       },
-                            //       textColor: Colors.blueAccent,
-                            //       color: Colors.blueAccent.withOpacity(0.1),
-                            //     ),
-                            //   ),
-                            //   title: Column(
-                            //     crossAxisAlignment: CrossAxisAlignment.start,
-                            //     children: [
-                            //       Padding(
-                            //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            //         child: Text(
-                            //           "FLIGHT ${index + 1}",
-                            //           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-                            //         ),
-                            //       ),
-                            //       Row(
-                            //         spacing: 12,
-                            //         children: [
-                            //           Expanded(
-                            //             child: MyFieldPicker<Location>(
-                            //               required: true,
-                            //               label: "From",
-                            //               placeholder: "City",
-                            //               items: tim.locations.of(LocationType.airport),
-                            //               value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
-                            //               onChange: (a) {
-                            //                 if (a is Location) {
-                            //                   final update = seg.departure.copyWith(point: a.code3);
-                            //                   seg = seg.copyWith(departure: update);
-                            //                   final ul = [...segments];
-                            //                   ul[index] = seg;
-                            //                   ref.read(segmentsProvider.notifier).update((s) => ul);
-                            //                 }
-                            //               },
-                            //             ),
-                            //           ),
-                            //           Expanded(
-                            //             child: MyFieldPicker<Location>(
-                            //               label: "To",
-                            //               placeholder: "City",
-                            //               required: true,
-                            //               items: tim.locations.of(LocationType.airport),
-                            //               value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
-                            //               onChange: (a) {
-                            //                 if (a is Location) {
-                            //                   final update = seg.arrival.copyWith(point: a.code3);
-                            //                   seg = seg.copyWith(arrival: update);
-                            //                   final ul = [...segments];
-                            //                   ul[index] = seg;
-                            //                   ref.read(segmentsProvider.notifier).update((s) => ul);
-                            //                 }
-                            //               },
-                            //             ),
-                            //           ),
-                            //         ],
-                            //       ),
-                            //     ],
-                            //   ),
-                            //   childrenPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                            //   children: segments.map((seg) {
-                            //     int index = segments.indexOf(seg);
-                            //     return Column(
-                            //       spacing: 8,
-                            //       children: [
-                            //         Row(
-                            //           spacing: 12,
-                            //           children: [
-                            //             Expanded(
-                            //               child: MyDatePicker(
-                            //                 label: "Departure",
-                            //                 placeholder: "Date",
-                            //                 value: seg.departure.dateTime,
-                            //                 onChanged: (a) {
-                            //                   seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
-                            //                   log(jsonEncode(seg.toJson()));
-                            //                   ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                            //                 },
-                            //               ),
-                            //             ),
-                            //             Expanded(
-                            //               child: MyDatePicker(
-                            //                 label: "Arrival",
-                            //                 placeholder: "Date",
-                            //                 value: seg.arrival.dateTime,
-                            //                 onChanged: (a) {
-                            //                   seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
-                            //                   ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                            //                 },
-                            //               ),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //         MyFieldPicker<ParameterValue>(
-                            //           label: "Operating Carrier",
-                            //           placeholder: "Airline",
-                            //           items: tim.params.of(ParameterType.carrier),
-                            //           value: seg.operatingCarrier,
-                            //           onChange: (a) {
-                            //             seg = seg.copyWith(operatingCarrier: a);
-                            //             log(jsonEncode(seg.toJson()));
-                            //             ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                            //           },
-                            //         ),
-                            //       ],
-                            //     );
-                            //   }).toList(),
-                            // );
                           },
                         ),
                         const SizedBox(height: 12),
@@ -407,199 +290,200 @@ class HomeViewPhone extends ConsumerWidget {
                                 int index = passports.indexOf(d);
                                 bool isLast = passports.length == index + 1;
                                 bool isFirst = index == 0;
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(bottom: BorderSide(color: Colors.white)),
-                                  ),
-                                  child: MyExpansionTile(
-                                    backgroundColor: MyColors.scaffoldBg,
-                                    collapsedBackgroundColor: MyColors.scaffoldBg,
-                                    footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
-                                    shape: RoundedRectangleBorder(),
-                                    collapsedShape: RoundedRectangleBorder(),
-                                    tilePadding: EdgeInsets.symmetric(horizontal: 14),
-                                    footerExtra: IndexedStack(
-                                      index: isLast ? 0 : 1,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: MyButton(
-                                            height: 30,
-                                            label: "Passport",
-                                            icon: Icons.add_circle_outline,
-                                            onPressed: () {
-                                              ref.read(passportsProvider.notifier).update((s) => [...s, DocumentDetail()]);
-                                            },
-                                            textColor: Colors.blueAccent,
-                                            color: Colors.blueAccent.withOpacity(0.1),
-                                          ),
-                                        ),
-                                        SizedBox(),
-                                      ],
-                                    ),
-                                    title: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  "DOCUMENT ${index + 1}",
-                                                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-                                                ),
-                                              ),
-                                              isFirst
-                                                  ? SizedBox()
-                                                  : DotButton(
-                                                      icon: Icons.delete,
-                                                      color: Colors.red,
-                                                      flat: true,
-                                                      onPressed: () {
-                                                        ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                                      },
-                                                    ),
-                                            ],
-                                          ),
-                                        ),
-                                        Row(
-                                          spacing: 12,
-                                          children: [
-                                            Expanded(
-                                              child: MyDatePicker(
-                                                label: "Expiry",
-                                                required: true,
-                                                placeholder: "Date",
-                                                value: d.documentExpiryDate,
-                                                onChanged: (a) {
-                                                  d = d.copyWith(documentExpiryDate: a);
-                                                  passports[index] = d;
-
-                                                  ref.read(passportsProvider.notifier).update((s) => [...passports]);
-                                                },
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: MyFieldPicker<Location>(
-                                                hasSearch: true,
-                                                label: "Nationality",
-                                                required: true,
-                                                placeholder: "Country",
-                                                itemToWidget: countryBuilder,
-                                                items: tim.locations.of(LocationType.country),
-                                                value: passengerDetails.nationality,
-                                                onChange: (a) {
-                                                  ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
-                                    children: [
-                                      Row(
-                                        spacing: 12,
-                                        children: [
-                                          Expanded(
-                                            child: MyFieldPicker<ParameterValue>(
-                                              label: "Code",
-                                              placeholder: "Code",
-                                              items: tim.params.of(ParameterType.documentCode),
-                                              value: d.documentCode,
-                                              onChange: (a) {
-                                                d = d.copyWith(documentCode: a);
-                                                passports[index] = d;
-
-                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: MyFieldPicker<DocumentFeature>(
-                                              hasSearch: false,
-                                              label: "Feature",
-                                              placeholder: "Feature",
-                                              items: DocumentFeature.values,
-                                              value: d.documentFeature,
-                                              onChange: (a) {
-                                                d = d.copyWith(documentFeature: a);
-                                                passports[index] = d;
-
-                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        spacing: 12,
-                                        children: [
-                                          Expanded(
-                                            child: MyFieldPicker<Location>(
-                                              label: "Issuing",
-                                              placeholder: "Country",
-                                              itemToWidget: countryBuilder,
-                                              items: tim.locations.of(LocationType.country),
-                                              value: d.documentIssueCountry,
-                                              onChange: (a) {
-                                                d = d.copyWith(documentIssueCountry: a);
-                                                passports[index] = d;
-                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: MyDatePicker(
-                                              label: "Issue Date",
-                                              placeholder: "Issue Date",
-                                              value: d.documentIssueDate,
-                                              onChanged: (a) {
-                                                d = d.copyWith(documentIssueDate: a);
-                                                passports[index] = d;
-
-                                                ref.read(passportsProvider.notifier).update((s) => [...passports]);
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        spacing: 12,
-                                        children: [
-                                          Expanded(
-                                            child: MyFieldPicker<Location>(
-                                              label: "Birth Place",
-                                              hasSearch: true,
-                                              placeholder: "Country",
-                                              items: tim.locations.of(LocationType.country),
-                                              itemToWidget: countryBuilder,
-                                              value: passengerDetails.birthCountry,
-                                              onChange: (a) {
-                                                ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: MyDatePicker(
-                                              required: true,
-                                              label: "Birth Date",
-                                              placeholder: "Birth Date",
-                                              value: passengerDetails.birthDate,
-                                              onChanged: (a) {
-                                                ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
+                                return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: false);
+                                // return Container(
+                                //   decoration: BoxDecoration(
+                                //     border: Border(bottom: BorderSide(color: Colors.white)),
+                                //   ),
+                                //   child: MyExpansionTile(
+                                //     backgroundColor: MyColors.scaffoldBg,
+                                //     collapsedBackgroundColor: MyColors.scaffoldBg,
+                                //     footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+                                //     shape: RoundedRectangleBorder(),
+                                //     collapsedShape: RoundedRectangleBorder(),
+                                //     tilePadding: EdgeInsets.symmetric(horizontal: 14),
+                                //     footerExtra: IndexedStack(
+                                //       index: isLast ? 0 : 1,
+                                //       children: [
+                                //         Padding(
+                                //           padding: const EdgeInsets.all(8.0),
+                                //           child: MyButton(
+                                //             height: 30,
+                                //             label: "Passport",
+                                //             icon: Icons.add_circle_outline,
+                                //             onPressed: () {
+                                //               ref.read(passportsProvider.notifier).update((s) => [...s, DocumentDetail()]);
+                                //             },
+                                //             textColor: Colors.blueAccent,
+                                //             color: Colors.blueAccent.withOpacity(0.1),
+                                //           ),
+                                //         ),
+                                //         SizedBox(),
+                                //       ],
+                                //     ),
+                                //     title: Column(
+                                //       crossAxisAlignment: CrossAxisAlignment.start,
+                                //       children: [
+                                //         Padding(
+                                //           padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                //           child: Row(
+                                //             children: [
+                                //               Expanded(
+                                //                 child: Text(
+                                //                   "DOCUMENT ${index + 1}",
+                                //                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                                //                 ),
+                                //               ),
+                                //               isFirst
+                                //                   ? SizedBox()
+                                //                   : DotButton(
+                                //                       icon: Icons.delete,
+                                //                       color: Colors.red,
+                                //                       flat: true,
+                                //                       onPressed: () {
+                                //                         ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                //                       },
+                                //                     ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //         Row(
+                                //           spacing: 12,
+                                //           children: [
+                                //             Expanded(
+                                //               child: MyDatePicker(
+                                //                 label: "Expiry",
+                                //                 required: true,
+                                //                 placeholder: "Date",
+                                //                 value: d.documentExpiryDate,
+                                //                 onChanged: (a) {
+                                //                   d = d.copyWith(documentExpiryDate: a);
+                                //                   passports[index] = d;
+                                //
+                                //                   ref.read(passportsProvider.notifier).update((s) => [...passports]);
+                                //                 },
+                                //               ),
+                                //             ),
+                                //             Expanded(
+                                //               child: MyFieldPicker<Location>(
+                                //                 hasSearch: true,
+                                //                 label: "Nationality",
+                                //                 required: true,
+                                //                 placeholder: "Country",
+                                //                 itemToWidget: countryBuilder,
+                                //                 items: tim.locations.of(LocationType.country),
+                                //                 value: passengerDetails.nationality,
+                                //                 onChange: (a) {
+                                //                   ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                                //                 },
+                                //               ),
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       ],
+                                //     ),
+                                //     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+                                //     children: [
+                                //       Row(
+                                //         spacing: 12,
+                                //         children: [
+                                //           Expanded(
+                                //             child: MyFieldPicker<ParameterValue>(
+                                //               label: "Code",
+                                //               placeholder: "Code",
+                                //               items: tim.params.of(ParameterType.documentCode),
+                                //               value: d.documentCode,
+                                //               onChange: (a) {
+                                //                 d = d.copyWith(documentCode: a);
+                                //                 passports[index] = d;
+                                //
+                                //                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //           Expanded(
+                                //             child: MyFieldPicker<DocumentFeature>(
+                                //               hasSearch: false,
+                                //               label: "Feature",
+                                //               placeholder: "Feature",
+                                //               items: DocumentFeature.values,
+                                //               value: d.documentFeature,
+                                //               onChange: (a) {
+                                //                 d = d.copyWith(documentFeature: a);
+                                //                 passports[index] = d;
+                                //
+                                //                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //       const SizedBox(height: 12),
+                                //       Row(
+                                //         spacing: 12,
+                                //         children: [
+                                //           Expanded(
+                                //             child: MyFieldPicker<Location>(
+                                //               label: "Issuing",
+                                //               placeholder: "Country",
+                                //               itemToWidget: countryBuilder,
+                                //               items: tim.locations.of(LocationType.country),
+                                //               value: d.documentIssueCountry,
+                                //               onChange: (a) {
+                                //                 d = d.copyWith(documentIssueCountry: a);
+                                //                 passports[index] = d;
+                                //                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //           Expanded(
+                                //             child: MyDatePicker(
+                                //               label: "Issue Date",
+                                //               placeholder: "Issue Date",
+                                //               value: d.documentIssueDate,
+                                //               onChanged: (a) {
+                                //                 d = d.copyWith(documentIssueDate: a);
+                                //                 passports[index] = d;
+                                //
+                                //                 ref.read(passportsProvider.notifier).update((s) => [...passports]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //       const SizedBox(height: 12),
+                                //       Row(
+                                //         spacing: 12,
+                                //         children: [
+                                //           Expanded(
+                                //             child: MyFieldPicker<Location>(
+                                //               label: "Birth Place",
+                                //               hasSearch: true,
+                                //               placeholder: "Country",
+                                //               items: tim.locations.of(LocationType.country),
+                                //               itemToWidget: countryBuilder,
+                                //               value: passengerDetails.birthCountry,
+                                //               onChange: (a) {
+                                //                 ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                                //               },
+                                //             ),
+                                //           ),
+                                //           Expanded(
+                                //             child: MyDatePicker(
+                                //               required: true,
+                                //               label: "Birth Date",
+                                //               placeholder: "Birth Date",
+                                //               value: passengerDetails.birthDate,
+                                //               onChanged: (a) {
+                                //                 ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                                //               },
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     ],
+                                //   ),
+                                // );
                               }).toList(),
                             );
                           },
@@ -637,200 +521,199 @@ class HomeViewPhone extends ConsumerWidget {
                                 int index = visas.indexOf(d);
                                 bool isLast = visas.length == index + 1;
                                 bool isFirst = index == 0;
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(bottom: BorderSide(color: Colors.white)),
-                                  ),
-                                  child: MyExpansionTile(
-                                    backgroundColor: MyColors.scaffoldBg,
-                                    collapsedBackgroundColor: MyColors.scaffoldBg,
-                                    footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
-                                    shape: RoundedRectangleBorder(),
-                                    collapsedShape: RoundedRectangleBorder(),
-                                    tilePadding: EdgeInsets.symmetric(horizontal: 14),
-                                    footerExtra: IndexedStack(
-                                      index: isLast ? 0 : 1,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: MyButton(
-                                            height: 30,
-                                            label: "Visa",
-                                            icon: Icons.add_circle_outline,
-                                            onPressed: () {
-                                              ref.read(visasProvider.notifier).update((s) => [...s, DocumentDetail()]);
-                                            },
-                                            textColor: Colors.blueAccent,
-                                            color: Colors.blueAccent.withOpacity(0.1),
-                                          ),
-                                        ),
-                                        SizedBox(),
-                                      ],
-                                    ),
-                                    title: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  "DOCUMENT ${index + 1}",
-                                                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-                                                ),
-                                              ),
-                                              isFirst
-                                                  ? SizedBox()
-                                                  : DotButton(
-                                                      icon: Icons.delete,
-                                                      color: Colors.red,
-                                                      flat: true,
-                                                      onPressed: () {
-                                                        ref.read(visasProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                                      },
-                                                    ),
-                                            ],
-                                          ),
-                                        ),
-                                        Row(
-                                          spacing: 12,
-                                          children: [
-                                            Expanded(
-                                              child: MyDatePicker(
-                                                label: "Expiry",
-                                                required: true,
-                                                placeholder: "Date",
-                                                value: d.documentExpiryDate,
-                                                onChanged: (a) {
-                                                  d = d.copyWith(documentExpiryDate: a);
-                                                  visas[index] = d;
-                                                  ref.read(visasProvider.notifier).update((s) => [...visas]);
 
-                                                },
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: MyFieldPicker<Location>(
-                                                hasSearch: true,
-                                                required: true,
-                                                label: "Nationality",
-                                                placeholder: "Country",
-                                                itemToWidget: countryBuilder,
-                                                items: tim.locations.of(LocationType.country),
-                                                value: passengerDetails.nationality,
-                                                onChange: (a) {
-                                                  ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
-                                    children: [
-                                      Row(
-                                        spacing: 12,
-                                        children: [
-                                          Expanded(
-                                            child: MyFieldPicker<ParameterValue>(
-                                              label: "Code",
-                                              placeholder: "Code",
-                                              items: tim.params.of(ParameterType.documentCode),
-                                              value: d.documentCode,
-                                              onChange: (a) {
-                                                d = d.copyWith(documentCode: a);
-                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: MyFieldPicker<DocumentFeature>(
-                                              hasSearch: false,
-                                              label: "Feature",
-                                              placeholder: "Feature",
-                                              items: DocumentFeature.values,
-                                              value: d.documentFeature,
-                                              onChange: (a) {
-                                                d = d.copyWith(documentFeature: a);
-                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        spacing: 12,
-                                        children: [
-                                          Expanded(
-                                            child: MyFieldPicker<Location>(
-                                              label: "Issuing",
-                                              placeholder: "Country",
-                                              items: tim.locations.of(LocationType.country),
-                                              itemToWidget: countryBuilder,
-                                              value: d.documentIssueCountry,
-
-                                              onChange: (a) {
-                                                d = d.copyWith(documentIssueCountry: a);
-                                                visas[index] = d;
-                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
-
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: MyDatePicker(
-                                              label: "Issue Date",
-                                              placeholder: "Issue Date",
-                                              value: d.documentIssueDate,
-                                              onChanged: (a) {
-                                                d = d.copyWith(documentIssueDate: a);
-                                                visas[index] = d;
-
-                                                ref.read(visasProvider.notifier).update((s) => [...visas]);
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        spacing: 12,
-                                        children: [
-                                          Expanded(
-                                            child: MyFieldPicker<Location>(
-                                              label: "Birth Place",
-                                              hasSearch: true,
-                                              placeholder: "Country",
-                                              // placeholder: "Country",
-                                              items: tim.locations.of(LocationType.country),
-                                              itemToWidget: countryBuilder,
-                                              value: passengerDetails.birthCountry,
-                                              onChange: (a) {
-                                                ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-                                              },
-                                            ),
-                                          ),
-                                          Expanded(
-
-                                            child: MyDatePicker(
-                                              label: "Birth Date",
-                                              required: true,
-
-                                              placeholder: "Birth Date",
-                                              value: passengerDetails.birthDate,
-                                              onChanged: (a) {
-                                                ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
+                                return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: true);
+                                // return Container(
+                                //   decoration: BoxDecoration(
+                                //     border: Border(bottom: BorderSide(color: Colors.white)),
+                                //   ),
+                                //   child: MyExpansionTile(
+                                //     backgroundColor: MyColors.scaffoldBg,
+                                //     collapsedBackgroundColor: MyColors.scaffoldBg,
+                                //     footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+                                //     shape: RoundedRectangleBorder(),
+                                //     collapsedShape: RoundedRectangleBorder(),
+                                //     tilePadding: EdgeInsets.symmetric(horizontal: 14),
+                                //     footerExtra: IndexedStack(
+                                //       index: isLast ? 0 : 1,
+                                //       children: [
+                                //         Padding(
+                                //           padding: const EdgeInsets.all(8.0),
+                                //           child: MyButton(
+                                //             height: 30,
+                                //             label: "Visa",
+                                //             icon: Icons.add_circle_outline,
+                                //             onPressed: () {
+                                //               ref.read(visasProvider.notifier).update((s) => [...s, DocumentDetail()]);
+                                //             },
+                                //             textColor: Colors.blueAccent,
+                                //             color: Colors.blueAccent.withOpacity(0.1),
+                                //           ),
+                                //         ),
+                                //         SizedBox(),
+                                //       ],
+                                //     ),
+                                //     title: Column(
+                                //       crossAxisAlignment: CrossAxisAlignment.start,
+                                //       children: [
+                                //         Padding(
+                                //           padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                //           child: Row(
+                                //             children: [
+                                //               Expanded(
+                                //                 child: Text(
+                                //                   "DOCUMENT ${index + 1}",
+                                //                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                                //                 ),
+                                //               ),
+                                //               isFirst
+                                //                   ? SizedBox()
+                                //                   : DotButton(
+                                //                       icon: Icons.delete,
+                                //                       color: Colors.red,
+                                //                       flat: true,
+                                //                       onPressed: () {
+                                //                         ref.read(visasProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                //                       },
+                                //                     ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //         Row(
+                                //           spacing: 12,
+                                //           children: [
+                                //             Expanded(
+                                //               child: MyDatePicker(
+                                //                 label: "Expiry",
+                                //                 required: true,
+                                //                 placeholder: "Date",
+                                //                 value: d.documentExpiryDate,
+                                //                 onChanged: (a) {
+                                //                   d = d.copyWith(documentExpiryDate: a);
+                                //                   visas[index] = d;
+                                //                   ref.read(visasProvider.notifier).update((s) => [...visas]);
+                                //                 },
+                                //               ),
+                                //             ),
+                                //             Expanded(
+                                //               child: MyFieldPicker<Location>(
+                                //                 hasSearch: true,
+                                //                 required: true,
+                                //                 label: "Nationality",
+                                //                 placeholder: "Country",
+                                //                 itemToWidget: countryBuilder,
+                                //                 items: tim.locations.of(LocationType.country),
+                                //                 value: passengerDetails.nationality,
+                                //                 onChange: (a) {
+                                //                   ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                                //                 },
+                                //               ),
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       ],
+                                //     ),
+                                //     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+                                //     children: [
+                                //       Row(
+                                //         spacing: 12,
+                                //         children: [
+                                //           Expanded(
+                                //             child: MyFieldPicker<ParameterValue>(
+                                //               label: "Code",
+                                //               placeholder: "Code",
+                                //               items: tim.params.of(ParameterType.documentCode),
+                                //               value: d.documentCode,
+                                //               onChange: (a) {
+                                //                 d = d.copyWith(documentCode: a);
+                                //                 ref.read(visasProvider.notifier).update((s) => [...visas]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //           Expanded(
+                                //             child: MyFieldPicker<DocumentFeature>(
+                                //               hasSearch: false,
+                                //               label: "Feature",
+                                //               placeholder: "Feature",
+                                //               items: DocumentFeature.values,
+                                //               value: d.documentFeature,
+                                //               onChange: (a) {
+                                //                 d = d.copyWith(documentFeature: a);
+                                //                 ref.read(visasProvider.notifier).update((s) => [...visas]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //       const SizedBox(height: 12),
+                                //       Row(
+                                //         spacing: 12,
+                                //         children: [
+                                //           Expanded(
+                                //             child: MyFieldPicker<Location>(
+                                //               label: "Issuing",
+                                //               placeholder: "Country",
+                                //               items: tim.locations.of(LocationType.country),
+                                //               itemToWidget: countryBuilder,
+                                //               value: d.documentIssueCountry,
+                                //
+                                //               onChange: (a) {
+                                //                 d = d.copyWith(documentIssueCountry: a);
+                                //                 visas[index] = d;
+                                //                 ref.read(visasProvider.notifier).update((s) => [...visas]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //           Expanded(
+                                //             child: MyDatePicker(
+                                //               label: "Issue Date",
+                                //               placeholder: "Issue Date",
+                                //               value: d.documentIssueDate,
+                                //               onChanged: (a) {
+                                //                 d = d.copyWith(documentIssueDate: a);
+                                //                 visas[index] = d;
+                                //
+                                //                 ref.read(visasProvider.notifier).update((s) => [...visas]);
+                                //               },
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //       const SizedBox(height: 12),
+                                //       Row(
+                                //         spacing: 12,
+                                //         children: [
+                                //           Expanded(
+                                //             child: MyFieldPicker<Location>(
+                                //               label: "Birth Place",
+                                //               hasSearch: true,
+                                //               placeholder: "Country",
+                                //               // placeholder: "Country",
+                                //               items: tim.locations.of(LocationType.country),
+                                //               itemToWidget: countryBuilder,
+                                //               value: passengerDetails.birthCountry,
+                                //               onChange: (a) {
+                                //                 ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                                //               },
+                                //             ),
+                                //           ),
+                                //           Expanded(
+                                //             child: MyDatePicker(
+                                //               label: "Birth Date",
+                                //               required: true,
+                                //
+                                //               placeholder: "Birth Date",
+                                //               value: passengerDetails.birthDate,
+                                //               onChanged: (a) {
+                                //                 ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                                //               },
+                                //             ),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     ],
+                                //   ),
+                                // );
                               }).toList(),
                             );
                           },
@@ -889,7 +772,7 @@ class HomeViewPhone extends ConsumerWidget {
                           onPressed: () async {
                             final timResult = await myHomeController.timaticApi.submitDocumentRequest(
                               DocumentRequest(
-                                documentDetails: [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a)=>a.documentCode!=null).toList(),
+                                documentDetails: [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList(),
                                 itineraryDetails: ItineraryDetails(segments: segments),
                                 passengerDetails: passengerDetails,
                               ),
@@ -903,6 +786,290 @@ class HomeViewPhone extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Row (with its own controller)
+class DocumentItemRow extends ConsumerStatefulWidget {
+  const DocumentItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst, required this.isVisa});
+
+  final bool isFirst;
+  final bool isLast;
+  final bool isVisa;
+  final int index;
+  final DocumentDetail item;
+
+  @override
+  ConsumerState<DocumentItemRow> createState() => _PassportItemRowState();
+}
+
+class _PassportItemRowState extends ConsumerState<DocumentItemRow> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.item.documentNumber);
+
+    controller.addListener(() {
+      // log("listern ${controller.text}");
+      if (widget.isVisa) {
+        ref.read(visasProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+      } else {
+        ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(DocumentItemRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // log(widget.item.toJson().toString());
+
+    if (controller.text != widget.item.documentNumber) {
+      controller.text = widget.item.documentNumber ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Widget countryBuilder(dynamic a) => Row(
+    children: [
+      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      const SizedBox(width: 8),
+      Text("$a (${(a as Location).name})"),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLast = widget.isLast;
+    bool isFirst = widget.isFirst;
+    int index = widget.index;
+    DocumentDetail d = widget.item;
+    final PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    final tim = BasicClass.timData;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.white)),
+      ),
+      child: MyExpansionTile(
+        backgroundColor: MyColors.scaffoldBg,
+        collapsedBackgroundColor: MyColors.scaffoldBg,
+        footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+        shape: RoundedRectangleBorder(),
+        collapsedShape: RoundedRectangleBorder(),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        footerExtra: IndexedStack(
+          index: isLast ? 0 : 1,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: MyButton(
+                height: 30,
+                label: widget.isVisa ? "Visa" : "Passport",
+                icon: Icons.add_circle_outline,
+                onPressed: () {
+                  // ref.read(passportsProvider.notifier).update((s) => [...s, DocumentDetail()]);
+                  if (widget.isVisa) {
+                    ref.read(visasProvider.notifier).add(DocumentDetail());
+                  } else {
+                    ref.read(passportsProvider.notifier).add(DocumentDetail());
+                  }
+                },
+                textColor: Colors.blueAccent,
+                color: Colors.blueAccent.withOpacity(0.1),
+              ),
+            ),
+            SizedBox(),
+          ],
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "DOCUMENT ${index + 1}",
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                    ),
+                  ),
+                  isFirst
+                      ? SizedBox()
+                      : DotButton(
+                          icon: Icons.delete,
+                          color: Colors.red,
+                          flat: true,
+                          onPressed: () {
+                            // ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                            if (widget.isVisa) {
+                              ref.read(visasProvider.notifier).removeAt(index);
+                            } else {
+                              ref.read(passportsProvider.notifier).removeAt(index);
+                            }
+                          },
+                        ),
+                ],
+              ),
+            ),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: MyDatePicker(
+                    label: "Expiry",
+                    required: true,
+                    placeholder: "Date",
+                    value: d.documentExpiryDate,
+                    onChanged: (a) {
+                      d = d.copyWith(documentExpiryDate: a);
+                      if (widget.isVisa) {
+                        ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                      } else {
+                        ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyFieldPicker<Location>(
+                    hasSearch: true,
+                    label: "Nationality",
+                    required: true,
+                    placeholder: "Country",
+                    itemToWidget: countryBuilder,
+                    items: tim.locations.of(LocationType.country),
+                    value: passengerDetails.nationality,
+                    onChange: (a) {
+                      ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+        children: [
+          MyTextField(controller: controller, label: "Document Number", placeholder: "Number", labelInRow: true),
+          const SizedBox(height: 12),
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  items: tim.params.of(ParameterType.documentCode),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
+                ),
+              ),
+              Expanded(
+                child: MyFieldPicker<DocumentFeature>(
+                  hasSearch: false,
+                  label: "Feature",
+                  placeholder: "Feature",
+                  items: DocumentFeature.values,
+                  value: d.documentFeature,
+                  onChange: (a) {
+                    d = d.copyWith(documentFeature: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyFieldPicker<Location>(
+                  label: "Issuing",
+                  placeholder: "Country",
+                  itemToWidget: countryBuilder,
+                  items: tim.locations.of(LocationType.country),
+                  value: d.documentIssueCountry,
+                  onChange: (a) {
+                    d = d.copyWith(documentIssueCountry: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
+                ),
+              ),
+              Expanded(
+                child: MyDatePicker(
+                  label: "Issue Date",
+                  placeholder: "Issue Date",
+                  value: d.documentIssueDate,
+                  onChanged: (a) {
+                    d = d.copyWith(documentIssueDate: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyFieldPicker<Location>(
+                  label: "Birth Place",
+                  hasSearch: true,
+                  placeholder: "Country",
+                  items: tim.locations.of(LocationType.country),
+                  itemToWidget: countryBuilder,
+                  value: passengerDetails.birthCountry,
+                  onChange: (a) {
+                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                  },
+                ),
+              ),
+              Expanded(
+                child: MyDatePicker(
+                  required: true,
+                  label: "Birth Date",
+                  placeholder: "Birth Date",
+                  value: passengerDetails.birthDate,
+                  onChanged: (a) {
+                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1071,7 +1238,7 @@ class TimaticResultWidget extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
-                          visaField.applicable ? 'Visa is not required' : "Visa is required",
+                          visaField.applicable ? 'Applicable' : "Not applicable",
                           style: TextStyle(color: visaField.getColor, fontWeight: FontWeight.w600),
                         ),
                       ),

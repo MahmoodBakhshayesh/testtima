@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../../artemis_timatic.dart';
 import 'enums.dart';
 import 'location.dart'; // Location & LocationType
@@ -125,6 +127,7 @@ class DocumentDetail {
   int? get expiryRemain => documentExpiryDate == null ? null : -(DateTime.now().difference(documentExpiryDate!).inDays / 30).floor();
 
   bool get isEmpty => documentCode == null;
+
 }
 
 // ---------------- ItineraryDetails ----------------
