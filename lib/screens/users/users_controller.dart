@@ -87,7 +87,7 @@ class UsersController extends ControllerInterface {
   Future<Uint8List?> userGetPhoto(People? people) async {
     Uint8List? photo;
     try {
-      final serverAddress = ref.watch(selectedServerProvider)!.address;
+      final serverAddress = ref.watch(selectedServerProvider)!.apiAddress;
       String apiAddress = "$serverAddress/user/image";
       if (people != null) {
         apiAddress = "$serverAddress/user/myUsers/image/${people!.username}";
@@ -147,7 +147,7 @@ class UsersController extends ControllerInterface {
   }
 
   Future<void> evictImage() async {
-    String url = "${ref.read(selectedServerProvider).address}/user/image";
+    String url = "${ref.read(selectedServerProvider).apiAddress}/user/image";
     await CachedNetworkImage.evictFromCache(url);
     final NetworkImage provider = NetworkImage(url);
     await provider.evict();
@@ -166,7 +166,7 @@ class UsersController extends ControllerInterface {
       ),
     });
 
-    final serverAddress = ref.watch(selectedServerProvider)!.address;
+    final serverAddress = ref.watch(selectedServerProvider)!.apiAddress;
     String apiAddress = "$serverAddress/user/image";
     // log(apiAddress);
     try {
@@ -198,7 +198,7 @@ class UsersController extends ControllerInterface {
     var updatingAvatarPN = ref.read(updatingAvatarProvider.notifier);
     try {
       updatingAvatarPN.update((state) => true);
-      final serverAddress = ref.watch(selectedServerProvider)!.address;
+      final serverAddress = ref.watch(selectedServerProvider)!.apiAddress;
       String apiAddress = "$serverAddress/user/image";
       // log(apiAddress);
       final dio = Dio();

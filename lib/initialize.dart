@@ -33,6 +33,7 @@ import 'screens/login/login_controller.dart';
 import 'core/interface_implementations/network_manager_imp.dart';
 
 final getIt = GetIt.instance;
+final String apiVersion = "/v1";
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();

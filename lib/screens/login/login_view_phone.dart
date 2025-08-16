@@ -6,26 +6,59 @@ import '../../initialize.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../widgets/DotButton.dart';
 import '../../widgets/MyButton.dart';
 import '../../widgets/MyTextField.dart';
 import 'login_controller.dart';
 import 'login_state.dart';
 
-class LoginViewPhone extends StatelessWidget {
+class LoginViewPhone extends StatefulWidget {
   static LoginController myLoginController = getIt<LoginController>();
 
   const LoginViewPhone({super.key});
 
   @override
+  State<LoginViewPhone> createState() => _LoginViewPhoneState();
+}
+
+class _LoginViewPhoneState extends State<LoginViewPhone> {
+  static LoginController myLoginController = getIt<LoginController>();
+
+  @override
+
+  initState(){
+    myLoginController.initLogin();
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
-    return const Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.black54, body: LoginPanel());
+    return Scaffold(
+      floatingActionButton: Consumer(
+        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+          return DotButton(
+            size: 40,
+            // fade: false,
+            flat: true,
+            backgroundColor: Colors.white,
+            onPressed: () async {
+              await LoginViewPhone.myLoginController.serverSelect();
+              // myLoginController.showLoginSetting();
+            },
+            icon: Icons.settings_remote_rounded,
+          );
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.black54,
+      body: LoginPanel(),
+    );
   }
 }
 
 class LoginPanel extends ConsumerStatefulWidget {
   static LoginController myLoginController = getIt<LoginController>();
+
   const LoginPanel({super.key});
 
   @override
@@ -91,7 +124,6 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -103,25 +135,19 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
       decoration: BoxDecoration(
         color: MyColors.black8,
         borderRadius: BorderRadius.circular(12),
-        image: const DecorationImage(
-          alignment: Alignment.bottomCenter,
-          image: AssetImage(AssetImages.loginBg),
-          fit: BoxFit.cover,
-        ),
+        image: const DecorationImage(alignment: Alignment.bottomCenter, image: AssetImage(AssetImages.loginBg), fit: BoxFit.cover),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
       child: Column(
         children: [
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12)
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
             padding: const EdgeInsets.only(left: 24, right: 24, top: 0),
             margin: const EdgeInsets.only(top: 12),
             child: ListView(
               shrinkWrap: true,
               children: [
-                Text("ABOMIS\nDOCUMENT\nCHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36,height: 1,fontWeight: FontWeight.w800)),
+                Text("ABOMIS\nDOCUMENT\nCHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 32),
                 MyTextField(
                   label: "Username",
@@ -147,7 +173,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                     return MyButton(
                       height: 45,
                       onPressed: () async {
-                        await myLoginController.login(usernameC.text,passwordC.text);
+                        await myLoginController.login(usernameC.text, passwordC.text);
                       },
                       fontSize: 16,
                       label: 'Enter',

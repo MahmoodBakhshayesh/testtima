@@ -27,7 +27,8 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<ServerSelectResponse> serverSelect({required ServerSelectRequest request}) async {
-    ResponseImplementation res = await networkManager.post(request);
+    String api = "/server";
+    ResponseImplementation res = await networkManager.get(api);
     ServerSelectResponse serverSelectResponse = await parser.parse(ServerSelectResponse.fromResponse,res, executionReq: request);
     return serverSelectResponse;
   }

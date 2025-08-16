@@ -7,6 +7,7 @@ import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/core/utils_and_services/stateControllers/document_details_state_controller.dart';
+import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/widgets/DotButton.dart';
@@ -15,6 +16,7 @@ import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
+import 'package:abds/widgets/check_permission.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
@@ -1150,17 +1152,20 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     },
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 50,
-                                  width: 200,
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                    dense: true,
-                                    title: Text("User Management", style: TextStyle(color: Colors.white)),
-                                    trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
-                                    onTap: () {
-                                      myHomeController.goNamed(Routes.users);
-                                    },
+                                CheckPermission(
+                                  permission: UserUiPermission.add(),
+                                  child: SizedBox(
+                                    height: 50,
+                                    width: 200,
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                      dense: true,
+                                      title: Text("User Management", style: TextStyle(color: Colors.white)),
+                                      trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
+                                      onTap: () {
+                                        myHomeController.goNamed(Routes.users);
+                                      },
+                                    ),
                                   ),
                                 ),
                                 SizedBox(

@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/interfaces/result_int.dart';
+import 'package:get/get_utils/get_utils.dart';
 
 import '../../core/classes/new_version_class.dart';
+import '../../core/classes/server_class.dart';
 import '../../core/classes/user_class.dart';
 import '../../core/interface_implementations/device_info_imp.dart';
 import '../../core/interfaces/controller_int.dart';
@@ -12,10 +16,12 @@ import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../core/utils_and_services/timatic/src/endpoints.dart';
 import '../../core/utils_and_services/timatic/src/models/auth_request.dart';
 import '../../initialize.dart';
+import 'dialogs/server_picker_dialog.dart';
 import 'login_state.dart';
 import 'usecases/login_usecase.dart' hide LoginRequest;
 import 'package:logging/logging.dart';
 
+import 'usecases/server_select_usecase.dart';
 
 class LoginController extends ControllerInterface {
   late LoginState loginState = ref.read(loginProvider);
@@ -28,7 +34,7 @@ class LoginController extends ControllerInterface {
     super.onInit();
   }
 
-  Future<User?> login(String username,String password) async {
+  Future<User?> login(String username, String password) async {
     _log.warning("Logging in");
 
     User? user;
@@ -41,10 +47,10 @@ class LoginController extends ControllerInterface {
 
     log("${logRes.profile.username}");
     final tData = await timaticApi.preloadAll();
-    BasicClass.initialize(fakeUser, tData);
-    saveLoginData(username: username,password: password);
-    ref.read(userProvider.notifier).update((s)=>logRes);
-    ref.read(profileProvider.notifier).update((s)=>logRes.profile);
+    BasicClass.initialize(logRes, tData);
+    saveLoginData(username: username, password: password);
+    ref.read(userProvider.notifier).update((s) => logRes);
+    ref.read(profileProvider.notifier).update((s) => logRes.profile);
     navigation.goNamed(Routes.home);
     return fakeUser;
   }
@@ -57,7 +63,6 @@ class LoginController extends ControllerInterface {
 
     ref.read(usernameProvider.notifier).update((s) => username ?? '');
     ref.read(passwordProvider.notifier).update((s) => password ?? '');
-
   }
 
   Future<void> logout({bool isTokenExpire = false}) async {
@@ -77,5 +82,73 @@ class LoginController extends ControllerInterface {
   void clearLoginData() {
     sharedPref.setVariable(key: "Username", value: null);
     sharedPref.setVariable(key: "Password", value: null);
+  }
+
+  Future<void> initServer() async {
+    String? serverJson = await sharedPref.getVariable(key: "ServerNew");
+    log(serverJson ?? '');
+    if (serverJson == null) {
+      serverSelect(showDialog: false).then((a) {
+        log("we found default server ${a.map((s) => s.toJson())}");
+        Server server = a.firstWhere((a) => a.active, orElse: () => a.first);
+        // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
+
+        server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
+        ref.read(selectedServerProvider.notifier).update((s) => server);
+        initNetworkManager(server.apiAddress);
+      });
+    } else {
+      Server s = Server.fromJson(jsonDecode(serverJson));
+      log("we found saved server ${s.toJson()}");
+      saveServer(s);
+    }
+  }
+
+  Future<List<Server>> serverSelect({bool showDialog = true}) async {
+    List<Server> servers = [];
+    ServerSelectUseCase serverSelectUsecase = ServerSelectUseCase();
+    ServerSelectRequest serverSelectRequest = ServerSelectRequest();
+    final fOrR = await serverSelectUsecase(request: serverSelectRequest);
+
+    switch (fOrR) {
+      case Ok<ServerSelectResponse>():
+        final r = fOrR.value;
+        servers = r.servers;
+        ref.read(serverListProvider.notifier).update((s) => r.servers);
+        if (showDialog) {
+          navigation.popAllBottomSheets();
+          serverSelectDialog(r.servers);
+        }
+      case Err<ServerSelectResponse>():
+        FailureHandler.handle(fOrR.error);
+    }
+
+    return servers;
+  }
+
+  serverSelectDialog(List<Server> servers) {
+    Server? current = servers.firstWhereOrNull((s) => (s.apiAddress + apiVersion).toLowerCase() == (ref.read(selectedServerProvider).apiAddress).toLowerCase());
+    log("ser ${(ref.read(selectedServerProvider).apiAddress).toLowerCase()}");
+    log("current ${current?.toJson()}");
+    navigation
+        .openBottomSheet(
+          bottomSheet: ServerPickerDialog(servers: servers, currentServer: current),
+        )
+        .then((ser) {
+          if (ser is Server) {
+            saveServer(ser);
+            initNetworkManager(ser.apiAddress);
+          }
+        });
+  }
+
+  void saveServer(Server current) {
+    ref.read(selectedServerProvider.notifier).update((s) => current);
+    sharedPref.setVariable(key: "ServerNew", value: jsonEncode(current.toJson()));
+    initNetworkManager(current.apiAddress);
+  }
+
+  void initLogin() {
+    initServer();
   }
 }

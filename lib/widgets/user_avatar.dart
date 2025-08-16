@@ -97,9 +97,9 @@ class UserAvatarWithUsername extends ConsumerWidget {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     bool loading = ref.watch(updatingAvatarProvider);
-    String api = '${ref.read(selectedServerProvider).address}/user/image';
+    String api = '${ref.read(selectedServerProvider).apiAddress}/user/image';
     if (people != null) {
-      api = "${ref.read(selectedServerProvider).address}/user/myUsers/image/${people!.username}";
+      api = "${ref.read(selectedServerProvider).apiAddress}/user/myUsers/image/${people!.username}";
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(40),

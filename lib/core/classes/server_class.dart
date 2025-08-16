@@ -1,42 +1,46 @@
-import 'package:flutter/cupertino.dart';
-
-@immutable
 class Server {
-  const Server({
-    required this.name,
-    required this.address,
-    // required this.description,
-    // required this.isTest,
-    // required this.socketAddress,
-    // required this.imageAddress,
-    // required this.projectName,
+  final String id;
+  final String title;
+  final String apiAddress;
+  final bool active;
+  final bool serverDefault;
+
+  Server({
+    required this.id,
+    required this.title,
+    required this.apiAddress,
+    required this.active,
+    required this.serverDefault,
   });
 
-  final String name;
-  final String address;
-  // final String projectName;
-  // final String description;
-  // final bool isTest;
-  // final String socketAddress;
-  // final dynamic imageAddress;
+  Server copyWith({
+    String? id,
+    String? title,
+    String? apiAddress,
+    bool? active,
+    bool? serverDefault,
+  }) =>
+      Server(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        apiAddress: apiAddress ?? this.apiAddress,
+        active: active ?? this.active,
+        serverDefault: serverDefault ?? this.serverDefault,
+      );
 
   factory Server.fromJson(Map<String, dynamic> json) => Server(
-    name: json["Name"],
-    address: json["Address"],
-    // description: json["Description"],
-    // isTest: json["IsTest"],
-    // socketAddress: json["SocketAddress"]??'',
-    // imageAddress: json["ImageAddress"]??'',
-    // projectName: json["ProjectName"]??'ABOMIS',
+    id: json["_id"],
+    title: json["title"],
+    apiAddress: json["apiAddress"],
+    active: json["active"],
+    serverDefault: json["default"],
   );
 
   Map<String, dynamic> toJson() => {
-    "Name": name,
-    "Address": address,
-    // "Description": description,
-    // "IsTest": isTest,
-    // "SocketAddress": socketAddress,
-    // "ImageAddress": imageAddress,
-    // "ProjectName": projectName,
+    "_id": id,
+    "title": title,
+    "apiAddress": apiAddress,
+    "active": active,
+    "default": serverDefault,
   };
 }

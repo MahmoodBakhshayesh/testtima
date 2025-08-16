@@ -1,3 +1,5 @@
+import '../usecases/add_user_usecase.dart';
+
 abstract class AddUserDataSourceInterface {
-  // Future<Response> ({required Request request});
+  Future<AddUserResponse> addUser({required AddUserRequest request});
 }

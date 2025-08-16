@@ -38,11 +38,11 @@ class ServerSelectRequest extends RequestInterface {
 class ServerSelectResponse extends ResponseImplementation {
   final List<Server> servers;
 
-  ServerSelectResponse({required int status, required String message, required this.servers}) : super(status: status, message: message, body: {"ServerList": servers.map((e) => e.toJson()).toList()});
+  ServerSelectResponse({required int status, required String message, required this.servers}) : super(status: status, message: message, body:  servers.map((e) => e.toJson()).toList());
 
   factory ServerSelectResponse.fromResponse(ResponseImplementation res) => ServerSelectResponse(
     status: res.status,
     message: res.message,
-    servers: List<Server>.from(res.body["ServerList"].map((x) => Server.fromJson(x))),
+    servers: List<Server>.from(res.body.map((x) => Server.fromJson(x))),
   );
 }

@@ -4,9 +4,11 @@ import '../interfaces/shared_preferences_int.dart';
 
 class SharedPreferencesImp implements SharedPreferencesInterface {
   final SharedPreferences sp;
+
   SharedPreferencesImp(this.sp);
+
   @override
-  Future<List<String>?> getList({required String key}) async{
+  Future<List<String>?> getList({required String key}) async {
     return sp.getStringList(key);
   }
 
@@ -17,16 +19,15 @@ class SharedPreferencesImp implements SharedPreferencesInterface {
 
   @override
   Future<void> setList({required String key, required List<String> value}) async {
-    sp.setStringList(key,value);
+    sp.setStringList(key, value);
   }
 
   @override
   Future<void> setVariable({required String key, required String? value}) async {
-    if(value == null){
+    if (value == null) {
       sp.remove(key);
-    }else {
+    } else {
       sp.setString(key, value);
     }
   }
-
 }

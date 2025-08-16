@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:ui';
+import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +10,7 @@ import '../constants/ui.dart';
 import '../utils_and_services/settings_class.dart';
 import '../utils_and_services/timatic/artemis_timatic.dart';
 import '../utils_and_services/timatic/src/models/aggregates.dart';
+import 'people_class.dart';
 import 'user_class.dart';
 
 class BasicClass {
@@ -24,13 +26,16 @@ class BasicClass {
   TimaticData? _timaticData;
   ConstData? _constData;
   PackageInfo? _packageInfo;
+  List<UserPermission>? _userPermission;
   Config? _appConfig;
 
 
 
 
-  static void initialize(User user, TimaticData timaticData) {
+  static void initialize(LoginData user, TimaticData timaticData) {
     instance._timaticData = timaticData;
+    instance._constData = user.constData;
+    instance._userPermission = user.permissions;
   }
 
   static void setConfig(Config config) {
@@ -61,6 +66,19 @@ class BasicClass {
 
   static ParameterValue? getAirlineWithCode(String code) {
     return timData.params.of(ParameterType.carrier).firstWhereOrNull((a)=>a.code == code);
+  }
+
+  static bool validatePermission(UiPermission? permission) {
+    if (permission == null) return true;
+    if (instance._userPermission!.isEmpty) return true;
+    final up = instance._userPermission!;
+
+     if (permission is UserUiPermission) {
+      return up.any((a) => a.permission.getUserPermissions.isNotEmpty);
+    }
+
+
+    return false;
   }
 
 
