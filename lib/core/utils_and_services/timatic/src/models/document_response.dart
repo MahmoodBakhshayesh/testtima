@@ -46,6 +46,44 @@ extension EvalResultX on EvalResult {
         return Colors.grey;
     }
   }
+
+  String get getTitle {
+    switch(this){
+      case EvalResult.YES:
+        return "Travel Allowed";
+      case EvalResult.NO:
+       return "Travel Not Allowed";
+      case EvalResult.CONDITIONAL:
+        return "Travel Allowed\nWith Conditions";
+      case EvalResult.UNKNOWN:
+        return 'Unknown';
+    }
+  }
+  String get getSubtitle {
+    switch(this){
+      case EvalResult.YES:
+        return "Passenger can travel";
+      case EvalResult.NO:
+       return "Missing or invalid documents";
+      case EvalResult.CONDITIONAL:
+        return "Verify additional requirements";
+      case EvalResult.UNKNOWN:
+        return 'Unknown';
+    }
+  }
+
+  String get getActionName {
+    switch(this){
+      case EvalResult.YES:
+        return "Check Next Passenger";
+      case EvalResult.NO:
+       return "View Requirements";
+      case EvalResult.CONDITIONAL:
+        return "View Requirements";
+      case EvalResult.UNKNOWN:
+        return 'Unknown';
+    }
+  }
 }
 
 // -------------------- MODELS --------------------

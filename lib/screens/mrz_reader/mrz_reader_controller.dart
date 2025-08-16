@@ -3,13 +3,13 @@ import 'dart:developer';
 
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
-import 'package:abds/core/utils_and_services/stateControllers/document_details_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:logging/logging.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/interfaces/controller_int.dart';
+import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../home/home_state.dart';
 

@@ -9,7 +9,10 @@ import 'interfaces/login_repository_interface.dart';
 import 'data_sources/login_local_ds.dart';
 import 'data_sources/login_remote_ds.dart';
 import 'usecases/login_usecase.dart';
+import 'usecases/reset_password_usecase.dart';
+import 'usecases/send_forget_password_code_usecase.dart';
 import 'usecases/server_select_usecase.dart';
+import 'usecases/set_first_password_usecase.dart';
 
 class LoginRepository implements LoginRepositoryInterface {
   final LoginRemoteDataSource loginRemoteDataSource = LoginRemoteDataSource();
@@ -43,6 +46,51 @@ class LoginRepository implements LoginRepositoryInterface {
         serverSelectResponse = await loginLocalDataSource.serverSelect(request: request);
       }
       return Result.ok(serverSelectResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<SetFirstPasswordResponse>> setFirstPassword(SetFirstPasswordRequest request) async {
+    try {
+      SetFirstPasswordResponse setFirstPasswordResponse;
+      if (await networkInfo.isConnected) {
+        setFirstPasswordResponse = await loginRemoteDataSource.setFirstPassword(request: request);
+      } else {
+        setFirstPasswordResponse = await loginLocalDataSource.setFirstPassword(request: request);
+      }
+      return Result.ok(setFirstPasswordResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<SendForgetPasswordCodeResponse>> sendForgetPasswordCode(SendForgetPasswordCodeRequest request) async {
+    try {
+      SendForgetPasswordCodeResponse sendForgetPasswordCodeResponse;
+      if (await networkInfo.isConnected) {
+        sendForgetPasswordCodeResponse = await loginRemoteDataSource.sendForgetPasswordCode(request: request);
+      } else {
+        sendForgetPasswordCodeResponse = await loginLocalDataSource.sendForgetPasswordCode(request: request);
+      }
+      return Result.ok(sendForgetPasswordCodeResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<ResetPasswordResponse>> resetPassword(ResetPasswordRequest request) async {
+    try {
+      ResetPasswordResponse resetPasswordResponse;
+      if (await networkInfo.isConnected) {
+        resetPasswordResponse = await loginRemoteDataSource.resetPassword(request: request);
+      } else {
+        resetPasswordResponse = await loginLocalDataSource.resetPassword(request: request);
+      }
+      return Result.ok(resetPasswordResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

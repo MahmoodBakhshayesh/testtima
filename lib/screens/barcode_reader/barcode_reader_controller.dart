@@ -4,6 +4,7 @@ import 'package:abds/screens/home/home_state.dart';
 import 'package:logging/logging.dart';
 import '../../core/classes/boarding_pass_class.dart';
 import '../../core/interfaces/controller_int.dart';
+import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 
 
 class BarcodeReaderController extends ControllerInterface {
@@ -23,11 +24,14 @@ class BarcodeReaderController extends ControllerInterface {
         final segment = bp.getFlightLeg;
         int emptyIndex = ref.read(segmentsProvider).indexWhere((s)=>s.isEmpty);
         if(emptyIndex == -1){
-          ref.read(segmentsProvider.notifier).update((s)=>[...s,segment]);
+          // ref.read(segmentsProvider.notifier).update((s)=>[...s,segment]);
+          ref.read(segmentsProvider.notifier).add(segment);
         }else{
-          var current = ref.read(segmentsProvider);
-          current[emptyIndex]=segment;
-          ref.read(segmentsProvider.notifier).update((s)=>[...current]);
+          ref.read(segmentsProvider.notifier).updateAt(emptyIndex,segment);
+
+          // var current = ref.read(segmentsProvider);
+          // current[emptyIndex]=segment;
+          // ref.read(segmentsProvider.notifier).update((s)=>[...current]);
         }
         navigation.pop();
       } catch (e) {

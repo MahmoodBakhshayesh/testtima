@@ -214,6 +214,7 @@ class BoardingPass {
     arrival: ItinPoint(point: getFlight.to, type: LocationType.airport, dateTime: flightDate),
     departure: ItinPoint(point: getFlight.from, type: LocationType.airport, dateTime: flightDate),
     processingEntity: "ABOMIS DOC CHECK",
+    flnb: flnb
   );
 
   String get toBarcode =>

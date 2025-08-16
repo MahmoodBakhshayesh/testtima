@@ -21,7 +21,10 @@ import 'login_state.dart';
 import 'usecases/login_usecase.dart' hide LoginRequest;
 import 'package:logging/logging.dart';
 
+import 'usecases/reset_password_usecase.dart';
+import 'usecases/send_forget_password_code_usecase.dart';
 import 'usecases/server_select_usecase.dart';
+import 'usecases/set_first_password_usecase.dart';
 
 class LoginController extends ControllerInterface {
   late LoginState loginState = ref.read(loginProvider);
@@ -150,5 +153,59 @@ class LoginController extends ControllerInterface {
 
   void initLogin() {
     initServer();
+  }
+
+  Future<bool> setFirstPassword({required String oldPass, required String newPass}) async {
+    bool res = false;
+    SetFirstPasswordUseCase setFirstPasswordUseCase = SetFirstPasswordUseCase();
+    SetFirstPasswordRequest setFirstPasswordRequest = SetFirstPasswordRequest(oldPass: oldPass, newPass: newPass);
+    final result = await setFirstPasswordUseCase(request: setFirstPasswordRequest);
+
+    switch (result) {
+      case Err<SetFirstPasswordResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<SetFirstPasswordResponse>():
+        final r = result.value;
+        res = true;
+    }
+
+    return res;
+  }
+
+  Future<String?> sendForgetPasswordCode(String email) async {
+    String? msg;
+    SendForgetPasswordCodeUseCase sendForgetPasswordCodeUseCase = SendForgetPasswordCodeUseCase();
+    SendForgetPasswordCodeRequest sendForgetPasswordCodeRequest = SendForgetPasswordCodeRequest(email: email);
+    final result = await sendForgetPasswordCodeUseCase(request: sendForgetPasswordCodeRequest);
+
+    switch (result) {
+      case Err<SendForgetPasswordCodeResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<SendForgetPasswordCodeResponse>():
+        final r = result.value;
+        msg = r.msg;
+    }
+
+    return msg;
+  }
+
+  Future<String?> resetPassword({required String email, required String newPass, required String code}) async {
+    String? msg;
+    ResetPasswordUseCase resetPasswordUseCase = ResetPasswordUseCase();
+    ResetPasswordRequest resetPasswordRequest = ResetPasswordRequest(email: email, newPassword: newPass, code: code);
+    final result = await resetPasswordUseCase(request: resetPasswordRequest);
+
+    switch (result) {
+      case Err<ResetPasswordResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<ResetPasswordResponse>():
+        final r = result.value;
+        msg = r.msg;
+    }
+
+    return msg;
   }
 }

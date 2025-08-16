@@ -153,18 +153,22 @@ class ItinerarySegment {
   final ItinPoint arrival;
   final ItinPoint departure;
   final String? processingEntity;
+  final String? flnb;
   final DurationOfStay? durationOfStay;
   final bool? luggageCollected;
   final ParameterValue? operatingCarrier;
   final PurposeOfStayType? purposeOfStay;
   final TicketStatus? returnOnwardTicket;
 
-  const ItinerarySegment({required this.arrival, required this.departure, this.processingEntity, this.durationOfStay, this.luggageCollected, this.purposeOfStay, this.returnOnwardTicket, this.operatingCarrier});
+  const ItinerarySegment({
+    this.flnb,
+    required this.arrival, required this.departure, this.processingEntity, this.durationOfStay, this.luggageCollected, this.purposeOfStay, this.returnOnwardTicket, this.operatingCarrier});
 
   ItinerarySegment copyWith({
     ItinPoint? arrival,
     ItinPoint? departure,
     String? processingEntity,
+    String? flnb,
     DurationOfStay? durationOfStay,
     bool? luggageCollected,
     ParameterValue? operatingCarrier,
@@ -179,6 +183,7 @@ class ItinerarySegment {
       luggageCollected: luggageCollected ?? this.luggageCollected,
       operatingCarrier: operatingCarrier ?? this.operatingCarrier,
       purposeOfStay: purposeOfStay ?? this.purposeOfStay,
+      flnb: flnb ?? this.flnb,
       returnOnwardTicket: returnOnwardTicket ?? this.returnOnwardTicket,
     );
   }
