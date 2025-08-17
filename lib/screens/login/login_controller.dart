@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interfaces/result_int.dart';
+import 'package:abds/screens/home/home_controller.dart';
+import 'package:abds/screens/home/home_state.dart';
 import 'package:get/get_utils/get_utils.dart';
 
 import '../../core/classes/new_version_class.dart';
@@ -39,7 +41,8 @@ class LoginController extends ControllerInterface {
 
   Future<User?> login(String username, String password) async {
     _log.warning("Logging in");
-
+    getIt<HomeController>().clear();
+    ref.read(timaticResultProvider.notifier).update((s)=>null);
     User? user;
     DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     DeviceInfo deviceInfo = deviceInfoService.getInfo();

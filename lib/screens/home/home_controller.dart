@@ -19,6 +19,7 @@ class HomeController extends ControllerInterface {
     ref.read(passportsProvider.notifier).removeAll();
     ref.read(visasProvider.notifier).removeAll();
     ref.read(segmentsProvider.notifier).removeAll();
+
     // ref.read(passportsProvider.notifier).update((s) => [DocumentDetail()]);
     // ref.read(segmentsProvider.notifier).update((s) => [ItinerarySegment.empty()]);
   }

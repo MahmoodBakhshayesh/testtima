@@ -105,8 +105,8 @@ class UserAvatarWithUsername extends ConsumerWidget {
       borderRadius: BorderRadius.circular(40),
       child: Container(
         decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
-        width: 25,
-        height: 25,
+        width: 45,
+        height: 45,
         child: loading
             ? SpinKitCircle(size: 20, color: context.mainColor)
             : CachedNetworkImage(

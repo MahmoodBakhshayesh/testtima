@@ -16,6 +16,7 @@ import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:abds/widgets/check_permission.dart';
+import 'package:abds/widgets/user_avatar.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
@@ -60,351 +61,357 @@ class HomeViewPhone extends ConsumerWidget {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     bool resultMode = timaticRes != null;
-    return SafeArea(
-      bottom: true,
-      top: false,
-      child: Scaffold(
-        appBar: HomeAppBar(),
-        backgroundColor: Colors.white,
+    return PopScope(
+      canPop: false,
+      child: Container(
+        color: MyColors.greyBG,
+        child: SafeArea(
+          bottom: true,
+          top: false,
+          child: Scaffold(
+            appBar: HomeAppBar(),
+            backgroundColor: Colors.white,
 
-        body: Column(
-          children: [
-            if (!resultMode)
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: MyColors.scaffoldHeader,
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text("FLIGHT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+            body: Column(
+              children: [
+                if (!resultMode)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: MyColors.scaffoldHeader,
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                               ),
-                              MyButton(
-                                label: "Scan",
-                                icon: Icons.qr_code_scanner,
-                                onPressed: () {
-                                  myHomeController.goNamed(Routes.barcodeReader);
-                                },
-                                textColor: Colors.white,
-                                // textColor: context.mainColor,
-                                borderSide: BorderSide(color: Colors.white),
-                                radius: 12,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text("FLIGHT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                  ),
+                                  MyButton(
+                                    label: "Scan",
+                                    icon: Icons.qr_code_scanner,
+                                    onPressed: () {
+                                      myHomeController.goNamed(Routes.barcodeReader);
+                                    },
+                                    textColor: Colors.white,
+                                    // textColor: context.mainColor,
+                                    borderSide: BorderSide(color: Colors.white),
+                                    radius: 12,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Builder(
-                          builder: (context) {
-                            // var seg = segments[0];
-                            // int index = 0;
-                            return Column(
-                              children: segments.map((seg) {
-                                int index = segments.indexOf(seg);
-                                bool isLast = segments.length == index + 1;
-                                bool isFirst = index == 0;
-                                return SegmentItemRow(index: index, item: seg, isLast: isLast, isFirst: isFirst);
+                            ),
+                            Builder(
+                              builder: (context) {
+                                // var seg = segments[0];
+                                // int index = 0;
+                                return Column(
+                                  children: segments.map((seg) {
+                                    int index = segments.indexOf(seg);
+                                    bool isLast = segments.length == index + 1;
+                                    bool isFirst = index == 0;
+                                    return SegmentItemRow(index: index, item: seg, isLast: isLast, isFirst: isFirst);
 
-                                // return Container(
-                                //   decoration: BoxDecoration(
-                                //     border: Border(bottom: BorderSide(color: Colors.white)),
-                                //   ),
-                                //   child: MyExpansionTile(
-                                //     backgroundColor: MyColors.scaffoldBg,
-                                //     collapsedBackgroundColor: MyColors.scaffoldBg,
-                                //     footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
-                                //     shape: RoundedRectangleBorder(),
-                                //     collapsedShape: RoundedRectangleBorder(),
-                                //     tilePadding: EdgeInsets.symmetric(horizontal: 14),
-                                //     footerExtra: IndexedStack(
-                                //       index: isLast ? 0 : 1,
-                                //       children: [
-                                //         Padding(
-                                //           padding: const EdgeInsets.all(8.0),
-                                //           child: MyButton(
-                                //             height: 30,
-                                //             label: "Transit",
-                                //             icon: Icons.add_circle_outline,
-                                //             onPressed: () {
-                                //               ref.read(segmentsProvider.notifier).update((s) => [...s, ItinerarySegment.empty()]);
-                                //             },
-                                //             textColor: Colors.blueAccent,
-                                //             color: Colors.blueAccent.withOpacity(0.1),
-                                //           ),
-                                //         ),
-                                //         SizedBox(),
-                                //       ],
-                                //     ),
-                                //     title: Column(
-                                //       crossAxisAlignment: CrossAxisAlignment.start,
-                                //       children: [
-                                //         Padding(
-                                //           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                //           child: Row(
-                                //             children: [
-                                //               Expanded(
-                                //                 child: Text(
-                                //                   "FLIGHT ${index + 1}",
-                                //                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-                                //                 ),
-                                //               ),
-                                //               isFirst
-                                //                   ? SizedBox()
-                                //                   : DotButton(
-                                //                       icon: Icons.delete,
-                                //                       color: Colors.red,
-                                //                       flat: true,
-                                //                       onPressed: () {
-                                //                         ref.read(segmentsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                //                       },
-                                //                     ),
-                                //             ],
-                                //           ),
-                                //         ),
-                                //         Row(
-                                //           spacing: 12,
-                                //           children: [
-                                //             Expanded(
-                                //               child: MyFieldPicker<Location>(
-                                //                 required: true,
-                                //                 label: "From",
-                                //                 placeholder: "City",
-                                //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                                //                 items: tim.locations.of(LocationType.airport),
-                                //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
-                                //                 onChange: (a) {
-                                //                   if (a is Location) {
-                                //                     final update = seg.departure.copyWith(point: a.code3);
-                                //                     seg = seg.copyWith(departure: update);
-                                //                     final ul = [...segments];
-                                //                     ul[index] = seg;
-                                //                     ref.read(segmentsProvider.notifier).update((s) => ul);
-                                //                   }
-                                //                 },
-                                //               ),
-                                //             ),
-                                //             Expanded(
-                                //               child: MyFieldPicker<Location>(
-                                //                 label: "To",
-                                //                 placeholder: "City",
-                                //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                                //                 required: true,
-                                //                 items: tim.locations.of(LocationType.airport),
-                                //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
-                                //                 onChange: (a) {
-                                //                   if (a is Location) {
-                                //                     final update = seg.arrival.copyWith(point: a.code3);
-                                //                     seg = seg.copyWith(arrival: update);
-                                //                     final ul = [...segments];
-                                //                     ul[index] = seg;
-                                //                     ref.read(segmentsProvider.notifier).update((s) => ul);
-                                //                   }
-                                //                 },
-                                //               ),
-                                //             ),
-                                //           ],
-                                //         ),
-                                //       ],
-                                //     ),
-                                //     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
-                                //     children: [
-                                //       Row(
-                                //         spacing: 12,
-                                //         children: [
-                                //           Expanded(
-                                //             child: MyDatePicker(
-                                //               label: "Departure",
-                                //               placeholder: "Date",
-                                //               value: seg.departure.dateTime,
-                                //               onChanged: (a) {
-                                //                 seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
-                                //                 log(jsonEncode(seg.toJson()));
-                                //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                                //               },
-                                //             ),
-                                //           ),
-                                //           Expanded(
-                                //             child: MyDatePicker(
-                                //               label: "Arrival",
-                                //               placeholder: "Date",
-                                //               value: seg.arrival.dateTime,
-                                //               onChanged: (a) {
-                                //                 seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
-                                //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                                //               },
-                                //             ),
-                                //           ),
-                                //         ],
-                                //       ),
-                                //       const SizedBox(height: 12),
-                                //       MyFieldPicker<ParameterValue>(
-                                //         label: "Operating Carrier",
-                                //         placeholder: "Airline",
-                                //         items: tim.params.of(ParameterType.carrier),
-                                //         value: seg.operatingCarrier,
-                                //         onChange: (a) {
-                                //           seg = seg.copyWith(operatingCarrier: a);
-                                //           log(jsonEncode(seg.toJson()));
-                                //           ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                                //         },
-                                //       ),
-                                //     ],
-                                //   ),
-                                // );
-                              }).toList(),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: MyColors.scaffoldHeader,
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text("PASSPORT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                    // return Container(
+                                    //   decoration: BoxDecoration(
+                                    //     border: Border(bottom: BorderSide(color: Colors.white)),
+                                    //   ),
+                                    //   child: MyExpansionTile(
+                                    //     backgroundColor: MyColors.scaffoldBg,
+                                    //     collapsedBackgroundColor: MyColors.scaffoldBg,
+                                    //     footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+                                    //     shape: RoundedRectangleBorder(),
+                                    //     collapsedShape: RoundedRectangleBorder(),
+                                    //     tilePadding: EdgeInsets.symmetric(horizontal: 14),
+                                    //     footerExtra: IndexedStack(
+                                    //       index: isLast ? 0 : 1,
+                                    //       children: [
+                                    //         Padding(
+                                    //           padding: const EdgeInsets.all(8.0),
+                                    //           child: MyButton(
+                                    //             height: 30,
+                                    //             label: "Transit",
+                                    //             icon: Icons.add_circle_outline,
+                                    //             onPressed: () {
+                                    //               ref.read(segmentsProvider.notifier).update((s) => [...s, ItinerarySegment.empty()]);
+                                    //             },
+                                    //             textColor: Colors.blueAccent,
+                                    //             color: Colors.blueAccent.withOpacity(0.1),
+                                    //           ),
+                                    //         ),
+                                    //         SizedBox(),
+                                    //       ],
+                                    //     ),
+                                    //     title: Column(
+                                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                                    //       children: [
+                                    //         Padding(
+                                    //           padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    //           child: Row(
+                                    //             children: [
+                                    //               Expanded(
+                                    //                 child: Text(
+                                    //                   "FLIGHT ${index + 1}",
+                                    //                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                                    //                 ),
+                                    //               ),
+                                    //               isFirst
+                                    //                   ? SizedBox()
+                                    //                   : DotButton(
+                                    //                       icon: Icons.delete,
+                                    //                       color: Colors.red,
+                                    //                       flat: true,
+                                    //                       onPressed: () {
+                                    //                         ref.read(segmentsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                    //                       },
+                                    //                     ),
+                                    //             ],
+                                    //           ),
+                                    //         ),
+                                    //         Row(
+                                    //           spacing: 12,
+                                    //           children: [
+                                    //             Expanded(
+                                    //               child: MyFieldPicker<Location>(
+                                    //                 required: true,
+                                    //                 label: "From",
+                                    //                 placeholder: "City",
+                                    //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
+                                    //                 items: tim.locations.of(LocationType.airport),
+                                    //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
+                                    //                 onChange: (a) {
+                                    //                   if (a is Location) {
+                                    //                     final update = seg.departure.copyWith(point: a.code3);
+                                    //                     seg = seg.copyWith(departure: update);
+                                    //                     final ul = [...segments];
+                                    //                     ul[index] = seg;
+                                    //                     ref.read(segmentsProvider.notifier).update((s) => ul);
+                                    //                   }
+                                    //                 },
+                                    //               ),
+                                    //             ),
+                                    //             Expanded(
+                                    //               child: MyFieldPicker<Location>(
+                                    //                 label: "To",
+                                    //                 placeholder: "City",
+                                    //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
+                                    //                 required: true,
+                                    //                 items: tim.locations.of(LocationType.airport),
+                                    //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
+                                    //                 onChange: (a) {
+                                    //                   if (a is Location) {
+                                    //                     final update = seg.arrival.copyWith(point: a.code3);
+                                    //                     seg = seg.copyWith(arrival: update);
+                                    //                     final ul = [...segments];
+                                    //                     ul[index] = seg;
+                                    //                     ref.read(segmentsProvider.notifier).update((s) => ul);
+                                    //                   }
+                                    //                 },
+                                    //               ),
+                                    //             ),
+                                    //           ],
+                                    //         ),
+                                    //       ],
+                                    //     ),
+                                    //     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+                                    //     children: [
+                                    //       Row(
+                                    //         spacing: 12,
+                                    //         children: [
+                                    //           Expanded(
+                                    //             child: MyDatePicker(
+                                    //               label: "Departure",
+                                    //               placeholder: "Date",
+                                    //               value: seg.departure.dateTime,
+                                    //               onChanged: (a) {
+                                    //                 seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
+                                    //                 log(jsonEncode(seg.toJson()));
+                                    //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                                    //               },
+                                    //             ),
+                                    //           ),
+                                    //           Expanded(
+                                    //             child: MyDatePicker(
+                                    //               label: "Arrival",
+                                    //               placeholder: "Date",
+                                    //               value: seg.arrival.dateTime,
+                                    //               onChanged: (a) {
+                                    //                 seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
+                                    //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                                    //               },
+                                    //             ),
+                                    //           ),
+                                    //         ],
+                                    //       ),
+                                    //       const SizedBox(height: 12),
+                                    //       MyFieldPicker<ParameterValue>(
+                                    //         label: "Operating Carrier",
+                                    //         placeholder: "Airline",
+                                    //         items: tim.params.of(ParameterType.carrier),
+                                    //         value: seg.operatingCarrier,
+                                    //         onChange: (a) {
+                                    //           seg = seg.copyWith(operatingCarrier: a);
+                                    //           log(jsonEncode(seg.toJson()));
+                                    //           ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                                    //         },
+                                    //       ),
+                                    //     ],
+                                    //   ),
+                                    // );
+                                  }).toList(),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: MyColors.scaffoldHeader,
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                               ),
-                              MyButton(
-                                label: "Scan",
-                                icon: Icons.qr_code_scanner,
-                                onPressed: () {
-                                  myHomeController.goNamed(Routes.mrzReader);
-                                },
-                                textColor: Colors.white,
-                                // textColor: context.mainColor,
-                                borderSide: BorderSide(color: Colors.white),
-                                radius: 12,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text("PASSPORT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                  ),
+                                  MyButton(
+                                    label: "Scan",
+                                    icon: Icons.qr_code_scanner,
+                                    onPressed: () {
+                                      myHomeController.goNamed(Routes.mrzReader);
+                                    },
+                                    textColor: Colors.white,
+                                    // textColor: context.mainColor,
+                                    borderSide: BorderSide(color: Colors.white),
+                                    radius: 12,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Builder(
-                          builder: (context) {
-                            return Column(
-                              children: passports.map((d) {
-                                int index = passports.indexOf(d);
-                                bool isLast = passports.length == index + 1;
-                                bool isFirst = index == 0;
-                                return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: false);
-                              }).toList(),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: MyColors.scaffoldHeader,
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                            ),
+                            Builder(
+                              builder: (context) {
+                                return Column(
+                                  children: passports.map((d) {
+                                    int index = passports.indexOf(d);
+                                    bool isLast = passports.length == index + 1;
+                                    bool isFirst = index == 0;
+                                    return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: false);
+                                  }).toList(),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: MyColors.scaffoldHeader,
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                               ),
-                              MyButton(
-                                label: "Scan",
-                                icon: Icons.qr_code_scanner,
-                                onPressed: () {
-                                  myHomeController.goNamed(Routes.mrzReader);
-                                },
-                                textColor: Colors.white,
-                                // textColor: context.mainColor,
-                                borderSide: BorderSide(color: Colors.white),
-                                radius: 12,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                  ),
+                                  MyButton(
+                                    label: "Scan",
+                                    icon: Icons.qr_code_scanner,
+                                    onPressed: () {
+                                      myHomeController.goNamed(Routes.mrzReader);
+                                    },
+                                    textColor: Colors.white,
+                                    // textColor: context.mainColor,
+                                    borderSide: BorderSide(color: Colors.white),
+                                    radius: 12,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Builder(
+                              builder: (context) {
+                                return Column(
+                                  children: visas.map((d) {
+                                    int index = visas.indexOf(d);
+                                    bool isLast = visas.length == index + 1;
+                                    bool isFirst = index == 0;
+                                    return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: true);
+                                  }).toList(),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        Builder(
-                          builder: (context) {
-                            return Column(
-                              children: visas.map((d) {
-                                int index = visas.indexOf(d);
-                                bool isLast = visas.length == index + 1;
-                                bool isFirst = index == 0;
-                                return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: true);
-                              }).toList(),
-                            );
-                          },
-                        ),
-                      ],
+                      ),
                     ),
+                  )
+                else
+                  Expanded(child: TimaticResultWidget(res: timaticRes)),
+                Container(
+                  height: 60,
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  color: MyColors.greyBG,
+                  child: Row(
+                    children: [
+                      resultMode
+                          ? MyButton(
+                              label: "Back",
+                              borderSide: BorderSide(color: MyColors.black8),
+                              icon: Icons.arrow_left,
+                              iconSize: 20,
+                              onPressed: () {
+                                ref.read(timaticResultProvider.notifier).update((s) => null);
+                              },
+                              reverse: true,
+                              color: Colors.black,
+                            )
+                          : MyButton(
+                              label: "Clear",
+                              borderSide: BorderSide(color: MyColors.black8),
+                              icon: Icons.refresh,
+                              onPressed: () {
+                                getIt<HomeController>().clear();
+                              },
+                              reverse: true,
+                              color: Colors.black,
+                            ),
+                      Spacer(),
+                      resultMode
+                          ? MyButton(
+                              label: "Start Again",
+                              icon: Icons.refresh,
+                              iconInRight: true,
+                              onPressed: () async {
+                                myHomeController.clear();
+                                ref.read(timaticResultProvider.notifier).update((s) => null);
+                              },
+                              radius: 12,
+                            )
+                          : MyButton(
+                              label: "TIMATIC Check",
+                              icon: Icons.perm_identity,
+                              iconInRight: true,
+                              onPressed: () async {
+                                final timResult = await myHomeController.timaticApi.submitDocumentRequest(
+                                  DocumentRequest(
+                                    documentDetails: [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList(),
+                                    itineraryDetails: ItineraryDetails(segments: segments),
+                                    passengerDetails: passengerDetails,
+                                  ),
+                                );
+                                ref.read(timaticResultProvider.notifier).update((s) => timResult);
+                              },
+                              radius: 12,
+                            ),
+                    ],
                   ),
                 ),
-              )
-            else
-              Expanded(child: TimaticResultWidget(res: timaticRes)),
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              color: MyColors.greyBG,
-              child: Row(
-                children: [
-                  resultMode
-                      ? MyButton(
-                          label: "Back",
-                          borderSide: BorderSide(color: MyColors.black8),
-                          icon: Icons.arrow_left,
-                          iconSize: 20,
-                          onPressed: () {
-                            ref.read(timaticResultProvider.notifier).update((s) => null);
-                          },
-                          reverse: true,
-                          color: Colors.black,
-                        )
-                      : MyButton(
-                          label: "Clear",
-                          borderSide: BorderSide(color: MyColors.black8),
-                          icon: Icons.refresh,
-                          onPressed: () {
-                            getIt<HomeController>().clear();
-                          },
-                          reverse: true,
-                          color: Colors.black,
-                        ),
-                  Spacer(),
-                  resultMode
-                      ? MyButton(
-                          label: "Start Again",
-                          icon: Icons.refresh,
-                          iconInRight: true,
-                          onPressed: () async {
-                            myHomeController.clear();
-                            ref.read(timaticResultProvider.notifier).update((s) => null);
-                          },
-                          radius: 12,
-                        )
-                      : MyButton(
-                          label: "TIMATIC Check",
-                          icon: Icons.perm_identity,
-                          iconInRight: true,
-                          onPressed: () async {
-                            final timResult = await myHomeController.timaticApi.submitDocumentRequest(
-                              DocumentRequest(
-                                documentDetails: [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList(),
-                                itineraryDetails: ItineraryDetails(segments: segments),
-                                passengerDetails: passengerDetails,
-                              ),
-                            );
-                            ref.read(timaticResultProvider.notifier).update((s) => timResult);
-                          },
-                          radius: 12,
-                        ),
-                ],
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -959,7 +966,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   width: 200,
                                   child: Row(
                                     children: [
-                                      CircleAvatar(),
+                                      Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                        return UserAvatar(url: '',canEdit: true,hasImage: ref.watch(userProvider)?.profile.hasImage??false,);
+                                      },),
+
                                       const SizedBox(width: 12),
                                       Consumer(
                                         builder: (BuildContext context, WidgetRef ref, Widget? child) {

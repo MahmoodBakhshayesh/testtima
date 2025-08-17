@@ -6,7 +6,7 @@ class TimaticError implements Exception {
   TimaticError(this.message, {this.statusCode, this.cause});
 
   @override
-  String toString() => 'TimaticError($statusCode): $message';
+  String toString() => 'TimaticError: $message';
 }
 
 class TimaticNetworkError extends TimaticError {
