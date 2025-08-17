@@ -36,7 +36,11 @@ class TimaticApi {
       }
       throw TimaticParsingError('Unexpected response for /user/login');
     } on DioException catch (e) {
-      throw TimaticNetworkError(e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
+      log("*"*100);
+      String? error = e.response?.data["message"];
+      log(jsonEncode(e.response?.data));
+      log("*"*100);
+      throw TimaticNetworkError(error??e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
     } catch (e) {
       throw TimaticError('Unknown error during login', cause: e);
     }

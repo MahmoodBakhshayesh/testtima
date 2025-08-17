@@ -15,7 +15,7 @@ abstract class FailureHandler {
   static void handle(Failure failure, {Function? retry}) {
     BotToast.showAttachedWidget(
         attachedBuilder: (_) => Transform.scale(
-              scale: 0.7,
+              scale: 0.9,
               child: Material(
                 child: GestureDetector(
                   onTap: () {
