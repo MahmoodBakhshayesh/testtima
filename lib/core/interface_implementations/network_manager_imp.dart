@@ -48,10 +48,13 @@ class NetworkManagerImp implements NetworkManagerInterface {
 
         return res;
       } catch (e, trace) {
+        log("ParseException");
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      throw ServerException(code: networkResponse.responseCode, message: networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+
+      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 
@@ -95,7 +98,9 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      throw ServerException(code: networkResponse.responseCode, message: networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.get"), data: networkResponse.responseBody);
+      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+
+      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
     // return res;
   }
@@ -131,7 +136,9 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      throw ServerException(code: networkResponse.responseCode, message: networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+
+      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 
@@ -165,7 +172,9 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      throw ServerException(code: networkResponse.responseCode, message: networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+
+      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 
@@ -199,7 +208,9 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      throw ServerException(code: networkResponse.responseCode, message: networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+
+      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 }

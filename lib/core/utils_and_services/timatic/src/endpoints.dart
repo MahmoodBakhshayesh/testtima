@@ -42,6 +42,14 @@ class TimaticApi {
       log("*"*100);
       throw TimaticNetworkError(error??e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
     } catch (e) {
+      log(e.toString());
+      log(e.runtimeType.toString());
+      if(e is TimaticError){
+        throw e;
+      }
+      if(e is String){
+        throw TimaticError(e, cause: e);
+      }
       throw TimaticError('Unknown error during login', cause: e);
     }
   }

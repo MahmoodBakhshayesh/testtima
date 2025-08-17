@@ -36,27 +36,33 @@ class _LoginViewPhoneState extends State<LoginViewPhone> {
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: Consumer(
-        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-          return DotButton(
-            size: 40,
-            // fade: false,
-            flat: true,
-            backgroundColor: Colors.white,
-            onPressed: () async {
-              await LoginViewPhone.myLoginController.serverSelect();
-              // myLoginController.showLoginSetting();
-            },
-            icon: Icons.settings_remote_rounded,
-          );
-        },
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Scaffold(
+        floatingActionButton: Consumer(
+          builder: (BuildContext context, WidgetRef ref, Widget? child) {
+            return DotButton(
+              size: 40,
+              // fade: false,
+              flat: true,
+              backgroundColor: Colors.white,
+              onPressed: () async {
+                await LoginViewPhone.myLoginController.serverSelect();
+                // myLoginController.showLoginSetting();
+              },
+              icon: Icons.settings_remote_rounded,
+            );
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.black54,
+        body: LoginPanel(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black54,
-      body: LoginPanel(),
     );
   }
 }
@@ -135,6 +141,10 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
     super.dispose();
   }
 
+  unFocus() {
+    FocusScope.of(context).requestFocus(FocusNode());
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -185,6 +195,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                           label: "Forget Password",
                           onPressed: () {
                             viewIndex = 1;
+                            unFocus();
                             setState(() {});
                           },
                           reverse: true,
@@ -320,6 +331,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                             forgetCodeC.clear();
                             forgetPasswordMode = false;
                             viewIndex = 1;
+                            unFocus();
                             setState(() {});
                           },
                           color: Colors.white,
@@ -345,11 +357,17 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                     Pinput(
                       length: 6,
                       controller: forgetCodeC,
-                      autofocus: true,
+                      defaultPinTheme: PinTheme(
+                        textStyle: TextStyle(fontSize: 18),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                        constraints: BoxConstraints(minHeight: 55),
+                      ),
+                      autofocus: viewIndex==2,
                       onCompleted: (a) {
-                        // FocusScope.of(context).requestFocus(newPasswordFN);
-                        viewIndex ++;
-                        setState((){});
+                        viewIndex++;
+
+                        unFocus();
+                        setState(() {});
                       },
                     ),
                     const SizedBox(height: 24),
@@ -370,6 +388,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                                         codeSent = true;
                                         forgetCodeC.clear();
                                         controller.start();
+                                        unFocus();
                                         setState(() {});
                                       }
                                     },
@@ -417,7 +436,6 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                   children: [
                     Column(
                       children: [
-
                         const SizedBox(height: 16),
                         MyTextField(
                           label: "New Password",
@@ -448,7 +466,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                             return MyButton(
                               height: 45,
                               color: Theme.of(context).primaryColor,
-                              borderSide: BorderSide(color:Theme.of(context).primaryColor ),
+                              borderSide: BorderSide(color: Theme.of(context).primaryColor),
                               onPressed: forgetCodeC.text.length < 6 || newPasswordC.text.isEmpty || newPasswordC.text != newPasswordConfirmC.text
                                   ? null
                                   : () async {
@@ -460,6 +478,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                                         forgetCodeC.clear();
                                         controller.start();
                                         viewIndex = 0;
+                                        unFocus();
                                         setState(() {});
                                       }
                                     },
@@ -468,243 +487,8 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                             );
                           },
                         ),
-
                       ],
                     ),
-
-                    // Consumer(
-                    //   builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                    //     return MyButton(
-                    //       height: 45,
-                    //       onPressed: () async {
-                    //         myLoginController.goNamed(Routes.offlineBoarding);
-                    //       },
-                    //       fontSize: 16,
-                    //       label: 'Offline Boarding',
-                    //     );
-                    //   },
-                    // ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-            padding: const EdgeInsets.only(left: 24, right: 24, top: 0),
-            margin: const EdgeInsets.only(top: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 48),
-                Text("FORGET\nPASSWORD", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 32),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        DotButton(
-                          icon: Icons.arrow_left,
-                          onPressed: () {
-                            codeSent = false;
-                            controller.cancel();
-                            forgetCodeC.clear();
-                            forgetPasswordMode = false;
-                            setState(() {});
-                          },
-                          color: Colors.white,
-                          border: BorderSide(color: MyColors.lineColor),
-                          child: Icon(Icons.arrow_left, color: Colors.black),
-                        ),
-                        const SizedBox(width: 12),
-                        Text("Enter Your Email", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    MyTextField(label: "Email", placeholder: "", locked: codeSent, keyboardType: TextInputType.emailAddress, controller: emailC, onSubmit: (v) {}),
-                    const SizedBox(height: 16),
-                    Visibility(
-                      visible: !codeSent,
-                      child: Consumer(
-                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              MyButton(
-                                height: 45,
-                                color: Theme.of(context).primaryColor,
-                                borderSide: BorderSide(color: context.mainColor),
-                                onPressed: !emailC.text.isEmail
-                                    ? null
-                                    : () async {
-                                        final res = await LoginPanel.myLoginController.sendForgetPasswordCode(emailC.text);
-                                        if (res != null) {
-                                          forgetCodeC.clear();
-                                          codeSent = true;
-                                          controller.start();
-                                          setState(() {});
-                                        }
-                                      },
-                                fontSize: 16,
-                                label: 'Send Code',
-                              ),
-                              const SizedBox(height: 8),
-                              // Row(
-                              //   children: [
-                              //     MyButton(
-                              //       height: 40,
-                              //       color: Theme.of(context).primaryColor,
-                              //       onPressed: () {
-                              //         codeSent = false;
-                              //         controller.cancel();
-                              //         forgetCodeC.clear();
-                              //         forgetPasswordMode = false;
-                              //         setState(() {});
-                              //       },
-                              //       fontSize: 14,
-                              //       reverse: true,
-                              //       label: "Back to login",
-                              //     ),
-                              //   ],
-                              // ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    Visibility(
-                      visible: codeSent,
-                      child: Column(
-                        children: [
-                          Pinput(
-                            length: 6,
-                            controller: forgetCodeC,
-                            autofocus: true,
-                            onCompleted: (a) {
-                              FocusScope.of(context).requestFocus(newPasswordFN);
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          MyTextField(
-                            label: "Password",
-                            placeholder: "",
-                            controller: newPasswordC,
-                            focusNode: newPasswordFN,
-                            isPassword: true,
-                            onSubmit: (a) {
-                              FocusScope.of(context).requestFocus(newPasswordConfirmFN);
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          MyTextField(
-                            label: "Password Confirm",
-                            placeholder: "",
-                            controller: newPasswordConfirmC,
-                            focusNode: newPasswordConfirmFN,
-                            validator: (a) {
-                              if (a.isNotEmpty && newPasswordC.text.isNotEmpty && a != newPasswordC.text) {
-                                return "Passwords does not match";
-                              }
-                            },
-                            isPassword: true,
-                          ),
-                          const SizedBox(height: 12),
-                          Consumer(
-                            builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                              return MyButton(
-                                height: 45,
-                                color: Theme.of(context).primaryColor,
-                                onPressed: forgetCodeC.text.length < 6 || newPasswordC.text.isEmpty || newPasswordC.text != newPasswordConfirmC.text
-                                    ? null
-                                    : () async {
-                                        final res = await LoginPanel.myLoginController.resetPassword(email: emailC.text, newPass: newPasswordC.text, code: forgetCodeC.text);
-                                        if (res != null) {
-                                          SuccessHandler.handle(ServerSuccess(code: 1, msg: "Password set successfully!"));
-                                          forgetPasswordMode = false;
-                                          codeSent = false;
-                                          forgetCodeC.clear();
-                                          controller.start();
-                                          setState(() {});
-                                        }
-                                      },
-                                fontSize: 16,
-                                label: 'Set Password',
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          Consumer(
-                            builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                              return Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      AnimatedBuilder(
-                                        animation: controller,
-                                        builder: (_, __) {
-                                          return MyButton(
-                                            height: 40,
-                                            color: Theme.of(context).primaryColor,
-                                            onPressed: controller.isRunning
-                                                ? null
-                                                : () async {
-                                                    final res = await LoginPanel.myLoginController.sendForgetPasswordCode(emailC.text);
-                                                    if (res != null) {
-                                                      codeSent = true;
-                                                      forgetCodeC.clear();
-                                                      controller.start();
-                                                      setState(() {});
-                                                    }
-                                                  },
-                                            fontSize: 14,
-                                            reverse: true,
-                                            label: controller.isRunning ? 'Resend in ${controller.remaining}s' : 'Resend Code',
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      MyButton(
-                                        height: 40,
-                                        color: Theme.of(context).primaryColor,
-                                        onPressed: () async {
-                                          codeSent = false;
-                                          forgetCodeC.clear();
-                                          controller.cancel();
-                                          setState(() {});
-                                        },
-                                        fontSize: 14,
-                                        reverse: true,
-                                        label: 'Change Email',
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Consumer(
-                    //   builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                    //     return MyButton(
-                    //       height: 45,
-                    //       onPressed: () async {
-                    //         myLoginController.goNamed(Routes.offlineBoarding);
-                    //       },
-                    //       fontSize: 16,
-                    //       label: 'Offline Boarding',
-                    //     );
-                    //   },
-                    // ),
                   ],
                 ),
               ],

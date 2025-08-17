@@ -139,7 +139,8 @@ initNetworkManager([String? baseUrl]) {
     },
     onStartDefault: (_) {},
     msgExtractor: (data) {
-      return (data["Message"] ?? data["ResultText"] ?? "Done").toString();
+      log("msgExtractorv ${data}" );
+      return (data["message"]??data["Message"] ?? data["ResultText"] ?? "Done").toString();
     },
     tokenExpireCheck: (NetworkRequest req, NetworkResponse res) {
       if (res.responseBody is Map && res.responseBody["Body"] != null) {
