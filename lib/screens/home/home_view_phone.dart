@@ -10,6 +10,7 @@ import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/widgets/DotButton.dart';
+import 'package:abds/widgets/DurationOfStayPicker.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
@@ -546,6 +547,15 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                             }
                           },
                         ),
+                  const SizedBox(width: 8),
+                  DotButton(
+                    border: BorderSide(color: Colors.blueAccent),
+                    icon: Icons.refresh,
+                    flat: true,
+                    onPressed: () {
+                      ref.read(segmentsProvider.notifier).updateAt(index,ItinerarySegment.empty());
+                    },
+                  )
                 ],
               ),
             ),
@@ -574,6 +584,7 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                     label: "Nationality",
                     required: true,
                     placeholder: "Country",
+                    searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
                     itemToWidget: countryBuilder,
                     items: tim.locations.of(LocationType.country),
                     value: passengerDetails.nationality,
@@ -588,7 +599,13 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
         ),
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
-          MyTextField(controller: controller, label: "Document Number", placeholder: "Number", labelInRow: true),
+          Row(
+            children: [
+              Expanded(child: MyTextField(controller: controller, label: "Doc NO.", placeholder: "Number", labelInRow: true)),
+              const SizedBox(width: 12),
+              Expanded(child: SizedBox())
+            ],
+          ),
           const SizedBox(height: 12),
           Row(
             spacing: 12,
@@ -637,6 +654,7 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                   label: "Issuing",
                   placeholder: "Country",
                   itemToWidget: countryBuilder,
+                  searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
                   items: tim.locations.of(LocationType.country),
                   value: d.documentIssueCountry,
                   onChange: (a) {
@@ -675,6 +693,7 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                   label: "Birth Place",
                   hasSearch: true,
                   placeholder: "Country",
+                  searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
                   items: tim.locations.of(LocationType.country),
                   itemToWidget: countryBuilder,
                   value: passengerDetails.birthCountry,
@@ -814,6 +833,15 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       ref.read(segmentsProvider.notifier).removeAt(index);
                     },
                   ),
+                  const SizedBox(width: 8),
+                  DotButton(
+                    icon: Icons.refresh,
+                    border: BorderSide(color: Colors.blueAccent),
+                    flat: true,
+                    onPressed: () {
+                      ref.read(segmentsProvider.notifier).updateAt(index,ItinerarySegment.empty());
+                    },
+                  )
                 ],
               ),
             ),
@@ -826,6 +854,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     label: "From",
                     placeholder: "City",
                     itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
+                    searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
                     items: tim.locations.of(LocationType.airport),
                     value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
                     onChange: (a) {
@@ -847,6 +876,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
                     required: true,
                     items: tim.locations.of(LocationType.airport),
+                    searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
                     value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
                     onChange: (a) {
                       if (a is Location) {
@@ -901,21 +931,82 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
             ],
           ),
           const SizedBox(height: 12),
-          MyFieldPicker<ParameterValue>(
-            label: "Operating Carrier",
-            placeholder: "Airline",
-            items: tim.params.of(ParameterType.carrier),
-            value: seg.operatingCarrier,
-            onChange: (a) {
-              seg = seg.copyWith(operatingCarrier: a);
-              ref.read(segmentsProvider.notifier).updateAt(index,seg);
+          Row(
+            children: [
+              Expanded(
+                child: MyFieldPicker<ParameterValue>(
+                  label: "Airline",
+                  placeholder: "Airline",
+                  items: tim.params.of(ParameterType.carrier),
+                  value: seg.operatingCarrier,
+                  onChange: (a) {
+                    seg = seg.copyWith(operatingCarrier: a);
+                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
 
-              // log(jsonEncode(seg.toJson()));
-              // ref.read(segmentsProvider.notifier).update((s) => [...s]);
-            },
+                    // log(jsonEncode(seg.toJson()));
+                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                  },
+                ),
+              ),
+              const SizedBox(width:12 ),
+              Expanded(
+                child: MyFieldPicker<PurposeOfStayType>(
+                  label: "POS",
+                  placeholder: "Purpose Of Stay",
+                  items: PurposeOfStayType.values,
+                  hasSearch: false,
+                  value: seg.purposeOfStay,
+                  onChange: (a) {
+                    seg = seg.copyWith(purposeOfStay: a);
+                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+
+                    // log(jsonEncode(seg.toJson()));
+                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                  },
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
-          MyTextField(controller: controller,label: "Flight Number",placeholder: "Number",labelInRow: true,)
+          Row(
+            children: [
+              Expanded(child: MyTextField(controller: controller,label: "Flight Num",placeholder: "Number",labelInRow: true)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: MyDurationOfStayPicker(label: "DOS",
+                  placeholder: "Duration Of Stay",
+                  value: seg.durationOfStay,onChange: (a){
+                  seg = seg.copyWith(durationOfStay: a);
+                  ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                },),
+              )
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: MyFieldPicker<TicketStatus>(
+                  label: "Ticket",
+                  placeholder: "Ticket Status",
+                  items: TicketStatus.values,
+                  hasSearch: false,
+                  value: seg.returnOnwardTicket,
+
+                  onChange: (a) {
+                    seg = seg.copyWith(returnOnwardTicket: a);
+                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+
+                    // log(jsonEncode(seg.toJson()));
+                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: SizedBox())
+            ],
+          ),
+         
         ],
       ),
     );
@@ -1000,11 +1091,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     },
                                   ),
                                 ),
-                                CheckPermission(
-                                  permission: UserUiPermission.add(),
-                                  child: SizedBox(
-                                    height: 50,
-                                    width: 200,
+                                SizedBox(
+                                  height: 50,
+                                  width: 200,
+                                  child: CheckPermission(
+                                    permission: UserUiPermission.add(),
                                     child: ListTile(
                                       contentPadding: EdgeInsets.symmetric(horizontal: 8),
                                       dense: true,

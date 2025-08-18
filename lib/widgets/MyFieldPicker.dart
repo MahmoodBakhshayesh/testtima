@@ -12,6 +12,7 @@ import 'dart:developer' as dev;
 
 class MyFieldPicker<T> extends StatefulWidget {
   final String Function(T)? itemToString;
+  final String Function(T)? searchBuilder;
   final Color Function(T)? itemToColor;
   final Widget Function(T)? itemToWidget;
   final List<T> items;
@@ -30,6 +31,7 @@ class MyFieldPicker<T> extends StatefulWidget {
   const MyFieldPicker({
     super.key,
     this.itemToString,
+    this.searchBuilder,
     this.locked = false,
     this.required = false,
     this.labelInRow = false,
@@ -101,7 +103,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                 return Padding(
                   // This moves content above the keyboard
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch),
+                  child: PickerSheetWidget(searchBuilder: widget.searchBuilder, items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch),
                 );
                 return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
               },
@@ -123,6 +125,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               borderSide: BorderSide(color: Colors.white, width: 1),
               radius: BorderRadius.circular(8),
               label: widget.label,
+              fontSize: 12,
               placeholder: widget.placeholder,
               suffixIcon: Icon(Icons.arrow_drop_down),
             ),
@@ -138,8 +141,9 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final String label;
   final bool hasSearch;
   final Widget Function(T)? itemToWidget;
+  final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items, required this.label, this.itemToWidget, required this.hasSearch});
+  const PickerSheetWidget({super.key, required this.items, required this.label, this.itemToWidget, this.searchBuilder, required this.hasSearch});
 
   @override
   State<PickerSheetWidget> createState() => _PickerSheetWidgetState();
@@ -162,14 +166,18 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.items.where((a) => searchC.text.isEmpty || a.toString().toLowerCase().contains(searchC.text.toLowerCase())).toList();
-    items.sort((a, b) => a.toString().toLowerCase().indexOf(searchC.text.toLowerCase()).compareTo(b.toString().toLowerCase().indexOf(searchC.text.toLowerCase())));
+    final items = widget.items.where((a) => searchC.text.isEmpty ||  (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().contains(searchC.text.toLowerCase())).toList();
+
+
+    items.sort(
+      (a, b) => (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(searchC.text.toLowerCase()).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(searchC.text.toLowerCase())),
+    );
 
     return SafeArea(
       child: BottomSheet(
         backgroundColor: Color(0xffEAECF2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        constraints: BoxConstraints(maxHeight: context.height*0.5),
+        constraints: BoxConstraints(maxHeight: context.height * 0.5),
         onClosing: () {},
         builder: (BuildContext context) {
           return Column(
@@ -178,7 +186,7 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12))
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 padding: const EdgeInsets.only(left: 12.0),
                 child: Row(

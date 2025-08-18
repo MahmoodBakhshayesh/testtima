@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interfaces/result_int.dart';
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/classes/new_version_class.dart';
 import '../../core/classes/server_class.dart';
@@ -19,6 +22,8 @@ import '../../core/utils_and_services/timatic/src/endpoints.dart';
 import '../../core/utils_and_services/timatic/src/models/auth_request.dart';
 import '../../initialize.dart';
 import 'dialogs/server_picker_dialog.dart';
+import 'dialogs/set_first_password_dialog.dart';
+import 'dialogs/update_version_dialog.dart';
 import 'login_state.dart';
 import 'usecases/login_usecase.dart' hide LoginRequest;
 import 'package:logging/logging.dart';
@@ -42,23 +47,68 @@ class LoginController extends ControllerInterface {
   Future<User?> login(String username, String password) async {
     _log.warning("Logging in");
     getIt<HomeController>().clear();
-    ref.read(timaticResultProvider.notifier).update((s)=>null);
-    User? user;
+    ref.read(timaticResultProvider.notifier).update((s) => null);
     DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     DeviceInfo deviceInfo = deviceInfoService.getInfo();
 
-    final logRes = await timaticApi.login(LoginRequest(username: username, password: password, app: {}, device: {}, network: {}));
+    final user = await timaticApi.login(LoginRequest(username: username, password: password, app: {}, device: {}, network: {}));
 
     User fakeUser = User(id: 1, username: username, password: password, token: "token");
 
-    log("${logRes.profile.username}");
+    log("${user.profile.username}");
     final tData = await timaticApi.preloadAll();
-    BasicClass.initialize(logRes, tData);
+    BasicClass.initialize(user, tData);
     saveLoginData(username: username, password: password);
-    ref.read(userProvider.notifier).update((s) => logRes);
-    ref.read(profileProvider.notifier).update((s) => logRes.profile);
-    navigation.goNamed(Routes.home);
+    ref.read(userProvider.notifier).update((s) => user);
+    ref.read(profileProvider.notifier).update((s) => user.profile);
+
+    if (user.setPassword) {
+      navigation.openDialog(
+        dialog: SetFirstPasswordDialog(user: user, oldPassword: password),
+        barrierDismissible: false,
+      );
+    } else {
+      askUpdate(user);
+    }
+
+    // navigation.goNamed(Routes.home);
     return fakeUser;
+  }
+
+  askUpdate(LoginData user) async {
+    if (user.versionCheck == null) {
+      proceedToApp(user);
+    } else {
+      final updateRes = await navigation.openDialog(barrierDismissible: false, dialog: UpdateVersionDialog(versionCheck: user.versionCheck!));
+      if (updateRes == 0) {
+        proceedToApp(user);
+      } else if (updateRes == 1) {
+        String? updateLink;
+        if (Platform.isAndroid) {
+          updateLink = user.versionCheck!.downloadLink!.firstWhere((a) => a.name == "google play").url;
+        } else {
+          updateLink = user.versionCheck!.downloadLink!.firstWhere((a) => a.name == "app store").url;
+        }
+        if (updateLink != null) {
+          final Uri uu = Uri.tryParse(updateLink)!;
+          launchUrl(uu);
+        } else {
+          proceedToApp(user);
+        }
+      }
+    }
+  }
+
+  Future<void> proceedToApp(LoginData user, {bool recall = false}) async {
+    log("proceedToApp");
+    try {
+      ref.read(userProvider.notifier).update((state) => user);
+      goNamed(Routes.home);
+    } catch (e) {
+      if (e is Error) {
+        log(e.stackTrace.toString());
+      }
+    }
   }
 
   void downloadNewVersion(NewVersion newVersion) {}

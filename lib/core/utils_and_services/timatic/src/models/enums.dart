@@ -1,7 +1,11 @@
+import 'package:get/get.dart';
+
 enum PurposeOfStayType {
   vocation,
   business,
-  duty
+  duty;
+  @override
+  toString()=>title.capitalizeFirst!;
 }
 
 extension StayTypeDetails on PurposeOfStayType {
@@ -48,7 +52,10 @@ extension StayTypeDetails on PurposeOfStayType {
 
 enum TicketStatus {
   ticket,
-  noTicket
+  noTicket;
+
+  @override
+  toString()=>title.capitalizeFirst!;
 }
 
 extension TicketStatusDetails on TicketStatus {
