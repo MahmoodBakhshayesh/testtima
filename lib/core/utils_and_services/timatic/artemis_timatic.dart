@@ -1,4 +1,4 @@
-library artemis_timatic;
+                                                                                                                                                                                                                                                                                                                                                                                   library artemis_timatic;
 
 export 'src/timatic_client.dart' show TimaticClient, TimaticClientOptions;
 export 'src/endpoints.dart' show TimaticApi;

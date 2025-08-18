@@ -1169,8 +1169,8 @@ class TimaticResultWidget extends StatelessWidget {
                   padding: EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: MyColors.red.withOpacity(0.12)),
-                    color: MyColors.red.withOpacity(0.08),
+                    border: Border.all(color: visaField.evaluationResult.getColor.withOpacity(0.12)),
+                    color: visaField.evaluationResult.getColor.withOpacity(0.08),
                   ),
                   child: Column(
                     children: [
