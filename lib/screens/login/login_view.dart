@@ -13,9 +13,9 @@ class LoginView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return LoginViewDesktop();
+        return LoginViewPhone();
       }else if(context.isMyTablet){
-        return LoginViewTablet();
+        return LoginViewPhone();
       }else{
         return LoginViewPhone();
       }

@@ -13,9 +13,9 @@ class MrzReaderView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return MrzReaderViewDesktop();
+        return MrzReaderViewPhone();
       }else if(context.isMyTablet){
-        return MrzReaderViewTablet();
+        return MrzReaderViewPhone();
       }else{
         return MrzReaderViewPhone();
       }

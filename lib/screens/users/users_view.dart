@@ -13,9 +13,9 @@ class UsersView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return UsersViewDesktop();
+        return UsersViewPhone();
       }else if(context.isMyTablet){
-        return UsersViewTablet();
+        return UsersViewPhone();
       }else{
         return UsersViewPhone();
       }

@@ -13,9 +13,9 @@ class HomeView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return HomeViewDesktop();
+        return HomeViewPhone();
       }else if(context.isMyTablet){
-        return HomeViewTablet();
+        return HomeViewPhone();
       }else{
         return HomeViewPhone();
       }
