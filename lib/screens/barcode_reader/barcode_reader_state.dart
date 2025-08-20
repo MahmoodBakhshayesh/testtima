@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/boarding_pass_class.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -12,3 +13,5 @@ class BarcodeReaderState extends ChangeNotifier {
 
 
 ///final userProvider = StateProvider<User?>((ref) => null);
+final scannedBpProvider = StateProvider<BoardingPass?>((ref)=>null);
+

@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/basic_class.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../artemis_timatic.dart';
@@ -204,7 +205,7 @@ class ItinerarySegment {
   factory ItinerarySegment.empty() {
     return ItinerarySegment(
       arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
-      departure: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.profile.defaultAirport??'', type: LocationType.airport, dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
     );
   }

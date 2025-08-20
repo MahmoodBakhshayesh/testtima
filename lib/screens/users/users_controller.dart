@@ -1,7 +1,11 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/extenstions/response_ext.dart';
+import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
+import 'package:abds/screens/users/usecases/update_user_usecase.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +33,7 @@ class UsersController extends ControllerInterface {
   }
 
   Future<List<People>?> getUserList() async {
-    log(ref.read(userProvider)?.token.toString()??'');
+    log(ref.read(userProvider)?.token.toString() ?? '');
     List<People>? peopleList;
     GetUserListUseCase getUserListUseCase = GetUserListUseCase();
     GetUserListRequest getUserListRequest = GetUserListRequest();
@@ -221,5 +225,23 @@ class UsersController extends ControllerInterface {
       log('Upload failed: $e');
     }
     updatingAvatarPN.update((state) => false);
+  }
+
+  Future<void> updateUserStation(String station) async {
+    UpdateUserUseCase updateUserUseCase = UpdateUserUseCase();
+    UpdateUserRequest updateUserRequest = UpdateUserRequest(defaultAirport: station);
+    final result = await updateUserUseCase(request: updateUserRequest);
+
+    switch (result) {
+      case Err<UpdateUserResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<UpdateUserResponse>():
+        final r = result.value;
+        SuccessHandler.handle(r.getSuccess);
+        ref.read(userProvider.notifier).update((s)=>s?.copyWith(profile: s.profile.copyWith(defaultAirport: station)));
+        BasicClass.initialize(ref.read(userProvider)!, BasicClass.timData);
+    }
+
   }
 }

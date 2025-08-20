@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import '../../../../screens/login/usecases/login_usecase.dart';
 import 'defaults.dart';
 import 'errors.dart';
 import 'models/accepted_values.dart';
@@ -16,9 +17,11 @@ import 'models/auth_response.dart';
 
 class TimaticApi {
   final TimaticClient _client;
+
   // ===== In-memory cache (simple) =====
   TimaticParams? _cachedParams;
   TimaticLocations? _cachedLocations;
+
   TimaticApi(this._client);
 
   Future<LoginData> login(LoginRequest body) async {
@@ -36,22 +39,28 @@ class TimaticApi {
       }
       throw TimaticParsingError('Unexpected response for /user/login');
     } on DioException catch (e) {
-      log("*"*100);
+      log("*" * 100);
       String? error = e.response?.data["message"];
       log(jsonEncode(e.response?.data));
-      log("*"*100);
-      throw TimaticNetworkError(error??e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
+      log("*" * 100);
+      throw TimaticNetworkError(error ?? e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
     } catch (e) {
       log(e.toString());
       log(e.runtimeType.toString());
-      if(e is TimaticError){
+      if (e is TimaticError) {
         throw e;
       }
-      if(e is String){
+      if (e is String) {
         throw TimaticError(e, cause: e);
       }
       throw TimaticError('Unknown error during login', cause: e);
     }
+  }
+  Future<void> setToken(String token) async {
+    _client.setAuthToken(token);
+  }
+  Future<void> setUrl(String url) async {
+    _client.setUrl(url);
   }
 
   /// GET /locations/:locationType?code=&name=
@@ -70,7 +79,7 @@ class TimaticApi {
     } on DioException catch (e) {
       throw TimaticNetworkError(e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
     } catch (e) {
-      if(e is Error){
+      if (e is Error) {
         log(e.stackTrace.toString());
       }
       throw TimaticError('Unknown error fetching locations', cause: e);
@@ -158,11 +167,10 @@ class TimaticApi {
       );
       log(jsonEncode(body.toJson()));
       if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
-        if(res.data["timaticErrors"] is List){
-
-          final erL = (res.data["timaticErrors"] as List<dynamic>).map((a)=>a["details"].toString());
+        if (res.data["timaticErrors"] is List) {
+          final erL = (res.data["timaticErrors"] as List<dynamic>).map((a) => a["details"].toString());
           throw TimaticError(erL.join("\n"), cause: res.data["timaticErrors"]);
-        }else{
+        } else {
           // log(res.data["timaticErrors"].runtimeType.toString());
         }
 
@@ -176,26 +184,18 @@ class TimaticApi {
     }
   }
 
-
-
-  Future<TimaticParams> getAllParameters({
-    List<ParameterType> types = kDefaultParameterTypes,
-    bool forceRefresh = false,
-    String? nameFilter,
-  }) async {
+  Future<TimaticParams> getAllParameters({List<ParameterType> types = kDefaultParameterTypes, bool forceRefresh = false, String? nameFilter}) async {
     if (_cachedParams != null && !forceRefresh) return _cachedParams!;
 
     // one request per type (code)
-    final envelopes = await Future.wait(
-      types.map((t) => getParameters(codes: [t.code], name: nameFilter)),
-    );
+    final envelopes = await Future.wait(types.map((t) => getParameters(codes: [t.code], name: nameFilter)));
 
     final map = <ParameterType, List<ParameterValue>>{};
     for (final env in envelopes) {
       for (final item in env.parameters) {
         final t = ParameterType.fromCode(item.code);
         if (t == null) continue; // ignore unknown codes
-        map[t] = item.parameterValues??[];
+        map[t] = item.parameterValues ?? [];
       }
     }
 
@@ -203,43 +203,23 @@ class TimaticApi {
     return _cachedParams!;
   }
 
-  Future<TimaticLocations> getAllLocations({
-    List<LocationType> types = kDefaultLocationTypes,
-    bool forceRefresh = false,
-    String? code,
-    String? name,
-  }) async {
+  Future<TimaticLocations> getAllLocations({List<LocationType> types = kDefaultLocationTypes, bool forceRefresh = false, String? code, String? name}) async {
     if (_cachedLocations != null && !forceRefresh) return _cachedLocations!;
 
     final map = <LocationType, List<Location>>{};
-    await Future.wait(types.map((t) async {
-      map[t] = await listLocationsByType(t, code: code, name: name);
-    }));
+    await Future.wait(
+      types.map((t) async {
+        map[t] = await listLocationsByType(t, code: code, name: name);
+      }),
+    );
 
     _cachedLocations = TimaticLocations(byType: map);
     return _cachedLocations!;
   }
 
-  Future<TimaticData> preloadAll({
-    List<ParameterType> paramTypes = kDefaultParameterTypes,
-    List<LocationType> locationTypes = kDefaultLocationTypes,
-    bool forceRefresh = false,
-  }) async {
-    final results = await Future.wait([
-      getAllParameters(types: paramTypes, forceRefresh: forceRefresh),
-      getAllLocations(types: locationTypes, forceRefresh: forceRefresh),
-    ]);
+  Future<TimaticData> preloadAll({List<ParameterType> paramTypes = kDefaultParameterTypes, List<LocationType> locationTypes = kDefaultLocationTypes, bool forceRefresh = false}) async {
+    final results = await Future.wait([getAllParameters(types: paramTypes, forceRefresh: forceRefresh), getAllLocations(types: locationTypes, forceRefresh: forceRefresh)]);
 
-    return TimaticData(
-      params: results[0] as TimaticParams,
-      locations: results[1] as TimaticLocations,
-    );
+    return TimaticData(params: results[0] as TimaticParams, locations: results[1] as TimaticLocations);
   }
-
-
-
-
-
-
-
 }

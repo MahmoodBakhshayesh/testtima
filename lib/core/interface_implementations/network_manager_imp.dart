@@ -52,7 +52,12 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+      String? errorMsg;
+      if(networkResponse.responseBody is Map<String,dynamic>) {
+        errorMsg= networkResponse.responseBody["message"];
+      }else if(networkResponse.responseBody is  String){
+        errorMsg= jsonDecode(networkResponse.responseBody)["message"];
+      }
 
       throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }

@@ -8,6 +8,7 @@ import 'data_sources/users_local_ds.dart';
 import 'data_sources/users_remote_ds.dart';
 import 'usecases/edit_user_usecase.dart';
 import 'usecases/get_users_usecase.dart';
+import 'usecases/update_user_usecase.dart';
 
 class UsersRepository implements UsersRepositoryInterface {
   final UsersRemoteDataSource usersRemoteDataSource = UsersRemoteDataSource();
@@ -39,6 +40,21 @@ class UsersRepository implements UsersRepositoryInterface {
         editUserResponse = await usersRemoteDataSource.editUser(request: request);
       } else {
         editUserResponse = await usersLocalDataSource.editUser(request: request);
+      }
+      return Result.ok(editUserResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+  
+  @override
+  Future<Result<UpdateUserResponse>> updateUser(UpdateUserRequest request) async {
+    try {
+      UpdateUserResponse editUserResponse;
+      if (await networkInfo.isConnected) {
+        editUserResponse = await usersRemoteDataSource.updateUser(request: request);
+      } else {
+        editUserResponse = await usersLocalDataSource.updateUser(request: request);
       }
       return Result.ok(editUserResponse);
     } on AppException catch (e) {

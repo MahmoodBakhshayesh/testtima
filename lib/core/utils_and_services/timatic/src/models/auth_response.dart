@@ -127,6 +127,7 @@ class Profile {
   final String? firstname;
   final String? middlename;
   final String? lastname;
+  final String? defaultAirport;
   final bool? hasImage;
   final int? gender;
 
@@ -138,6 +139,7 @@ class Profile {
     this.lastname,
     this.hasImage,
     this.gender,
+    this.defaultAirport,
   });
 
   Profile copyWith({
@@ -146,6 +148,7 @@ class Profile {
     String? firstname,
     String? middlename,
     String? lastname,
+    String? defaultAirport,
     bool? hasImage,
     int? gender,
   }) {
@@ -153,6 +156,7 @@ class Profile {
       username: username ?? this.username,
       email: email ?? this.email,
       firstname: firstname ?? this.firstname,
+      defaultAirport: defaultAirport ?? this.defaultAirport,
       middlename: middlename ?? this.middlename,
       lastname: lastname ?? this.lastname,
       hasImage: hasImage ?? this.hasImage,
@@ -167,6 +171,7 @@ class Profile {
       firstname: json['firstname'],
       middlename: json['middlename'],
       lastname: json['lastname'],
+      defaultAirport: json['defaultAirport'],
       hasImage: json['hasImage'],
       gender: json['gender'],
     );
@@ -177,6 +182,7 @@ class Profile {
     'email': email,
     'firstname': firstname,
     'middlename': middlename,
+    'defaultAirport': defaultAirport,
     'lastname': lastname,
     'hasImage': hasImage,
     'gender': gender,

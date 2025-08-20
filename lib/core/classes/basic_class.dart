@@ -24,6 +24,7 @@ class BasicClass {
   static late bool initialized;
   String? _username;
   TimaticData? _timaticData;
+  LoginData? _loginData;
   ConstData? _constData;
   PackageInfo? _packageInfo;
   List<UserPermission>? _userPermission;
@@ -34,6 +35,7 @@ class BasicClass {
 
   static void initialize(LoginData user, TimaticData timaticData) {
     instance._timaticData = timaticData;
+    instance._loginData = user;
     instance._constData = user.constData;
     instance._userPermission = user.permissions;
   }
@@ -43,6 +45,7 @@ class BasicClass {
   }
 
   static ConstData get constData => instance._constData!;
+  static LoginData? get user => instance._loginData;
 
   static Config get config => instance._appConfig ?? Config.def();
 

@@ -553,45 +553,46 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                     icon: Icons.refresh,
                     flat: true,
                     onPressed: () {
-                      ref.read(segmentsProvider.notifier).updateAt(index,ItinerarySegment.empty());
+                      ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
                     },
-                  )
+                  ),
                 ],
               ),
             ),
-            Row(
+            Column(
               spacing: 12,
               children: [
-                Expanded(
-                  child: MyDatePicker(
-                    label: "Expiry",
-                    required: true,
-                    placeholder: "Date",
-                    value: d.documentExpiryDate,
-                    onChanged: (a) {
-                      d = d.copyWith(documentExpiryDate: a);
-                      if (widget.isVisa) {
-                        ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                      } else {
-                        ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                      }
-                    },
-                  ),
+                MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  items: tim.params.of(ParameterType.documentCode),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
                 ),
-                Expanded(
-                  child: MyFieldPicker<Location>(
-                    hasSearch: true,
-                    label: "Nationality",
-                    required: true,
-                    placeholder: "Country",
-                    searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
-                    itemToWidget: countryBuilder,
-                    items: tim.locations.of(LocationType.country),
-                    value: passengerDetails.nationality,
-                    onChange: (a) {
-                      ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                    },
-                  ),
+                MyTextField(controller: controller, label: "Document Number", placeholder: "Number", labelInRow: true),
+
+                MyDatePicker(
+                  label: "Expiry",
+                  required: true,
+                  validator: (a) => expiryValidator(a, d.documentExpiryDate),
+                  validationColor: expiryValidationColor(d.documentExpiryDate),
+                  placeholder: "Date",
+                  value: d.documentExpiryDate,
+                  onChanged: (a) {
+                    d = d.copyWith(documentExpiryDate: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
                 ),
               ],
             ),
@@ -599,11 +600,55 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
         ),
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
+          MyDatePicker(
+            required: true,
+            label: "Birth Date",
+            placeholder: "Birth Date",
+            validator: (a) => birthDateValidator(a, passengerDetails.birthDate),
+            validationColor: birthDateValidationColor(passengerDetails.birthDate),
+            value: passengerDetails.birthDate,
+            onChanged: (a) {
+              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+            },
+          ),
+
+          const SizedBox(height: 12),
           Row(
+            spacing: 12,
             children: [
-              Expanded(child: MyTextField(controller: controller, label: "Doc NO.", placeholder: "Number", labelInRow: true)),
-              const SizedBox(width: 12),
-              Expanded(child: SizedBox())
+              Expanded(
+                child: MyFieldPicker<Location>(
+                  hasSearch: true,
+                  label: "Nationality",
+                  required: true,
+                  placeholder: "Country",
+                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                  itemToWidget: countryBuilder,
+                  items: tim.locations.of(LocationType.country),
+                  value: passengerDetails.nationality,
+                  onChange: (a) {
+                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                  },
+                ),
+              ),
+              Expanded(
+                child: MyFieldPicker<Location>(
+                  label: "Issuing",
+                  placeholder: "Country",
+                  itemToWidget: countryBuilder,
+                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                  items: tim.locations.of(LocationType.country),
+                  value: d.documentIssueCountry,
+                  onChange: (a) {
+                    d = d.copyWith(documentIssueCountry: a);
+                    if (widget.isVisa) {
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    } else {
+                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                    }
+                  },
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -611,13 +656,12 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
             spacing: 12,
             children: [
               Expanded(
-                child: MyFieldPicker<ParameterValue>(
-                  label: "Code",
-                  placeholder: "Code",
-                  items: tim.params.of(ParameterType.documentCode),
-                  value: d.documentCode,
-                  onChange: (a) {
-                    d = d.copyWith(documentCode: a);
+                child: MyDatePicker(
+                  label: "Issue Date",
+                  placeholder: "Issue Date",
+                  value: d.documentIssueDate,
+                  onChanged: (a) {
+                    d = d.copyWith(documentIssueDate: a);
                     if (widget.isVisa) {
                       ref.read(visasProvider.notifier).updateAt(widget.index, d);
                     } else {
@@ -645,82 +689,85 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
               ),
             ],
           ),
+
           const SizedBox(height: 12),
-          Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: MyFieldPicker<Location>(
-                  label: "Issuing",
-                  placeholder: "Country",
-                  itemToWidget: countryBuilder,
-                  searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
-                  items: tim.locations.of(LocationType.country),
-                  value: d.documentIssueCountry,
-                  onChange: (a) {
-                    d = d.copyWith(documentIssueCountry: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
-                  },
-                ),
-              ),
-              Expanded(
-                child: MyDatePicker(
-                  label: "Issue Date",
-                  placeholder: "Issue Date",
-                  value: d.documentIssueDate,
-                  onChanged: (a) {
-                    d = d.copyWith(documentIssueDate: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: MyFieldPicker<Location>(
-                  label: "Birth Place",
-                  hasSearch: true,
-                  placeholder: "Country",
-                  searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
-                  items: tim.locations.of(LocationType.country),
-                  itemToWidget: countryBuilder,
-                  value: passengerDetails.birthCountry,
-                  onChange: (a) {
-                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-                  },
-                ),
-              ),
-              Expanded(
-                child: MyDatePicker(
-                  required: true,
-                  label: "Birth Date",
-                  placeholder: "Birth Date",
-                  value: passengerDetails.birthDate,
-                  onChanged: (a) {
-                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-                  },
-                ),
-              ),
-            ],
+          MyFieldPicker<Location>(
+            label: "Birth Place",
+            hasSearch: true,
+            placeholder: "Country",
+            searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+            items: tim.locations.of(LocationType.country),
+            itemToWidget: countryBuilder,
+            value: passengerDetails.birthCountry,
+            onChange: (a) {
+              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+            },
           ),
         ],
       ),
     );
   }
-}
 
+  String? expiryValidator(String v, DateTime? expiry) {
+    bool isExpired = expiry != null && expiry.difference(DateTime.now()).inDays < -1;
+
+    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
+
+    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
+
+    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
+    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
+
+    if (isExpiryFake) {
+      return "Document(s) expiry date is unreadable !";
+    } else if (isExpired) {
+      return "Document(s) expired ${expiredDays} days";
+    } else if (isExpiring) {
+      return "Document(s) Expiring soon ${expiredDays} days";
+    }
+
+    return null;
+  }
+
+  Color? expiryValidationColor(DateTime? expiry) {
+    bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
+
+    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
+
+    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
+
+    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
+    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
+
+    if (isExpiryFake) {
+      return Colors.red;
+    } else if (isExpired) {
+      return Colors.red;
+    } else if (isExpiring) {
+      return Colors.orange;
+    }
+
+    return null;
+  }
+
+  String? birthDateValidator(String v, DateTime? bDate) {
+    if (bDate == null) return null;
+    int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
+    if (years > 0) {
+      return "$years year old";
+    } else {
+      int mounts = (bDate.difference(DateTime.now()).inDays / 12).floor().abs();
+      return "$mounts months old";
+    }
+
+    return null;
+  }
+
+  Color? birthDateValidationColor(DateTime? bDate) {
+    if (bDate == null) return null;
+    return Colors.black;
+  }
+}
 
 class SegmentItemRow extends ConsumerStatefulWidget {
   const SegmentItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
@@ -801,7 +848,10 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 label: "Transit",
                 icon: Icons.add_circle_outline,
                 onPressed: () {
-                  ref.read(segmentsProvider.notifier).add( ItinerarySegment.empty());
+                  final beforeSeg = seg;
+                  var newSeg = ItinerarySegment.empty();
+                  newSeg = newSeg.copyWith(departure: seg.arrival);
+                  ref.read(segmentsProvider.notifier).add(newSeg);
                 },
                 textColor: Colors.blueAccent,
                 color: Colors.blueAccent.withOpacity(0.1),
@@ -826,22 +876,22 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   isFirst
                       ? SizedBox()
                       : DotButton(
-                    icon: Icons.delete,
-                    color: Colors.red,
-                    flat: true,
-                    onPressed: () {
-                      ref.read(segmentsProvider.notifier).removeAt(index);
-                    },
-                  ),
+                          icon: Icons.delete,
+                          color: Colors.red,
+                          flat: true,
+                          onPressed: () {
+                            ref.read(segmentsProvider.notifier).removeAt(index);
+                          },
+                        ),
                   const SizedBox(width: 8),
                   DotButton(
                     icon: Icons.refresh,
                     border: BorderSide(color: Colors.blueAccent),
                     flat: true,
                     onPressed: () {
-                      ref.read(segmentsProvider.notifier).updateAt(index,ItinerarySegment.empty());
+                      ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
                     },
-                  )
+                  ),
                 ],
               ),
             ),
@@ -853,15 +903,23 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     required: true,
                     label: "From",
                     placeholder: "City",
+                    labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                    searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
+                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                     items: tim.locations.of(LocationType.airport),
                     value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
                     onChange: (a) {
                       if (a is Location) {
                         final update = seg.departure.copyWith(point: a.code3);
                         seg = seg.copyWith(departure: update);
-                        ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                        if (!isFirst) {
+                          int prevIndex = index - 1;
+                          var prevSeg = ref.read(segmentsProvider)[prevIndex];
+                          prevSeg = prevSeg.copyWith(arrival: seg.departure);
+                          ref.read(segmentsProvider.notifier).updateAt(prevIndex, prevSeg);
+                        }
                         // final ul = [...segments];
                         // ul[index] = seg;
                         // ref.read(segmentsProvider.notifier).update((s) => ul);
@@ -873,16 +931,24 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   child: MyFieldPicker<Location>(
                     label: "To",
                     placeholder: "City",
+                    labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
                     required: true,
                     items: tim.locations.of(LocationType.airport),
-                    searchBuilder: (dynamic a) =>"$a ${(a as Location).name}",
+                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                     value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
                     onChange: (a) {
                       if (a is Location) {
                         final update = seg.arrival.copyWith(point: a.code3);
                         seg = seg.copyWith(arrival: update);
-                        ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                        if (!isLast) {
+                          int nextIndex = index + 1;
+                          var nextSeg = ref.read(segmentsProvider)[nextIndex];
+                          nextSeg = nextSeg.copyWith(departure: seg.arrival);
+                          ref.read(segmentsProvider.notifier).updateAt(nextIndex, nextSeg);
+                        }
 
                         // final ul = [...segments];
                         // ul[index] = seg;
@@ -909,7 +975,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
                     // log(jsonEncode(seg.toJson()));
 
-                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
                   },
@@ -922,7 +988,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   value: seg.arrival.dateTime,
                   onChanged: (a) {
                     seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
-                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
                   },
@@ -941,14 +1007,14 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   value: seg.operatingCarrier,
                   onChange: (a) {
                     seg = seg.copyWith(operatingCarrier: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // log(jsonEncode(seg.toJson()));
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
                   },
                 ),
               ),
-              const SizedBox(width:12 ),
+              const SizedBox(width: 12),
               Expanded(
                 child: MyFieldPicker<PurposeOfStayType>(
                   label: "POS",
@@ -958,7 +1024,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   value: seg.purposeOfStay,
                   onChange: (a) {
                     seg = seg.copyWith(purposeOfStay: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // log(jsonEncode(seg.toJson()));
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
@@ -970,16 +1036,21 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: MyTextField(controller: controller,label: "Flight Num",placeholder: "Number",labelInRow: true)),
+              Expanded(
+                child: MyTextField(controller: controller, label: "Flight Num", placeholder: "Number", labelInRow: true),
+              ),
               const SizedBox(width: 12),
               Expanded(
-                child: MyDurationOfStayPicker(label: "DOS",
+                child: MyDurationOfStayPicker(
+                  label: "DOS",
                   placeholder: "Duration Of Stay",
-                  value: seg.durationOfStay,onChange: (a){
-                  seg = seg.copyWith(durationOfStay: a);
-                  ref.read(segmentsProvider.notifier).updateAt(index,seg);
-                },),
-              )
+                  value: seg.durationOfStay,
+                  onChange: (a) {
+                    seg = seg.copyWith(durationOfStay: a);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                  },
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -995,7 +1066,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
 
                   onChange: (a) {
                     seg = seg.copyWith(returnOnwardTicket: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index,seg);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // log(jsonEncode(seg.toJson()));
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
@@ -1003,10 +1074,9 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(child: SizedBox())
+              Expanded(child: SizedBox()),
             ],
           ),
-         
         ],
       ),
     );
@@ -1040,7 +1110,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 16),
-
                         SmartOverlayMenu(
                           blurSize: 2,
                           duration: Duration(milliseconds: 50),
@@ -1057,9 +1126,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   width: 200,
                                   child: Row(
                                     children: [
-                                      Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                        return UserAvatar(url: '',canEdit: true,hasImage: ref.watch(userProvider)?.profile.hasImage??false,);
-                                      },),
+                                      Consumer(
+                                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                          return UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false);
+                                        },
+                                      ),
 
                                       const SizedBox(width: 12),
                                       Consumer(
@@ -1135,6 +1206,22 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                             textColor: Colors.black,
                           ),
                         ),
+                        Spacer(),
+                        Consumer(
+                          builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                            return MyButton(
+                              borderSide: BorderSide(color: MyColors.mainColor),
+                              radius: 12,
+                              reverse: true,
+                              fontWeight: FontWeight.w700,
+                              label: ref.watch(userProvider)?.profile.defaultAirport ?? 'Set Airport',
+                              onPressed: () async {
+                                await myHomeController.setAirportDialog(context);
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
                       ],
                     ),
                   ),
@@ -1156,70 +1243,89 @@ class TimaticResultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log(res.segmentResults.length.toString());
-    final visaField = res.segmentResults.first.ruleSetEvaluations.firstWhereOrNull((a) => a.ruleSetType.name.startsWith("Visa Requirements"));
-    final commonBorder = res.segmentResults.first.commonBorder;
+    // final commonBorder = res.segmentResults.first.commonBorder;
     return ListView(
-      children: [
-        MyExpansionTile(
-          initiallyExpanded: true,
+      children: res.segmentResults.map((segRes) {
+        final visaField = segRes.ruleSetEvaluations.firstWhereOrNull((a) => a.ruleSetType.name.startsWith("Visa Requirements"));
+        int index = res.segmentResults.indexOf(segRes);
+        return MyExpansionTile(
+          initiallyExpanded: false,
           tilePadding: EdgeInsets.symmetric(horizontal: 16),
-          title: visaField == null
-              ? SizedBox()
-              : Container(
-                  padding: EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: visaField.evaluationResult.getColor.withOpacity(0.12)),
-                    color: visaField.evaluationResult.getColor.withOpacity(0.08),
-                  ),
-                  child: Column(
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Text(visaField.evaluationResult.getTitle, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
+          showFooter: false,
+          title: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(color: Colors.lightBlueAccent.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Row(children: [Text("Segment #${index + 1}"), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
+              ),
+              const SizedBox(height: 8),
+              visaField == null
+                  ? SizedBox()
+                  : Container(
+                      padding: EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: visaField.evaluationResult.getColor.withOpacity(0.12)),
+                        color: visaField.evaluationResult.getColor.withOpacity(0.08),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          // visaField.applicable ? 'Applicable' : "Not applicable",
-                          visaField.evaluationResult.getSubtitle,
-                          style: TextStyle(color: visaField.getColor, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        height: 72,
-                        decoration: BoxDecoration(color: visaField.getColor, borderRadius: BorderRadius.circular(12)),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(visaField.getIcon, color: Colors.white, size: 25),
-                              Text(
-                                visaField.evaluationResult.getActionName,
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
-                              ),
-                            ],
+                      child: Column(
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Text(visaField.evaluationResult.getTitle, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
                           ),
-                        ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              // visaField.applicable ? 'Applicable' : "Not applicable",
+                              visaField.evaluationResult.getSubtitle,
+                              style: TextStyle(color: visaField.getColor, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 72,
+                            decoration: BoxDecoration(color: visaField.getColor, borderRadius: BorderRadius.circular(12)),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(visaField.getIcon, color: Colors.white, size: 25),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    visaField.evaluationResult.getActionName,
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+            ],
+          ),
+          children: [
+            segRes.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: segRes.commonBorder!),
+            ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)),
+          ],
           // children: res.segmentResults.first.ruleSetEvaluations.map((a) => RuleSetWidget(ruleSet: a)).toList(),
-          children: res.segmentResults
-              .map(
-                (a) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    a.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: a.commonBorder!),
-                    ...a.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)).toList(),
-                  ],
-                ),
-              )
-              .toList(),
-        ),
-      ],
+          // children: res.segmentResults.map((a) {
+          //
+          //   log(a.ruleSetEvaluations.first.evaluationResult.name);
+          //
+          //   a.ruleSetEvaluations.sort((a,b)=>a.evaluationResult.name.compareTo(b.evaluationResult.name));
+          //   return Column(
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [
+          //       a.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: a.commonBorder!),
+          //       ...a.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)).toList(),
+          //     ],
+          //   );
+          // }).toList(),
+        );
+      }).toList(),
     );
     // return ListView(
     //   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1373,33 +1479,39 @@ class RuleSetWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ruleSet.documentResults.sort((a,b)=>a.evaluationResult.name.compareTo(b.evaluationResult.name));
     return Padding(
       padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
       child: MyExpansionTile(
         showFooter: false,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
         ),
         collapsedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
         ),
         backgroundColor: ruleSet.getColor.withOpacity(0.08),
         collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
-        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        tilePadding: EdgeInsets.symmetric(horizontal: 8),
         title: Row(
           children: [
             Expanded(
-              child: Text(ruleSet.ruleSetType.name, style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(ruleSet.ruleSetType.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
             ),
             Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: ruleSet.getColor, borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.all(4),
+              width: 65,
+              decoration: BoxDecoration(color: ruleSet.getColor, borderRadius: BorderRadius.circular(8)),
               child: Row(
                 children: [
                   Icon(ruleSet.getIcon, color: Colors.white),
-                  Text(ruleSet.evaluationResult.name, style: TextStyle(color: Colors.white)),
+                  Spacer(),
+                  Text(
+                    ruleSet.evaluationResult.name,
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),

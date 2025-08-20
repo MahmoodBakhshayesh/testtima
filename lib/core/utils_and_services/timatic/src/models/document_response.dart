@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/constants/ui.dart';
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -24,13 +25,13 @@ extension EvalResultX on EvalResult {
   IconData get getIcon {
     switch(this){
       case EvalResult.YES:
-        return Icons.check;
+        return ArtemisIcons.tick_square;
       case EvalResult.NO:
-        return Icons.close;
+        return ArtemisIcons.close_square;
       case EvalResult.CONDITIONAL:
-        return Icons.info;
+        return ArtemisIcons.danger;
       case EvalResult.UNKNOWN:
-        return Icons.question_mark;
+        return ArtemisIcons.warning_2;
     }
   }
 
@@ -259,7 +260,7 @@ class RuleSetEvaluation {
       BasicClass.getColorForEvaluationResult(evaluationResult.name);
       // evaluationResult.name.toLowerCase() == "no" ? MyColors.red : MyColors.green2;
 
-  IconData get getIcon => applicable ? Icons.close_outlined : Icons.check;
+  IconData get getIcon => evaluationResult.getIcon;
 }
 
 class DocumentResult {

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:developer' as dev;
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -17,6 +18,7 @@ class MyTextField extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final TextInputAction? textInputAction;
   final TextStyle? style;
+  final TextStyle? labelStyle;
   final StrutStyle? strutStyle;
   final TextDirection? textDirection;
   final TextAlign textAlign;
@@ -46,7 +48,7 @@ class MyTextField extends StatefulWidget {
   final bool disabled;
   final bool labelInRow;
   final bool showError;
-
+  final Color? validationColor;
   final BorderRadius? radius;
   final double? height;
   final double? suffixWidth;
@@ -56,9 +58,11 @@ class MyTextField extends StatefulWidget {
     Key? key,
     this.label,
     this.nextFn,
+    this.validationColor,
     this.prevFn,
     this.labelInRow = false,
     this.controller,
+    this.labelStyle,
     this.focusNode,
     this.maxLength,
     this.placeholder,
@@ -132,6 +136,7 @@ class _MyTextFieldState extends State<MyTextField> {
   Widget build(BuildContext context) {
     bool hasError = widget.validator?.call(widget.controller?.text ?? '') != null;
     bool requiredError = widget.required && (widget.controller?.text ?? '').isEmpty;
+    Color validationColor = widget.validationColor??Colors.red;
     if (widget.keyboardType == TextInputType.number) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +149,7 @@ class _MyTextFieldState extends State<MyTextField> {
                     children: [
                       Text(
                         widget.label ?? '',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
+                        style:widget.labelStyle?? const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
                       ),
                       const SizedBox(width: 4),
                       widget.required ? const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8) : const SizedBox(),
@@ -216,7 +221,7 @@ class _MyTextFieldState extends State<MyTextField> {
                                       obscureText = !obscureText;
                                       setState(() {});
                                     },
-                                    icon: Icon(obscureText ? FontAwesome.eye : FontAwesome.eye_slash),
+                                    icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
                                   )),
                       ),
                       controller: widget.controller,
@@ -245,19 +250,19 @@ class _MyTextFieldState extends State<MyTextField> {
             child: widget.label == null
                 ? const SizedBox()
                 : Row(
-                  children: [
-                    Text(
-                      widget.label ?? '',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
-                    ),
-                    widget.required
-                        ? Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
-                    )
-                        : const SizedBox(),
-                  ],
-                ),
+                    children: [
+                      Text(
+                        widget.label ?? '',
+                        style: widget.labelStyle??const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
+                      ),
+                      widget.required
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
           ),
           Expanded(
             flex: 4,
@@ -297,16 +302,16 @@ class _MyTextFieldState extends State<MyTextField> {
                         counter: widget.showLimit ? null : SizedBox(),
                         hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
                         border: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                             : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                         focusedBorder: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                             : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                         enabledBorder: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                             : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                         disabledBorder: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                             : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                         prefixIcon: widget.prefixIcon,
                         suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200),
@@ -322,7 +327,7 @@ class _MyTextFieldState extends State<MyTextField> {
                                       obscureText = !obscureText;
                                       setState(() {});
                                     },
-                                    icon: Icon(obscureText ? FontAwesome.eye : FontAwesome.eye_slash),
+                                    icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
                                   )),
                       ),
                       controller: widget.controller,
@@ -331,7 +336,7 @@ class _MyTextFieldState extends State<MyTextField> {
                         ? Positioned(
                             bottom: 0.5,
                             right: 4,
-                            child: Text(requiredError ? 'Field is required' : "${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: Colors.red, fontSize: 9, height: 1)),
+                            child: Text(requiredError ? 'Field is required' : "${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: validationColor, fontSize: 9, height: 1)),
                           )
                         : SizedBox.shrink(),
                   ],
@@ -395,15 +400,15 @@ class _MyTextFieldState extends State<MyTextField> {
                     hintText: widget.placeholder,
                     counter: widget.showLimit ? null : SizedBox(),
                     hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                    border: hasError ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red)) : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
+                    border: hasError ? OutlineInputBorder(borderSide: BorderSide(color: validationColor)) : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                     focusedBorder: hasError
-                        ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                        ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                         : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                     enabledBorder: hasError
-                        ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                        ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                         : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                     disabledBorder: hasError
-                        ? OutlineInputBorder(borderSide: BorderSide(color: Colors.red))
+                        ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                         : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                     prefixIcon: widget.prefixIcon,
                     suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200),
@@ -419,7 +424,7 @@ class _MyTextFieldState extends State<MyTextField> {
                                   obscureText = !obscureText;
                                   setState(() {});
                                 },
-                                icon: Icon(obscureText ? FontAwesome.eye : FontAwesome.eye_slash),
+                                icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
                               )),
                   ),
                   controller: widget.controller,
@@ -428,7 +433,7 @@ class _MyTextFieldState extends State<MyTextField> {
                     ? Positioned(
                         bottom: 0.5,
                         right: 4,
-                        child: Text(requiredError ? 'Field is required' : "${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: Colors.red, fontSize: 9, height: 1)),
+                        child: Text(requiredError ? 'Field is required' : "${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: validationColor, fontSize: 9, height: 1)),
                       )
                     : SizedBox.shrink(),
               ],

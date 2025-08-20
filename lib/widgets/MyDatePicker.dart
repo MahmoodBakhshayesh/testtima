@@ -51,6 +51,7 @@ class MyDatePicker extends StatefulWidget {
   final BorderSide? border;
   final DateTime? max;
   final DatePickerEntryMode mode;
+  final Color? validationColor;
 
   const MyDatePicker({
     Key? key,
@@ -59,6 +60,7 @@ class MyDatePicker extends StatefulWidget {
     this.controller,
     this.focusNode,
     this.maxLength,
+    this.validationColor,
     this.placeholder,
     this.height = 40,
     this.fontSize = 14,
@@ -118,8 +120,8 @@ class _MyDatePickerState extends State<MyDatePicker> {
       } else {
         controller = TextEditingController();
       }
-      controller!.text = widget.value.format_yyMMddSlash;
-      controller!.addListener(() {
+      controller?.text = widget.value.format_yyMMddSlash;
+      controller?.addListener(() {
         _errorMsg = widget.validator?.call(widget.controller!.text);
       });
       obscureText = widget.isPassword;
@@ -179,14 +181,16 @@ class _MyDatePickerState extends State<MyDatePicker> {
         child: MyTextField(
           disabled: true,
           required: widget.required,
-          showError: false,
+          showError: true,
           label: widget.label,
           labelInRow: true,
+          validationColor: widget.validationColor,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
           suffixIcon: Padding(
             padding: const EdgeInsets.all(2.0),
             child: Icon(Icons.date_range,size: 12,),
           ),
+          validator: widget.validator,
           // decoration: InputDecoration(
           //   contentPadding: EdgeInsets.only(left: 8, right: 8),
           //   fillColor: Colors.white,
@@ -323,6 +327,6 @@ extension Formm on DateTime? {
     return this == null ? "" : DateFormat("yy-MM-dd").format(this!);
   }
   String get format_yyMMddSlash {
-    return this == null ? "" : DateFormat("yy/MM/dd").format(this!);
+    return this == null ? "" : DateFormat("dd,MMM yyyy").format(this!);
   }
 }

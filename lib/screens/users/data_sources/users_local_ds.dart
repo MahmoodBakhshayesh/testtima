@@ -3,6 +3,7 @@ import 'package:abds/core/interfaces/result_int.dart';
 import 'package:abds/screens/users/usecases/edit_user_usecase.dart';
 
 import 'package:abds/screens/users/usecases/get_users_usecase.dart';
+import 'package:abds/screens/users/usecases/update_user_usecase.dart';
 
 import '../../../core/data_base/local_data_base.dart';
 import '../../../initialize.dart';
@@ -21,6 +22,12 @@ class UsersLocalDataSource implements UsersDataSourceInterface {
   @override
   Future<GetUserListResponse> getUserList({required GetUserListRequest request}) {
     // TODO: implement getUserList
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<UpdateUserResponse> updateUser({required UpdateUserRequest request}) {
+    // TODO: implement updateUser
     throw UnimplementedError();
   }
 

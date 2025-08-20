@@ -77,6 +77,8 @@ class BoardingPass {
   int? baggageTotalWeight;
   int julianDate;
 
+
+  String get fullname =>"$fistName $lastName";
   factory BoardingPass.fromJson(Map<String, dynamic> json) => BoardingPass(
     fistName: json["FistName"],
     lastName: json["LastName"],

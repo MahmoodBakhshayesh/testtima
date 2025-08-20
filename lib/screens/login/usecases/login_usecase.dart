@@ -1,3 +1,5 @@
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+
 import '../../../core/interface_implementations/response_imp.dart';
 import '../../../core/interfaces/request_int.dart';
 import '../../../core/interfaces/device_info_service_int.dart';
@@ -20,48 +22,56 @@ class LoginUseCase extends UseCase<LoginResponse, LoginRequest> {
   }
 }
 
-class LoginRequest extends RequestInterface {
+class LoginRequest extends RequestInterface{
   final String username;
   final String password;
-  final String al;
-  final String newPassword;
-  final DeviceInfo deviceInfo;
-  final User? cachedUser;
+
+  /// Arbitrary JSON blobs passed straight to the API.
+  /// Example: {"name":"DCS One","id":"1e5rt71e", ...}
+  final Map<String, dynamic> app;
+  final Map<String, dynamic> device;
+  final Map<String, dynamic> network;
 
   LoginRequest({
     required this.username,
     required this.password,
-    required this.newPassword,
-    required this.deviceInfo,
-    required this.al,
-    required this.cachedUser,
+    required this.app,
+    required this.device,
+    required this.network,
   });
 
-  @override
+  LoginRequest copyWith({
+    String? username,
+    String? password,
+    Map<String, dynamic>? app,
+    Map<String, dynamic>? device,
+    Map<String, dynamic>? network,
+  }) {
+    return LoginRequest(
+      username: username ?? this.username,
+      password: password ?? this.password,
+      app: app ?? Map<String, dynamic>.from(this.app),
+      device: device ?? Map<String, dynamic>.from(this.device),
+      network: network ?? Map<String, dynamic>.from(this.network),
+    );
+  }
+
+  factory LoginRequest.fromJson(Map<String, dynamic> json) {
+    return LoginRequest(
+      username: (json['username'] ?? '').toString(),
+      password: (json['password'] ?? '').toString(),
+      app: Map<String, dynamic>.from(json['app'] ?? const {}),
+      device: Map<String, dynamic>.from(json['device'] ?? const {}),
+      network: Map<String, dynamic>.from(json['network'] ?? const {}),
+    );
+  }
+
   Map<String, dynamic> toJson() => {
-    "Body": {
-      "Execution": "Login",
-      "Token": token,
-      "Request": {
-        "Username": username,
-        "Password": password,
-        "NewPassword": newPassword,
-        "Domain": "Flutter",
-        "MotherPassword": false,
-        "Company": deviceInfo.company,
-        "Model": deviceInfo.deviceModel,
-        "IsWifi": false,
-        "AppName": AppConfig.instance!.flavor!.name,
-        "OSVersion": deviceInfo.osVersion,
-        "VersionNum": deviceInfo.versionNumber,
-        "Device": deviceInfo.deviceModel,
-        "DeviceID": deviceInfo.deviceKey,
-        "IsApplication": true,
-        "FlavorName": AppConfig.instance!.flavor!.name,
-        "Airline": al,
-        // "LastSettingSync": cachedUser?.lastSettingSync?.toIso8601String()
-      }
-    }
+    'username': username,
+    'password': password,
+    'app': app,
+    'device': device,
+    'network': network,
   };
 
   Failure? validate() {
@@ -70,20 +80,18 @@ class LoginRequest extends RequestInterface {
 }
 
 class LoginResponse extends ResponseImplementation {
-  final User user;
+  final LoginData user;
 
   LoginResponse({required int status, required String message, required this.user})
       : super(
     status: status,
     message: message,
-    body: {
-      "User": user.toJson(),
-    },
+    body:user.toJson(),
   );
 
   factory LoginResponse.fromResponse(ResponseImplementation res) => LoginResponse(
     status: res.status,
     message: res.message,
-    user: User.fromJson(res.body["User"]),
+    user: LoginData.fromJson(res.body),
   );
 }

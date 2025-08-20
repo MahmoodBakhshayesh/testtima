@@ -18,7 +18,7 @@ class MrzReaderViewPhone extends StatefulWidget {
 
 class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   static MrzReaderController myMrzReaderController = getIt<MrzReaderController>();
-  OcrMrzSetting setting = OcrMrzSetting(validateNames: false, validatePersonalNumberValid: false);
+  OcrMrzSetting setting = OcrMrzSetting(validateNames: false, validatePersonalNumberValid: false,validateFinalCheckValid: false);
 
   @override
   void initState() {

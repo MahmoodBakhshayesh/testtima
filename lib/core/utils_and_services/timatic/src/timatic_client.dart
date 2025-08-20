@@ -61,6 +61,9 @@ class TimaticClient {
   void setAuthToken(String? token) {
     _token = token;
   }
+  void setUrl(String url) {
+    _dio.options.baseUrl = url;
+  }
 
   String? get authToken => _token;
 }

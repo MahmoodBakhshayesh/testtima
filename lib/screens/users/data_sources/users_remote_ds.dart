@@ -9,6 +9,7 @@ import '../../../core/interfaces/response_int.dart';
 import '../interfaces/users_data_source_interface.dart';
 import '../usecases/edit_user_usecase.dart';
 import '../usecases/get_users_usecase.dart';
+import '../usecases/update_user_usecase.dart';
 import 'users_local_ds.dart';
 
 class UsersRemoteDataSource implements UsersDataSourceInterface {
@@ -65,6 +66,13 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
     String api = '/user/myUsers/${request.people.uId}';
     ResponseInterface res = await networkManager.put(request, api: api);
     EditUserResponse response = await Parser().parse(EditUserResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
+  @override
+  Future<UpdateUserResponse> updateUser({required UpdateUserRequest request}) async {
+    String api = '/user';
+    ResponseInterface res = await networkManager.put(request, api: api);
+    UpdateUserResponse response = await Parser().parse(UpdateUserResponse.fromResponse, res, executionReq: request);
     return response;
   }
 }

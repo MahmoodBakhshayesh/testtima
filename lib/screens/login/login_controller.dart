@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interfaces/result_int.dart';
+import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
@@ -19,13 +20,12 @@ import '../../core/interfaces/device_info_service_int.dart';
 import '../../core/navigation/routes.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../core/utils_and_services/timatic/src/endpoints.dart';
-import '../../core/utils_and_services/timatic/src/models/auth_request.dart';
 import '../../initialize.dart';
 import 'dialogs/server_picker_dialog.dart';
 import 'dialogs/set_first_password_dialog.dart';
 import 'dialogs/update_version_dialog.dart';
 import 'login_state.dart';
-import 'usecases/login_usecase.dart' hide LoginRequest;
+import 'usecases/login_usecase.dart';
 import 'package:logging/logging.dart';
 
 import 'usecases/reset_password_usecase.dart';
@@ -44,35 +44,42 @@ class LoginController extends ControllerInterface {
     super.onInit();
   }
 
-  Future<User?> login(String username, String password) async {
+  Future<LoginData?> login(String username, String password) async {
     _log.warning("Logging in");
     getIt<HomeController>().clear();
     ref.read(timaticResultProvider.notifier).update((s) => null);
     DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     DeviceInfo deviceInfo = deviceInfoService.getInfo();
+    LoginData? user;
+    LoginUseCase loginUseCase = LoginUseCase();
+    LoginRequest loginRequest = LoginRequest(username: username, password: password, app: {}, device: {}, network: {});
+    final fOrR = await loginUseCase(request: loginRequest);
 
-    final user = await timaticApi.login(LoginRequest(username: username, password: password, app: {}, device: {}, network: {}));
-
-    User fakeUser = User(id: 1, username: username, password: password, token: "token");
-
-    log("${user.profile.username}");
-    final tData = await timaticApi.preloadAll();
-    BasicClass.initialize(user, tData);
-    saveLoginData(username: username, password: password);
-    ref.read(userProvider.notifier).update((s) => user);
-    ref.read(profileProvider.notifier).update((s) => user.profile);
-
-    if (user.setPassword) {
-      navigation.openDialog(
-        dialog: SetFirstPasswordDialog(user: user, oldPassword: password),
-        barrierDismissible: false,
-      );
-    } else {
-      askUpdate(user);
+    switch (fOrR) {
+      case Ok<LoginResponse>():
+        user = fOrR.value.user;
+        timaticApi.setToken(user!.token);
+        log("${user.profile.username}");
+        final tData = await timaticApi.preloadAll();
+        BasicClass.initialize(user, tData);
+        saveLoginData(username: username, password: password);
+        ref.read(userProvider.notifier).update((s) => user);
+        ref.read(profileProvider.notifier).update((s) => user!.profile);
+        initData(user);
+        if (user.setPassword) {
+          navigation.openDialog(
+            dialog: SetFirstPasswordDialog(user: user, oldPassword: password),
+            barrierDismissible: false,
+          );
+        } else {
+          askUpdate(user);
+        }
+      case Err<LoginResponse>():
+        FailureHandler.handle(fOrR.error);
     }
 
     // navigation.goNamed(Routes.home);
-    return fakeUser;
+    return user;
   }
 
   askUpdate(LoginData user) async {
@@ -201,6 +208,14 @@ class LoginController extends ControllerInterface {
   void saveServer(Server current) {
     ref.read(selectedServerProvider.notifier).update((s) => current);
     sharedPref.setVariable(key: "ServerNew", value: jsonEncode(current.toJson()));
+
+    final client = TimaticClient(TimaticClientOptions(baseUrl: current.apiAddress));
+    final api = TimaticApi(client);
+    getIt.registerLazySingleton(() => api);
+
+    TimaticApi timaticApi = getIt<TimaticApi>();
+    timaticApi.setUrl(current.apiAddress);
+
     initNetworkManager(current.apiAddress);
   }
 
@@ -260,5 +275,17 @@ class LoginController extends ControllerInterface {
     }
 
     return msg;
+  }
+
+  void initData(LoginData data) {
+    // var segment = ref.read(segmentsProvider).first;
+    // segment = segment.copyWith(departure: ItinPoint(point: data.profile.defaultAirport??'', type: LocationType.airport));
+    final seg = ItinerarySegment.empty();
+
+    log("initData");
+    log("${BasicClass.user?.profile.toJson()}");
+    log("${ref.read(userProvider)?.profile.toJson()}");
+    log("${seg.departure.point} seg dep point");
+    ref.read(segmentsProvider.notifier).updateAt(0, ItinerarySegment.empty());
   }
 }

@@ -30,15 +30,7 @@ class LoginLocalDataSource implements LoginDataSourceInterface {
 
   @override
   Future<LoginResponse> login({required LoginRequest request}) async {
-    User? u = await localDataSource.getFromTableWhere<User>(
-      TableNames.usersTable,
-      (e) => e.username.toLowerCase() == request.username.toLowerCase() && e.password== request.password,
-    );
-    if (u != null) {
-      return LoginResponse(status: 1, message: "Done", user: u);
-    } else {
-      throw ServerException(code: -1, trace: StackTrace.fromString("Login Failed Check Username and Password"));
-    }
+    throw UnimplementedError();
   }
 
   @override

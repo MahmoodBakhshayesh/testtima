@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../timatic/artemis_timatic.dart';
 
 final segmentsProvider = StateNotifierProvider<ItemsController, List<ItinerarySegment>>((ref) {
-  return ItemsController( [ItinerarySegment.empty()]);
+  return ItemsController([]);
 });
 
 class ItemsController extends StateNotifier<List<ItinerarySegment>> {

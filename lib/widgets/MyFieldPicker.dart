@@ -27,6 +27,7 @@ class MyFieldPicker<T> extends StatefulWidget {
   final bool required;
   final bool labelInRow;
   final TextStyle? style;
+  final TextStyle? labelStyle;
 
   const MyFieldPicker({
     super.key,
@@ -41,6 +42,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.placeholder,
     required this.items,
     this.onChange,
+    this.labelStyle,
     this.hasSearch = true,
     this.value,
     this.showClearButton = true,
@@ -103,9 +105,11 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                 return Padding(
                   // This moves content above the keyboard
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: PickerSheetWidget(searchBuilder: widget.searchBuilder, items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch),
+                  child: PickerSheetWidget(
+                      value: widget.value,
+                      searchBuilder: widget.searchBuilder, items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch),
                 );
-                return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
+                // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
               },
               elevation: 2,
             ).then((v) {
@@ -119,6 +123,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
           child: AbsorbPointer(
             child: MyTextField(
               showError: false,
+              labelStyle: widget.labelStyle,
               required: widget.required,
               labelInRow: true,
               controller: controller,
@@ -140,10 +145,11 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final List<T> items;
   final String label;
   final bool hasSearch;
+  final T? value;
   final Widget Function(T)? itemToWidget;
   final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items, required this.label, this.itemToWidget, this.searchBuilder, required this.hasSearch});
+  const PickerSheetWidget({super.key, required this.items, required this.label, this.itemToWidget,required this.value, this.searchBuilder, required this.hasSearch});
 
   @override
   State<PickerSheetWidget> createState() => _PickerSheetWidgetState();
@@ -217,13 +223,14 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
                   itemCount: items.length,
                   itemBuilder: (c, i) {
                     final item = items[i];
+                    bool isSelected = widget.value == item;
                     return InkWell(
                       onTap: () {
                         Navigator.of(context).pop(item);
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Color(0xffF2F3F6),
+                          color: isSelected?Colors.blueAccent.withOpacity(0.3): Color(0xffF2F3F6),
                           border: Border(bottom: BorderSide(color: Colors.white)),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),

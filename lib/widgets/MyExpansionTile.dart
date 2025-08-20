@@ -610,15 +610,15 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
     return Container(
       padding: EdgeInsets.only(left: 8,right: 8,bottom: 8),
       decoration: BoxDecoration(
-        color: widget.backgroundColor,
+        color: widget.collapsedBackgroundColor,
         borderRadius: widget.footerRadius
       ),
       child: Container(
         margin: EdgeInsets.only(top: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.48),
+          // color: Colors.white.withOpacity(0.48),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white, width: 1),
+          // border: Border.all(color: Colors.white, width: 1),
         ),
         padding: widget.footerPadding,
         child: Row(
