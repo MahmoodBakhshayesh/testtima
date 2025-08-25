@@ -22,4 +22,9 @@ class DurationOfStay {
   };
 
   String get formatDurationUnit => "$duration $timeUnit";
+
+  @override
+  String toString() {
+    return formatDurationUnit;
+  }
 }

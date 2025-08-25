@@ -14,7 +14,7 @@ import 'usecases/add_user_usecase.dart';
 class AddUserController extends ControllerInterface {
   final _log = Logger('AddUserController');
 
-  Future<People?> addUser({required String? username, required String? email, required String? password, required String? firstname, required String? lastname, required List<UserPermission> permissions}) async {
+  Future<People?> addUser({required String? username, required String? email, required String? password, required String? firstname, required String? lastname, required UserPermission permissions}) async {
     People? user;
     AddUserUseCase addUserUseCase = AddUserUseCase();
     AddUserRequest addUserRequest = AddUserRequest(email: email, username: username, password: password, firstname: firstname, lastname: lastname, permissions: permissions);

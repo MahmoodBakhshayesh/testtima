@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import '../../../core/classes/basic_class.dart';
@@ -25,20 +26,21 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
       List<dynamic> fixed = res.body;
       for (var p in fixed) {
         final List<dynamic> fixedPermissions = p["permissions"]??[];
-        for(var fp in fixedPermissions){
-          Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(fp);
-          fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-          fp["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-          fixedPermission.forEach((k,v){
-            if(v is List<dynamic>){
-              for (var a in v) {
-                a["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-              }
+        Map<String,dynamic> fixedPermission = Map<String,dynamic>.from({});
+        Map<String,dynamic> ppp = Map<String,dynamic>.from({});
+        fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+        fixedPermission["permission"] = p["permission"]??ppp;
+        fixedPermission.forEach((k,v){
+          if(v is List<dynamic>){
+            for (var a in v) {
+              a["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+              a["permission"] = p["permission"]??ppp;
             }
-          });
-        }
-
-
+          }
+        });
+         log(jsonEncode(fixedPermission));
+         // p["permission"] = p["permission"]??{};
+         p["permission"] =fixedPermission;
         // for (var ap in (p["permission"]["airlines"] as List<dynamic>)) {
         //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
         // }
@@ -49,6 +51,7 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
         //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
         // }
       }
+      log(jsonEncode(fixed));
       final fixedRes = ResponseImplementation(message: res.message, body: fixed, status: res.status);
       GetUserListResponse response = await Parser().parse(GetUserListResponse.fromResponse, fixedRes, executionReq: request);
       return response;

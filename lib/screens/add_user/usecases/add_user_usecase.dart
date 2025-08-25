@@ -26,7 +26,7 @@ class AddUserRequest extends RequestInterface {
   final String? password;
   final String? firstname;
   final String? lastname;
-  final List<UserPermission> permissions;
+  final UserPermission permissions;
 
   AddUserRequest({required this.email, required this.username, required this.password, required this.firstname, required this.lastname, required this.permissions});
 
@@ -38,7 +38,7 @@ class AddUserRequest extends RequestInterface {
     "firstname": firstname.pureValue,
     "middlename": null,
     "lastname":lastname.pureValue,
-    "permissions":permissions.map((p)=>p.toJson()).toList(),
+    "permissions":permissions.toJson(),
 
 
   };

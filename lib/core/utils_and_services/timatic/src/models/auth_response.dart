@@ -1,5 +1,8 @@
 // auth_response.dart
 
+import 'dart:convert';
+import 'dart:developer';
+
 import '../../../../classes/people_class.dart';
 
 class LoginEnvelope {
@@ -54,7 +57,7 @@ class LoginData {
   final bool setPassword;
   final String token;
   final ConstData constData;
-  final List<UserPermission> permissions;
+  final UserPermission permission;
 
 
   const LoginData({
@@ -62,7 +65,7 @@ class LoginData {
     required this.profile,
     required this.setPassword,
     required this.token,
-    required this.permissions,
+    required this.permission,
     required this.constData,
   });
 
@@ -72,7 +75,7 @@ class LoginData {
     bool? setPassword,
     String? token,
     ConstData? constData,
-    List<UserPermission>? permissions,
+    UserPermission? permission,
 
   }) {
     return LoginData(
@@ -80,32 +83,23 @@ class LoginData {
       profile: profile ?? this.profile,
       setPassword: setPassword ?? this.setPassword,
       token: token ?? this.token,
-      permissions: permissions ?? this.permissions,
+      permission: permission ?? this.permission,
 
       constData: constData ?? this.constData,
     );
   }
 
   factory LoginData.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> fixedPermissions = json["permissions"]??[];
-    for(var fp in fixedPermissions){
-      Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(fp);
+      Map<String,dynamic> fixedPermission = Map<String,dynamic>.from({});
       fixedPermission["allPermissions"] = json["constData"]["permission"];
-      fp["allPermissions"] = json["constData"]["permission"];
-      fixedPermission.forEach((k,v){
-        if(v is List<dynamic>){
-          for (var a in v) {
-            a["allPermissions"] = json["constData"]["permission"];
-          }
-        }
-      });
-    }
+      fixedPermission["permission"] = json["permission"];
+      log("fixed permission \n${jsonEncode(fixedPermission)}");
     return LoginData(
       versionCheck: json['versionCheck'],
       profile: Profile.fromJson(json['profile'] ?? {}),
       setPassword: json['setPassword'] ?? false,
       token: json['token'] ?? '',
-      permissions: List<UserPermission>.from((fixedPermissions).map((a)=>UserPermission.fromJson(a))),
+      permission: UserPermission.fromJson(fixedPermission),
       constData: ConstData.fromJson(json['constData'] ?? {}),
     );
   }
@@ -116,7 +110,7 @@ class LoginData {
     'setPassword': setPassword,
     'token': token,
     'constData': constData.toJson(),
-    "permissions": permissions.map((a)=>a.toJson()).toList(),
+    "permissions": permission
 
   };
 }

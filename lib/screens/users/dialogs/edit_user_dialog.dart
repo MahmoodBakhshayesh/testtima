@@ -50,37 +50,27 @@ class _EditUserDialogState extends State<EditUserDialog> {
   bool loading = false;
 
   late bool active = widget.user.enable;
-  late List<UserPermission> tmp = [];
+  late UserPermission tmp = UserPermission.fromJson({});
 
   // List<UserPermission> includedPermissions = [];
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final permissions = myUsersController.ref.read(userProvider)!.permissions;
-      // log(permissions.airlines.map((a)=>a.airline.code).join("**"));
+      final permissions = myUsersController.ref.read(userProvider)!.permission;
 
-      // tmp = widget.user.permissions;
+      // tmp = permissions.where((p) => widget.user.permission.map((pp) => pp.id).contains(p.id)).map((a) {
+      //   final peoplePer = widget.user.permissions.firstWhereOrNull((pp) => pp.id == a.id);
+      //   return UserPermission(
+      //       id: a.id,
+      //       name: a.name,
+      //       permission: (peoplePer ??
+      //               UserPermission(
+      //                   id: a.id, name: a.name, permission: ActivePermissions.fromBitmask(BasicClass.constData.userPermissionAttributes, a.permission.toJson()), allPermissions: BasicClass.constData.userPermissionAttributes))
+      //           .permission,
+      //       allPermissions: BasicClass.constData.userPermissionAttributes);
+      // }).toList();
 
-      // if (tmp.isEmpty && permissions.isNotEmpty) {
-      // tmp.airlines = [...widget.user.permission.airlines];
-
-      tmp = permissions.where((p) => widget.user.permissions.map((pp) => pp.id).contains(p.id)).map((a) {
-        final peoplePer = widget.user.permissions.firstWhereOrNull((pp) => pp.id == a.id);
-        return UserPermission(
-            id: a.id,
-            name: a.name,
-            permission: (peoplePer ??
-                    UserPermission(
-                        id: a.id, name: a.name, permission: ActivePermissions.fromBitmask(BasicClass.constData.userPermissionAttributes, a.permission.toJson()), allPermissions: BasicClass.constData.userPermissionAttributes))
-                .permission,
-            allPermissions: BasicClass.constData.userPermissionAttributes);
-      }).toList();
-      // }else{
-      tmp.forEach((a) {
-        log(jsonEncode(a.toJson()));
-      });
-      // }
       setState(() {});
     });
 
@@ -90,7 +80,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    final permissions = myUsersController.ref.read(userProvider)!.permissions;
+    final permissions = myUsersController.ref.read(userProvider)!.permission;
     // log(permissions.airlines.map((a)=>a.airline.code).join("--"));
     // log(tmp.airlines.map((a)=>a.airline.code).join("--"));
     // final current = widget.user.permission;
@@ -107,10 +97,11 @@ class _EditUserDialogState extends State<EditUserDialog> {
               const Text("Edit User", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               const Spacer(),
               IconButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  icon: const Icon(Icons.close))
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.close),
+              ),
             ],
           ),
           const Divider(height: 1),
@@ -121,14 +112,15 @@ class _EditUserDialogState extends State<EditUserDialog> {
                 children: [
                   Expanded(child: Text(widget.user.username ?? widget.user.email ?? '')),
                   MySwitchButton(
-                      height: 35,
-                      padding: EdgeInsets.symmetric(horizontal: 4),
-                      value: active,
-                      onChanged: (a) {
-                        active = a;
-                        setState(() {});
-                      },
-                      label: !active ? "Inactive" : "Active"),
+                    height: 35,
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    value: active,
+                    onChanged: (a) {
+                      active = a;
+                      setState(() {});
+                    },
+                    label: !active ? "Inactive" : "Active",
+                  ),
                 ],
               ),
             ),
@@ -140,113 +132,134 @@ class _EditUserDialogState extends State<EditUserDialog> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Visibility(
-                        visible: permissions.any((a) => a.permission.hasAnyPermission),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Divider(),
-                            Text("Airlines Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            Column(
-                              children: permissions.map(
-                                (p) {
-                                  UserPermission? aup = tmp.firstWhereOrNull((b) => b.id == p.id);
-                                  final ppp = permissions.firstWhere((a) => a.id == p.id);
-                                  return ExpansionTile(
-                                    dense: true,
-                                    backgroundColor: Colors.white,
-                                    tilePadding: EdgeInsets.symmetric(horizontal: 8),
-                                    childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                                    title: Row(
-                                      children: [
-                                        CircleAvatar(child: Text(p.name)),
-                                        const SizedBox(width: 12),
-                                        Expanded(child: Text(p.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                                        CupertinoSwitch(
-                                            value: tmp.any((a) => a.id == aup?.id),
-                                            onChanged: (a) {
-                                              if (a) {
-                                                final addingAup = aup ??
-                                                    UserPermission(
-                                                        allPermissions: BasicClass.constData.userPermissionAttributes, permission: ActivePermissions.fromBitmask(p.allPermissions, p.permission.toJson()), name: p.name, id: p.id);
-                                                tmp.add(addingAup);
-                                                tmp.add(addingAup);
-                                              } else {
-                                                tmp.remove(aup);
-                                              }
-                                              setState(() {});
-                                            })
-                                      ],
-                                    ),
-                                    children: !tmp.any((a) => a.id == aup?.id)
-                                        ? []
-                                        : ppp.permission.categories.map((cat) {
-                                            final perList = ppp.permission.getPermissionsFor(cat);
-                                            // log(perList.map((a)=>a.value).toString());
-                                            if (perList.isEmpty) {
-                                              return SizedBox();
-                                            }
-                                            return Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                                  child: Row(children: [
-                                                    Expanded(child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
-                                                    DotButton(
-                                                      icon: Icons.select_all,
-                                                      onPressed: () {
-                                                        final all = [...perList];
-                                                        aup!.permission.setPermissionsFor(cat, all);
-                                                        setState(() {});
-                                                      },
-                                                      color: Colors.green,
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    DotButton(
-                                                      icon: Icons.deselect,
-                                                      onPressed: () {
-                                                        aup!.permission.setPermissionsFor(cat, []);
-                                                        setState(() {});
-                                                      },
-                                                      color: Colors.red,
-                                                    ),
-                                                  ]),
-                                                ),
-                                                Wrap(
-                                                  children: [
-                                                    ...perList.map((ap) {
-                                                      return Padding(
-                                                        padding: const EdgeInsets.only(right: 8.0,bottom: 8),
-
-                                                        child: SelectionChip(
-                                                          // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
-                                                          label: ap.value,
-                                                          value: aup!.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
-                                                          onSelected: (bool value) {
-                                                            List<PermissionCategory> current = aup.permission.getPermissionsFor(cat);
-                                                            if (value) {
-                                                              current.add(ap);
-                                                            } else {
-                                                              current.removeWhere((a) => a.flag == ap.flag);
-                                                            }
-                                                            setState(() {});
-                                                          },
-                                                        ),
-                                                      );
-                                                    }),
-                                                  ],
-                                                ),
-                                                Divider()
-                                              ],
-                                            );
-                                          }).toList(),
-                                  );
-                                },
-                              ).toList(),
-                            ),
-                          ],
-                        )),
+                    // Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   children: [
+                    //     Divider(),
+                    //     Text("Airlines Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    //     Builder(
+                    //       builder: (context) {
+                    //         final ppp = permissions;
+                    //         final aup = permissions;
+                    //         return ExpansionTile(
+                    //           dense: true,
+                    //           backgroundColor: Colors.white,
+                    //           tilePadding: EdgeInsets.symmetric(horizontal: 8),
+                    //           childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                    //           title: Row(
+                    //             children: [
+                    //               CupertinoSwitch(
+                    //                 // value: tmp.any((a) => a.id == aup?.id),
+                    //                 value: false,
+                    //                 onChanged: (a) {
+                    //                   // if (a) {
+                    //                   //   final addingAup = aup ??
+                    //                   //       UserPermission(
+                    //                   //           allPermissions: BasicClass.constData.userPermissionAttributes, permission: ActivePermissions.fromBitmask(p.allPermissions, p.permission.toJson()), name: p.name, id: p.id);
+                    //                   //   tmp.add(addingAup);
+                    //                   //   tmp.add(addingAup);
+                    //                   // } else {
+                    //                   //   tmp.remove(aup);
+                    //                   // }
+                    //                   setState(() {});
+                    //                 },
+                    //               ),
+                    //             ],
+                    //           ),
+                    //           // children: !tmp.any((a) => a.id == aup?.id)
+                    //           children: true
+                    //               ? []
+                    //               : ppp.permission.categories.map((cat) {
+                    //                   final perList = ppp.permission.getPermissionsFor(cat);
+                    //                   // log(perList.map((a)=>a.value).toString());
+                    //                   if (perList.isEmpty) {
+                    //                     return SizedBox();
+                    //                   }
+                    //                   return Column(
+                    //                     crossAxisAlignment: CrossAxisAlignment.start,
+                    //                     children: [
+                    //                       Padding(
+                    //                         padding: const EdgeInsets.symmetric(vertical: 4),
+                    //                         child: Row(
+                    //                           children: [
+                    //                             Expanded(
+                    //                               child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    //                             ),
+                    //                             DotButton(
+                    //                               icon: Icons.select_all,
+                    //                               onPressed: () {
+                    //                                 final all = perList;
+                    //                                 aup!.permission.setPermissionsFor(cat, all);
+                    //                                 setState(() {});
+                    //                               },
+                    //                               color: Colors.green,
+                    //                             ),
+                    //                             const SizedBox(width: 8),
+                    //                             DotButton(
+                    //                               icon: Icons.deselect,
+                    //                               onPressed: () {
+                    //                                 aup!.permission.setPermissionsFor(cat, PermissionCategory.empty(cat));
+                    //                                 setState(() {});
+                    //                               },
+                    //                               color: Colors.red,
+                    //                             ),
+                    //                           ],
+                    //                         ),
+                    //                       ),
+                    //                       Wrap(
+                    //                         children: [
+                    //                           Padding(
+                    //                             padding: const EdgeInsets.only(right: 8.0, bottom: 8),
+                    //
+                    //                             child: SelectionChip(
+                    //                               // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
+                    //                               // label: ap.value,
+                    //                               label: perList.value,
+                    //                               value: false,
+                    //                               // value: aup!.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
+                    //                               onSelected: (bool value) {
+                    //                                 // PermissionCategory current = aup.permission.getPermissionsFor(cat);
+                    //                                 //  if (value) {
+                    //                                 //    current.add(ap);
+                    //                                 //  } else {
+                    //                                 //    current.removeWhere((a) => a.flag == ap.flag);
+                    //                                 //  }
+                    //                                 //  setState(() {});
+                    //                               },
+                    //                             ),
+                    //                           ),
+                    //                           // ...perList.map((ap) {
+                    //                           //   return Padding(
+                    //                           //     padding: const EdgeInsets.only(right: 8.0,bottom: 8),
+                    //                           //
+                    //                           //     child: SelectionChip(
+                    //                           //       // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
+                    //                           //       label: ap.value,
+                    //                           //       value: false,
+                    //                           //       // value: aup!.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
+                    //                           //       onSelected: (bool value) {
+                    //                           //        // PermissionCategory current = aup.permission.getPermissionsFor(cat);
+                    //                           //        //  if (value) {
+                    //                           //        //    current.add(ap);
+                    //                           //        //  } else {
+                    //                           //        //    current.removeWhere((a) => a.flag == ap.flag);
+                    //                           //        //  }
+                    //                           //        //  setState(() {});
+                    //                           //       },
+                    //                           //     ),
+                    //                           //   );
+                    //                           // }),
+                    //                         ],
+                    //                       ),
+                    //                       Divider(),
+                    //                     ],
+                    //                   );
+                    //                 }).toList(),
+                    //         );
+                    //       }
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -257,17 +270,12 @@ class _EditUserDialogState extends State<EditUserDialog> {
             child: Row(
               children: [
                 //TextButton(onPressed: () {}, child: const Text("Add")),
-
                 const Spacer(),
-                MyButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  label: "Cancel",
-                  color: MyColors.greyishBrown,
-                ),
+                MyButton(onPressed: () => Navigator.of(context).pop(), label: "Cancel", color: MyColors.greyishBrown),
                 const SizedBox(width: 8),
                 MyButton(
                   onPressed: () async {
-                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permissions: tmp);
+                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: tmp);
                     if (res != null) {
                       Navigator.of(context).pop();
                       Future.delayed(Duration(milliseconds: 300), () {
@@ -280,7 +288,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

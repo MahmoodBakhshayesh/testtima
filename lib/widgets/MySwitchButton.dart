@@ -13,7 +13,7 @@ class MySwitchButton extends StatelessWidget {
   final double? height;
   final EdgeInsetsGeometry? padding;
 
-  const MySwitchButton({super.key, this.labelWidget, required this.value, required this.onChanged, required this.label, this.color, this.padding, this.backgroundColor, this.height = 58, this.disabled=false,});
+  const MySwitchButton({super.key, this.labelWidget, required this.value, required this.onChanged, required this.label, this.color, this.padding, this.backgroundColor, this.height = 45, this.disabled=false,});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class MySwitchButton extends StatelessWidget {
       child: TextButton(
         style: TextButton.styleFrom(
           padding: padding ?? EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-          backgroundColor: backgroundColor ?? Colors.white,
+          backgroundColor: backgroundColor ?? Colors.transparent,
           foregroundColor: color ?? MyColors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
@@ -33,10 +33,7 @@ class MySwitchButton extends StatelessWidget {
         },
         child: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
-              child: labelWidget ?? Text(label),
-            ),
+            Expanded(child: labelWidget ?? Text(label,style: TextStyle(fontSize: 11),)),
             SizedBox(
               child: CupertinoSwitch(
                 value: value,

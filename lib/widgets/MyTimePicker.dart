@@ -16,7 +16,7 @@ import '../core/utils_and_services/time_picker/board_datetime_picker.dart';
 // import '../core/utils_and_services/time_picker/src/board_datetime_options.dart';
 // import '../core/utils_and_services/time_picker/src/board_datetime_widget.dart';
 
-class MyDatePicker extends StatefulWidget {
+class MyTimePicker extends StatefulWidget {
   final FocusNode? focusNode;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
@@ -41,21 +41,21 @@ class MyDatePicker extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffix;
   final Widget? suffixIcon;
-  final void Function(DateTime? dt) onChanged;
+  final void Function(TimeOfDay? dt) onChanged;
   final bool showClearButton;
   final bool locked;
   final bool required;
   final double height;
-  final DateTime? value;
-  final DateTime? min;
+  final TimeOfDay? value;
+  final TimeOfDay? min;
   final BorderSide? border;
-  final DateTime? max;
+  final TimeOfDay? max;
   final DatePickerEntryMode mode;
   final Color? validationColor;
   final IconData? validationIcon;
   final List<int>  rowLabelRatio;
 
-  const MyDatePicker({
+  const MyTimePicker({
     Key? key,
     this.label,
     this.value,
@@ -97,18 +97,18 @@ class MyDatePicker extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<MyDatePicker> createState() => _MyDatePickerState();
+  State<MyTimePicker> createState() => _MyTimePickerState();
 }
 
-class _MyDatePickerState extends State<MyDatePicker> {
+class _MyTimePickerState extends State<MyTimePicker> {
   String? _errorMsg;
   bool obscureText = false;
   TextEditingController? controller;
 
   @override
-  void didUpdateWidget(covariant MyDatePicker oldWidget) {
+  void didUpdateWidget(covariant MyTimePicker oldWidget) {
     if (widget.value != oldWidget.value) {
-      controller?.text = widget.value?.format_yyMMddSlash ?? '';
+      controller?.text = widget.value?.format_HHmm ?? '';
     }
 
     // setState(() {});
@@ -124,7 +124,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
       } else {
         controller = TextEditingController();
       }
-      controller?.text = widget.value.format_yyMMddSlash;
+      controller?.text = widget.value.format_HHmm;
       controller?.addListener(() {
         _errorMsg = widget.validator?.call(controller!.text);
       });
@@ -146,23 +146,31 @@ class _MyDatePickerState extends State<MyDatePicker> {
     return GestureDetector(
       onTap: () {
         if (context.isDesktop) {
-          showDatePicker(context: context, initialDate: widget.value ?? DateTime.now(), firstDate: widget.min ?? DateTime(1900), lastDate: widget.max ?? DateTime(3000)).then((v) {
-            widget.onChanged(v);
-            controller?.text = v?.format_HHmm ?? '';
+          showDatePicker(context: context, initialDate: widget.value.toDateTime() ?? DateTime.now(), firstDate: widget.min.toDateTime() ?? DateTime(1900), lastDate: widget.max.toDateTime() ?? DateTime(3000)).then((v) {
+           if(v is TimeOfDay){
+             if(v == null){
+               widget.onChanged(null);
+               return;
+             }
+             widget.onChanged(TimeOfDay.fromDateTime(v));
+             controller?.text = v.format_HHmm ?? '';
+           }
           });
         } else {
-          showBoardDateTimePicker(
+          showBoardDateTimePickerForTime(
             context: context,
-            initialDate: widget.value ?? DateTime.now(),
-            pickerType: DateTimePickerType.date,
-            maximumDate: widget.max ?? DateTime(3000),
-            minimumDate: widget.min ?? DateTime(1900),
+            initialDate: widget.value?.toDateTime() ?? DateTime.now(),
+            maximumDate: widget.max.toDateTime() ?? DateTime(3000),
+            minimumDate: widget.min.toDateTime() ?? DateTime(1900),
             // headerWidget: MyTextField(),
             options: BoardDateTimeOptions(boardTitle: widget.label),
           ).then((v) {
-            widget.onChanged(v);
-            if (v == null) return;
-            controller?.text = v.format_yyMMddSlash ?? '';
+            if(v == null){
+              widget.onChanged(null);
+              return;
+            }
+            widget.onChanged(TimeOfDay.fromDateTime(v));
+            controller?.text = v.format_HHmm ?? '';
           });
         }
         // showDatePicker(
@@ -186,12 +194,12 @@ class _MyDatePickerState extends State<MyDatePicker> {
           disabled: true,
           required: widget.required,
           showError: true,
+          placeholder: widget.placeholder,
           label: widget.label,
           rowLabelRatio: widget.rowLabelRatio,
           labelInRow: true,
           validationColor: widget.validationColor,
           validationIcon: widget.validationIcon,
-          placeholder: widget.placeholder,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
           // suffixIcon: Padding(
           //   padding: const EdgeInsets.all(2.0),
@@ -329,11 +337,11 @@ class _MyDatePickerState extends State<MyDatePicker> {
   }
 }
 
-extension Formm on DateTime? {
-  String get format_yyMMdd {
-    return this == null ? "" : DateFormat("yy-MM-dd").format(this!);
-  }
-  String get format_yyMMddSlash {
-    return this == null ? "" : DateFormat("dd,MMM yyyy").format(this!);
-  }
-}
+// extension Formm on DateTime? {
+//   String get format_yyMMdd {
+//     return this == null ? "" : DateFormat("yy-MM-dd").format(this!);
+//   }
+//   String get format_yyMMddSlash {
+//     return this == null ? "" : DateFormat("dd,MMM yyyy").format(this!);
+//   }
+// }

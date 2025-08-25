@@ -27,7 +27,7 @@ class BasicClass {
   LoginData? _loginData;
   ConstData? _constData;
   PackageInfo? _packageInfo;
-  List<UserPermission>? _userPermission;
+  UserPermission? _userPermission;
   Config? _appConfig;
 
 
@@ -37,7 +37,7 @@ class BasicClass {
     instance._timaticData = timaticData;
     instance._loginData = user;
     instance._constData = user.constData;
-    instance._userPermission = user.permissions;
+    instance._userPermission = user.permission;
   }
 
   static void setConfig(Config config) {
@@ -73,11 +73,11 @@ class BasicClass {
 
   static bool validatePermission(UiPermission? permission) {
     if (permission == null) return true;
-    if (instance._userPermission!.isEmpty) return true;
+    // if (instance._userPermission!.isEmpty) return true;
     final up = instance._userPermission!;
 
      if (permission is UserUiPermission) {
-      return up.any((a) => a.permission.getUserPermissions.isNotEmpty);
+      return up.permission.getUserPermissions.isNotEmpty;
     }
 
 

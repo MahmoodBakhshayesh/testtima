@@ -39,4 +39,19 @@ class StringUtility {
       return 'Expires\n $duStr';
     }
   }
+
+  static String formatDaysToYearsMonths(int? days) {
+    if(days == null) return "";
+    if (days <= 0) return "0m";
+
+    // Rough conversion (not accounting leap years or exact month lengths)
+    int years = days ~/ 365;
+    int months = (days % 365) ~/ 30;
+
+    String result = "";
+    if (years > 0) result += "${years}y ";
+    if (months > 0) result += "${months}m";
+
+    return result.trim();
+  }
 }

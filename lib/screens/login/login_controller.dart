@@ -83,6 +83,8 @@ class LoginController extends ControllerInterface {
   }
 
   askUpdate(LoginData user) async {
+    log(jsonEncode(user.permission.toJson()));
+    // return;
     if (user.versionCheck == null) {
       proceedToApp(user);
     } else {

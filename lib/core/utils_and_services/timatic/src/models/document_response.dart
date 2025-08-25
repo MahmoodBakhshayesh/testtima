@@ -11,7 +11,7 @@ import 'location.dart';
 
 // -------------------- ENUM --------------------
 
-enum EvalResult { YES, NO, CONDITIONAL, UNKNOWN }
+enum EvalResult {  NO, CONDITIONAL, UNKNOWN,YES, }
 
 extension EvalResultX on EvalResult {
   static EvalResult fromJson(dynamic value) {
@@ -91,17 +91,19 @@ extension EvalResultX on EvalResult {
 
 class DocumentResponse {
   final String? transactionId;
+  final String? refCode;
   final String? passengerId;
   final EvalResult evaluationResult;
   final List<SubmittedDocument>? submittedDocuments;
   final List<SegmentResult> segmentResults;
   final List<dynamic>? traces;
 
-  DocumentResponse({required this.transactionId, this.passengerId, this.evaluationResult = EvalResult.UNKNOWN, this.submittedDocuments, required this.segmentResults, this.traces});
+  DocumentResponse({required this.transactionId,required this.refCode, this.passengerId, this.evaluationResult = EvalResult.UNKNOWN, this.submittedDocuments, required this.segmentResults, this.traces});
 
   factory DocumentResponse.fromJson(Map<String, dynamic> json) {
     return DocumentResponse(
       transactionId: json['transactionId'],
+      refCode: json['refCode'],
       passengerId: json['passengerId'],
       evaluationResult: EvalResultX.fromJson(json['evaluationResult']),
       submittedDocuments: (json['submittedDocuments'] as List?)?.map((e) => SubmittedDocument.fromJson(e)).toList(),
@@ -113,6 +115,8 @@ class DocumentResponse {
   Map<String, dynamic> toJson() => {
     'transactionId': transactionId,
     'passengerId': passengerId,
+
+    'refCode': refCode,
     'evaluationResult': evaluationResult.toJson(),
     'submittedDocuments': submittedDocuments?.map((e) => e.toJson()).toList(),
     'segmentResults': segmentResults.map((e) => e.toJson()).toList(),

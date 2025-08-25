@@ -6,6 +6,7 @@ import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/navigation/routes.dart';
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
@@ -15,6 +16,7 @@ import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
+import 'package:abds/widgets/MySwitchButton.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:abds/widgets/check_permission.dart';
 import 'package:abds/widgets/user_avatar.dart';
@@ -35,6 +37,7 @@ import '../../core/utils_and_services/string_utility.dart';
 import '../../core/utils_and_services/timatic/artemis_timatic.dart';
 import '../../initialize.dart';
 import '../../widgets/MyExpansionTile.dart';
+import '../../widgets/MyTimePicker.dart';
 import 'home_controller.dart';
 import 'home_state.dart';
 
@@ -61,6 +64,8 @@ class HomeViewPhone extends ConsumerWidget {
     final List<DocumentDetail> visas = ref.watch(visasProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
+    log("passes ${passports.length}");
+    log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
     return PopScope(
       canPop: false,
@@ -268,81 +273,127 @@ class HomeViewPhone extends ConsumerWidget {
                                 );
                               },
                             ),
+
                             const SizedBox(height: 12),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: MyColors.scaffoldHeader,
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text("PASSPORT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                  ),
-                                  MyButton(
-                                    label: "Scan",
-                                    icon: Icons.qr_code_scanner,
+                            Row(
+                              spacing: 12,
+                              children: [
+                                Expanded(
+                                  child: MyButton(
+                                    label: "Scan Doc",
                                     onPressed: () {
                                       myHomeController.goNamed(Routes.mrzReader);
                                     },
-                                    textColor: Colors.white,
-                                    // textColor: context.mainColor,
-                                    borderSide: BorderSide(color: Colors.white),
-                                    radius: 12,
+                                    radius: 10,
+                                    icon: ArtemisIcons.scan,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: MyButton(
+                                    label: "Manual",
+                                    onPressed: ref.watch(passportsProvider).isNotEmpty
+                                        ? null
+                                        : () {
+                                            ref.read(passportsProvider.notifier).add(DocumentDetail());
+                                            ref.read(visasProvider.notifier).add(DocumentDetail());
+                                          },
+                                    radius: 10,
+                                    reverse: true,
+                                    borderSide: BorderSide(color: context.mainColor),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Visibility(
+                              visible: passports.isNotEmpty,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: MyColors.scaffoldHeader,
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text("PASSPORT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                        ),
+                                        // MyButton(
+                                        //   label: "Scan",
+                                        //   icon: Icons.qr_code_scanner,
+                                        //   onPressed: () {
+                                        //     myHomeController.goNamed(Routes.mrzReader);
+                                        //   },
+                                        //   textColor: Colors.white,
+                                        //   // textColor: context.mainColor,
+                                        //   borderSide: BorderSide(color: Colors.white),
+                                        //   radius: 12,
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                  Builder(
+                                    builder: (context) {
+                                      return Column(
+                                        children: passports.map((d) {
+                                          int index = passports.indexOf(d);
+                                          bool isLast = passports.length == index + 1;
+                                          bool isFirst = index == 0;
+                                          return PassportItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                        }).toList(),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
                             ),
-                            Builder(
-                              builder: (context) {
-                                return Column(
-                                  children: passports.map((d) {
-                                    int index = passports.indexOf(d);
-                                    bool isLast = passports.length == index + 1;
-                                    bool isFirst = index == 0;
-                                    return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: false);
-                                  }).toList(),
-                                );
-                              },
-                            ),
+
                             const SizedBox(height: 12),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: MyColors.scaffoldHeader,
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                              ),
-                              child: Row(
+                            Visibility(
+                              visible: visas.isNotEmpty,
+                              child: Column(
                                 children: [
-                                  Expanded(
-                                    child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: MyColors.scaffoldHeader,
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                        ),
+                                        // MyButton(
+                                        //   label: "Scan",
+                                        //   icon: Icons.qr_code_scanner,
+                                        //   onPressed: () {
+                                        //     myHomeController.goNamed(Routes.mrzReader);
+                                        //   },
+                                        //   textColor: Colors.white,
+                                        //   // textColor: context.mainColor,
+                                        //   borderSide: BorderSide(color: Colors.white),
+                                        //   radius: 12,
+                                        // ),
+                                      ],
+                                    ),
                                   ),
-                                  MyButton(
-                                    label: "Scan",
-                                    icon: Icons.qr_code_scanner,
-                                    onPressed: () {
-                                      myHomeController.goNamed(Routes.mrzReader);
+                                  Builder(
+                                    builder: (context) {
+                                      return Column(
+                                        children: visas.map((d) {
+                                          int index = visas.indexOf(d);
+                                          bool isLast = visas.length == index + 1;
+                                          bool isFirst = index == 0;
+                                          return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                        }).toList(),
+                                      );
                                     },
-                                    textColor: Colors.white,
-                                    // textColor: context.mainColor,
-                                    borderSide: BorderSide(color: Colors.white),
-                                    radius: 12,
                                   ),
                                 ],
                               ),
-                            ),
-                            Builder(
-                              builder: (context) {
-                                return Column(
-                                  children: visas.map((d) {
-                                    int index = visas.indexOf(d);
-                                    bool isLast = visas.length == index + 1;
-                                    bool isFirst = index == 0;
-                                    return DocumentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst, isVisa: true);
-                                  }).toList(),
-                                );
-                              },
                             ),
                           ],
                         ),
@@ -396,11 +447,12 @@ class HomeViewPhone extends ConsumerWidget {
                               icon: Icons.perm_identity,
                               iconInRight: true,
                               onPressed: () async {
+                                List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList();
                                 final timResult = await myHomeController.timaticApi.submitDocumentRequest(
                                   DocumentRequest(
-                                    documentDetails: [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList(),
+                                    documentDetails:ddl,
                                     itineraryDetails: ItineraryDetails(segments: segments),
-                                    passengerDetails: passengerDetails,
+                                    passengerDetails: passengerDetails.copyWith(birthDate: ddl.firstWhereOrNull((a)=>a.birthDate!=null)?.birthDate),
                                   ),
                                 );
                                 ref.read(timaticResultProvider.notifier).update((s) => timResult);
@@ -420,20 +472,19 @@ class HomeViewPhone extends ConsumerWidget {
 }
 
 // Row (with its own controller)
-class DocumentItemRow extends ConsumerStatefulWidget {
-  const DocumentItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst, required this.isVisa});
+class PassportItemRow extends ConsumerStatefulWidget {
+  const PassportItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
 
   final bool isFirst;
   final bool isLast;
-  final bool isVisa;
   final int index;
   final DocumentDetail item;
 
   @override
-  ConsumerState<DocumentItemRow> createState() => _DocumentItemRowState();
+  ConsumerState<PassportItemRow> createState() => _PassportItemRowState();
 }
 
-class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
+class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   late final TextEditingController controller;
 
   @override
@@ -442,17 +493,12 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
     controller = TextEditingController(text: widget.item.documentNumber);
 
     controller.addListener(() {
-      // log("listern ${controller.text}");
-      if (widget.isVisa) {
-        ref.read(visasProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
-      } else {
-        ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
-      }
+      ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
     });
   }
 
   @override
-  void didUpdateWidget(DocumentItemRow oldWidget) {
+  void didUpdateWidget(PassportItemRow oldWidget) {
     super.didUpdateWidget(oldWidget);
     // log(widget.item.toJson().toString());
 
@@ -489,6 +535,7 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
         border: Border(bottom: BorderSide(color: Colors.white)),
       ),
       child: MyExpansionTile(
+        initiallyExpanded: d.isScanned,
         backgroundColor: MyColors.scaffoldBg,
         collapsedBackgroundColor: MyColors.scaffoldBg,
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
@@ -502,15 +549,10 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
               padding: const EdgeInsets.all(8.0),
               child: MyButton(
                 height: 30,
-                label: widget.isVisa ? "Visa" : "Passport",
+                label: "Passport",
                 icon: Icons.add_circle_outline,
                 onPressed: () {
-                  // ref.read(passportsProvider.notifier).update((s) => [...s, DocumentDetail()]);
-                  if (widget.isVisa) {
-                    ref.read(visasProvider.notifier).add(DocumentDetail());
-                  } else {
-                    ref.read(passportsProvider.notifier).add(DocumentDetail());
-                  }
+                  ref.read(passportsProvider.notifier).add(DocumentDetail());
                 },
                 textColor: Colors.blueAccent,
                 color: Colors.blueAccent.withOpacity(0.1),
@@ -528,32 +570,28 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                 children: [
                   Expanded(
                     child: Text(
-                      "DOCUMENT ${index + 1}",
+                      "Passport ${index + 1}",
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
                     ),
                   ),
                   isFirst
                       ? SizedBox()
                       : DotButton(
-                          icon: Icons.delete,
+                          icon: ArtemisIcons.trash,
                           color: Colors.red,
                           flat: true,
                           onPressed: () {
-                            // ref.read(passportsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                            if (widget.isVisa) {
-                              ref.read(visasProvider.notifier).removeAt(index);
-                            } else {
-                              ref.read(passportsProvider.notifier).removeAt(index);
-                            }
+                            ref.read(passportsProvider.notifier).removeAt(index);
                           },
                         ),
                   const SizedBox(width: 8),
                   DotButton(
                     border: BorderSide(color: Colors.blueAccent),
-                    icon: Icons.refresh,
+                    icon: ArtemisIcons.eraser_1,
                     flat: true,
                     onPressed: () {
-                      ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                      ref.read(passportsProvider.notifier).updateAt(index, DocumentDetail());
+                      // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
                     },
                   ),
                 ],
@@ -569,17 +607,24 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
+                    ref.read(passportsProvider.notifier).updateAt(widget.index, d);
                   },
                 ),
-                MyTextField(controller: controller, label: "Document Number", placeholder: "Number", labelInRow: true),
-
+                MyFieldPicker<Location>(
+                  label: "Issued In",
+                  placeholder: "Country",
+                  itemToWidget: countryBuilder,
+                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                  items: tim.locations.of(LocationType.country),
+                  value: d.documentIssueCountry,
+                  onChange: (a) {
+                    d = d.copyWith(documentIssueCountry: a);
+                    ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
                 MyDatePicker(
-                  label: "Expiry",
+                  rowLabelRatio: [3, 7],
+                  label: "Expiry Date",
                   required: true,
                   validator: (a) => expiryValidator(a, d.documentExpiryDate),
                   validationColor: expiryValidationColor(d.documentExpiryDate),
@@ -587,11 +632,7 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
                   value: d.documentExpiryDate,
                   onChanged: (a) {
                     d = d.copyWith(documentExpiryDate: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
+                    ref.read(passportsProvider.notifier).updateAt(widget.index, d);
                   },
                 ),
               ],
@@ -600,109 +641,91 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
         ),
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
+
+
+
           MyDatePicker(
             required: true,
+            rowLabelRatio: [3, 7],
             label: "Birth Date",
             placeholder: "Birth Date",
             validator: (a) => birthDateValidator(a, passengerDetails.birthDate),
             validationColor: birthDateValidationColor(passengerDetails.birthDate),
-            value: passengerDetails.birthDate,
+            validationIcon: ArtemisIcons.user_square,
+            value: d.birthDate,
             onChanged: (a) {
               ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+              d = d.copyWith(birthDate: a);
+              ref.read(passportsProvider.notifier).updateAt(widget.index, d);
             },
           ),
 
           const SizedBox(height: 12),
-          Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: MyFieldPicker<Location>(
-                  hasSearch: true,
-                  label: "Nationality",
-                  required: true,
-                  placeholder: "Country",
-                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                  itemToWidget: countryBuilder,
-                  items: tim.locations.of(LocationType.country),
-                  value: passengerDetails.nationality,
-                  onChange: (a) {
-                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                  },
-                ),
-              ),
-              Expanded(
-                child: MyFieldPicker<Location>(
-                  label: "Issuing",
-                  placeholder: "Country",
-                  itemToWidget: countryBuilder,
-                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                  items: tim.locations.of(LocationType.country),
-                  value: d.documentIssueCountry,
-                  onChange: (a) {
-                    d = d.copyWith(documentIssueCountry: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: MyDatePicker(
-                  label: "Issue Date",
-                  placeholder: "Issue Date",
-                  value: d.documentIssueDate,
-                  onChanged: (a) {
-                    d = d.copyWith(documentIssueDate: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
-                  },
-                ),
-              ),
-              Expanded(
-                child: MyFieldPicker<DocumentFeature>(
-                  hasSearch: false,
-                  label: "Feature",
-                  placeholder: "Feature",
-                  items: DocumentFeature.values,
-                  value: d.documentFeature,
-                  onChange: (a) {
-                    d = d.copyWith(documentFeature: a);
-                    if (widget.isVisa) {
-                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                    } else {
-                      ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 12),
           MyFieldPicker<Location>(
-            label: "Birth Place",
             hasSearch: true,
+            label: "Nationality",
+            required: true,
             placeholder: "Country",
             searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-            items: tim.locations.of(LocationType.country),
             itemToWidget: countryBuilder,
-            value: passengerDetails.birthCountry,
+            items: tim.locations.of(LocationType.country),
+            value: d.nationality,
             onChange: (a) {
-              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+              ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+              d = d.copyWith(nationality: a);
+              ref.read(passportsProvider.notifier).updateAt(widget.index, d);
             },
           ),
+          const SizedBox(height: 12),
+          MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          const SizedBox(height: 12),
+          MyDatePicker(
+            label: "Issue Date",
+            placeholder: "Issue Date",
+            rowLabelRatio: [3, 7],
+            value: d.documentIssueDate,
+            onChanged: (a) {
+              d = d.copyWith(documentIssueDate: a);
+              ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: MyFieldPicker<Location>(
+                label: "Birth Place",
+                rowLabelRatio: [3,4],
+                hasSearch: true,
+                placeholder: "Country",
+                searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                items: tim.locations.of(LocationType.country),
+                itemToWidget: countryBuilder,
+                value: passengerDetails.birthCountry,
+                onChange: (a) {
+                  ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: MyFieldPicker<DocumentFeature>(
+                hasSearch: false,
+                rowLabelRatio: [3,4],
+                label: "Feature",
+                placeholder: "Feature",
+                items: DocumentFeature.values,
+                value: d.documentFeature,
+                onChange: (a) {
+                  d = d.copyWith(documentFeature: a);
+                  ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                },
+              ),
+            ),
+          ],),
+
         ],
       ),
     );
@@ -721,9 +744,9 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
     if (isExpiryFake) {
       return "Document(s) expiry date is unreadable !";
     } else if (isExpired) {
-      return "Document(s) expired ${expiredDays} days";
+      return "Expired: ${StringUtility.formatDaysToYearsMonths(expiredDays)} ago";
     } else if (isExpiring) {
-      return "Document(s) Expiring soon ${expiredDays} days";
+      return "Expiring: ${StringUtility.formatDaysToYearsMonths(expiryRemain)}";
     }
 
     return null;
@@ -765,7 +788,400 @@ class _DocumentItemRowState extends ConsumerState<DocumentItemRow> {
 
   Color? birthDateValidationColor(DateTime? bDate) {
     if (bDate == null) return null;
-    return Colors.black;
+    return MyColors.green2;
+  }
+
+  Widget buildExpiryValidation(DateTime? expiry) {
+    if (expiry == null) return SizedBox();
+    return Container();
+  }
+}
+
+class VisaItemRow extends ConsumerStatefulWidget {
+  const VisaItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
+
+  final bool isFirst;
+  final bool isLast;
+  final int index;
+  final DocumentDetail item;
+
+  @override
+  ConsumerState<VisaItemRow> createState() => _VisaItemRowState();
+}
+
+class _VisaItemRowState extends ConsumerState<VisaItemRow> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.item.documentNumber);
+
+    controller.addListener(() {
+      ref.read(visasProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+    });
+  }
+
+  @override
+  void didUpdateWidget(VisaItemRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // log(widget.item.toJson().toString());
+
+    if (controller.text != widget.item.documentNumber) {
+      controller.text = widget.item.documentNumber ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Widget countryBuilder(dynamic a) => Row(
+    children: [
+      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      const SizedBox(width: 8),
+      Text("$a (${(a as Location).name})"),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLast = widget.isLast;
+    bool isFirst = widget.isFirst;
+    int index = widget.index;
+    DocumentDetail d = widget.item;
+    final PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    final tim = BasicClass.timData;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.white)),
+      ),
+      child: MyExpansionTile(
+        initiallyExpanded: d.isScanned,
+        backgroundColor: MyColors.scaffoldBg,
+        collapsedBackgroundColor: MyColors.scaffoldBg,
+        footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+        shape: RoundedRectangleBorder(),
+        collapsedShape: RoundedRectangleBorder(),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        footerExtra: IndexedStack(
+          index: isLast ? 0 : 1,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: MyButton(
+                height: 30,
+                label: "Visa",
+                icon: Icons.add_circle_outline,
+                onPressed: () {
+                  ref.read(visasProvider.notifier).add(DocumentDetail());
+                },
+                textColor: Colors.blueAccent,
+                color: Colors.blueAccent.withOpacity(0.1),
+              ),
+            ),
+            SizedBox(),
+          ],
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Visa ${index + 1}",
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                    ),
+                  ),
+                  isFirst
+                      ? SizedBox()
+                      : DotButton(
+                          icon: ArtemisIcons.trash,
+                          color: Colors.red,
+                          flat: true,
+                          onPressed: () {
+                            ref.read(visasProvider.notifier).removeAt(index);
+                          },
+                        ),
+                  const SizedBox(width: 8),
+                  DotButton(
+                    border: BorderSide(color: Colors.blueAccent),
+                    icon: ArtemisIcons.eraser_1,
+                    flat: true,
+                    onPressed: () {
+                      ref.read(visasProvider.notifier).updateAt(index, DocumentDetail());
+
+                      // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              spacing: 12,
+              children: [
+                MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  items: tim.params.of(ParameterType.documentCode),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
+                MyFieldPicker<Location>(
+                  label: "Issued In",
+                  placeholder: "Country",
+                  itemToWidget: countryBuilder,
+                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                  items: tim.locations.of(LocationType.country),
+                  value: d.documentIssueCountry,
+                  onChange: (a) {
+                    d = d.copyWith(documentIssueCountry: a);
+                    ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyDatePicker(
+                        label: "Expiry",
+                        rowLabelRatio: [3, 7],
+                        required: true,
+                        validator: (a) => expiryValidator(a, d.documentExpiryDate),
+                        validationColor: expiryValidationColor(d.documentExpiryDate),
+                        validationIcon: ArtemisIcons.danger,
+                        placeholder: "Date",
+                        value: d.documentExpiryDate,
+                        onChanged: (a) {
+                          d = d.copyWith(documentExpiryDate: a);
+                          ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                        },
+                      ),
+                    ),
+                    // ExpiryInfoWidget(d.documentExpiryDate)
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+        children: [
+          MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          const SizedBox(height: 12),
+          MyDatePicker(
+            required: true,
+            rowLabelRatio: [3,7],
+            label: "Birth Date",
+            placeholder: "Birth Date",
+            validator: (a) => birthDateValidator(a, passengerDetails.birthDate),
+            validationColor: birthDateValidationColor(passengerDetails.birthDate),
+            validationIcon: ArtemisIcons.user_square,
+            value: d.birthDate,
+            onChanged: (a) {
+              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+              d = d.copyWith(birthDate: a);
+              ref.read(visasProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+
+          const SizedBox(height: 12),
+          MyFieldPicker<Location>(
+            hasSearch: true,
+            label: "Nationality",
+            required: true,
+            placeholder: "Country",
+            searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+            itemToWidget: countryBuilder,
+            items: tim.locations.of(LocationType.country),
+            value: d.nationality,
+            onChange: (a) {
+              ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+              d = d.copyWith(nationality: a);
+              ref.read(visasProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Row(
+          //   spacing: 12,
+          //   children: [
+          //     Expanded(
+          //       child: MyFieldPicker<Location>(
+          //         hasSearch: true,
+          //         label: "Nationality",
+          //         required: true,
+          //         placeholder: "Country",
+          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+          //         itemToWidget: countryBuilder,
+          //         items: tim.locations.of(LocationType.country),
+          //         value: passengerDetails.nationality,
+          //         onChange: (a) {
+          //           ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+          //           d = d.copyWith(nationality: a);
+          //           if (widget.isVisa) {
+          //             ref.read(visasProvider.notifier).updateAt(widget.index, d);
+          //           } else {
+          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: MyFieldPicker<Location>(
+          //         label: "Issuing",
+          //         placeholder: "Country",
+          //         itemToWidget: countryBuilder,
+          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+          //         items: tim.locations.of(LocationType.country),
+          //         value: d.documentIssueCountry,
+          //         onChange: (a) {
+          //           d = d.copyWith(documentIssueCountry: a);
+          //           if (widget.isVisa) {
+          //             ref.read(visasProvider.notifier).updateAt(widget.index, d);
+          //           } else {
+          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          MyDatePicker(
+            label: "Issue Date",
+            rowLabelRatio: [3,7],
+            placeholder: "Issue Date",
+            value: d.documentIssueDate,
+            onChanged: (a) {
+              d = d.copyWith(documentIssueDate: a);
+              ref.read(visasProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+          const SizedBox(height: 12),
+
+
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyFieldPicker<Location>(
+                  rowLabelRatio: [3,4],
+                  label: "Birth Place",
+                  hasSearch: true,
+                  placeholder: "Country",
+                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                  items: tim.locations.of(LocationType.country),
+                  itemToWidget: countryBuilder,
+                  value: passengerDetails.birthCountry,
+                  onChange: (a) {
+                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                  },
+                ),
+              ),
+              Expanded(
+                child:   MyFieldPicker<DocumentFeature>(
+                  rowLabelRatio: [3,4],
+                  hasSearch: false,
+                  label: "Feature",
+                  placeholder: "Feature",
+                  items: DocumentFeature.values,
+                  value: d.documentFeature,
+                  onChange: (a) {
+                    d = d.copyWith(documentFeature: a);
+                    ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? expiryValidator(String v, DateTime? expiry) {
+    bool isExpired = expiry != null && expiry.difference(DateTime.now()).inDays < -1;
+
+    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
+
+    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
+
+    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
+    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
+
+    if (isExpiryFake) {
+      return "Document(s) expiry date is unreadable !";
+    } else if (isExpired) {
+      return "Expired: ${StringUtility.formatDaysToYearsMonths(expiredDays)} ago";
+    } else if (isExpiring) {
+      return "Expiring: ${StringUtility.formatDaysToYearsMonths(expiryRemain)}";
+    }
+
+    return null;
+  }
+
+  Color? expiryValidationColor(DateTime? expiry) {
+    bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
+
+    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
+
+    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
+
+    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
+    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
+
+    if (isExpiryFake) {
+      return Colors.red;
+    } else if (isExpired) {
+      return Colors.red;
+    } else if (isExpiring) {
+      return Colors.orange;
+    }
+
+    return null;
+  }
+
+  String? birthDateValidator(String v, DateTime? bDate) {
+    if (bDate == null) return null;
+    int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
+    if (years > 0) {
+      return "$years year old";
+    } else {
+      int mounts = (bDate.difference(DateTime.now()).inDays / 12).floor().abs();
+      return "$mounts months old";
+    }
+
+    return null;
+  }
+
+  Color? birthDateValidationColor(DateTime? bDate) {
+    if (bDate == null) return null;
+    return MyColors.green2;
+  }
+
+  Widget buildExpiryValidation(DateTime? expiry) {
+    if (expiry == null) return SizedBox();
+    return Container();
+  }
+}
+
+class ExpiryInfoWidget extends StatelessWidget {
+  final DateTime? expiry;
+
+  const ExpiryInfoWidget(this.expiry, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(index: expiry == null ? 0 : 1, children: [SizedBox(), Container(width: 100)]);
   }
 }
 
@@ -876,7 +1292,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   isFirst
                       ? SizedBox()
                       : DotButton(
-                          icon: Icons.delete,
+                          icon: ArtemisIcons.trash,
                           color: Colors.red,
                           flat: true,
                           onPressed: () {
@@ -885,11 +1301,11 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                         ),
                   const SizedBox(width: 8),
                   DotButton(
-                    icon: Icons.refresh,
+                    icon: ArtemisIcons.eraser_1,
                     border: BorderSide(color: Colors.blueAccent),
                     flat: true,
                     onPressed: () {
-                      ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                      ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.emptyNoAirport());
                     },
                   ),
                 ],
@@ -903,6 +1319,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     required: true,
                     label: "From",
                     placeholder: "City",
+                    rowLabelRatio: [3, 5],
                     labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
                     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
@@ -914,7 +1331,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                         seg = seg.copyWith(departure: update);
                         ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
-                        if (!isFirst) {
+                        if (!isFirst && seg.departure.point.isNotEmpty) {
                           int prevIndex = index - 1;
                           var prevSeg = ref.read(segmentsProvider)[prevIndex];
                           prevSeg = prevSeg.copyWith(arrival: seg.departure);
@@ -931,6 +1348,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   child: MyFieldPicker<Location>(
                     label: "To",
                     placeholder: "City",
+                    rowLabelRatio: [3, 5],
                     labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
                     required: true,
@@ -970,8 +1388,10 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyDatePicker(
                   label: "Departure",
                   placeholder: "Date",
+                  rowLabelRatio: [3, 5],
                   value: seg.departure.dateTime,
                   onChanged: (a) {
+                    seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
                     seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
                     // log(jsonEncode(seg.toJson()));
 
@@ -985,9 +1405,48 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyDatePicker(
                   label: "Arrival",
                   placeholder: "Date",
+                  rowLabelRatio: [3, 5],
                   value: seg.arrival.dateTime,
                   onChanged: (a) {
                     seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyTimePicker(
+                  label: "STD",
+                  placeholder: "Time",
+                  rowLabelRatio: [3, 5],
+                  value: seg.departure.time,
+                  onChanged: (a) {
+                    seg = seg.copyWith(departure: seg.departure.copyWith(time: a));
+
+                    log(jsonEncode(seg.toJson()));
+
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                  },
+                ),
+              ),
+              Expanded(
+                child: MyTimePicker(
+                  label: "STA",
+                  placeholder: "Time",
+                  rowLabelRatio: [3, 5],
+                  value: seg.arrival.time,
+                  onChanged: (a) {
+                    seg = seg.copyWith(arrival: seg.arrival.copyWith(time: a));
+                    log(jsonEncode(seg.toJson()));
                     ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
@@ -1003,6 +1462,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyFieldPicker<ParameterValue>(
                   label: "Airline",
                   placeholder: "Airline",
+                  rowLabelRatio: [3, 5],
                   items: tim.params.of(ParameterType.carrier),
                   value: seg.operatingCarrier,
                   onChange: (a) {
@@ -1019,6 +1479,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyFieldPicker<PurposeOfStayType>(
                   label: "POS",
                   placeholder: "Purpose Of Stay",
+                  rowLabelRatio: [3, 5],
                   items: PurposeOfStayType.values,
                   hasSearch: false,
                   value: seg.purposeOfStay,
@@ -1037,12 +1498,13 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           Row(
             children: [
               Expanded(
-                child: MyTextField(controller: controller, label: "Flight Num", placeholder: "Number", labelInRow: true),
+                child: MyTextField(controller: controller, label: "Flight Num", placeholder: "Number", rowLabelRatio: [3, 5], labelInRow: true),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MyDurationOfStayPicker(
                   label: "DOS",
+
                   placeholder: "Duration Of Stay",
                   value: seg.durationOfStay,
                   onChange: (a) {
@@ -1060,6 +1522,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyFieldPicker<TicketStatus>(
                   label: "Ticket",
                   placeholder: "Ticket Status",
+                  rowLabelRatio: [3, 5],
                   items: TicketStatus.values,
                   hasSearch: false,
                   value: seg.returnOnwardTicket,
@@ -1074,9 +1537,41 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(child: SizedBox()),
+              Expanded(
+                child: MyFieldPicker<SegmentType>(
+                  label: "Type",
+                  placeholder: "Type",
+                  rowLabelRatio: [3, 5],
+                  items: SegmentType.values,
+                  hasSearch: false,
+                  value: seg.segmentType,
+
+                  onChange: (a) {
+                    seg = seg.copyWith(segmentType: a);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                    // log(jsonEncode(seg.toJson()));
+                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                  },
+                ),
+              ),
             ],
           ),
+          const SizedBox(height: 12),
+          Row(spacing: 12,
+            children: [
+              Expanded(
+                child: MySwitchButton(value: seg.luggageCollected??false, onChanged: (a){
+                  seg = seg.copyWith(luggageCollected: a);
+                  ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                }, label: "Luggage Collect"),
+              ),
+              Expanded(child: SizedBox())
+
+            ],
+          ),
+
         ],
       ),
     );
@@ -1165,17 +1660,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 SizedBox(
                                   height: 50,
                                   width: 200,
-                                  child: CheckPermission(
-                                    permission: UserUiPermission.add(),
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                      dense: true,
-                                      title: Text("User Management", style: TextStyle(color: Colors.white)),
-                                      trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
-                                      onTap: () {
-                                        myHomeController.goNamed(Routes.users);
-                                      },
-                                    ),
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                    dense: true,
+                                    title: Text("User Management", style: TextStyle(color: Colors.white)),
+                                    trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
+                                    onTap: () {
+                                      myHomeController.goNamed(Routes.users);
+                                    },
                                   ),
                                 ),
                                 SizedBox(
@@ -1243,13 +1735,15 @@ class TimaticResultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     log(res.segmentResults.length.toString());
+
     // final commonBorder = res.segmentResults.first.commonBorder;
     return ListView(
       children: res.segmentResults.map((segRes) {
         final visaField = segRes.ruleSetEvaluations.firstWhereOrNull((a) => a.ruleSetType.name.startsWith("Visa Requirements"));
         int index = res.segmentResults.indexOf(segRes);
+        segRes.ruleSetEvaluations.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
         return MyExpansionTile(
-          initiallyExpanded: false,
+          initiallyExpanded: segRes.ruleSetEvaluations.any((a) => a.evaluationResult.index < 2),
           tilePadding: EdgeInsets.symmetric(horizontal: 16),
           showFooter: false,
           title: Column(
@@ -1257,11 +1751,11 @@ class TimaticResultWidget extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(color: Colors.lightBlueAccent.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Row(children: [Text("Segment #${index + 1}"), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
+                child: Row(children: [Text("(${(res.refCode ?? '').split("-").last}) Seg #${index + 1} "), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
               ),
               const SizedBox(height: 8),
               visaField == null
-                  ? SizedBox()
+                  ? NoVisaDataCardWidget()
                   : Container(
                       padding: EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -1483,6 +1977,7 @@ class RuleSetWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
       child: MyExpansionTile(
+        // initiallyExpanded: ruleSet.evaluationResult.index < 2,
         showFooter: false,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -1495,26 +1990,72 @@ class RuleSetWidget extends StatelessWidget {
         backgroundColor: ruleSet.getColor.withOpacity(0.08),
         collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
         tilePadding: EdgeInsets.symmetric(horizontal: 8),
-        title: Row(
+        childPreview: ruleSet.evaluationResult.index>1?null: Column(
           children: [
-            Expanded(
-              child: Text(ruleSet.ruleSetType.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
-            ),
-            Container(
-              padding: EdgeInsets.all(4),
-              width: 65,
-              decoration: BoxDecoration(color: ruleSet.getColor, borderRadius: BorderRadius.circular(8)),
-              child: Row(
+            ...ruleSet.regulations.map(
+              (a) => Column(
                 children: [
-                  Icon(ruleSet.getIcon, color: Colors.white),
-                  Spacer(),
-                  Text(
-                    ruleSet.evaluationResult.name,
-                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                  Container(
+                    margin:EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(a.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        ),
+                        Text(a.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(a.evaluationResult.name.toString()))),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            ...ruleSet.documentResults.map(
+              (a) => Column(
+                children: a.regulations
+                    .map(
+                      (a) => Container(
+                        margin:EdgeInsets.only(top: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(a.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ),
+                            Text(a.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(a.evaluationResult.name.toString()))),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
+        title: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(ruleSet.ruleSetType.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                ),
+                Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(color: ruleSet.getColor, borderRadius: BorderRadius.circular(5)),
+                  child: Row(
+                    children: [
+                      Icon(ruleSet.getIcon, color: Colors.white, size: 20),
+                      const SizedBox(width: 4),
+                      Text(
+                        ruleSet.evaluationResult.name,
+                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            // Text("ada")
           ],
         ),
         childrenPadding: EdgeInsets.zero,
@@ -1663,6 +2204,57 @@ class ExpiryStatusWidget extends StatelessWidget {
         msg,
         style: const TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class NoVisaDataCardWidget extends StatelessWidget {
+  const NoVisaDataCardWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color = Colors.black;
+    return Container(
+      padding: EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.12)),
+        color: color.withOpacity(0.08),
+      ),
+      child: Column(
+        children: [
+          FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Text("Unspecific Status", style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              // visaField.applicable ? 'Applicable' : "Not applicable",
+              "Missing VISA requirements data",
+              style: TextStyle(color: color, fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            height: 72,
+            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Icon(visaField.getIcon, color: Colors.white, size: 25),
+                  // const SizedBox(width: 4),
+                  Text(
+                    "View Requirements",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

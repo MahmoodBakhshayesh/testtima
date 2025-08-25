@@ -28,13 +28,18 @@ class MrzReaderController extends ControllerInterface {
       if (res.isPassport) {
         docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "PASSPORT");
       } else if (res.isVisa) {
-        docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "V");
+        docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "VVV");
       } else {
         docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "TRAVELCERTIFICATE");
       }
 
+      res.nationality = res.nationality;
+      res.countryCode = res.countryCode;
       final nationality = BasicClass.getLocationWithCode(res.nationality);
       final issueCountry = BasicClass.getLocationWithCode(res.countryCode);
+
+      log("res.nationality ${res.nationality}");
+      log("res.countryCode ${res.countryCode}");
 
       DocumentDetail documentDetail = DocumentDetail(
         documentExpiryDate: res.expiryDate,
@@ -44,43 +49,39 @@ class MrzReaderController extends ControllerInterface {
         documentNumber: res.documentNumber,
         nationality: nationality,
         documentFeature: DocumentFeature.mrd,
+        mrz: res.mrzLines.join("\n"),
       );
-
-      // log("DOC FOUND");
-      // log(jsonEncode(documentDetail.toJson()));
-
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
       if (res.isPassport) {
         int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
         if (emptyIndex == -1) {
-          // ref.read(passportsProvider.notifier).update((s) => [...s, documentDetail]);
-          ref.read(passportsProvider.notifier).add(documentDetail);
+          if(ref.read(passportsProvider).isEmpty){
+            ref.read(passportsProvider.notifier).add(documentDetail);
+          }else{
+            int lastIndex = ref.read(passportsProvider).length-1;
+            ref.read(passportsProvider.notifier).updateAt(lastIndex, documentDetail);
+          }
+
         } else {
-          // var current = ref.read(passportsProvider);
-          // current[emptyIndex] = documentDetail;
-          // ref.read(passportsProvider.notifier).update((s) => [...current]);
           ref.read(passportsProvider.notifier).updateAt(emptyIndex, documentDetail);
         }
       } else {
         int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
         if (emptyIndex == -1) {
-          // ref.read(visasProvider.notifier).update((s) => [...s, documentDetail]);
           ref.read(visasProvider.notifier).add(documentDetail);
         } else {
-          // var current = ref.read(visasProvider);
-          // current[emptyIndex] = documentDetail;
           ref.read(visasProvider.notifier).updateAt(emptyIndex, documentDetail);
-          // ref.read(visasProvider.notifier).update((s) => [...current]);
         }
       }
 
-      PassengerDetails passengerDetails = PassengerDetails(nationality: nationality, gender: gender, birthDate: res.birthDate, birthCountry: nationality,);
+
+      PassengerDetails passengerDetails = PassengerDetails(nationality: nationality, gender: gender, birthDate: res.birthDate, birthCountry: nationality);
       ref.read(passengerProvider.notifier).update((s) => passengerDetails);
 
       navigation.pop();
-    }catch(e){
-      if(e is Error){
+    } catch (e) {
+      if (e is Error) {
         log(e.stackTrace.toString());
       }
       // FailureHandler.handle(ServerFailure(code: -1, msg: e.toString(), traceMsg: ""));

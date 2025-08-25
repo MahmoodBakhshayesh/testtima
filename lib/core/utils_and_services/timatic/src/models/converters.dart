@@ -1,6 +1,8 @@
 // converters.dart
 // Manual helper functions for date, time, and enum parsing.
 
+import 'package:dartx/dartx.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'location.dart';
@@ -28,14 +30,15 @@ String? formatDate(DateTime? date) {
 }
 
 /// Parses a `HH:mm` or `HH:mm:ss` string into a [DateTime] (time only).
-DateTime? parseTime(dynamic value) {
+TimeOfDay? parseTime(dynamic value) {
   if (value == null) return null;
-  if (value is DateTime) return value;
+  if (value is TimeOfDay) return value;
   if (value is String && value.trim().isNotEmpty) {
     try {
       final parts = value.split(':').map(int.parse).toList();
-      return DateTime(0, 1, 1, parts[0], parts.length > 1 ? parts[1] : 0,
+      final dt =  DateTime(0, 1, 1, parts[0], parts.length > 1 ? parts[1] : 0,
           parts.length > 2 ? parts[2] : 0);
+      return TimeOfDay.fromDateTime(dt);
     } catch (_) {}
   }
   return null;

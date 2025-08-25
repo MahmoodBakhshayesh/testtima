@@ -40,6 +40,7 @@ class MyTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffix;
   final Widget? suffixIcon;
+  final IconData? validationIcon;
   final ValueChanged<String>? onChanged;
   final bool showClearButton;
   final bool locked;
@@ -53,11 +54,13 @@ class MyTextField extends StatefulWidget {
   final double? height;
   final double? suffixWidth;
   final BorderSide? borderSide;
+  final List<int> rowLabelRatio;
 
   const MyTextField({
     Key? key,
     this.label,
     this.nextFn,
+    this.rowLabelRatio = const[3,7],
     this.validationColor,
     this.prevFn,
     this.labelInRow = false,
@@ -80,6 +83,7 @@ class MyTextField extends StatefulWidget {
     this.style,
     this.strutStyle,
     this.textDirection,
+    this.validationIcon,
     this.textAlign = TextAlign.start,
     this.textAlignVertical,
     this.showClearButton = false,
@@ -134,9 +138,10 @@ class _MyTextFieldState extends State<MyTextField> {
 
   @override
   Widget build(BuildContext context) {
-    bool hasError = widget.validator?.call(widget.controller?.text ?? '') != null;
+    bool hasError = (widget.validator?.call(widget.controller?.text ?? '')?? '' ).isNotEmpty;
     bool requiredError = widget.required && (widget.controller?.text ?? '').isEmpty;
-    Color validationColor = widget.validationColor??Colors.red;
+    Color validationColor = widget.validationColor ?? Colors.red;
+
     if (widget.keyboardType == TextInputType.number) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +154,7 @@ class _MyTextFieldState extends State<MyTextField> {
                     children: [
                       Text(
                         widget.label ?? '',
-                        style:widget.labelStyle?? const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
+                        style: widget.labelStyle ?? const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
                       ),
                       const SizedBox(width: 4),
                       widget.required ? const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8) : const SizedBox(),
@@ -246,14 +251,14 @@ class _MyTextFieldState extends State<MyTextField> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 3,
+            flex: widget.rowLabelRatio[0],
             child: widget.label == null
                 ? const SizedBox()
                 : Row(
                     children: [
                       Text(
                         widget.label ?? '',
-                        style: widget.labelStyle??const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
+                        style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
                       ),
                       widget.required
                           ? Padding(
@@ -265,79 +270,95 @@ class _MyTextFieldState extends State<MyTextField> {
                   ),
           ),
           Expanded(
-            flex: 4,
+            flex: widget.rowLabelRatio[1],
             child: SizedBox(
               height: widget.height,
               child: Center(
-                child: Stack(
+                child: Row(
                   children: [
-                    TextField(
-                      textInputAction: widget.textInputAction ?? TextInputAction.done,
-                      enabled: !widget.locked && !widget.disabled,
-                      maxLines: obscureText
-                          ? 1
-                          : widget.maxLines == 0
-                          ? null
-                          : widget.maxLines,
-                      minLines: widget.minLines,
-                      maxLength: widget.maxLength,
-                      focusNode: widget.focusNode,
-                      onSubmitted: widget.onSubmit,
-                      keyboardType: widget.keyboardType,
-                      obscureText: obscureText,
-                      autofocus: widget.autofocus,
-                      inputFormatters: widget.inputFormatters,
-                      style:
-                          widget.style ??
-                          TextStyle(
-                            fontSize: widget.fontSize,
-                            // height: 1,
-                          ),
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: InputDecoration(
-                        contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.48),
-                        hintText: widget.placeholder,
-                        counter: widget.showLimit ? null : SizedBox(),
-                        hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                        border: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
-                            : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
-                        focusedBorder: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
-                            : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
-                        enabledBorder: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
-                            : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
-                        disabledBorder: hasError
-                            ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
-                            : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
-                        prefixIcon: widget.prefixIcon,
-                        suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200),
-                        // suffixIcon: Container(width: 20,height: 20,color: Colors.red,)
-                        suffixIcon:
-                            widget.suffixIcon ??
-                            (!widget.isPassword
-                                ? widget.locked
-                                      ? const Icon(Icons.lock)
-                                      : null
-                                : IconButton(
-                                    onPressed: () {
-                                      obscureText = !obscureText;
-                                      setState(() {});
-                                    },
-                                    icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                  )),
+                    Expanded(
+                      child: TextField(
+                        textInputAction: widget.textInputAction ?? TextInputAction.done,
+                        enabled: !widget.locked && !widget.disabled,
+                        maxLines: obscureText
+                            ? 1
+                            : widget.maxLines == 0
+                            ? null
+                            : widget.maxLines,
+                        minLines: widget.minLines,
+                        maxLength: widget.maxLength,
+                        focusNode: widget.focusNode,
+                        onSubmitted: widget.onSubmit,
+                        keyboardType: widget.keyboardType,
+                        obscureText: obscureText,
+                        autofocus: widget.autofocus,
+                        inputFormatters: widget.inputFormatters,
+                        style:
+                            widget.style ??
+                            TextStyle(
+                              fontSize: widget.fontSize,
+                              // height: 1,
+                            ),
+                        textAlignVertical: TextAlignVertical.center,
+                        decoration: InputDecoration(
+                          contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.48),
+                          hintText: widget.placeholder,
+                          counter: widget.showLimit ? null : SizedBox(),
+                          hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
+                          border: hasError && false
+                              ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
+                              : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
+                          focusedBorder: hasError && false
+                              ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
+                              : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
+                          enabledBorder: hasError && false
+                              ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
+                              : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
+                          disabledBorder: hasError && false
+                              ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
+                              : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
+                          prefixIcon: widget.prefixIcon,
+                          suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200),
+                          // suffixIcon: Container(width: 20,height: 20,color: Colors.red,)
+                          suffixIcon:
+                              widget.suffixIcon ??
+                              (!widget.isPassword
+                                  ? widget.locked
+                                        ? const Icon(Icons.lock)
+                                        : null
+                                  : IconButton(
+                                      onPressed: () {
+                                        obscureText = !obscureText;
+                                        setState(() {});
+                                      },
+                                      icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                    )),
+                        ),
+                        controller: widget.controller,
                       ),
-                      controller: widget.controller,
                     ),
-                    (hasError || requiredError) && widget.showError
-                        ? Positioned(
-                            bottom: 0.5,
-                            right: 4,
-                            child: Text(requiredError ? 'Field is required' : "${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: validationColor, fontSize: 9, height: 1)),
-                          )
+                    (hasError ) && widget.showError
+                        ? Expanded(
+                          child: Container(
+                              height: widget.height,
+                              margin: EdgeInsets.only(left: 12),
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: validationColor),
+                                color: validationColor.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Row(
+                                children: [
+                                  widget.validationIcon == null?SizedBox():Icon(widget.validationIcon!,color: validationColor,size: 10,),
+                                  Expanded(child: Text("${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: validationColor, fontSize: 9, height: 1),textAlign: TextAlign.center,)),
+                                ],
+                              ),
+                            ),
+                        )
                         : SizedBox.shrink(),
                   ],
                 ),
@@ -400,7 +421,9 @@ class _MyTextFieldState extends State<MyTextField> {
                     hintText: widget.placeholder,
                     counter: widget.showLimit ? null : SizedBox(),
                     hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                    border: hasError ? OutlineInputBorder(borderSide: BorderSide(color: validationColor)) : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
+                    border: hasError
+                        ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
+                        : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),
                     focusedBorder: hasError
                         ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                         : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),

@@ -1,5 +1,7 @@
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../../artemis_timatic.dart';
 import 'enums.dart';
@@ -41,17 +43,20 @@ class DocumentDetail {
   final DateTime? documentExpiryDate;
   final Location? documentIssueCountry;
   final DateTime? documentIssueDate;
+  final DateTime? birthDate;
   final Location? nationality;
   final ParameterValue? documentMRZType;
   final ParameterValue? documentSeries;
   final DocumentFeature? documentFeature;
   final DateTime? applicationDate;
+  final String? mrz;
 
   const DocumentDetail({
     this.documentNumber,
     this.fullName,
     this.documentCode,
     this.documentExpiryDate,
+    this.birthDate,
     this.documentIssueCountry,
     this.documentIssueDate,
     this.nationality,
@@ -59,6 +64,7 @@ class DocumentDetail {
     this.documentSeries,
     this.documentFeature,
     this.applicationDate,
+    this.mrz,
   });
 
   DocumentDetail copyWith({
@@ -66,6 +72,7 @@ class DocumentDetail {
     String? fullName,
     ParameterValue? documentCode,
     DateTime? documentExpiryDate,
+    DateTime? birthDate,
     Location? documentIssueCountry,
     DateTime? documentIssueDate,
     Location? nationality,
@@ -73,12 +80,14 @@ class DocumentDetail {
     ParameterValue? documentSeries,
     DocumentFeature? documentFeature,
     DateTime? applicationDate,
+    String? mrz,
   }) {
     return DocumentDetail(
       documentNumber: documentNumber ?? this.documentNumber,
       fullName: fullName ?? this.fullName,
       documentCode: documentCode ?? this.documentCode,
       documentExpiryDate: documentExpiryDate ?? this.documentExpiryDate,
+      birthDate: birthDate ?? this.birthDate,
       documentIssueCountry: documentIssueCountry ?? this.documentIssueCountry,
       documentIssueDate: documentIssueDate ?? this.documentIssueDate,
       nationality: nationality ?? this.nationality,
@@ -86,6 +95,7 @@ class DocumentDetail {
       documentSeries: documentSeries ?? this.documentSeries,
       documentFeature: documentFeature ?? this.documentFeature,
       applicationDate: applicationDate ?? this.applicationDate,
+      mrz: mrz ?? this.mrz,
     );
   }
 
@@ -95,6 +105,7 @@ class DocumentDetail {
       fullName: json['fullName']?.toString(),
       documentCode: json['documentCode'] is Map<String, dynamic> ? ParameterValue.fromJson(json['documentCode']) : null,
       documentExpiryDate: parseDate(json['documentExpiryDate']),
+      birthDate: parseDate(json['birthDate']),
       documentIssueCountry: json['documentIssueCountry'] is Map<String, dynamic> ? Location.fromJson(json['documentIssueCountry']) : null,
       documentIssueDate: parseDate(json['documentIssueDate']),
       nationality: json['nationality'] is Map<String, dynamic> ? Location.fromJson(json['nationality']) : null,
@@ -102,6 +113,7 @@ class DocumentDetail {
       documentSeries: json['documentSeries'] is Map<String, dynamic> ? ParameterValue.fromJson(json['documentSeries']) : null,
       documentFeature: json['documentFeature'] != null ? DocumentFeatureDetails.fromValue(json['documentFeature']?.toString()) : null,
       applicationDate: parseDate(json['applicationDate']),
+      mrz: json["mrz"],
     );
   }
 
@@ -110,6 +122,7 @@ class DocumentDetail {
     'fullName': fullName,
     'documentCode': documentCode?.code,
     'documentExpiryDate': formatDate(documentExpiryDate),
+    'birthDate': formatDate(birthDate),
     'documentIssueCountry': documentIssueCountry?.code3,
     'documentIssueDate': formatDate(documentIssueDate),
     'nationality': nationality?.code3,
@@ -117,6 +130,7 @@ class DocumentDetail {
     'documentSeries': documentSeries?.code,
     'documentFeature': documentFeature?.value,
     'applicationDate': formatDate(applicationDate),
+    'mrz': mrz,
   };
 
   bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now());
@@ -128,6 +142,8 @@ class DocumentDetail {
   int? get expiryRemain => documentExpiryDate == null ? null : -(DateTime.now().difference(documentExpiryDate!).inDays / 30).floor();
 
   bool get isEmpty => documentCode == null;
+
+  bool get isScanned => mrz != null;
 
 }
 
@@ -160,9 +176,11 @@ class ItinerarySegment {
   final ParameterValue? operatingCarrier;
   final PurposeOfStayType? purposeOfStay;
   final TicketStatus? returnOnwardTicket;
+  final SegmentType? segmentType;
 
   const ItinerarySegment({
     this.flnb,
+    this.segmentType,
     required this.arrival, required this.departure, this.processingEntity, this.durationOfStay, this.luggageCollected, this.purposeOfStay, this.returnOnwardTicket, this.operatingCarrier});
 
   ItinerarySegment copyWith({
@@ -175,6 +193,7 @@ class ItinerarySegment {
     ParameterValue? operatingCarrier,
     PurposeOfStayType? purposeOfStay,
     TicketStatus? returnOnwardTicket,
+    SegmentType? segmentType,
   }) {
     return ItinerarySegment(
       arrival: arrival ?? this.arrival,
@@ -186,6 +205,7 @@ class ItinerarySegment {
       purposeOfStay: purposeOfStay ?? this.purposeOfStay,
       flnb: flnb ?? this.flnb,
       returnOnwardTicket: returnOnwardTicket ?? this.returnOnwardTicket,
+      segmentType: segmentType ?? this.segmentType,
     );
   }
 
@@ -198,6 +218,7 @@ class ItinerarySegment {
       luggageCollected: json['luggageCollected'] as bool?,
       purposeOfStay: json['purposeOfStay'] != null ? StayTypeDetails.fromValue(json['purposeOfStay']?.toString()) : null,
       returnOnwardTicket: json['returnOnwardTicket'] != null ? TicketStatusDetails.fromValue(json['returnOnwardTicket']?.toString()) : null,
+      segmentType: json['segmentType'] != null ? SegmentType.values.firstWhere((a)=>a.value.toUpperCase() ==  json['segmentType']?.toString()) : null,
       operatingCarrier: json['operatingCarrier'] is Map<String, dynamic> ? ParameterValue.fromJson(json['operatingCarrier']) : null,
     );
   }
@@ -206,6 +227,13 @@ class ItinerarySegment {
     return ItinerarySegment(
       arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
       departure: ItinPoint(point: BasicClass.user?.profile.defaultAirport??'', type: LocationType.airport, dateTime: DateTime.now()),
+      processingEntity: "ABOMIS DOC CHECK",
+    );
+  }
+  factory ItinerarySegment.emptyNoAirport() {
+    return ItinerarySegment(
+      arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
+      departure: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
     );
   }
@@ -221,6 +249,7 @@ class ItinerarySegment {
     'purposeOfStay': purposeOfStay?.value,
     'returnOnwardTicket': returnOnwardTicket?.value,
     'operatingCarrier': operatingCarrier?.code,
+    'segmentType': segmentType?.toString()
   };
 }
 
@@ -228,14 +257,14 @@ class ItinerarySegment {
 
 class ItinPoint {
   final DateTime? date;
-  final DateTime? time;
+  final TimeOfDay? time;
   final DateTime? dateTime;
   final String point;
   final LocationType type;
 
   const ItinPoint({this.date, this.time, this.dateTime, required this.point, required this.type});
 
-  ItinPoint copyWith({DateTime? date, DateTime? time, DateTime? dateTime, String? point, LocationType? type}) {
+  ItinPoint copyWith({DateTime? date, TimeOfDay? time, DateTime? dateTime, String? point, LocationType? type}) {
     return ItinPoint(date: date ?? this.date, time: time ?? this.time, dateTime: dateTime ?? this.dateTime, point: point ?? this.point, type: type ?? this.type);
   }
 
@@ -243,7 +272,7 @@ class ItinPoint {
     return ItinPoint(date: parseDate(json['date']), time: parseTime(json['time']), dateTime: parseDateTime(json['dateTime']), point: (json['point'] ?? '').toString(), type: LocationTypeX.fromJson(json['type']?.toString() ?? ''));
   }
 
-  Map<String, dynamic> toJson() => {'date': formatDate(dateTime), 'time': formatTime(dateTime), 'dateTime': formatDateTime(dateTime), 'point': point, 'type': type.name.toUpperCase()};
+  Map<String, dynamic> toJson() => {'date': formatDate(dateTime), 'time': time.format_HHmm, 'dateTime': formatDateTime(dateTime), 'point': point, 'type': type.name.toUpperCase()};
 }
 
 // ---------------- PassengerDetails ----------------

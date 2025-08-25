@@ -4,8 +4,9 @@ enum PurposeOfStayType {
   vocation,
   business,
   duty;
+
   @override
-  toString()=>title.capitalizeFirst!;
+  toString() => title.capitalizeFirst!;
 }
 
 extension StayTypeDetails on PurposeOfStayType {
@@ -34,20 +35,12 @@ extension StayTypeDetails on PurposeOfStayType {
   static PurposeOfStayType? fromValue(String? v) {
     if (v == null) return null;
     v = v.toUpperCase();
-    return PurposeOfStayType.values.firstWhere(
-          (e) => e.value == v,
-      orElse: () => throw ArgumentError('Unknown PurposeOfStayType: $v'),
-    );
+    return PurposeOfStayType.values.firstWhere((e) => e.value == v, orElse: () => throw ArgumentError('Unknown PurposeOfStayType: $v'));
   }
 
-  PurposeOfStayType? purposeOfStayTypeFromJson(String? v) =>
-      v == null ? null : PurposeOfStayType.values.firstWhere(
-            (e) => e.value == v.toUpperCase(),
-        orElse: () => throw ArgumentError('Unknown PurposeOfStayType: $v'),
-      );
+  PurposeOfStayType? purposeOfStayTypeFromJson(String? v) => v == null ? null : PurposeOfStayType.values.firstWhere((e) => e.value == v.toUpperCase(), orElse: () => throw ArgumentError('Unknown PurposeOfStayType: $v'));
 
   String? purposeOfStayTypeToJson(PurposeOfStayType? t) => t?.value;
-
 }
 
 enum TicketStatus {
@@ -55,7 +48,7 @@ enum TicketStatus {
   noTicket;
 
   @override
-  toString()=>title.capitalizeFirst!;
+  toString() => title.capitalizeFirst!;
 }
 
 extension TicketStatusDetails on TicketStatus {
@@ -80,17 +73,10 @@ extension TicketStatusDetails on TicketStatus {
   static TicketStatus? fromValue(String? v) {
     if (v == null) return null;
     v = v.toUpperCase();
-    return TicketStatus.values.firstWhere(
-          (e) => e.value == v,
-      orElse: () => throw ArgumentError('Unknown TicketStatus: $v'),
-    );
+    return TicketStatus.values.firstWhere((e) => e.value == v, orElse: () => throw ArgumentError('Unknown TicketStatus: $v'));
   }
 
-  TicketStatus? ticketStatusFromJson(String? v) =>
-      v == null ? null : TicketStatus.values.firstWhere(
-            (e) => e.value == v.toUpperCase(),
-        orElse: () => throw ArgumentError('Unknown TicketStatus: $v'),
-      );
+  TicketStatus? ticketStatusFromJson(String? v) => v == null ? null : TicketStatus.values.firstWhere((e) => e.value == v.toUpperCase(), orElse: () => throw ArgumentError('Unknown TicketStatus: $v'));
 
   String? ticketStatusToJson(TicketStatus? t) => t?.value;
 }
@@ -103,7 +89,7 @@ enum DocumentFeature {
   none;
 
   @override
-  toString()=> title;
+  toString() => title;
 }
 
 extension DocumentFeatureDetails on DocumentFeature {
@@ -140,28 +126,15 @@ extension DocumentFeatureDetails on DocumentFeature {
   static DocumentFeature? fromValue(String? v) {
     if (v == null) return null;
     v = v.toUpperCase();
-    return DocumentFeature.values.firstWhere(
-          (e) => e.value == v,
-      orElse: () => throw ArgumentError('Unknown DocumentFeature: $v'),
-    );
+    return DocumentFeature.values.firstWhere((e) => e.value == v, orElse: () => throw ArgumentError('Unknown DocumentFeature: $v'));
   }
 
-  DocumentFeature? documentFeatureFromJson(String? v) =>
-      v == null ? null : DocumentFeature.values.firstWhere(
-            (e) => e.value == v.toUpperCase(),
-        orElse: () => throw ArgumentError('Unknown DocumentFeature: $v'),
-      );
+  DocumentFeature? documentFeatureFromJson(String? v) => v == null ? null : DocumentFeature.values.firstWhere((e) => e.value == v.toUpperCase(), orElse: () => throw ArgumentError('Unknown DocumentFeature: $v'));
 
   String? documentFeatureToJson(DocumentFeature? t) => t?.value;
 }
 
-enum Gender {
-  male,
-  female,
-  other,
-  undisclosedU,
-  unspecifiedX,
-}
+enum Gender { male, female, other, undisclosedU, unspecifiedX }
 
 extension GenderDetails on Gender {
   String get title {
@@ -197,18 +170,50 @@ extension GenderDetails on Gender {
   static Gender? fromValue(String? v) {
     if (v == null) return null;
     v = v.toUpperCase();
-    return Gender.values.firstWhere(
-          (e) => e.value == v,
-      orElse: () => throw ArgumentError('Unknown Gender: $v'),
-    );
+    return Gender.values.firstWhere((e) => e.value == v, orElse: () => throw ArgumentError('Unknown Gender: $v'));
   }
 
-
-  Gender? genderFromJson(String? v) =>
-      v == null ? null : Gender.values.firstWhere(
-            (e) => e.value == v.toUpperCase(),
-        orElse: () => throw ArgumentError('Unknown Gender: $v'),
-      );
+  Gender? genderFromJson(String? v) => v == null ? null : Gender.values.firstWhere((e) => e.value == v.toUpperCase(), orElse: () => throw ArgumentError('Unknown Gender: $v'));
 
   String? genderToJson(Gender? t) => t?.value;
+}
+
+enum SegmentType {
+  entry,
+  transit;
+
+  @override
+  toString() {
+    return title.toUpperCase();
+  }
+}
+
+extension SegmentTypeDetails on SegmentType {
+  String get title {
+    switch (this) {
+      case SegmentType.transit:
+        return "Transit";
+      case SegmentType.entry:
+        return "Entry";
+    }
+  }
+
+  String get value {
+    switch (this) {
+      case SegmentType.entry:
+        return toString();
+      case SegmentType.transit:
+        return toString();
+    }
+  }
+
+  static SegmentType? fromValue(String? v) {
+    if (v == null) return null;
+    v = v.toUpperCase();
+    return SegmentType.values.firstWhere((e) => e.value.toUpperCase() == v?.toUpperCase(), orElse: () => throw ArgumentError('Unknown SegmentType: $v'));
+  }
+
+  SegmentType? segmentTypeFromJson(String? v) => v == null ? null : SegmentType.values.firstWhere((e) => e.value.toUpperCase() == v.toUpperCase(), orElse: () => throw ArgumentError('Unknown Gender: $v'));
+
+  String? genderToJson(SegmentType? t) => t?.value;
 }

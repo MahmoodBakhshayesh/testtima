@@ -32,10 +32,12 @@ class MyDurationOfStayPicker extends StatefulWidget {
   final bool required;
   final bool labelInRow;
   final TextStyle? style;
+  final List<int>  rowLabelRatio;
 
   const MyDurationOfStayPicker({
     super.key,
     this.locked = false,
+    this.rowLabelRatio = const[3,5],
     this.required = false,
     this.labelInRow = false,
     this.style,
@@ -52,7 +54,7 @@ class MyDurationOfStayPicker extends StatefulWidget {
   State<MyDurationOfStayPicker> createState() => _MyDurationOfStayPickerState();
 }
 
-const durationUnitsArray = ["HOURS", "DAYS"];
+const durationUnitsArray = ["DAYS","HOURS","WEEKS","MONTHS","YEARS", ];
 class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
   TextEditingController controller = TextEditingController();
   late ValueNotifier<DurationOfStay?> dosNotifier = ValueNotifier<DurationOfStay?>(widget.value);
@@ -166,6 +168,18 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: Row(children: [
+
+                          MyButton(
+                            flat: true,
+                            color: Colors.black,
+                            onPressed: () {
+                              adapter.picker!.doCancel(context);
+                              dosNotifier.value = null;
+                              setState((){});
+                            },
+                            label: "Clear",
+                            fontSize: 11,
+                          ),
                           Spacer(),
                           MyButton(
                             flat: true,
@@ -176,7 +190,7 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
                             label: "Cancel",
                             fontSize: 11,
                           ),
-                          const SizedBox(width: 24),
+                          const SizedBox(width: 12),
                           MyButton(
                             onPressed: () {
                               adapter.picker!.doConfirm(context);
@@ -209,6 +223,7 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
           },
           child: AbsorbPointer(
             child: MyTextField(
+              rowLabelRatio: widget.rowLabelRatio,
               showError: false,
               required: widget.required,
               fontSize: 12,
@@ -219,6 +234,7 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
               label: widget.label,
               placeholder: widget.placeholder,
               suffixIcon: Icon(Icons.arrow_drop_down),
+              // suffixIcon:widget.value == null? Icon(Icons.arrow_drop_down):DotButton(icon: Icons.clear,onPressed: (){},flat: true,),
             ),
           ),
         );

@@ -107,6 +107,7 @@ class MyExpansionTile extends StatefulWidget {
   const MyExpansionTile({
     super.key,
     this.leading,
+    this.childPreview,
     required this.title,
     this.subtitle,
     this.onExpansionChanged,
@@ -166,6 +167,7 @@ class MyExpansionTile extends StatefulWidget {
   /// Typically a [Text] widget.
   final Widget? subtitle;
   final Widget? footerExtra;
+  final Widget? childPreview;
   final BorderRadiusGeometry? footerRadius;
 
   /// Called when the tile expands or collapses.
@@ -595,7 +597,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
           contentPadding: widget.tilePadding ?? EdgeInsets.symmetric(horizontal: 12),
           leading: widget.leading ?? _buildLeadingIcon(context, animation),
           title: widget.title,
-          // subtitle: _tileController.isExpanded ? SizedBox() : _buildFooter(context, animation),
+          subtitle: _tileController.isExpanded ? SizedBox() : widget.childPreview,
           trailing: widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation) : null,
           minTileHeight: widget.minTileHeight,
 

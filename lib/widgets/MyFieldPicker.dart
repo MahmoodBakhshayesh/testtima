@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,6 +29,8 @@ class MyFieldPicker<T> extends StatefulWidget {
   final bool labelInRow;
   final TextStyle? style;
   final TextStyle? labelStyle;
+  final List<int> rowLabelRatio;
+
 
   const MyFieldPicker({
     super.key,
@@ -48,6 +51,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.showClearButton = true,
     this.supportNull = true,
     this.itemToWidget,
+    this.rowLabelRatio = const[3,7],
   });
 
   @override
@@ -113,7 +117,10 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               },
               elevation: 2,
             ).then((v) {
-              if (v != null) {
+              if(v == Null){
+                value.value = null;
+                setState(() {});
+              }else if (v != null) {
                 dev.log(v.toString());
                 value.value = v;
                 setState(() {});
@@ -125,6 +132,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               showError: false,
               labelStyle: widget.labelStyle,
               required: widget.required,
+              rowLabelRatio: widget.rowLabelRatio,
               labelInRow: true,
               controller: controller,
               borderSide: BorderSide(color: Colors.white, width: 1),
@@ -200,6 +208,13 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
                     Expanded(
                       child: Text("Pick ${widget.label}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
+                    MyButton
+                      (label: "Clear",
+                      reverse: true,
+                      color: Colors.blueAccent,
+                      onPressed: (){
+                      Navigator.of(context).pop(Null);
+                    },),
                     CloseButton(),
                   ],
                 ),

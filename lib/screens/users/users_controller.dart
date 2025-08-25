@@ -58,10 +58,10 @@ class UsersController extends ControllerInterface {
     navigation.openDialog(dialog: EditUserDialog(user: people));
   }
 
-  Future<People?> updateUser({required People user, required bool enable, required List<UserPermission> permissions}) async {
+  Future<People?> updateUser({required People user, required bool enable, required UserPermission permission}) async {
     People? updated;
     EditUserUseCase updateUserUseCase = EditUserUseCase();
-    EditUserRequest editUserRequest = EditUserRequest(people: user, active: enable, updatedPermissions: permissions);
+    EditUserRequest editUserRequest = EditUserRequest(people: user, active: enable, updatedPermission: permission);
     final result = await updateUserUseCase(request: editUserRequest);
 
     switch (result) {
@@ -72,7 +72,7 @@ class UsersController extends ControllerInterface {
         final r = result.value;
         updated = People.fromJson(user.toJson());
         updated.enable = enable;
-        updated.permissions = permissions;
+        updated.permission = permission;
 
         int index = ref.read(peopleListProvider).indexWhere((a) => a.uId == updated!.uId);
         final copy = [...ref.read(peopleListProvider)];
