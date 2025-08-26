@@ -88,8 +88,6 @@ class HomeViewPhone extends ConsumerWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            PassengerDetailsWidget(),
-                            const SizedBox(height: 12),
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
@@ -276,7 +274,9 @@ class HomeViewPhone extends ConsumerWidget {
                                 );
                               },
                             ),
+                            const SizedBox(height: 12),
 
+                            PassengerDetailsWidget(),
                             const SizedBox(height: 12),
                             Row(
                               spacing: 12,
@@ -408,7 +408,7 @@ class HomeViewPhone extends ConsumerWidget {
                     ),
                   )
                 else
-                  Expanded(child: TimaticResultWidget(res: timaticRes)),
+                  Expanded(child: TimaticTrueResultWidget(res: timaticRes)),
                 Container(
                   height: 60,
                   padding: EdgeInsets.symmetric(horizontal: 12),
@@ -1947,6 +1947,135 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class TimaticTrueResultWidget extends StatelessWidget {
+  final DocumentResponse res;
+
+  const TimaticTrueResultWidget({super.key, required this.res});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: 16,right: 16,bottom: 0),
+              decoration: BoxDecoration(color: res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(children: [
+                Expanded(child: Text("${res.evaluationResult.getTitle}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: res.evaluationResult.getColor),)),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: res.evaluationResult.getColor, borderRadius: BorderRadius.circular(8)),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(res.evaluationResult.getIcon, color: Colors.white, size: 25),
+                        const SizedBox(width: 4),
+                        Text(
+                          res.evaluationResult.name,
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Text("${(res.refCode ?? '').split("-").last}",style: TextStyle(color: Colors.white,fontSize: 12,fontWeight: FontWeight.w900),),
+            ),
+          ],
+        ),
+        Expanded(
+          child: ListView(
+            children: res.segmentResults.map((segRes) {
+              int index = res.segmentResults.indexOf(segRes);
+              segRes.ruleSetEvaluations.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
+              return MyExpansionTile(
+                initiallyExpanded: segRes.ruleSetEvaluations.any((a) => a.evaluationResult.index < 2),
+                tilePadding: EdgeInsets.symmetric(horizontal: 16),
+                showFooter: false,
+                title: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.12)),
+                        color: segRes.segmentEvaluationResult.getColor.withOpacity(0.08),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            child: Row(children: [Text("Seg #${index + 1} "), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
+                          ),
+                          FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Text(segRes.segmentEvaluationResult.getTitle, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              // visaField.applicable ? 'Applicable' : "Not applicable",
+                              segRes.segmentEvaluationResult.getSubtitle,
+                              style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 72,
+                            decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor, borderRadius: BorderRadius.circular(12)),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(segRes.segmentEvaluationResult.getIcon, color: Colors.white, size: 25),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    segRes.segmentEvaluationResult.getActionName,
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                children: [
+                  segRes.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: segRes.commonBorder!),
+                  ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)),
+                ],
+                // children: res.segmentResults.first.ruleSetEvaluations.map((a) => RuleSetWidget(ruleSet: a)).toList(),
+                // children: res.segmentResults.map((a) {
+                //
+                //   log(a.ruleSetEvaluations.first.evaluationResult.name);
+                //
+                //   a.ruleSetEvaluations.sort((a,b)=>a.evaluationResult.name.compareTo(b.evaluationResult.name));
+                //   return Column(
+                //     mainAxisSize: MainAxisSize.min,
+                //     children: [
+                //       a.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: a.commonBorder!),
+                //       ...a.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)).toList(),
+                //     ],
+                //   );
+                // }).toList(),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 }

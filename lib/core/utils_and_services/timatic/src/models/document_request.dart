@@ -310,13 +310,21 @@ class PassengerDetails {
 
   const PassengerDetails({this.birthDate, this.nationality, this.birthCountry, this.gender, this.residentCountryCode});
 
-  PassengerDetails copyWith({DateTime? birthDate, Location? nationality, Location? birthCountry, Gender? gender, Location? residentCountryCode}) {
+  static const _unset = Object();
+
+  PassengerDetails copyWith({
+    Object? birthDate = _unset,
+    Object? nationality = _unset,
+    Object? birthCountry = _unset,
+    Object? gender = _unset,
+    Object? residentCountryCode = _unset,
+  }) {
     return PassengerDetails(
-      birthDate: birthDate ?? this.birthDate,
-      nationality: nationality ?? this.nationality,
-      birthCountry: birthCountry ?? this.birthCountry,
-      gender: gender ?? this.gender,
-      residentCountryCode: residentCountryCode ?? this.residentCountryCode,
+      birthDate: identical(birthDate, _unset) ? this.birthDate : birthDate as DateTime?,
+      nationality: identical(nationality, _unset) ? this.nationality : nationality as Location?,
+      birthCountry: identical(birthCountry, _unset) ? this.birthCountry : birthCountry as Location?,
+      gender: identical(gender, _unset) ? this.gender : gender as Gender?,
+      residentCountryCode: identical(residentCountryCode, _unset) ? this.residentCountryCode : residentCountryCode as Location?,
     );
   }
 
