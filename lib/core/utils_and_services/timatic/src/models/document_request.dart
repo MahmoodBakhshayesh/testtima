@@ -67,35 +67,37 @@ class DocumentDetail {
     this.mrz,
   });
 
+  static const _unset = Object();
+
   DocumentDetail copyWith({
-    String? documentNumber,
-    String? fullName,
-    ParameterValue? documentCode,
-    DateTime? documentExpiryDate,
-    DateTime? birthDate,
-    Location? documentIssueCountry,
-    DateTime? documentIssueDate,
-    Location? nationality,
-    ParameterValue? documentMRZType,
-    ParameterValue? documentSeries,
-    DocumentFeature? documentFeature,
-    DateTime? applicationDate,
-    String? mrz,
+    Object? documentNumber = _unset,
+    Object? fullName = _unset,
+    Object? documentCode = _unset,
+    Object? documentExpiryDate = _unset,
+    Object? birthDate = _unset,
+    Object? documentIssueCountry = _unset,
+    Object? documentIssueDate = _unset,
+    Object? nationality = _unset,
+    Object? documentMRZType = _unset,
+    Object? documentSeries = _unset,
+    Object? documentFeature = _unset,
+    Object? applicationDate = _unset,
+    Object? mrz = _unset,
   }) {
     return DocumentDetail(
-      documentNumber: documentNumber ?? this.documentNumber,
-      fullName: fullName ?? this.fullName,
-      documentCode: documentCode ?? this.documentCode,
-      documentExpiryDate: documentExpiryDate ?? this.documentExpiryDate,
-      birthDate: birthDate ?? this.birthDate,
-      documentIssueCountry: documentIssueCountry ?? this.documentIssueCountry,
-      documentIssueDate: documentIssueDate ?? this.documentIssueDate,
-      nationality: nationality ?? this.nationality,
-      documentMRZType: documentMRZType ?? this.documentMRZType,
-      documentSeries: documentSeries ?? this.documentSeries,
-      documentFeature: documentFeature ?? this.documentFeature,
-      applicationDate: applicationDate ?? this.applicationDate,
-      mrz: mrz ?? this.mrz,
+      documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
+      fullName: identical(fullName, _unset) ? this.fullName : fullName as String?,
+      documentCode: identical(documentCode, _unset) ? this.documentCode : documentCode as ParameterValue?,
+      documentExpiryDate: identical(documentExpiryDate, _unset) ? this.documentExpiryDate : documentExpiryDate as DateTime?,
+      birthDate: identical(birthDate, _unset) ? this.birthDate : birthDate as DateTime?,
+      documentIssueCountry: identical(documentIssueCountry, _unset) ? this.documentIssueCountry : documentIssueCountry as Location?,
+      documentIssueDate: identical(documentIssueDate, _unset) ? this.documentIssueDate : documentIssueDate as DateTime?,
+      nationality: identical(nationality, _unset) ? this.nationality : nationality as Location?,
+      documentMRZType: identical(documentMRZType, _unset) ? this.documentMRZType : documentMRZType as ParameterValue?,
+      documentSeries: identical(documentSeries, _unset) ? this.documentSeries : documentSeries as ParameterValue?,
+      documentFeature: identical(documentFeature, _unset) ? this.documentFeature : documentFeature as DocumentFeature?,
+      applicationDate: identical(applicationDate, _unset) ? this.applicationDate : applicationDate as DateTime?,
+      mrz: identical(mrz, _unset) ? this.mrz : mrz as String?,
     );
   }
 
@@ -144,7 +146,6 @@ class DocumentDetail {
   bool get isEmpty => documentCode == null;
 
   bool get isScanned => mrz != null;
-
 }
 
 // ---------------- ItineraryDetails ----------------
@@ -181,31 +182,41 @@ class ItinerarySegment {
   const ItinerarySegment({
     this.flnb,
     this.segmentType,
-    required this.arrival, required this.departure, this.processingEntity, this.durationOfStay, this.luggageCollected, this.purposeOfStay, this.returnOnwardTicket, this.operatingCarrier});
+    required this.arrival,
+    required this.departure,
+    this.processingEntity,
+    this.durationOfStay,
+    this.luggageCollected,
+    this.purposeOfStay,
+    this.returnOnwardTicket,
+    this.operatingCarrier,
+  });
+
+  static const _unset = Object();
 
   ItinerarySegment copyWith({
-    ItinPoint? arrival,
-    ItinPoint? departure,
-    String? processingEntity,
-    String? flnb,
-    DurationOfStay? durationOfStay,
-    bool? luggageCollected,
-    ParameterValue? operatingCarrier,
-    PurposeOfStayType? purposeOfStay,
-    TicketStatus? returnOnwardTicket,
-    SegmentType? segmentType,
+    ItinPoint? arrival, // non-nullable field, no sentinel
+    ItinPoint? departure, // non-nullable field, no sentinel
+    Object? processingEntity = _unset,
+    Object? flnb = _unset,
+    Object? durationOfStay = _unset,
+    Object? luggageCollected = _unset,
+    Object? operatingCarrier = _unset,
+    Object? purposeOfStay = _unset,
+    Object? returnOnwardTicket = _unset,
+    Object? segmentType = _unset,
   }) {
     return ItinerarySegment(
       arrival: arrival ?? this.arrival,
       departure: departure ?? this.departure,
-      processingEntity: processingEntity ?? this.processingEntity,
-      durationOfStay: durationOfStay ?? this.durationOfStay,
-      luggageCollected: luggageCollected ?? this.luggageCollected,
-      operatingCarrier: operatingCarrier ?? this.operatingCarrier,
-      purposeOfStay: purposeOfStay ?? this.purposeOfStay,
-      flnb: flnb ?? this.flnb,
-      returnOnwardTicket: returnOnwardTicket ?? this.returnOnwardTicket,
-      segmentType: segmentType ?? this.segmentType,
+      processingEntity: identical(processingEntity, _unset) ? this.processingEntity : processingEntity as String?,
+      flnb: identical(flnb, _unset) ? this.flnb : flnb as String?,
+      durationOfStay: identical(durationOfStay, _unset) ? this.durationOfStay : durationOfStay as DurationOfStay?,
+      luggageCollected: identical(luggageCollected, _unset) ? this.luggageCollected : luggageCollected as bool?,
+      operatingCarrier: identical(operatingCarrier, _unset) ? this.operatingCarrier : operatingCarrier as ParameterValue?,
+      purposeOfStay: identical(purposeOfStay, _unset) ? this.purposeOfStay : purposeOfStay as PurposeOfStayType?,
+      returnOnwardTicket: identical(returnOnwardTicket, _unset) ? this.returnOnwardTicket : returnOnwardTicket as TicketStatus?,
+      segmentType: identical(segmentType, _unset) ? this.segmentType : segmentType as SegmentType?,
     );
   }
 
@@ -218,7 +229,7 @@ class ItinerarySegment {
       luggageCollected: json['luggageCollected'] as bool?,
       purposeOfStay: json['purposeOfStay'] != null ? StayTypeDetails.fromValue(json['purposeOfStay']?.toString()) : null,
       returnOnwardTicket: json['returnOnwardTicket'] != null ? TicketStatusDetails.fromValue(json['returnOnwardTicket']?.toString()) : null,
-      segmentType: json['segmentType'] != null ? SegmentType.values.firstWhere((a)=>a.value.toUpperCase() ==  json['segmentType']?.toString()) : null,
+      segmentType: json['segmentType'] != null ? SegmentType.values.firstWhere((a) => a.value.toUpperCase() == json['segmentType']?.toString()) : null,
       operatingCarrier: json['operatingCarrier'] is Map<String, dynamic> ? ParameterValue.fromJson(json['operatingCarrier']) : null,
     );
   }
@@ -226,15 +237,20 @@ class ItinerarySegment {
   factory ItinerarySegment.empty() {
     return ItinerarySegment(
       arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
-      departure: ItinPoint(point: BasicClass.user?.profile.defaultAirport??'', type: LocationType.airport, dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.profile.defaultAirport ?? '', type: LocationType.airport, dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
+      segmentType: SegmentType.entry,
+      luggageCollected: true,
     );
   }
+
   factory ItinerarySegment.emptyNoAirport() {
     return ItinerarySegment(
       arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
       departure: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
+      segmentType: SegmentType.entry,
+      luggageCollected: true,
     );
   }
 
@@ -249,7 +265,7 @@ class ItinerarySegment {
     'purposeOfStay': purposeOfStay?.value,
     'returnOnwardTicket': returnOnwardTicket?.value,
     'operatingCarrier': operatingCarrier?.code,
-    'segmentType': segmentType?.toString()
+    'segmentType': segmentType?.toString(),
   };
 }
 
@@ -264,8 +280,16 @@ class ItinPoint {
 
   const ItinPoint({this.date, this.time, this.dateTime, required this.point, required this.type});
 
-  ItinPoint copyWith({DateTime? date, TimeOfDay? time, DateTime? dateTime, String? point, LocationType? type}) {
-    return ItinPoint(date: date ?? this.date, time: time ?? this.time, dateTime: dateTime ?? this.dateTime, point: point ?? this.point, type: type ?? this.type);
+  static const _unset = Object();
+
+  ItinPoint copyWith({Object? date = _unset, Object? time = _unset, Object? dateTime = _unset, String? point, LocationType? type}) {
+    return ItinPoint(
+      date: identical(date, _unset) ? this.date : date as DateTime?,
+      time: identical(time, _unset) ? this.time : time as TimeOfDay?,
+      dateTime: identical(dateTime, _unset) ? this.dateTime : dateTime as DateTime?,
+      point: point ?? this.point,
+      type: type ?? this.type,
+    );
   }
 
   factory ItinPoint.fromJson(Map<String, dynamic> json) {

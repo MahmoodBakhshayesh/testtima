@@ -41,10 +41,9 @@ class StringUtility {
   }
 
   static String formatDaysToYearsMonths(int? days) {
-    if(days == null) return "";
-    if (days <= 0) return "0m";
+    if(days == null) return '';
+    if (days < 0) return "0d";
 
-    // Rough conversion (not accounting leap years or exact month lengths)
     int years = days ~/ 365;
     int months = (days % 365) ~/ 30;
 
@@ -52,6 +51,15 @@ class StringUtility {
     if (years > 0) result += "${years}y ";
     if (months > 0) result += "${months}m";
 
+    if (result.isEmpty) {
+      // fallback to days if both y and m are zero
+      if(days == 0){
+        return 'today';
+      }
+      return "${days}d";
+    }
+
     return result.trim();
   }
+
 }

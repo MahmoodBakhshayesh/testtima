@@ -160,9 +160,10 @@ class _MyDatePickerState extends State<MyDatePicker> {
             // headerWidget: MyTextField(),
             options: BoardDateTimeOptions(boardTitle: widget.label),
           ).then((v) {
-            widget.onChanged(v);
+            final newVal = v??widget.value;
+            widget.onChanged(newVal);
             if (v == null) return;
-            controller?.text = v.format_yyMMddSlash ?? '';
+            controller?.text = newVal.format_yyMMddSlash ?? '';
           });
         }
         // showDatePicker(

@@ -54,7 +54,7 @@ class MyDurationOfStayPicker extends StatefulWidget {
   State<MyDurationOfStayPicker> createState() => _MyDurationOfStayPickerState();
 }
 
-const durationUnitsArray = ["DAYS","HOURS","WEEKS","MONTHS","YEARS", ];
+const durationUnitsArray = ['HOURS',"DAYS","WEEKS","MONTHS","YEARS", ];
 class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
   TextEditingController controller = TextEditingController();
   late ValueNotifier<DurationOfStay?> dosNotifier = ValueNotifier<DurationOfStay?>(widget.value);

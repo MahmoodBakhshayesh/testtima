@@ -6,6 +6,7 @@ import 'package:abds/widgets/MyTextField.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../core/constants/ui.dart';
 import '../core/utils_and_services/pickers.dart';
 import 'DotButton.dart';
@@ -31,7 +32,6 @@ class MyFieldPicker<T> extends StatefulWidget {
   final TextStyle? labelStyle;
   final List<int> rowLabelRatio;
 
-
   const MyFieldPicker({
     super.key,
     this.itemToString,
@@ -51,7 +51,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.showClearButton = true,
     this.supportNull = true,
     this.itemToWidget,
-    this.rowLabelRatio = const[3,7],
+    this.rowLabelRatio = const [3, 7],
   });
 
   @override
@@ -110,17 +110,26 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                   // This moves content above the keyboard
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                   child: PickerSheetWidget(
-                      value: widget.value,
-                      searchBuilder: widget.searchBuilder, items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch),
+                    value: widget.value,
+                    hasClear: widget.showClearButton,
+                    searchBuilder: widget.searchBuilder,
+                    items: widget.items,
+                    label: widget.placeholder ?? widget.label ?? '',
+                    itemToWidget: widget.itemToWidget,
+                    hasSearch: widget.hasSearch,
+                  ),
                 );
                 // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
               },
               elevation: 2,
             ).then((v) {
-              if(v == Null){
+              if (v == Null) {
+                dev.log("should null value");
                 value.value = null;
+                widget.onChange?.call(null);
                 setState(() {});
-              }else if (v != null) {
+
+              } else if (v != null) {
                 dev.log(v.toString());
                 value.value = v;
                 setState(() {});
@@ -153,23 +162,35 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final List<T> items;
   final String label;
   final bool hasSearch;
+  final bool hasClear;
   final T? value;
   final Widget Function(T)? itemToWidget;
   final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items, required this.label, this.itemToWidget,required this.value, this.searchBuilder, required this.hasSearch});
+  const PickerSheetWidget({super.key, required this.items, required this.label, required this.hasClear, this.itemToWidget, required this.value, this.searchBuilder, required this.hasSearch});
 
   @override
-  State<PickerSheetWidget> createState() => _PickerSheetWidgetState();
+  State<PickerSheetWidget<T>> createState() => _PickerSheetWidgetState<T>();
 }
 
-class _PickerSheetWidgetState extends State<PickerSheetWidget> {
-  TextEditingController searchC = TextEditingController();
+class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
+  final TextEditingController searchC = TextEditingController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
+  final ItemPositionsListener _positionsListener = ItemPositionsListener.create();
 
   @override
   void initState() {
-    searchC.addListener(() => setState(() {}));
     super.initState();
+    searchC.addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+  }
+
+  @override
+  void didUpdateWidget(covariant PickerSheetWidget<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value || oldWidget.items != widget.items) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+    }
   }
 
   @override
@@ -178,18 +199,84 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
     super.dispose();
   }
 
+  List<T> _filteredSorted() {
+    final query = searchC.text.toLowerCase();
+    final filtered = widget.items.where((a) => query.isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().contains(query)).toList();
+
+    // same sort rule you had: by match position
+    filtered.sort((a, b) => (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(query).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(query)));
+    return filtered;
+  }
+
+  void _scrollToSelected() {
+    if (!mounted || widget.value == null) return;
+
+    final items = _filteredSorted();          // <- your filtered list
+    final idx = items.indexOf(widget.value as T);
+    if (idx < 0) return;
+
+    // Defer until laid out so positions are available
+    if (!_itemScrollController.isAttached ||
+        _positionsListener.itemPositions.value.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+      return;
+    }
+
+    // If everything fits, don't scroll
+    if (_listFitsInViewport(items.length)) {
+      return;
+    }
+
+    // If already fully visible, don't scroll
+    if (_isIndexFullyVisible(idx)) {
+      return;
+    }
+
+    _itemScrollController.scrollTo(
+      index: idx,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      alignment: 0.1,
+    );
+  }
+
+
+  bool _listFitsInViewport(int itemCount) {
+    final positions = _positionsListener.itemPositions.value;
+    if (positions.isEmpty) return false; // not laid out yet
+
+    // Is the first item fully visible?
+    final first = positions.where((p) => p.index == 0).toList();
+    // Is the last item fully visible?
+    final last = positions.where((p) => p.index == itemCount - 1).toList();
+
+    if (first.isNotEmpty && last.isNotEmpty) {
+      final firstFullyVisible =
+      first.any((p) => p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
+      final lastFullyVisible =
+      last.any((p) => p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
+      return firstFullyVisible && lastFullyVisible;
+    }
+    return false;
+  }
+
+  bool _isIndexFullyVisible(int index) {
+    final positions = _positionsListener.itemPositions.value;
+    if (positions.isEmpty) return false;
+    return positions.any((p) =>
+    p.index == index &&
+        p.itemLeadingEdge >= 0 &&
+        p.itemTrailingEdge <= 1);
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final items = widget.items.where((a) => searchC.text.isEmpty ||  (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().contains(searchC.text.toLowerCase())).toList();
-
-
-    items.sort(
-      (a, b) => (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(searchC.text.toLowerCase()).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(searchC.text.toLowerCase())),
-    );
+    final items = _filteredSorted();
 
     return SafeArea(
       child: BottomSheet(
-        backgroundColor: Color(0xffEAECF2),
+        backgroundColor: const Color(0xffEAECF2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         constraints: BoxConstraints(maxHeight: context.height * 0.5),
         onClosing: () {},
@@ -197,8 +284,9 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
@@ -206,47 +294,37 @@ class _PickerSheetWidgetState extends State<PickerSheetWidget> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text("Pick ${widget.label}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text("Pick ${widget.label}", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
-                    MyButton
-                      (label: "Clear",
-                      reverse: true,
-                      color: Colors.blueAccent,
-                      onPressed: (){
-                      Navigator.of(context).pop(Null);
-                    },),
-                    CloseButton(),
+                    if (widget.hasClear) MyButton(label: "Clear", reverse: true, color: Colors.blueAccent, onPressed: () => Navigator.of(context).pop(Null)),
+                    const CloseButton(),
                   ],
                 ),
               ),
-              // Divider(color: MyColors.black8,),
-              widget.hasSearch
-                  ? Container(
-                      decoration: BoxDecoration(
-                        // border: Border(bottom: BorderSide(color: MyColors.lineBorderColor)),
-                      ),
-                      child: CupertinoTextField(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        controller: searchC,
-                        prefix: Padding(padding: const EdgeInsets.all(8.0), child: Icon(Icons.search)),
-                      ),
-                    )
-                  : SizedBox(),
+
+              // Search
+              if (widget.hasSearch)
+                CupertinoTextField(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  controller: searchC,
+                  prefix: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.search)),
+                ),
+
+              // List
               Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
+                child: ScrollablePositionedList.builder(
+                  itemScrollController: _itemScrollController,
+                  itemPositionsListener: _positionsListener,
                   itemCount: items.length,
                   itemBuilder: (c, i) {
                     final item = items[i];
-                    bool isSelected = widget.value == item;
+                    final isSelected = widget.value == item;
                     return InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop(item);
-                      },
+                      onTap: () => Navigator.of(context).pop(item),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected?Colors.blueAccent.withOpacity(0.3): Color(0xffF2F3F6),
-                          border: Border(bottom: BorderSide(color: Colors.white)),
+                          color: isSelected ? Colors.blueAccent.withOpacity(0.3) : const Color(0xffF2F3F6),
+                          border: const Border(bottom: BorderSide(color: Colors.white)),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
                         child: Row(children: [Expanded(child: widget.itemToWidget?.call(item) ?? Text(item.toString()))]),

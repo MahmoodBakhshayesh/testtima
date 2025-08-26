@@ -134,7 +134,16 @@ extension DocumentFeatureDetails on DocumentFeature {
   String? documentFeatureToJson(DocumentFeature? t) => t?.value;
 }
 
-enum Gender { male, female, other, undisclosedU, unspecifiedX }
+enum Gender {
+  male,
+  female,
+  other,
+  undisclosedU,
+  unspecifiedX;
+
+  @override
+  toString() => title.toString().capitalizeFirst!;
+}
 
 extension GenderDetails on Gender {
   String get title {

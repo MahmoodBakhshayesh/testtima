@@ -165,12 +165,13 @@ class _MyTimePickerState extends State<MyTimePicker> {
             // headerWidget: MyTextField(),
             options: BoardDateTimeOptions(boardTitle: widget.label),
           ).then((v) {
-            if(v == null){
+            final newVal = v??widget.value.toDateTime();
+            if(newVal == null){
               widget.onChanged(null);
               return;
             }
-            widget.onChanged(TimeOfDay.fromDateTime(v));
-            controller?.text = v.format_HHmm ?? '';
+            widget.onChanged(TimeOfDay.fromDateTime(newVal));
+            controller?.text = newVal.format_HHmm ?? '';
           });
         }
         // showDatePicker(

@@ -41,7 +41,9 @@ class HomeController extends ControllerInterface {
         return Padding(
           // This moves content above the keyboard
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: PickerSheetWidget(value: current, searchBuilder: null, items: BasicClass.timData.locations.of(LocationType.airport), label: "Airport", itemToWidget: null, hasSearch: true),
+          child: PickerSheetWidget(value: current,
+              hasClear: false,
+              searchBuilder: null, items: BasicClass.timData.locations.of(LocationType.airport), label: "Airport", itemToWidget: null, hasSearch: true),
         );
         // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
       },

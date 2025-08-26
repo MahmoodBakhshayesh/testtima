@@ -50,6 +50,7 @@ class MrzReaderController extends ControllerInterface {
         nationality: nationality,
         documentFeature: DocumentFeature.mrd,
         mrz: res.mrzLines.join("\n"),
+        birthDate: res.birthDate
       );
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
