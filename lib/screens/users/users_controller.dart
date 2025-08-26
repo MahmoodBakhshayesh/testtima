@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -48,6 +49,9 @@ class UsersController extends ControllerInterface {
       case Ok<GetUserListResponse>():
         final r = result.value;
         peopleList = r.peoples;
+        log("*" * 100);
+        log(jsonEncode(r.peoples.last.toJson()));
+        log("*" * 100);
         ref.read(peopleListProvider.notifier).update((s) => r.peoples);
     }
 
@@ -188,7 +192,15 @@ class UsersController extends ControllerInterface {
             .read(userProvider.notifier)
             .update(
               (s) => s?.copyWith(
-                profile: Profile(username: s.profile.username, email: s.profile.email, firstname: s.profile.firstname, middlename: s.profile.middlename, lastname: s.profile.lastname, hasImage: true),
+                profile: Profile(
+                  defaultAirport: s.profile.defaultAirport,
+                  username: s.profile.username,
+                  email: s.profile.email,
+                  firstname: s.profile.firstname,
+                  middlename: s.profile.middlename,
+                  lastname: s.profile.lastname,
+                  hasImage: true,
+                ),
               ),
             );
       }
@@ -239,9 +251,8 @@ class UsersController extends ControllerInterface {
       case Ok<UpdateUserResponse>():
         final r = result.value;
         SuccessHandler.handle(r.getSuccess);
-        ref.read(userProvider.notifier).update((s)=>s?.copyWith(profile: s.profile.copyWith(defaultAirport: station)));
+        ref.read(userProvider.notifier).update((s) => s?.copyWith(profile: s.profile.copyWith(defaultAirport: station)));
         BasicClass.initialize(ref.read(userProvider)!, BasicClass.timData);
     }
-
   }
 }

@@ -183,9 +183,9 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                         DotButton(
                                           icon: Icons.select_all,
                                           onPressed: () {
-                                            // final all = [...perList];
-                                            // aup.permission.setPermissionsFor(cat, all);
-                                            // setState(() {});
+                                            final all = [...perList];
+                                            aup.permission.setPermissionsFor(cat, all);
+                                            setState(() {});
                                           },
                                           color: Colors.green,
                                         ),
@@ -193,8 +193,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                         DotButton(
                                           icon: Icons.deselect,
                                           onPressed: () {
-                                            // aup.permission.setPermissionsFor(cat, []);
-                                            // setState(() {});
+                                            aup.permission.setPermissionsFor(cat, []);
+                                            setState(() {});
                                           },
                                           color: Colors.red,
                                         ),

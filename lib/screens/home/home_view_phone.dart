@@ -9,6 +9,7 @@ import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
+import 'package:abds/screens/home/home_drawer.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/widgets/DotButton.dart';
@@ -58,6 +59,8 @@ class HomeViewPhone extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final timaticRes = ref.watch(timaticResultProvider);
+    final GlobalKey<ScaffoldState> flightsScaffoldKey = GlobalKey();
+
     final tim = BasicClass.timData;
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
@@ -76,9 +79,10 @@ class HomeViewPhone extends ConsumerWidget {
           bottom: true,
           top: false,
           child: Scaffold(
-            appBar: HomeAppBar(),
+            key: flightsScaffoldKey,
+            appBar: HomeAppBar(scaffoldKey: flightsScaffoldKey),
+            drawer: HomeDrawer(),
             backgroundColor: Colors.white,
-
             body: Column(
               children: [
                 if (!resultMode)
@@ -431,7 +435,9 @@ class HomeViewPhone extends ConsumerWidget {
                               label: "Clear",
                               borderSide: BorderSide(color: MyColors.black8),
                               icon: Icons.refresh,
-                              onPressed: () {
+                              onPressed: () async {
+                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                                if (!confirm) return;
                                 getIt<HomeController>().clear();
                               },
                               reverse: true,
@@ -662,8 +668,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
 
             onChanged: (a) {
               ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-              d = d.copyWith(birthDate: a);
-              ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+              // d = d.copyWith(birthDate: a);
+              // ref.read(passportsProvider.notifier).updateAt(widget.index, d);
             },
           ),
 
@@ -679,7 +685,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             items: tim.locations.of(LocationType.country),
             value: d.nationality,
             onChange: (a) {
-              ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
               d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
               ref.read(passportsProvider.notifier).updateAt(widget.index, d);
             },
@@ -996,7 +1002,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             validationIcon: ArtemisIcons.user_square,
             value: d.birthDate,
             onChanged: (a) {
-              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
               d = d.copyWith(birthDate: a);
               ref.read(visasProvider.notifier).updateAt(widget.index, d);
             },
@@ -1013,7 +1019,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             items: tim.locations.of(LocationType.country),
             value: d.nationality,
             onChange: (a) {
-              ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
               d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
               ref.read(visasProvider.notifier).updateAt(widget.index, d);
             },
@@ -1805,8 +1811,9 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   static HomeController myHomeController = getIt<HomeController>();
   static SmartOverlayMenuController controller = SmartOverlayMenuController();
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
-  const HomeAppBar({super.key});
+  const HomeAppBar({super.key, required this.scaffoldKey});
 
   @override
   Size get preferredSize => const Size.fromHeight(104);
@@ -1829,99 +1836,110 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 16),
-                        SmartOverlayMenu(
-                          blurSize: 2,
-                          duration: Duration(milliseconds: 50),
-                          controller: controller,
-                          blurBackgroundColor: Colors.transparent,
-                          bottomWidget: Container(
-                            decoration: BoxDecoration(color: MyColors.black2, borderRadius: BorderRadius.circular(12)),
-                            padding: EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 50,
-                                  width: 200,
-                                  child: Row(
-                                    children: [
-                                      Consumer(
-                                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                          return UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false);
-                                        },
-                                      ),
-
-                                      const SizedBox(width: 12),
-                                      Consumer(
-                                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                          final profile = ref.watch(profileProvider);
-                                          return Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(profile!.username ?? '-', style: TextStyle(color: Colors.white)),
-                                              // Text(profile.email??"-", style: TextStyle(color: Colors.white)),
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Divider(color: Colors.white),
-                                SizedBox(
-                                  height: 50,
-                                  width: 200,
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                    dense: true,
-                                    title: Text("About", style: TextStyle(color: Colors.white)),
-                                    trailing: Icon(Icons.info, color: Colors.white),
-                                    onTap: () {
-                                      showAboutDialog(context: context, applicationName: "ABOMIS Document Check", applicationVersion: "");
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 50,
-                                  width: 200,
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                    dense: true,
-                                    title: Text("User Management", style: TextStyle(color: Colors.white)),
-                                    trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
-                                    onTap: () {
-                                      myHomeController.goNamed(Routes.users);
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 50,
-                                  width: 200,
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                    dense: true,
-                                    title: Text("Logout", style: TextStyle(color: Colors.red)),
-                                    trailing: Icon(Icons.exit_to_app, color: Colors.red),
-                                    onTap: () {
-                                      getIt<LoginController>().logout();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          child: MyButton(
-                            label: "Menu",
-                            radius: 12,
-                            icon: Icons.menu,
-                            onPressed: () {
-                              controller.open();
-                            },
-                            borderSide: BorderSide(color: MyColors.black8),
-                            color: Colors.white,
-                            textColor: Colors.black,
-                          ),
+                        MyButton(
+                          label: "Menu",
+                          radius: 12,
+                          icon: Icons.menu,
+                          onPressed: () {
+                            scaffoldKey.currentState!.openDrawer();
+                          },
+                          borderSide: BorderSide(color: MyColors.black8),
+                          color: Colors.white,
+                          textColor: Colors.black,
                         ),
+                        // SmartOverlayMenu(
+                        //   blurSize: 2,
+                        //   duration: Duration(milliseconds: 50),
+                        //   controller: controller,
+                        //   blurBackgroundColor: Colors.transparent,
+                        //   bottomWidget: Container(
+                        //     decoration: BoxDecoration(color: MyColors.black2, borderRadius: BorderRadius.circular(12)),
+                        //     padding: EdgeInsets.all(16),
+                        //     child: Column(
+                        //       crossAxisAlignment: CrossAxisAlignment.start,
+                        //       children: [
+                        //         SizedBox(
+                        //           height: 50,
+                        //           width: 200,
+                        //           child: Row(
+                        //             children: [
+                        //               Consumer(
+                        //                 builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        //                   return UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false);
+                        //                 },
+                        //               ),
+                        //
+                        //               const SizedBox(width: 12),
+                        //               Consumer(
+                        //                 builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        //                   final profile = ref.watch(profileProvider);
+                        //                   return Column(
+                        //                     crossAxisAlignment: CrossAxisAlignment.start,
+                        //                     children: [
+                        //                       Text(profile!.username ?? '-', style: TextStyle(color: Colors.white)),
+                        //                       // Text(profile.email??"-", style: TextStyle(color: Colors.white)),
+                        //                     ],
+                        //                   );
+                        //                 },
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //         Divider(color: Colors.white),
+                        //         SizedBox(
+                        //           height: 50,
+                        //           width: 200,
+                        //           child: ListTile(
+                        //             contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                        //             dense: true,
+                        //             title: Text("About", style: TextStyle(color: Colors.white)),
+                        //             trailing: Icon(Icons.info, color: Colors.white),
+                        //             onTap: () {
+                        //               showAboutDialog(context: context, applicationName: "ABOMIS Document Check", applicationVersion: "");
+                        //             },
+                        //           ),
+                        //         ),
+                        //         SizedBox(
+                        //           height: 50,
+                        //           width: 200,
+                        //           child: ListTile(
+                        //             contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                        //             dense: true,
+                        //             title: Text("User Management", style: TextStyle(color: Colors.white)),
+                        //             trailing: Icon(Icons.supervised_user_circle_sharp, color: Colors.white),
+                        //             onTap: () {
+                        //               myHomeController.goNamed(Routes.users);
+                        //             },
+                        //           ),
+                        //         ),
+                        //         SizedBox(
+                        //           height: 50,
+                        //           width: 200,
+                        //           child: ListTile(
+                        //             contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                        //             dense: true,
+                        //             title: Text("Logout", style: TextStyle(color: Colors.red)),
+                        //             trailing: Icon(Icons.exit_to_app, color: Colors.red),
+                        //             onTap: () {
+                        //               getIt<LoginController>().logout();
+                        //             },
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        //   child: MyButton(
+                        //     label: "Menu",
+                        //     radius: 12,
+                        //     icon: Icons.menu,
+                        //     onPressed: () {
+                        //       controller.open();
+                        //     },
+                        //     borderSide: BorderSide(color: MyColors.black8),
+                        //     color: Colors.white,
+                        //     textColor: Colors.black,
+                        //   ),
+                        // ),
                         Spacer(),
                         Consumer(
                           builder: (BuildContext context, WidgetRef ref, Widget? child) {
@@ -1963,33 +1981,43 @@ class TimaticTrueResultWidget extends StatelessWidget {
         Stack(
           children: [
             Container(
-              margin: EdgeInsets.only(left: 16,right: 16,bottom: 0),
+              margin: EdgeInsets.only(left: 16, right: 16, bottom: 0),
               decoration: BoxDecoration(color: res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(children: [
-                Expanded(child: Text("${res.evaluationResult.getTitle}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,color: res.evaluationResult.getColor),)),
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: res.evaluationResult.getColor, borderRadius: BorderRadius.circular(8)),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(res.evaluationResult.getIcon, color: Colors.white, size: 25),
-                        const SizedBox(width: 4),
-                        Text(
-                          res.evaluationResult.name,
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
-                        ),
-                      ],
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "${res.evaluationResult.getTitle}",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: res.evaluationResult.getColor),
                     ),
                   ),
-                ),
-              ]),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: res.evaluationResult.getColor, borderRadius: BorderRadius.circular(8)),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(res.evaluationResult.getIcon, color: Colors.white, size: 25),
+                          const SizedBox(width: 4),
+                          Text(
+                            res.evaluationResult.name,
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text("${(res.refCode ?? '').split("-").last}",style: TextStyle(color: Colors.white,fontSize: 12,fontWeight: FontWeight.w900),),
+              child: Text(
+                "${(res.refCode ?? '').split("-").last}",
+                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900),
+              ),
             ),
           ],
         ),

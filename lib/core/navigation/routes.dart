@@ -57,11 +57,17 @@ abstract class Routes {
     name: 'addUser',
     isShellRoute: false,
   );
+  static MyRouteInfo logs = MyRouteInfo(
+    path: '/logs',
+    name: 'logs',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,
     home,
     barcodeReader,
-    mrzReader
+    mrzReader,
+    logs
   ];
 }

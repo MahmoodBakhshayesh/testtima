@@ -30,9 +30,6 @@ class BasicClass {
   UserPermission? _userPermission;
   Config? _appConfig;
 
-
-
-
   static void initialize(LoginData user, TimaticData timaticData) {
     instance._timaticData = timaticData;
     instance._loginData = user;
@@ -45,6 +42,7 @@ class BasicClass {
   }
 
   static ConstData get constData => instance._constData!;
+
   static LoginData? get user => instance._loginData;
 
   static Config get config => instance._appConfig ?? Config.def();
@@ -64,11 +62,11 @@ class BasicClass {
   }
 
   static Location? getLocationWithCode(String code) {
-    return timData.locations.of(LocationType.country).firstWhereOrNull((a)=>a.code3 == code);
+    return timData.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == code);
   }
 
   static ParameterValue? getAirlineWithCode(String code) {
-    return timData.params.of(ParameterType.carrier).firstWhereOrNull((a)=>a.code == code);
+    return timData.params.of(ParameterType.carrier).firstWhereOrNull((a) => a.code == code);
   }
 
   static bool validatePermission(UiPermission? permission) {
@@ -76,15 +74,16 @@ class BasicClass {
     // if (instance._userPermission!.isEmpty) return true;
     final up = instance._userPermission!;
 
-     if (permission is UserUiPermission) {
+    if (permission is UserUiPermission) {
       return up.permission.getUserPermissions.isNotEmpty;
     }
 
+    if (permission is LogUiPermission) {
+      return up.permission.getLogPermissions.isNotEmpty;
+    }
 
     return false;
   }
-
-
 }
 
 extension MyDeviceInfoDetails on MyDeviceInfo {}

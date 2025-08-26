@@ -25,22 +25,31 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
       ResponseInterface res = await networkManager.get(api);
       List<dynamic> fixed = res.body;
       for (var p in fixed) {
+
+        // log(jsonEncode(p));
         final List<dynamic> fixedPermissions = p["permissions"]??[];
-        Map<String,dynamic> fixedPermission = Map<String,dynamic>.from({});
+        Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(p["permission"]??{});
         Map<String,dynamic> ppp = Map<String,dynamic>.from({});
         fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+
         fixedPermission["permission"] = p["permission"]??ppp;
-        fixedPermission.forEach((k,v){
-          if(v is List<dynamic>){
-            for (var a in v) {
-              a["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-              a["permission"] = p["permission"]??ppp;
-            }
-          }
-        });
-         log(jsonEncode(fixedPermission));
+        // fixedPermission.forEach((k,v){
+        //   if(v is List<dynamic>){
+        //     for (var a in v) {
+        //
+        //       a["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+        //       a["permission"] = p["permission"]??ppp;
+        //     }
+        //   }
+        // });
+         // log(jsonEncode(fixedPermission));
          // p["permission"] = p["permission"]??{};
          p["permission"] =fixedPermission;
+         log("//"*100);
+         log(jsonEncode(BasicClass.constData.userPermissionAttributes.toJson()));
+        log("//"*100);
+        log(jsonEncode(p));
+
         // for (var ap in (p["permission"]["airlines"] as List<dynamic>)) {
         //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
         // }
@@ -51,7 +60,8 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
         //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
         // }
       }
-      log(jsonEncode(fixed));
+      // log("fixed"+"*"*100);
+      // log(jsonEncode(fixed));
       final fixedRes = ResponseImplementation(message: res.message, body: fixed, status: res.status);
       GetUserListResponse response = await Parser().parse(GetUserListResponse.fromResponse, fixedRes, executionReq: request);
       return response;

@@ -25,6 +25,19 @@ class UserUiPermission extends UiPermission {
   String getLabel() => label;
 }
 
+class LogUiPermission extends UiPermission {
+  final int flag;
+  final String label;
+  final UiPermissionGroup group;
+  LogUiPermission(this.group,this.flag,this.label);
+
+  factory LogUiPermission.read() => LogUiPermission(UiPermissionGroup.user,1,"Read");
+  factory LogUiPermission.execute() => LogUiPermission(UiPermissionGroup.user,2,"Execute");
+
+  @override
+  String getLabel() => label;
+}
+
 
 
 

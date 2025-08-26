@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/classes/people_class.dart';
@@ -16,17 +17,25 @@ class People {
 
   People({required this.uId, required this.username, required this.email, required this.hasImage, required this.firstname, required this.middlename, required this.lastname, required this.enable, required this.permission});
 
-  factory People.fromJson(Map<String, dynamic> json) => People(
-    uId: json["uId"],
-    username: json["username"],
-    email: json["email"],
-    firstname: json["firstname"],
-    middlename: json["middlename"],
-    lastname: json["lastname"],
-    hasImage: json["hasImage"] ?? false,
-    enable: json["enable"],
-    permission: UserPermission.fromJson(json["permission"]),
-  );
+  factory People.fromJson(Map<String, dynamic> json) {
+
+    final p = People(
+      uId: json["uId"],
+      username: json["username"],
+      email: json["email"],
+      firstname: json["firstname"],
+      middlename: json["middlename"],
+      lastname: json["lastname"],
+      hasImage: json["hasImage"] ?? false,
+      enable: json["enable"],
+      permission: UserPermission.fromJson(json["permission"]),
+    );
+    log("-"*100);
+    log(jsonEncode(json["permission"]));
+    log(jsonEncode(UserPermission.fromJson(json["permission"]).toJson()));
+    log("-"*100);
+    return p;
+  }
 
   Map<String, dynamic> toJson() => {
     "uId": uId,
@@ -63,7 +72,7 @@ class UserPermission {
     );
   }
 
-  Map<String, dynamic> toJson() => {"permission": permission.toJson(), "name": name, "permissionId": id};
+  Map<String, dynamic> toJson() => {"permission": permission.toJson(), "name": name, "permissionId": id,'allPermissions':allPermissions.toJson()};
 }
 
 class AllPermissions {
@@ -90,8 +99,8 @@ class AllPermissions {
         result[category] = value.whereType<Map<String, dynamic>>().map((e) => PermissionCategory.fromJson(e, category)).toList();
       }
     });
-    log("all from json $json");
-    log("all from json result  $result");
+    // log("all from json $json");
+    // log("all from json result  $result");
     return AllPermissions(result);
   }
 
@@ -115,9 +124,9 @@ class AllPermissions {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {};
+
     for (final entry in _categoryPermissions.entries) {
-      int bitmask = entry.value.fold(0, (sum, perm) => sum | perm.flag);
-      json[entry.key] = bitmask;
+      json[entry.key] = entry.value.map((perm) => perm.toJson()).toList();
     }
 
     return json;
@@ -159,17 +168,15 @@ class ActivePermissions {
   factory ActivePermissions.fromBitmask(AllPermissions all, Map<String, dynamic> bitmaskJson) {
     final Map<String, List<PermissionCategory>> result = {};
 
-    log("all Categories => ${all.categories}");
-    log("bitmaskJson => ${bitmaskJson}");
+    // log("all Categories => ${all.categories}");
+    // log("bitmaskJson => ${bitmaskJson}");
     for (final category in all.categories) {
       final allPerms = all.getPermissionsFor(category);
       final bitmask = bitmaskJson[category] ?? 0;
       // final bitmask =( bitmaskJson[category] as List).map((a)=>int.tryParse(a["flag"].toString())??0).sum.toInt() ;
       // final bitmask = 0 ;
       // log("bitmasssk of $category ==> ${bitmaskJson}");
-      result[category] = allPerms
-      .where((perm) => (bitmask & perm.flag) != 0)
-      .toList();
+      result[category] = allPerms.where((perm) => (bitmask & perm.flag) != 0).toList();
     }
     return ActivePermissions(result);
   }
@@ -184,27 +191,10 @@ class ActivePermissions {
 
   List<String> get categories => _activePermissions.keys.toList();
 
-  List<PermissionCategory> get getFlightPermissions => getPermissionsFor('flight');
-
-  List<PermissionCategory> get getBoardPermissions => getPermissionsFor('board');
-
-  List<PermissionCategory> get getCheckinPermissions => getPermissionsFor('checkin');
-
-  List<PermissionCategory> get getDocumentPermissions => getPermissionsFor('document');
-
-  List<PermissionCategory> get getBagPermissions => getPermissionsFor('bag');
-
-  List<PermissionCategory> get getSeatPermissions => getPermissionsFor('seat');
-
-  List<PermissionCategory> get getSsrPermissions => getPermissionsFor('ssr');
 
   List<PermissionCategory> get getUserPermissions => getPermissionsFor('user');
+  List<PermissionCategory> get getLogPermissions => getPermissionsFor('log');
 
-  List<PermissionCategory> get getHistoryPermissions => getPermissionsFor('history');
-
-  List<PermissionCategory> get getBridgePermission => getPermissionsFor('bridge');
-
-  List<PermissionCategory> get getOtherPermission => getPermissionsFor('other');
 
   bool get hasAnyPermission => all.any((a) => a.flag > 0);
 

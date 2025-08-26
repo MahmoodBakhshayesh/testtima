@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:abds/screens/add_user/add_user_controller.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
+import 'package:abds/screens/logs/logs_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:artemis_utils/artemis_utils.dart';
@@ -53,9 +54,11 @@ Future<void> init() async {
 initControllers() {
   LoginController loginController = LoginController();
   HomeController homeController = HomeController();
+  LogsController logsController = LogsController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
+  getIt.registerSingleton(logsController);
 }
 
 void initFullScreen() async {}
@@ -69,8 +72,8 @@ initNetworkManager([String? baseUrl]) {
     headers: {"content-type": 'application/json'},
 
     successCheck: (NetworkRequest req, NetworkResponse res) {
-      if (res.responseCode < 200 || res.responseCode>300) return false;
-      if(res.responseBody["Successful"] == true){
+      if (res.responseCode < 200 || res.responseCode > 300) return false;
+      if (res.responseBody["Successful"] == true) {
         return true;
       }
       if (res.responseBody?["response"] is Map) {
@@ -79,52 +82,42 @@ initNetworkManager([String? baseUrl]) {
           log("${res.responseBody["response"]?["bags"].runtimeType} is List");
           List<Map<String, dynamic>> items = List<Map<String, dynamic>>.from(res.responseBody["response"]["bags"]);
           log("items check bags${items.length}");
-          List<Map<String, dynamic>> errorItems = items.where((a)=>a.containsKey("result") && a["result"]==false).toList();
-          if(errorItems.isNotEmpty){
+          List<Map<String, dynamic>> errorItems = items.where((a) => a.containsKey("result") && a["result"] == false).toList();
+          if (errorItems.isNotEmpty) {
             return false;
           }
         }
         if (res.responseBody["response"]?["passengers"] is List) {
           log("${res.responseBody["response"]?["passengers"].runtimeType} is List");
           List<Map<String, dynamic>> items = List<Map<String, dynamic>>.from(res.responseBody["response"]["passengers"]);
-          List<Map<String, dynamic>> errorItems = items.where((a)=>a.containsKey("result") && a["result"]==false).toList();
+          List<Map<String, dynamic>> errorItems = items.where((a) => a.containsKey("result") && a["result"] == false).toList();
           log("items check passengers${items.length}");
-          if(errorItems.isNotEmpty){
+          if (errorItems.isNotEmpty) {
             return false;
           }
         }
-      }else if(res.responseBody?["response"] is List){
+      } else if (res.responseBody?["response"] is List) {
         List<Map<String, dynamic>> respList = List<Map<String, dynamic>>.from(res.responseBody["response"]);
-        for (Map<String, dynamic> resp in respList){
+        for (Map<String, dynamic> resp in respList) {
           if (resp["bags"] is List) {
             log("${resp["bags"].runtimeType} is List");
             List<Map<String, dynamic>> items = List<Map<String, dynamic>>.from(resp["bags"]);
             log("items check bags${items.length}");
-            List<Map<String, dynamic>> errorItems = items.where((a)=>a.containsKey("result") && a["result"]==false).toList();
-            List<int> indexes = errorItems
-                .asMap()
-                .entries
-                .where((a)=>a.value.containsKey("result") && a.value["result"]==false)
-                .map((entry) => entry.key)
-                .toList();
-            if(errorItems.isNotEmpty){
-              res.extractedMessage = "Operation Failed on ${indexes.map((a)=>(a+1)).join(",")}";
+            List<Map<String, dynamic>> errorItems = items.where((a) => a.containsKey("result") && a["result"] == false).toList();
+            List<int> indexes = errorItems.asMap().entries.where((a) => a.value.containsKey("result") && a.value["result"] == false).map((entry) => entry.key).toList();
+            if (errorItems.isNotEmpty) {
+              res.extractedMessage = "Operation Failed on ${indexes.map((a) => (a + 1)).join(",")}";
               return false;
             }
           }
           if (resp["passengers"] is List) {
             log("${resp["passengers"].runtimeType} is List");
             List<Map<String, dynamic>> items = List<Map<String, dynamic>>.from(resp["passengers"]);
-            List<Map<String, dynamic>> errorItems = items.where((a)=>a.containsKey("result") && a["result"]==false).toList();
+            List<Map<String, dynamic>> errorItems = items.where((a) => a.containsKey("result") && a["result"] == false).toList();
             log("items check passengers${items.length}");
-            List<int> indexes = errorItems
-                .asMap()
-                .entries
-                .where((a)=>a.value.containsKey("result") && a.value["result"]==false)
-                .map((entry) => entry.key)
-                .toList();
-            if(errorItems.isNotEmpty){
-              res.extractedMessage = "Operation Failed on ${indexes.map((a)=>(a+1)).join(",")}";
+            List<int> indexes = errorItems.asMap().entries.where((a) => a.value.containsKey("result") && a.value["result"] == false).map((entry) => entry.key).toList();
+            if (errorItems.isNotEmpty) {
+              res.extractedMessage = "Operation Failed on ${indexes.map((a) => (a + 1)).join(",")}";
               return false;
             }
           }
@@ -139,8 +132,8 @@ initNetworkManager([String? baseUrl]) {
     },
     onStartDefault: (_) {},
     msgExtractor: (data) {
-      log("msgExtractorv ${data}" );
-      return (data["message"]??data["Message"] ?? data["ResultText"] ?? "Done").toString();
+      log("msgExtractorv ${data}");
+      return (data["message"] ?? data["Message"] ?? data["ResultText"] ?? "Done").toString();
     },
     tokenExpireCheck: (NetworkRequest req, NetworkResponse res) {
       if (res.responseBody is Map && res.responseBody["Body"] != null) {
@@ -218,6 +211,7 @@ Future<void> initNavigation() async {
   MrzReaderController mrzReaderController = MrzReaderController();
   UsersController usersController = UsersController();
   AddUserController addUserController = AddUserController();
+  LogsController logsController = LogsController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -225,6 +219,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(mrzReaderController);
   getIt.registerSingleton(usersController);
   getIt.registerSingleton(addUserController);
+  getIt.registerSingleton(logsController);
 
   TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController});
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/MyButton.dart';
@@ -128,7 +129,6 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                 value.value = null;
                 widget.onChange?.call(null);
                 setState(() {});
-
               } else if (v != null) {
                 dev.log(v.toString());
                 value.value = v;
@@ -181,7 +181,12 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   @override
   void initState() {
     super.initState();
-    searchC.addListener(() => setState(() {}));
+    searchC.addListener(() {
+      if(searchC.text.isNotEmpty){
+        _scrollToTop();
+      }
+      setState(() {});
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
   }
 
@@ -201,23 +206,39 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
 
   List<T> _filteredSorted() {
     final query = searchC.text.toLowerCase();
+    // dev.log(widget.items.first.toString());
+    // dev.log(widget.searchBuilder!(widget.items.first));
+    // dev.log((widget.searchBuilder?.call(widget.items.first) ?? widget.items.first.toString()).toLowerCase().indexOf(query).toString());
+
     final filtered = widget.items.where((a) => query.isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().contains(query)).toList();
 
+
     // same sort rule you had: by match position
-    filtered.sort((a, b) => (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(query).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(query)));
+    if(query.isNotEmpty) {
+      filtered.sort((a, b) {
+        var comp =  (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(query).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(query));
+        if(comp == 0){
+          return (widget.searchBuilder?.call(a) ?? a.toString()).compareTo((widget.searchBuilder?.call(b) ?? b.toString()));
+        }
+        return comp;
+      });
+    }
+    // dev.log(filtered.first.toString());
+    // dev.log(widget.searchBuilder!(filtered.first));
+    // dev.log((widget.searchBuilder?.call(filtered.first) ?? filtered.first.toString()).toLowerCase().indexOf(query).toString());
+
     return filtered;
   }
 
   void _scrollToSelected() {
     if (!mounted || widget.value == null) return;
 
-    final items = _filteredSorted();          // <- your filtered list
+    final items = _filteredSorted(); // <- your filtered list
     final idx = items.indexOf(widget.value as T);
     if (idx < 0) return;
 
     // Defer until laid out so positions are available
-    if (!_itemScrollController.isAttached ||
-        _positionsListener.itemPositions.value.isEmpty) {
+    if (!_itemScrollController.isAttached || _positionsListener.itemPositions.value.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
       return;
     }
@@ -232,14 +253,32 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
       return;
     }
 
-    _itemScrollController.scrollTo(
-      index: idx,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      alignment: 0.1,
-    );
+    _itemScrollController.scrollTo(index: idx, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut, alignment: 0.1);
   }
 
+  void _scrollToTop() {
+    if (!mounted || widget.value == null) return;
+
+    final items = _filteredSorted(); // <- your filtered list
+    final idx =0;
+    // Defer until laid out so positions are available
+    if (!_itemScrollController.isAttached || _positionsListener.itemPositions.value.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+      return;
+    }
+
+    // If everything fits, don't scroll
+    if (_listFitsInViewport(items.length)) {
+      return;
+    }
+
+    // If already fully visible, don't scroll
+    if (_isIndexFullyVisible(idx)) {
+      return;
+    }
+
+    _itemScrollController.scrollTo(index: idx, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut, alignment: 0.1);
+  }
 
   bool _listFitsInViewport(int itemCount) {
     final positions = _positionsListener.itemPositions.value;
@@ -251,10 +290,8 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
     final last = positions.where((p) => p.index == itemCount - 1).toList();
 
     if (first.isNotEmpty && last.isNotEmpty) {
-      final firstFullyVisible =
-      first.any((p) => p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
-      final lastFullyVisible =
-      last.any((p) => p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
+      final firstFullyVisible = first.any((p) => p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
+      final lastFullyVisible = last.any((p) => p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
       return firstFullyVisible && lastFullyVisible;
     }
     return false;
@@ -263,12 +300,8 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   bool _isIndexFullyVisible(int index) {
     final positions = _positionsListener.itemPositions.value;
     if (positions.isEmpty) return false;
-    return positions.any((p) =>
-    p.index == index &&
-        p.itemLeadingEdge >= 0 &&
-        p.itemTrailingEdge <= 1);
+    return positions.any((p) => p.index == index && p.itemLeadingEdge >= 0 && p.itemTrailingEdge <= 1);
   }
-
 
   @override
   Widget build(BuildContext context) {

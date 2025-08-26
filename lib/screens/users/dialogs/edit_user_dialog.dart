@@ -50,7 +50,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
   bool loading = false;
 
   late bool active = widget.user.enable;
-  late UserPermission tmp = UserPermission.fromJson({});
+  late UserPermission tmp = UserPermission.fromJson(widget.user.permission.toJson());
 
   // List<UserPermission> includedPermissions = [];
 
@@ -111,15 +111,17 @@ class _EditUserDialogState extends State<EditUserDialog> {
               child: Row(
                 children: [
                   Expanded(child: Text(widget.user.username ?? widget.user.email ?? '')),
-                  MySwitchButton(
-                    height: 35,
-                    padding: EdgeInsets.symmetric(horizontal: 4),
-                    value: active,
-                    onChanged: (a) {
-                      active = a;
-                      setState(() {});
-                    },
-                    label: !active ? "Inactive" : "Active",
+                  Expanded(
+                    child: MySwitchButton(
+                      height: 35,
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      value: active,
+                      onChanged: (a) {
+                        active = a;
+                        setState(() {});
+                      },
+                      label: !active ? "Inactive" : "Active",
+                    ),
                   ),
                 ],
               ),
@@ -132,134 +134,82 @@ class _EditUserDialogState extends State<EditUserDialog> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Column(
-                    //   crossAxisAlignment: CrossAxisAlignment.start,
-                    //   children: [
-                    //     Divider(),
-                    //     Text("Airlines Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    //     Builder(
-                    //       builder: (context) {
-                    //         final ppp = permissions;
-                    //         final aup = permissions;
-                    //         return ExpansionTile(
-                    //           dense: true,
-                    //           backgroundColor: Colors.white,
-                    //           tilePadding: EdgeInsets.symmetric(horizontal: 8),
-                    //           childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                    //           title: Row(
-                    //             children: [
-                    //               CupertinoSwitch(
-                    //                 // value: tmp.any((a) => a.id == aup?.id),
-                    //                 value: false,
-                    //                 onChanged: (a) {
-                    //                   // if (a) {
-                    //                   //   final addingAup = aup ??
-                    //                   //       UserPermission(
-                    //                   //           allPermissions: BasicClass.constData.userPermissionAttributes, permission: ActivePermissions.fromBitmask(p.allPermissions, p.permission.toJson()), name: p.name, id: p.id);
-                    //                   //   tmp.add(addingAup);
-                    //                   //   tmp.add(addingAup);
-                    //                   // } else {
-                    //                   //   tmp.remove(aup);
-                    //                   // }
-                    //                   setState(() {});
-                    //                 },
-                    //               ),
-                    //             ],
-                    //           ),
-                    //           // children: !tmp.any((a) => a.id == aup?.id)
-                    //           children: true
-                    //               ? []
-                    //               : ppp.permission.categories.map((cat) {
-                    //                   final perList = ppp.permission.getPermissionsFor(cat);
-                    //                   // log(perList.map((a)=>a.value).toString());
-                    //                   if (perList.isEmpty) {
-                    //                     return SizedBox();
-                    //                   }
-                    //                   return Column(
-                    //                     crossAxisAlignment: CrossAxisAlignment.start,
-                    //                     children: [
-                    //                       Padding(
-                    //                         padding: const EdgeInsets.symmetric(vertical: 4),
-                    //                         child: Row(
-                    //                           children: [
-                    //                             Expanded(
-                    //                               child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    //                             ),
-                    //                             DotButton(
-                    //                               icon: Icons.select_all,
-                    //                               onPressed: () {
-                    //                                 final all = perList;
-                    //                                 aup!.permission.setPermissionsFor(cat, all);
-                    //                                 setState(() {});
-                    //                               },
-                    //                               color: Colors.green,
-                    //                             ),
-                    //                             const SizedBox(width: 8),
-                    //                             DotButton(
-                    //                               icon: Icons.deselect,
-                    //                               onPressed: () {
-                    //                                 aup!.permission.setPermissionsFor(cat, PermissionCategory.empty(cat));
-                    //                                 setState(() {});
-                    //                               },
-                    //                               color: Colors.red,
-                    //                             ),
-                    //                           ],
-                    //                         ),
-                    //                       ),
-                    //                       Wrap(
-                    //                         children: [
-                    //                           Padding(
-                    //                             padding: const EdgeInsets.only(right: 8.0, bottom: 8),
-                    //
-                    //                             child: SelectionChip(
-                    //                               // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
-                    //                               // label: ap.value,
-                    //                               label: perList.value,
-                    //                               value: false,
-                    //                               // value: aup!.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
-                    //                               onSelected: (bool value) {
-                    //                                 // PermissionCategory current = aup.permission.getPermissionsFor(cat);
-                    //                                 //  if (value) {
-                    //                                 //    current.add(ap);
-                    //                                 //  } else {
-                    //                                 //    current.removeWhere((a) => a.flag == ap.flag);
-                    //                                 //  }
-                    //                                 //  setState(() {});
-                    //                               },
-                    //                             ),
-                    //                           ),
-                    //                           // ...perList.map((ap) {
-                    //                           //   return Padding(
-                    //                           //     padding: const EdgeInsets.only(right: 8.0,bottom: 8),
-                    //                           //
-                    //                           //     child: SelectionChip(
-                    //                           //       // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
-                    //                           //       label: ap.value,
-                    //                           //       value: false,
-                    //                           //       // value: aup!.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
-                    //                           //       onSelected: (bool value) {
-                    //                           //        // PermissionCategory current = aup.permission.getPermissionsFor(cat);
-                    //                           //        //  if (value) {
-                    //                           //        //    current.add(ap);
-                    //                           //        //  } else {
-                    //                           //        //    current.removeWhere((a) => a.flag == ap.flag);
-                    //                           //        //  }
-                    //                           //        //  setState(() {});
-                    //                           //       },
-                    //                           //     ),
-                    //                           //   );
-                    //                           // }),
-                    //                         ],
-                    //                       ),
-                    //                       Divider(),
-                    //                     ],
-                    //                   );
-                    //                 }).toList(),
-                    //         );
-                    //       }
-                    //     ),
-                    //   ],
-                    // ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(height: 24,),
+                        Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Column(
+                          children: permissions.allPermissions.categories.map((cat) {
+                            final perList = permissions.allPermissions.getPermissionsFor(cat);
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                      ),
+                                      DotButton(
+                                        icon: Icons.select_all,
+                                        onPressed: () {
+                                          final all = [...perList];
+                                          tmp.permission.setPermissionsFor(cat, all);
+                                          setState(() {});
+                                        },
+                                        color: Colors.green,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      DotButton(
+                                        icon: Icons.deselect,
+                                        onPressed: () {
+                                          tmp.permission.setPermissionsFor(cat, []);
+                                          setState(() {});
+                                        },
+                                        color: Colors.red,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Wrap(
+                                  children: [
+                                    ...perList.map((ap) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(right: 4.0),
+                                        child: SelectionChip(
+                                          // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
+                                          label: ap.value,
+                                          value: tmp.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
+                                          onSelected: (bool value) {
+                                            // List<int> current = BitmaskHelper.extract(aup.permission.getFlightPermissions.map((a)=>a.flag).toList());
+                                            List<PermissionCategory> current = tmp.permission.getPermissionsFor(cat);
+                                            log(jsonEncode(current));
+                                            if (value) {
+                                              current.add(ap);
+                                            } else {
+                                              log("should remove where ${ap.flag}");
+                                              current.removeWhere((a) => a.flag == ap.flag);
+                                            }
+                                            log(jsonEncode(current));
+                                            tmp.permission.setPermissionsFor(cat, current);
+                                            log(jsonEncode(tmp));
+                                            setState(() {});
+                                          },
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                                Divider(),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+
+                      ],
+                    ),
                   ],
                 ),
               ),
