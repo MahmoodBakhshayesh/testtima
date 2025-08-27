@@ -117,6 +117,7 @@ class MrzReaderController extends ControllerInterface {
       // FailureHandler.handle(result.error);
 
       case Ok<SendLogsResponse>():
+
         log("logs sent");
       // final r = result.value;
     }
