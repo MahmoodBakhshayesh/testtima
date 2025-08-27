@@ -12,9 +12,9 @@ class TimaticClientOptions {
     required this.baseUrl,
     this.apiKey,
     this.headers,
-    this.connectTimeout = const Duration(seconds: 10),
-    this.sendTimeout = const Duration(seconds: 20),
-    this.receiveTimeout = const Duration(seconds: 20),
+    this.connectTimeout = const Duration(minutes: 2),
+    this.sendTimeout = const Duration(minutes: 2),
+    this.receiveTimeout = const Duration(minutes: 2),
   });
 }
 

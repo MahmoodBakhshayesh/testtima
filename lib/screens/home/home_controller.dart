@@ -10,11 +10,13 @@ import '../../core/classes/basic_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import 'package:logging/logging.dart';
 
+import '../../core/navigation/routes.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 import '../../core/utils_and_services/timatic/artemis_timatic.dart';
 import '../../initialize.dart';
 import '../../widgets/MyFieldPicker.dart';
+import '../mrz_reader/mrz_reader_state.dart';
 import 'home_state.dart';
 
 class HomeController extends ControllerInterface {
@@ -54,6 +56,12 @@ class HomeController extends ControllerInterface {
       log("set new to $newVal");
       await getIt<UsersController>().updateUserStation(newVal.code3);
     }
+  }
+
+  void goMrzReadr() {
+    ref.read(ocrMrzLogsProvider.notifier).update((s)=>[]);
+    ref.read(improvingMrzResultProvider.notifier).update((s)=>null);
+    goNamed(Routes.mrzReader);
   }
 
 

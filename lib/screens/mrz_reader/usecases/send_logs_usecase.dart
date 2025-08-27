@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';
 import '../../../core/interfaces/failures_int.dart';
 import '../../../core/interfaces/request_int.dart';
@@ -21,11 +22,13 @@ class SendLogsUseCase extends UseCase<SendLogsResponse,SendLogsRequest> {
 
 class SendLogsRequest extends RequestInterface {
   final List<OcrMrzLog> current;
-  SendLogsRequest({required this.current});
+  final OcrMrzResult? improving;
+  SendLogsRequest({required this.current,required this.improving});
 
   @override
   Map<String, dynamic> toJson() =>{
-    "logs":current.map((a)=>a.toJson()).toList()
+    "logs":current.map((a)=>a.toJson()).toList(),
+    "improving": improving?.toJson()
   };
 
   Failure? validate(){

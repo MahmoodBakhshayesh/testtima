@@ -69,7 +69,8 @@ initNetworkManager([String? baseUrl]) {
   String base = baseUrl ?? AppData.config!.baseUrl;
   // log("Setting Base URL to $baseUrl");
   NetworkOption.initialize(
-    timeout: const Duration(milliseconds: 300000),
+    timeout: const Duration(minutes: 3),
+
     baseUrl: base,
     headers: {"content-type": 'application/json'},
 

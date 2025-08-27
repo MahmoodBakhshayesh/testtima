@@ -307,8 +307,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                       child: MyButton(
                                         label: "Scan Doc",
                                         onPressed: () {
-                                          ref.read(ocrMrzLogsProvider.notifier).update((s)=>[]);
-                                          HomeViewPhone.myHomeController.goNamed(Routes.mrzReader);
+                                          HomeViewPhone.myHomeController.goMrzReadr();
+
                                         },
                                         radius: 10,
                                         icon: ArtemisIcons.scan,
