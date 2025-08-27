@@ -162,8 +162,6 @@ class UsersController extends ControllerInterface {
   }
 
   Future<void> uploadImage(XFile imageFile) async {
-    final dio = Dio();
-
     final fileName = imageFile.path.split('/').last;
 
     final formData = FormData.fromMap({
@@ -178,7 +176,7 @@ class UsersController extends ControllerInterface {
     String apiAddress = "$serverAddress/user/image";
     // log(apiAddress);
     try {
-      final dio = Dio();
+      final dio = Dio(BaseOptions(receiveTimeout: Duration(minutes: 10),sendTimeout: Duration(minutes: 10),connectTimeout: Duration(minutes: 10)));
       final response = await dio.put(
         apiAddress,
         data: formData,
@@ -206,6 +204,8 @@ class UsersController extends ControllerInterface {
       }
     } catch (e) {
       log('Upload failed: $e');
+      FailureHandler.handle(ServerFailure(code: -1, msg: e.toString(), traceMsg:  e.toString()));
+
     }
   }
 

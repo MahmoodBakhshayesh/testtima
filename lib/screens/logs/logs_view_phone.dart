@@ -141,12 +141,12 @@ class LogWidget extends StatelessWidget {
                   permission: LogUiPermission.execute(),
                   child: MyButton(
                     label: "Execute",
-
                     onPressed: () async {
                       // await myCheckinController.logExecute(pax: widget.pax, history: his);
                     },
                     height: 30,
                     color: Colors.deepOrangeAccent,
+
                   ),
                 ),
               ],

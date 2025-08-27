@@ -21,3 +21,5 @@ final timaticResultProvider = StateProvider<DocumentResponse?>((ref) => null);
 final passengerProvider = StateProvider<PassengerDetails>((ref) => PassengerDetails());
 // final segmentsProvider = StateProvider<List<ItinerarySegment>>((ref) => [ItinerarySegment.empty()]);
 final documentNumberProvider =  StateProvider<String>((ref) => "");
+final warningsProvider =  StateProvider<List<String>>((ref) => []);
+final showWarningsProvider =  StateProvider<bool>((ref) => true);

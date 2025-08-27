@@ -25,8 +25,9 @@ abstract class FailureHandler {
                   child: AbsorbPointer(
                     child: ArtemisAwesomeSnackbarContent(
                       title: 'Error!',
-                      message: '$failure',
+                      message: '$failure\n',
                       contentType: ContentType.failure,
+
                     ),
                   ),
                 ),

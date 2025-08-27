@@ -1,3 +1,5 @@
+import '../usecases/send_logs_usecase.dart';
+
 abstract class MrzReaderDataSourceInterface {
-  // Future<Response> ({required Request request});
+  Future<SendLogsResponse> sendLogs({required SendLogsRequest request});
 }

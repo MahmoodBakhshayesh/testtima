@@ -8,6 +8,7 @@ import 'package:abds/core/utils_and_services/stateControllers/segments_state_con
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
+import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -48,11 +49,12 @@ class LoginController extends ControllerInterface {
     _log.warning("Logging in");
     getIt<HomeController>().clear();
     ref.read(timaticResultProvider.notifier).update((s) => null);
-    DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
-    DeviceInfo deviceInfo = deviceInfoService.getInfo();
+    // DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
+    // DeviceInfo deviceInfo = deviceInfoService.getInfo();
+    AppDeviceNetworkData adnd = getIt<AppDeviceNetworkData>();
     LoginData? user;
     LoginUseCase loginUseCase = LoginUseCase();
-    LoginRequest loginRequest = LoginRequest(username: username, password: password, app: {}, device: {}, network: {});
+    LoginRequest loginRequest = LoginRequest(username: username, password: password, app: adnd.app.toJson(), device: adnd.device.toJson(), network: adnd.network.toJson());
     final fOrR = await loginUseCase(request: loginRequest);
 
     switch (fOrR) {

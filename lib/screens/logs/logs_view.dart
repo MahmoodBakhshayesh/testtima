@@ -13,9 +13,9 @@ class LogsView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return LogsViewDesktop();
+        return LogsViewPhone();
       }else if(context.isMyTablet){
-        return LogsViewTablet();
+        return LogsViewPhone();
       }else{
         return LogsViewPhone();
       }

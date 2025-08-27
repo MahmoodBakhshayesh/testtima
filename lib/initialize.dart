@@ -5,7 +5,9 @@ import 'package:abds/screens/add_user/add_user_controller.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
 import 'package:abds/screens/logs/logs_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
+import 'package:abds/screens/profile/profile_controller.dart';
 import 'package:abds/screens/users/users_controller.dart';
+import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../core/interfaces/network_info_int.dart';
@@ -67,7 +69,7 @@ initNetworkManager([String? baseUrl]) {
   String base = baseUrl ?? AppData.config!.baseUrl;
   // log("Setting Base URL to $baseUrl");
   NetworkOption.initialize(
-    timeout: const Duration(milliseconds: 30000),
+    timeout: const Duration(milliseconds: 300000),
     baseUrl: base,
     headers: {"content-type": 'application/json'},
 
@@ -212,6 +214,7 @@ Future<void> initNavigation() async {
   UsersController usersController = UsersController();
   AddUserController addUserController = AddUserController();
   LogsController logsController = LogsController();
+  ProfileController profileController = ProfileController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -220,6 +223,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(usersController);
   getIt.registerSingleton(addUserController);
   getIt.registerSingleton(logsController);
+  getIt.registerSingleton(profileController);
 
   TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController});
 
@@ -246,6 +250,9 @@ Future<void> _initPackages() async {
 
   ParserInterface parser = Parser();
   getIt.registerSingleton(parser);
+
+  AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
+  getIt.registerSingleton(adnd);
 
   final client = TimaticClient(const TimaticClientOptions(baseUrl: 'https://timatic.multidcs.com/api/v1'));
   final api = TimaticApi(client);

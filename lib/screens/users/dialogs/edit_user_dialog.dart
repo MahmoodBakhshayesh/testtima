@@ -140,8 +140,11 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         Divider(height: 24,),
                         Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         Column(
-                          children: permissions.allPermissions.categories.map((cat) {
-                            final perList = permissions.allPermissions.getPermissionsFor(cat);
+                          children: permissions.permission.categories.map((cat) {
+                            final perList = permissions.permission.getPermissionsFor(cat);
+                            if(perList.isEmpty ){
+                              return SizedBox();
+                            }
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

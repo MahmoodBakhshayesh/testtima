@@ -122,7 +122,7 @@ class Profile {
   final String? middlename;
   final String? lastname;
   final String? defaultAirport;
-  final bool? hasImage;
+  final bool hasImage;
   final int? gender;
 
   const Profile({
@@ -131,7 +131,7 @@ class Profile {
     this.firstname,
     this.middlename,
     this.lastname,
-    this.hasImage,
+    this.hasImage = false,
     this.gender,
     this.defaultAirport,
   });
@@ -166,7 +166,7 @@ class Profile {
       middlename: json['middlename'],
       lastname: json['lastname'],
       defaultAirport: json['defaultAirport'],
-      hasImage: json['hasImage'],
+      hasImage: json['hasImage']??false,
       gender: json['gender'],
     );
   }

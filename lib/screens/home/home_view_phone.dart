@@ -4,14 +4,17 @@ import 'dart:developer';
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:abds/screens/home/home_drawer.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
+import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/DurationOfStayPicker.dart';
 import 'package:abds/widgets/MyButton.dart';
@@ -43,10 +46,23 @@ import '../../widgets/MyTimePicker.dart';
 import 'home_controller.dart';
 import 'home_state.dart';
 
-class HomeViewPhone extends ConsumerWidget {
+class HomeViewPhone extends ConsumerStatefulWidget {
   static HomeController myHomeController = getIt<HomeController>();
 
   const HomeViewPhone({super.key});
+
+  @override
+  ConsumerState<HomeViewPhone> createState() => _HomeViewPhoneState();
+}
+
+class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
+  late GlobalKey<ScaffoldState> flightsScaffoldKey;
+
+  @override
+  initState() {
+    flightsScaffoldKey = GlobalKey<ScaffoldState>();
+    super.initState();
+  }
 
   Widget countryBuilder(dynamic a) => Row(
     children: [
@@ -57,19 +73,19 @@ class HomeViewPhone extends ConsumerWidget {
   );
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final timaticRes = ref.watch(timaticResultProvider);
-    final GlobalKey<ScaffoldState> flightsScaffoldKey = GlobalKey();
 
     final tim = BasicClass.timData;
+
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> visas = ref.watch(visasProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-    log("passes ${passports.length}");
-    log("visas ${visas.length}");
+    // log("passes ${passports.length}");
+    // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
     return PopScope(
       canPop: false,
@@ -87,328 +103,334 @@ class HomeViewPhone extends ConsumerWidget {
               children: [
                 if (!resultMode)
                   Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: MyColors.scaffoldHeader,
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text("FLIGHT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                  ),
-                                  MyButton(
-                                    label: "Scan",
-                                    icon: Icons.qr_code_scanner,
-                                    onPressed: () {
-                                      myHomeController.goNamed(Routes.barcodeReader);
-                                    },
-                                    textColor: Colors.white,
-                                    // textColor: context.mainColor,
-                                    borderSide: BorderSide(color: Colors.white),
-                                    radius: 12,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Builder(
-                              builder: (context) {
-                                // var seg = segments[0];
-                                // int index = 0;
-                                return Column(
-                                  children: segments.map((seg) {
-                                    int index = segments.indexOf(seg);
-                                    bool isLast = segments.length == index + 1;
-                                    bool isFirst = index == 0;
-                                    return SegmentItemRow(index: index, item: seg, isLast: isLast, isFirst: isFirst);
-
-                                    // return Container(
-                                    //   decoration: BoxDecoration(
-                                    //     border: Border(bottom: BorderSide(color: Colors.white)),
-                                    //   ),
-                                    //   child: MyExpansionTile(
-                                    //     backgroundColor: MyColors.scaffoldBg,
-                                    //     collapsedBackgroundColor: MyColors.scaffoldBg,
-                                    //     footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
-                                    //     shape: RoundedRectangleBorder(),
-                                    //     collapsedShape: RoundedRectangleBorder(),
-                                    //     tilePadding: EdgeInsets.symmetric(horizontal: 14),
-                                    //     footerExtra: IndexedStack(
-                                    //       index: isLast ? 0 : 1,
-                                    //       children: [
-                                    //         Padding(
-                                    //           padding: const EdgeInsets.all(8.0),
-                                    //           child: MyButton(
-                                    //             height: 30,
-                                    //             label: "Transit",
-                                    //             icon: Icons.add_circle_outline,
-                                    //             onPressed: () {
-                                    //               ref.read(segmentsProvider.notifier).update((s) => [...s, ItinerarySegment.empty()]);
-                                    //             },
-                                    //             textColor: Colors.blueAccent,
-                                    //             color: Colors.blueAccent.withOpacity(0.1),
-                                    //           ),
-                                    //         ),
-                                    //         SizedBox(),
-                                    //       ],
-                                    //     ),
-                                    //     title: Column(
-                                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                                    //       children: [
-                                    //         Padding(
-                                    //           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    //           child: Row(
-                                    //             children: [
-                                    //               Expanded(
-                                    //                 child: Text(
-                                    //                   "FLIGHT ${index + 1}",
-                                    //                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-                                    //                 ),
-                                    //               ),
-                                    //               isFirst
-                                    //                   ? SizedBox()
-                                    //                   : DotButton(
-                                    //                       icon: Icons.delete,
-                                    //                       color: Colors.red,
-                                    //                       flat: true,
-                                    //                       onPressed: () {
-                                    //                         ref.read(segmentsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
-                                    //                       },
-                                    //                     ),
-                                    //             ],
-                                    //           ),
-                                    //         ),
-                                    //         Row(
-                                    //           spacing: 12,
-                                    //           children: [
-                                    //             Expanded(
-                                    //               child: MyFieldPicker<Location>(
-                                    //                 required: true,
-                                    //                 label: "From",
-                                    //                 placeholder: "City",
-                                    //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                                    //                 items: tim.locations.of(LocationType.airport),
-                                    //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
-                                    //                 onChange: (a) {
-                                    //                   if (a is Location) {
-                                    //                     final update = seg.departure.copyWith(point: a.code3);
-                                    //                     seg = seg.copyWith(departure: update);
-                                    //                     final ul = [...segments];
-                                    //                     ul[index] = seg;
-                                    //                     ref.read(segmentsProvider.notifier).update((s) => ul);
-                                    //                   }
-                                    //                 },
-                                    //               ),
-                                    //             ),
-                                    //             Expanded(
-                                    //               child: MyFieldPicker<Location>(
-                                    //                 label: "To",
-                                    //                 placeholder: "City",
-                                    //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                                    //                 required: true,
-                                    //                 items: tim.locations.of(LocationType.airport),
-                                    //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
-                                    //                 onChange: (a) {
-                                    //                   if (a is Location) {
-                                    //                     final update = seg.arrival.copyWith(point: a.code3);
-                                    //                     seg = seg.copyWith(arrival: update);
-                                    //                     final ul = [...segments];
-                                    //                     ul[index] = seg;
-                                    //                     ref.read(segmentsProvider.notifier).update((s) => ul);
-                                    //                   }
-                                    //                 },
-                                    //               ),
-                                    //             ),
-                                    //           ],
-                                    //         ),
-                                    //       ],
-                                    //     ),
-                                    //     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
-                                    //     children: [
-                                    //       Row(
-                                    //         spacing: 12,
-                                    //         children: [
-                                    //           Expanded(
-                                    //             child: MyDatePicker(
-                                    //               label: "Departure",
-                                    //               placeholder: "Date",
-                                    //               value: seg.departure.dateTime,
-                                    //               onChanged: (a) {
-                                    //                 seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
-                                    //                 log(jsonEncode(seg.toJson()));
-                                    //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                                    //               },
-                                    //             ),
-                                    //           ),
-                                    //           Expanded(
-                                    //             child: MyDatePicker(
-                                    //               label: "Arrival",
-                                    //               placeholder: "Date",
-                                    //               value: seg.arrival.dateTime,
-                                    //               onChanged: (a) {
-                                    //                 seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
-                                    //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                                    //               },
-                                    //             ),
-                                    //           ),
-                                    //         ],
-                                    //       ),
-                                    //       const SizedBox(height: 12),
-                                    //       MyFieldPicker<ParameterValue>(
-                                    //         label: "Operating Carrier",
-                                    //         placeholder: "Airline",
-                                    //         items: tim.params.of(ParameterType.carrier),
-                                    //         value: seg.operatingCarrier,
-                                    //         onChange: (a) {
-                                    //           seg = seg.copyWith(operatingCarrier: a);
-                                    //           log(jsonEncode(seg.toJson()));
-                                    //           ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                                    //         },
-                                    //       ),
-                                    //     ],
-                                    //   ),
-                                    // );
-                                  }).toList(),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 12),
-
-                            PassengerDetailsWidget(),
-                            const SizedBox(height: 12),
-                            Row(
-                              spacing: 12,
+                    child: Stack(
+                      children: [
+                        SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
                               children: [
-                                Expanded(
-                                  child: MyButton(
-                                    label: "Scan Doc",
-                                    onPressed: () {
-                                      myHomeController.goNamed(Routes.mrzReader);
-                                    },
-                                    radius: 10,
-                                    icon: ArtemisIcons.scan,
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: MyColors.scaffoldHeader,
+                                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text("FLIGHT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                      ),
+                                      MyButton(
+                                        label: "Scan",
+                                        icon: Icons.qr_code_scanner,
+                                        onPressed: () {
+                                          HomeViewPhone.myHomeController.goNamed(Routes.barcodeReader);
+                                        },
+                                        textColor: Colors.white,
+                                        // textColor: context.mainColor,
+                                        borderSide: BorderSide(color: Colors.white),
+                                        radius: 12,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Expanded(
-                                  child: MyButton(
-                                    label: "Manual",
-                                    onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty
-                                        ? null
-                                        : () {
-                                            if (ref.read(passportsProvider).isEmpty) {
-                                              ref.read(passportsProvider.notifier).add(DocumentDetail());
-                                            }
-                                            if (ref.read(visasProvider).isEmpty) {
-                                              ref.read(visasProvider.notifier).add(DocumentDetail());
-                                            }
-                                          },
-                                    radius: 10,
-                                    reverse: true,
-                                    borderSide: BorderSide(color: context.mainColor),
+                                Builder(
+                                  builder: (context) {
+                                    // var seg = segments[0];
+                                    // int index = 0;
+                                    return Column(
+                                      children: segments.map((seg) {
+                                        int index = segments.indexOf(seg);
+                                        bool isLast = segments.length == index + 1;
+                                        bool isFirst = index == 0;
+                                        return SegmentItemRow(index: index, item: seg, isLast: isLast, isFirst: isFirst);
+
+                                        // return Container(
+                                        //   decoration: BoxDecoration(
+                                        //     border: Border(bottom: BorderSide(color: Colors.white)),
+                                        //   ),
+                                        //   child: MyExpansionTile(
+                                        //     backgroundColor: MyColors.scaffoldBg,
+                                        //     collapsedBackgroundColor: MyColors.scaffoldBg,
+                                        //     footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+                                        //     shape: RoundedRectangleBorder(),
+                                        //     collapsedShape: RoundedRectangleBorder(),
+                                        //     tilePadding: EdgeInsets.symmetric(horizontal: 14),
+                                        //     footerExtra: IndexedStack(
+                                        //       index: isLast ? 0 : 1,
+                                        //       children: [
+                                        //         Padding(
+                                        //           padding: const EdgeInsets.all(8.0),
+                                        //           child: MyButton(
+                                        //             height: 30,
+                                        //             label: "Transit",
+                                        //             icon: Icons.add_circle_outline,
+                                        //             onPressed: () {
+                                        //               ref.read(segmentsProvider.notifier).update((s) => [...s, ItinerarySegment.empty()]);
+                                        //             },
+                                        //             textColor: Colors.blueAccent,
+                                        //             color: Colors.blueAccent.withOpacity(0.1),
+                                        //           ),
+                                        //         ),
+                                        //         SizedBox(),
+                                        //       ],
+                                        //     ),
+                                        //     title: Column(
+                                        //       crossAxisAlignment: CrossAxisAlignment.start,
+                                        //       children: [
+                                        //         Padding(
+                                        //           padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                        //           child: Row(
+                                        //             children: [
+                                        //               Expanded(
+                                        //                 child: Text(
+                                        //                   "FLIGHT ${index + 1}",
+                                        //                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                                        //                 ),
+                                        //               ),
+                                        //               isFirst
+                                        //                   ? SizedBox()
+                                        //                   : DotButton(
+                                        //                       icon: Icons.delete,
+                                        //                       color: Colors.red,
+                                        //                       flat: true,
+                                        //                       onPressed: () {
+                                        //                         ref.read(segmentsProvider.notifier).update((s) => [...s.where((a) => s.indexOf(a) != index)]);
+                                        //                       },
+                                        //                     ),
+                                        //             ],
+                                        //           ),
+                                        //         ),
+                                        //         Row(
+                                        //           spacing: 12,
+                                        //           children: [
+                                        //             Expanded(
+                                        //               child: MyFieldPicker<Location>(
+                                        //                 required: true,
+                                        //                 label: "From",
+                                        //                 placeholder: "City",
+                                        //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
+                                        //                 items: tim.locations.of(LocationType.airport),
+                                        //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
+                                        //                 onChange: (a) {
+                                        //                   if (a is Location) {
+                                        //                     final update = seg.departure.copyWith(point: a.code3);
+                                        //                     seg = seg.copyWith(departure: update);
+                                        //                     final ul = [...segments];
+                                        //                     ul[index] = seg;
+                                        //                     ref.read(segmentsProvider.notifier).update((s) => ul);
+                                        //                   }
+                                        //                 },
+                                        //               ),
+                                        //             ),
+                                        //             Expanded(
+                                        //               child: MyFieldPicker<Location>(
+                                        //                 label: "To",
+                                        //                 placeholder: "City",
+                                        //                 itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
+                                        //                 required: true,
+                                        //                 items: tim.locations.of(LocationType.airport),
+                                        //                 value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
+                                        //                 onChange: (a) {
+                                        //                   if (a is Location) {
+                                        //                     final update = seg.arrival.copyWith(point: a.code3);
+                                        //                     seg = seg.copyWith(arrival: update);
+                                        //                     final ul = [...segments];
+                                        //                     ul[index] = seg;
+                                        //                     ref.read(segmentsProvider.notifier).update((s) => ul);
+                                        //                   }
+                                        //                 },
+                                        //               ),
+                                        //             ),
+                                        //           ],
+                                        //         ),
+                                        //       ],
+                                        //     ),
+                                        //     childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+                                        //     children: [
+                                        //       Row(
+                                        //         spacing: 12,
+                                        //         children: [
+                                        //           Expanded(
+                                        //             child: MyDatePicker(
+                                        //               label: "Departure",
+                                        //               placeholder: "Date",
+                                        //               value: seg.departure.dateTime,
+                                        //               onChanged: (a) {
+                                        //                 seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
+                                        //                 log(jsonEncode(seg.toJson()));
+                                        //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                                        //               },
+                                        //             ),
+                                        //           ),
+                                        //           Expanded(
+                                        //             child: MyDatePicker(
+                                        //               label: "Arrival",
+                                        //               placeholder: "Date",
+                                        //               value: seg.arrival.dateTime,
+                                        //               onChanged: (a) {
+                                        //                 seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
+                                        //                 ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                                        //               },
+                                        //             ),
+                                        //           ),
+                                        //         ],
+                                        //       ),
+                                        //       const SizedBox(height: 12),
+                                        //       MyFieldPicker<ParameterValue>(
+                                        //         label: "Operating Carrier",
+                                        //         placeholder: "Airline",
+                                        //         items: tim.params.of(ParameterType.carrier),
+                                        //         value: seg.operatingCarrier,
+                                        //         onChange: (a) {
+                                        //           seg = seg.copyWith(operatingCarrier: a);
+                                        //           log(jsonEncode(seg.toJson()));
+                                        //           ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                                        //         },
+                                        //       ),
+                                        //     ],
+                                        //   ),
+                                        // );
+                                      }).toList(),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+
+                                PassengerDetailsWidget(),
+                                const SizedBox(height: 12),
+                                Row(
+                                  spacing: 12,
+                                  children: [
+                                    Expanded(
+                                      child: MyButton(
+                                        label: "Scan Doc",
+                                        onPressed: () {
+                                          ref.read(ocrMrzLogsProvider.notifier).update((s)=>[]);
+                                          HomeViewPhone.myHomeController.goNamed(Routes.mrzReader);
+                                        },
+                                        radius: 10,
+                                        icon: ArtemisIcons.scan,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: MyButton(
+                                        label: "Manual",
+                                        onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty
+                                            ? null
+                                            : () {
+                                                if (ref.read(passportsProvider).isEmpty) {
+                                                  ref.read(passportsProvider.notifier).add(DocumentDetail());
+                                                }
+                                                if (ref.read(visasProvider).isEmpty) {
+                                                  ref.read(visasProvider.notifier).add(DocumentDetail());
+                                                }
+                                              },
+                                        radius: 10,
+                                        reverse: true,
+                                        borderSide: BorderSide(color: context.mainColor),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Visibility(
+                                  visible: passports.isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: MyColors.scaffoldHeader,
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("PASSPORT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                            ),
+                                            // MyButton(
+                                            //   label: "Scan",
+                                            //   icon: Icons.qr_code_scanner,
+                                            //   onPressed: () {
+                                            //     myHomeController.goNamed(Routes.mrzReader);
+                                            //   },
+                                            //   textColor: Colors.white,
+                                            //   // textColor: context.mainColor,
+                                            //   borderSide: BorderSide(color: Colors.white),
+                                            //   radius: 12,
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                      Builder(
+                                        builder: (context) {
+                                          return Column(
+                                            children: passports.map((d) {
+                                              int index = passports.indexOf(d);
+                                              bool isLast = passports.length == index + 1;
+                                              bool isFirst = index == 0;
+                                              return PassportItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                            }).toList(),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+                                Visibility(
+                                  visible: visas.isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: MyColors.scaffoldHeader,
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                            ),
+                                            // MyButton(
+                                            //   label: "Scan",
+                                            //   icon: Icons.qr_code_scanner,
+                                            //   onPressed: () {
+                                            //     myHomeController.goNamed(Routes.mrzReader);
+                                            //   },
+                                            //   textColor: Colors.white,
+                                            //   // textColor: context.mainColor,
+                                            //   borderSide: BorderSide(color: Colors.white),
+                                            //   radius: 12,
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                      Builder(
+                                        builder: (context) {
+                                          return Column(
+                                            children: visas.map((d) {
+                                              int index = visas.indexOf(d);
+                                              bool isLast = visas.length == index + 1;
+                                              bool isFirst = index == 0;
+                                              return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                            }).toList(),
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Visibility(
-                              visible: passports.isNotEmpty,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: MyColors.scaffoldHeader,
-                                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text("PASSPORT", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                        ),
-                                        // MyButton(
-                                        //   label: "Scan",
-                                        //   icon: Icons.qr_code_scanner,
-                                        //   onPressed: () {
-                                        //     myHomeController.goNamed(Routes.mrzReader);
-                                        //   },
-                                        //   textColor: Colors.white,
-                                        //   // textColor: context.mainColor,
-                                        //   borderSide: BorderSide(color: Colors.white),
-                                        //   radius: 12,
-                                        // ),
-                                      ],
-                                    ),
-                                  ),
-                                  Builder(
-                                    builder: (context) {
-                                      return Column(
-                                        children: passports.map((d) {
-                                          int index = passports.indexOf(d);
-                                          bool isLast = passports.length == index + 1;
-                                          bool isFirst = index == 0;
-                                          return PassportItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                        }).toList(),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-                            Visibility(
-                              visible: visas.isNotEmpty,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: MyColors.scaffoldHeader,
-                                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                        ),
-                                        // MyButton(
-                                        //   label: "Scan",
-                                        //   icon: Icons.qr_code_scanner,
-                                        //   onPressed: () {
-                                        //     myHomeController.goNamed(Routes.mrzReader);
-                                        //   },
-                                        //   textColor: Colors.white,
-                                        //   // textColor: context.mainColor,
-                                        //   borderSide: BorderSide(color: Colors.white),
-                                        //   radius: 12,
-                                        // ),
-                                      ],
-                                    ),
-                                  ),
-                                  Builder(
-                                    builder: (context) {
-                                      return Column(
-                                        children: visas.map((d) {
-                                          int index = visas.indexOf(d);
-                                          bool isLast = visas.length == index + 1;
-                                          bool isFirst = index == 0;
-                                          return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                        }).toList(),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        WarningsBuilder(),
+                      ],
                     ),
                   )
                 else
@@ -450,7 +472,7 @@ class HomeViewPhone extends ConsumerWidget {
                               icon: Icons.refresh,
                               iconInRight: true,
                               onPressed: () async {
-                                myHomeController.clear();
+                                HomeViewPhone.myHomeController.clear();
                                 ref.read(timaticResultProvider.notifier).update((s) => null);
                               },
                               radius: 12,
@@ -460,8 +482,10 @@ class HomeViewPhone extends ConsumerWidget {
                               icon: Icons.perm_identity,
                               iconInRight: true,
                               onPressed: () async {
+                                // FailureHandler.handle(ServerFailure(code: -1, msg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l", traceMsg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l"));
+
                                 List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList();
-                                final timResult = await myHomeController.timaticApi.submitDocumentRequest(
+                                final timResult = await HomeViewPhone.myHomeController.timaticApi.submitDocumentRequest(
                                   DocumentRequest(
                                     documentDetails: ddl,
                                     itineraryDetails: ItineraryDetails(segments: segments),
@@ -667,9 +691,9 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             value: d.birthDate,
 
             onChanged: (a) {
-              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-              // d = d.copyWith(birthDate: a);
-              // ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+              d = d.copyWith(birthDate: a);
+              ref.read(passportsProvider.notifier).updateAt(widget.index, d);
             },
           ),
 
@@ -2810,5 +2834,82 @@ class DocumentResultWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class WarningsBuilder extends ConsumerWidget {
+  const WarningsBuilder({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    List<DocumentDetail> passports = ref.watch(passportsProvider);
+    List<DocumentDetail> visas = ref.watch(visasProvider);
+    String? warning;
+    List<String> nats = [];
+    if (passengerDetails.nationality != null) {
+      nats.add(passengerDetails.nationality!.code3);
+    }
+    passports.where((a) => a.nationality != null).forEach((p) {
+      nats.add(p.nationality!.code3);
+    });
+    visas.where((a) => a.nationality != null).forEach((v) {
+      nats.add(v.nationality!.code3);
+    });
+    if (nats.toSet().toList().length > 1) {
+      warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
+    }
+
+    if (warning == null || !ref.watch(showWarningsProvider)) return SizedBox();
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadiusGeometry.circular(15)),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      child: Row(
+        children: [
+          const SizedBox(width: 12),
+          Icon(ArtemisIcons.warning_2, color: Colors.white, size: 30),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(warning, style: TextStyle(color: Colors.white, fontSize: 12)),
+          ),
+          const SizedBox(width: 4),
+          DotButton(
+            icon: Icons.close,
+            color: Colors.white,
+            fade: false,
+            backgroundColor: Colors.white.withOpacity(0.3),
+            radius: 10,
+            onPressed: () {
+              ref.read(showWarningsProvider.notifier).update((s) => false);
+            },
+          ),
+          const SizedBox(width: 12),
+        ],
+      ),
+    );
+    // return ListView(
+    //   shrinkWrap: true,
+    //   children: ref.watch(warningsProvider).map((w){
+    //     return Container(
+    //       height: 56,
+    //       decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadiusGeometry.circular(10)),
+    //       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    //       child: Row(
+    //         children: [
+    //           const SizedBox(width: 12),
+    //           Icon(ArtemisIcons.warning_2, color: Colors.white, size: 30),
+    //           const SizedBox(width: 4),
+    //           Expanded(child: Text(w, style: TextStyle(color: Colors.white,fontSize: 12))),
+    //           const SizedBox(width: 4),
+    //           DotButton(icon: Icons.close,color: Colors.white,fade: false,backgroundColor: Colors.white.withOpacity(0.3),radius: 10,onPressed: (){
+    //               ref.read(warningsProvider.notifier).update((s)=>[...s].where((a)=>a != w).toList());
+    //           },),
+    //           const SizedBox(width: 12),
+    //         ],
+    //       ),
+    //     );
+    //   }).toList(),
+    // );
   }
 }

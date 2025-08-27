@@ -103,6 +103,7 @@ class PeopleListWidget extends ConsumerStatefulWidget {
   const PeopleListWidget({super.key});
 
   @override
+
   ConsumerState<PeopleListWidget> createState() => _PeopleListWidgetState();
 }
 

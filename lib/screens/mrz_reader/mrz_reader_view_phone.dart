@@ -1,5 +1,6 @@
 import 'package:abds/widgets/DotButton.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
@@ -18,7 +19,10 @@ class MrzReaderViewPhone extends StatefulWidget {
 
 class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   static MrzReaderController myMrzReaderController = getIt<MrzReaderController>();
-  OcrMrzSetting setting = OcrMrzSetting(validateNames: false, validatePersonalNumberValid: false,validateFinalCheckValid: false);
+
+  // OcrMrzSetting setting = OcrMrzSetting(validateNames: false, validatePersonalNumberValid: false,validateFinalCheckValid: false);
+
+  bool showLogs = false;
 
   @override
   void initState() {
@@ -30,11 +34,11 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return OcrSettingDialog(current: setting);
+        return OcrSettingDialog(current: myMrzReaderController.ref.read(ocrMrzSettingProvider));
       },
-    ).then((s) {
-      if (s is OcrMrzSetting) {
-        setting = s;
+    ).then((sett) {
+      if (sett is OcrMrzSetting) {
+        myMrzReaderController.ref.read(ocrMrzSettingProvider.notifier).update((s) => sett);
         setState(() {});
       }
     });
@@ -46,6 +50,10 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
       appBar: MrzReaderAppBar(
         actions: [
           DotButton(
+            onLongPress: () {
+              showLogs = !showLogs;
+              setState(() {});
+            },
             icon: Icons.settings,
             onPressed: () {
               changeSetting();
@@ -56,7 +64,42 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
       body: Column(
         children: [
           Expanded(
-            child: OcrMrzReader(onFoundMrz: myMrzReaderController.onDocScan, setting: setting),
+            child: Consumer(
+              builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                final lastLog = ref.watch(ocrMrzLogsProvider).lastOrNull;
+                return Stack(
+                  children: [
+                    OcrMrzReader(mrzLogger: myMrzReaderController.mrzLogger, onFoundMrz: myMrzReaderController.onDocScan, setting: ref.watch(ocrMrzSettingProvider)),
+                    Positioned(
+                      bottom: 24,
+                      left: 0,
+                      right: 0,
+                      child: lastLog == null || !showLogs
+                          ? SizedBox()
+                          : Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [Expanded(child: FittedBox(child: Text(lastLog!.rawMrzLines.join("\n"))))],
+                                  ),
+                                  Divider(),
+                                  Row(
+                                    children: [Expanded(child: FittedBox(child: Text(lastLog!.fixedMrzLines.join("\n"))))],
+                                  ),
+                                  Divider(),
+                                  Row(
+                                    children: [Expanded(child: FittedBox(child: Text(lastLog!.validation.toString())))],
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),

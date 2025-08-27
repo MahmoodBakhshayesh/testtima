@@ -82,7 +82,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
   @override
   Widget build(BuildContext context) {
     final permissions = myAddUserController.ref.read(userProvider)!.permission;
-    bool isValid = emailC.text.isEmail || (usernameC.text.isNotEmpty && passwordC.text == passwordConfirmC.text && passwordC.text.isNotEmpty);
+    bool isValid = emailC.text.isEmail || (usernameC.text.length>5 && passwordC.text == passwordConfirmC.text && passwordC.text.isNotEmpty);
 
     return Scaffold(
       appBar: AddUserAppBar(),
@@ -168,8 +168,12 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                           Divider(height: 24,),
                           Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           Column(
-                            children: permissions.allPermissions.categories.map((cat) {
-                              final perList = permissions.allPermissions.getPermissionsFor(cat);
+                            children: permissions.permission.categories.map((cat) {
+                              // final perList = permissions.allPermissions.getPermissionsFor(cat);
+                              final perList = permissions.permission.getPermissionsFor(cat);
+                              if(perList.isEmpty ){
+                                return SizedBox();
+                              }
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

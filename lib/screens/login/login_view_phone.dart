@@ -172,10 +172,11 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                     Text("ABOMIS\nDOCUMENT\nCHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 32),
                     MyTextField(
-                      label: "Username",
+                      label: "Username or Email",
                       borderSide: BorderSide(color: Colors.white),
                       controller: usernameC,
                       focusNode: usernameFN,
+                      keyboardType: TextInputType.emailAddress,
                       onSubmit: (v) {
                         FocusScope.of(context).requestFocus(passwordFN);
                       },

@@ -4,11 +4,15 @@ import 'dart:developer';
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
+import 'package:abds/screens/mrz_reader/usecases/send_logs_usecase.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:logging/logging.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
+import 'package:ocr_mrz/orc_mrz_log_class.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/interfaces/controller_int.dart';
+import '../../core/interfaces/result_int.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../home/home_state.dart';
@@ -50,20 +54,19 @@ class MrzReaderController extends ControllerInterface {
         nationality: nationality,
         documentFeature: DocumentFeature.mrd,
         mrz: res.mrzLines.join("\n"),
-        birthDate: res.birthDate
+        birthDate: res.birthDate,
       );
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
       if (res.isPassport) {
         int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
         if (emptyIndex == -1) {
-          if(ref.read(passportsProvider).isEmpty){
+          if (ref.read(passportsProvider).isEmpty) {
             ref.read(passportsProvider.notifier).add(documentDetail);
-          }else{
-            int lastIndex = ref.read(passportsProvider).length-1;
+          } else {
+            int lastIndex = ref.read(passportsProvider).length - 1;
             ref.read(passportsProvider.notifier).updateAt(lastIndex, documentDetail);
           }
-
         } else {
           ref.read(passportsProvider.notifier).updateAt(emptyIndex, documentDetail);
         }
@@ -76,7 +79,6 @@ class MrzReaderController extends ControllerInterface {
         }
       }
 
-
       PassengerDetails passengerDetails = PassengerDetails(nationality: nationality, gender: gender, birthDate: res.birthDate, birthCountry: nationality);
       ref.read(passengerProvider.notifier).update((s) => passengerDetails);
 
@@ -87,5 +89,38 @@ class MrzReaderController extends ControllerInterface {
       }
       // FailureHandler.handle(ServerFailure(code: -1, msg: e.toString(), traceMsg: ""));
     }
+  }
+
+  void mrzLogger(OcrMrzLog l) {
+    if(l.rawMrzLines.isEmpty){
+      return;
+    }
+    final current = ref.read(ocrMrzLogsProvider);
+
+    if (current.length == 60) {
+      sendLogs(current);
+      ref.read(ocrMrzLogsProvider.notifier).update((s) => [l]);
+    } else {
+      ref.read(ocrMrzLogsProvider.notifier).update((s) => [...current, l]);
+    }
+    log("logs count ${current.length}");
+  }
+
+  Future<void> sendLogs(List<OcrMrzLog> current) async {
+    void msg;
+    SendLogsUseCase sendLogsUseCase = SendLogsUseCase();
+    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current);
+    final result = await sendLogsUseCase(request: sendLogsRequest);
+
+    switch (result) {
+      case Err<SendLogsResponse>():
+      // FailureHandler.handle(result.error);
+
+      case Ok<SendLogsResponse>():
+        log("logs sent");
+      // final r = result.value;
+    }
+
+    return msg;
   }
 }

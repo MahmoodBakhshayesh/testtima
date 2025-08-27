@@ -140,6 +140,82 @@ class BoardingPass {
     );
   }
 
+  /// Multi-leg parser for M1/M2/M3... Returns one BoardingPass per leg.
+  static List<BoardingPass> listFromBarcode(String barcode) {
+    if (barcode.isEmpty || barcode.length < 30 || barcode[0] != 'M') {
+      return [];
+    }
+
+    // Leg count: e.g., "M2" → 2, "M3" → 3; fallback to 1 if not a digit
+    final legCount = int.tryParse(barcode[1]) ?? 1;
+
+    // Header fields (common to all legs)
+    final rawName = _safeSub(barcode, 2, 22).trim();
+    final pnr = _safeSub(barcode, 22, 30).trim();
+
+    final firstName = rawName.split(' ').first;
+    final lastName = rawName.replaceFirst(firstName, '').trim();
+
+    // After index 30, legs are concatenated. We'll pattern-scan the whole string
+    // so we don't rely on exact block sizes (IATA variants/padding exist).
+    final tail = barcode.substring(30);
+
+    // Regex for one leg's core mandatory fields
+    // Groups:
+    // 1 from(3), 2 to(3), 3 al(2–3 with padding), 4 flight(3–4), 5 julian(3),
+    // 6 class(1), 7 seat(3), 8 optional seat letter, 9 seq(4)
+    final legRe = RegExp(
+      r'([A-Z]{3})([A-Z]{3})\s*([A-Z ]{2,3})\s*([0-9]{3,4})\s*([0-9]{3})([A-Z])([0-9]{3})([A-Z]?)([0-9]{4})',
+    );
+
+    final matches = legRe.allMatches(tail).toList();
+
+    // If regex finds fewer than legCount, we'll still return what we could parse.
+    final result = <BoardingPass>[];
+    for (int i = 0; i < matches.length && i < legCount; i++) {
+      final m = matches[i];
+      final from = m.group(1)!.trim();
+      final to = m.group(2)!.trim();
+      final al = m.group(3)!.trim(); // may be 2-letter with pad
+      final flt = m.group(4)!.trim().padLeft(4, '0'); // normalize to 4 digits
+      final julianStr = m.group(5)!.trim();
+      final cls = m.group(6)!.trim();
+      final seatNum = m.group(7)!.trim();
+      // final seatLetter = m.group(8) ?? ''; // available if you need it
+      final seq = m.group(9)!.trim();
+
+      final julian = int.tryParse(julianStr) ?? 0;
+      final flightDate = julianToDateTime(julian);
+
+      result.add(
+        BoardingPass(
+          fistName: firstName,
+          lastName: lastName,
+          fromCity: from,
+          toCity: to,
+          pnr: pnr,
+          al: al,
+          flnb: flt,
+          classType: cls,
+          seat: seatNum,
+          seq: seq,
+          julianDate: julian,
+          flightDate: flightDate,
+          barcodeData: barcode,
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  static String _safeSub(String s, int start, int end) {
+    if (start >= s.length) return '';
+    if (end > s.length) end = s.length;
+    if (end <= start) return '';
+    return s.substring(start, end);
+  }
+
   Map<String, dynamic> toJson() => {
     "FistName": fistName,
     "LastName": lastName,

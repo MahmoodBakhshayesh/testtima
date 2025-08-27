@@ -62,14 +62,19 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                     : 0.65),
             child: Column(
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 12),
-                  child: Row(
-                    children: [
-                      UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text("${ref.watch(userProvider)?.profile.username ?? ref.watch(userProvider)?.profile.email}")),
-                    ],
+                InkWell(
+                  onTap: () {
+                    myHomeController.goNamed(Routes.profile);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 12),
+                    child: Row(
+                      children: [
+                        UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text("${ref.watch(userProvider)?.profile.username ?? ref.watch(userProvider)?.profile.email}")),
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(

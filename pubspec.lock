@@ -22,6 +22,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.11.0"
+  app_device_net_info:
+    dependency: "direct main"
+    description:
+      name: app_device_net_info
+      sha256: "088189bab307ce7228be5a51620905953862310f37f7eeb8e98908ec92b1e086"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   archive:
     dependency: "direct main"
     description:
@@ -1141,6 +1149,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  network_info_plus:
+    dependency: transitive
+    description:
+      name: network_info_plus
+      sha256: f926b2ba86aa0086a0dfbb9e5072089bc213d854135c1712f1d29fc89ba3c877
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.4"
+  network_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: network_info_plus_platform_interface
+      sha256: "7e7496a8a9d8136859b8881affc613c4a21304afeb6c324bcefc4bd0aff6b94b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   network_manager:
     dependency: "direct main"
     description:
@@ -1169,10 +1193,10 @@ packages:
     dependency: "direct main"
     description:
       name: ocr_mrz
-      sha256: "37ad81cb2d2d8e6f8f1d14951d3fade6475570e49d225d9d465137e42d613fce"
+      sha256: e392230bafc23133d2d1bb9ebe57c26f6530f9a8a5369194811aae2013eccf14
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.14"
+    version: "0.0.16"
   octo_image:
     dependency: transitive
     description:
