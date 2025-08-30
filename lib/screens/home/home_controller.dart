@@ -25,6 +25,7 @@ class HomeController extends ControllerInterface {
 
   void clear() {
     ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
+    ref.read(improvingMrzResultProvider.notifier).update((s) => null);
     // ref.read(visasProvider.notifier).update((s) => [DocumentDetail()]);
     ref.read(passportsProvider.notifier).removeAll();
     ref.read(visasProvider.notifier).removeAll();

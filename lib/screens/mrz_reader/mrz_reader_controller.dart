@@ -13,6 +13,7 @@ import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';
 import '../../core/classes/basic_class.dart';
+import '../../core/classes/mrz_agg_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
@@ -22,85 +23,146 @@ import '../home/home_state.dart';
 class MrzReaderController extends ControllerInterface {
   final _log = Logger('MrzReaderController');
   bool popping = false;
+  final agg = OcrMrzAggregator();
 
-  void docImproving(OcrMrzResult res){
+  void docImproving(OcrMrzResult scanned) {
+    log(scanned.toString());
+    log("scanned.toString()");
+
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
-    OcrMrzResult? current = ref.read(improvingMrzResultProvider);
 
-    log("docImproving ${current == null}");
-    if(current == null){
-      ref.read(improvingMrzResultProvider.notifier).update((s)=>res);
-      log("setting improvingMrzResultProvider");
-    }else{
-      log("not setting improvingMrzResultProvider current not null");
-    }
-    if(res.matchSetting(setting)){
+    agg.add(scanned); // only validated fields contribute
+    final consensus = agg.build();
+    // log(jsonEncode(consensus.toJson(includeHistograms: true)));
+    final res = consensus.toResult();
+    ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
+    if (res.matchSetting(setting)) {
       onDocScan(res);
-      return;
-    }
-    if(current!=null && current.matchSetting(setting)){
-      onDocScan(current);
-      return;
-    }
-    if(current == null){
-      ref.read(improvingMrzResultProvider.notifier).update((s)=>res);
-    }else{
-      if(res.valid.personalNumberValid){
-        current.personalNumber = res.personalNumber;
-        current.valid.personalNumberValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.nationalityValid && !current.valid.nationalityValid){
-        current.nationality = res.nationality;
-        current.valid.nationalityValid = true;
-
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.nameValid && !current.valid.nameValid){
-        current.firstName = res.firstName;
-        current.lastName = res.lastName;
-        current.valid.nameValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.linesLengthValid && !current.valid.linesLengthValid){
-        current.line1 = res.line1;
-        current.line2 = res.line2;
-        current.line3 = res.line3;
-        current.valid.linesLengthValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.finalCheckValid && !current.valid.finalCheckValid){
-        current.valid.finalCheckValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.expiryDateValid && !current.valid.expiryDateValid){
-        current.expiryDate = res.expiryDate;
-        current.valid.expiryDateValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.docNumberValid && !current.valid.docNumberValid){
-        current.documentNumber = res.documentNumber;
-        current.valid.docNumberValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.countryValid && !current.valid.countryValid){
-        current.countryCode = res.countryCode;
-        current.valid.countryValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      if(res.valid.birthDateValid && !current.valid.birthDateValid){
-        current.birthDate = res.birthDate;
-        current.valid.birthDateValid = true;
-        // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      }
-      ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-      if(current.matchSetting(setting)){
-        onDocScan(current);
-      }
-    }
+    } else {}
+    return;
+    //
+    // // log('Doc No -> ${consensus.documentNumber} (count: ${consensus.documentNumberStat.consensusCount})');
+    // // log('Country -> ${consensus.countryCode} (hist: ${consensus.countryCodeStat.histogram})');
+    // // log('Birth   -> ${consensus.birthDate} (hist: ${consensus.birthDateStat.histogram})');
+    //
+    // // return;
+    // try {
+    //   log(res.valid.toString());
+    //   // return;
+    //   OcrMrzResult? current = ref.read(improvingMrzResultProvider);
+    //
+    //   // log("docImproving ${current == null}");
+    //   if (current == null) {
+    //     ref.read(improvingMrzResultProvider.notifier).update((s) => res);
+    //     // log("setting improvingMrzResultProvider");
+    //   } else {
+    //     // log("not setting improvingMrzResultProvider current not null");
+    //   }
+    //   if (res.matchSetting(setting)) {
+    //     // onDocScan(res);
+    //     // return;
+    //   }
+    //   if (current != null && current.matchSetting(setting)) {
+    //     // onDocScan(current);
+    //     // return;
+    //   }
+    //   if (current == null) {
+    //     ref.read(improvingMrzResultProvider.notifier).update((s) => res);
+    //     log(res.valid.toString());
+    //     if (res.valid.nationalityValid) {
+    //       log("valid nationalityValid -> ${res.nationality}");
+    //     }
+    //     if (res.valid.countryValid) {
+    //       log("valid countryValid -> ${res.countryCode}");
+    //     }
+    //     if (res.valid.expiryDateValid) {
+    //       log("valid expiryDate -> ${res.expiryDate}");
+    //     }
+    //     if (res.valid.birthDateValid) {
+    //       log("valid birthDateValid -> ${res.birthDate}");
+    //     }
+    //     if (res.valid.docNumberValid) {
+    //       log("valid docNumberValid -> ${res.documentNumber}");
+    //     }
+    //   } else {
+    //     if (res.valid.personalNumberValid && !current.valid.personalNumberValid) {
+    //       log("${'✅' * 10} valid persionality -> ${res.passportNumber} ");
+    //       current.personalNumber = res.personalNumber;
+    //       current.valid.personalNumberValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.nationalityValid && !current.valid.nationalityValid) {
+    //       log("${'✅' * 10} valid nationalityValid -> ${res.nationality}");
+    //       current.nationality = res.nationality;
+    //       current.valid.nationalityValid = true;
+    //
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.nameValid && !current.valid.nameValid) {
+    //       log("${'✅' * 10} valid nameValid -> ${res.firstName} ${res.lastName}");
+    //
+    //       current.firstName = res.firstName;
+    //       current.lastName = res.lastName;
+    //       current.valid.nameValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.linesLengthValid && !current.valid.linesLengthValid) {
+    //       log("${'✅' * 10} valid linesLengthValid -> ");
+    //
+    //       current.line1 = res.line1;
+    //       current.line2 = res.line2;
+    //       current.line3 = res.line3;
+    //       current.valid.linesLengthValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.finalCheckValid && !current.valid.finalCheckValid) {
+    //       log("${'✅' * 10} valid finalCheckValid -> ");
+    //
+    //       current.valid.finalCheckValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.expiryDateValid && !current.valid.expiryDateValid) {
+    //       log("${'✅' * 10} valid expiryDateValid -> ${res.expiryDate}");
+    //       current.expiryDate = res.expiryDate;
+    //       current.valid.expiryDateValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.docNumberValid && !current.valid.docNumberValid) {
+    //       log("${'✅' * 10} valid docNumberValid -> ${res.documentNumber}");
+    //
+    //       current.documentNumber = res.documentNumber;
+    //       current.valid.docNumberValid = true;
+    //
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.countryValid && !current.valid.countryValid) {
+    //       log("${'✅' * 10} valid countryValid -> ${res.countryCode}");
+    //
+    //       current.countryCode = res.countryCode;
+    //       current.valid.countryValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     if (res.valid.birthDateValid && !current.valid.birthDateValid) {
+    //       log("${'✅' * 10} valid birthDateValid -> ${res.birthDate}");
+    //
+    //       current.birthDate = res.birthDate;
+    //       current.valid.birthDateValid = true;
+    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+    //     }
+    //     ref.read(improvingMrzResultProvider.notifier).update((s) => OcrMrzResult.fromJson(current.toJson()));
+    //     if (current.matchSetting(setting)) {
+    //       onDocScan(current);
+    //     }
+    //   }
+    // }catch(e){
+    //   if(e is Error){
+    //     log("${e.stackTrace}");
+    //   }
+    // }
   }
 
   void onDocScan(OcrMrzResult res) {
+    // return;
     try {
       if (popping) return;
 
@@ -173,11 +235,12 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
-    if(l.rawMrzLines.isEmpty){
-
-
+    // return;
+    if (l.rawMrzLines.isEmpty) {
       return;
     }
+    log(l.validation.toString());
+    log(l.fixedMrzLines.join("\n"));
     l.extractedData["improving"] = ref.read(improvingMrzResultProvider)?.toJson();
     final current = ref.read(ocrMrzLogsProvider);
 
@@ -187,16 +250,13 @@ class MrzReaderController extends ControllerInterface {
     } else {
       ref.read(ocrMrzLogsProvider.notifier).update((s) => [...current, l]);
     }
-    log("logs count ${current.length}");
-
-
+    // log("logs count ${current.length}");
   }
-
 
   Future<void> sendLogs(List<OcrMrzLog> current) async {
     void msg;
     SendLogsUseCase sendLogsUseCase = SendLogsUseCase();
-    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current,improving: ref.read(improvingMrzResultProvider));
+    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build());
     final result = await sendLogsUseCase(request: sendLogsRequest);
 
     switch (result) {
@@ -204,7 +264,6 @@ class MrzReaderController extends ControllerInterface {
       // FailureHandler.handle(result.error);
 
       case Ok<SendLogsResponse>():
-
         log("logs sent");
       // final r = result.value;
     }
@@ -212,8 +271,7 @@ class MrzReaderController extends ControllerInterface {
     return msg;
   }
 
-  void submitCurrent(OcrMrzResult improving) {
-
-    onDocScan(improving);
+  void submitCurrent(OcrMrzConsensus improving) {
+    onDocScan(improving.toResult());
   }
 }

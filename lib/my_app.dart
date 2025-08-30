@@ -1,5 +1,6 @@
 import 'package:abds/screens/add_user/add_user_view.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_view.dart';
+import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_view.dart';
 import 'package:abds/screens/logs/logs_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
 import 'package:abds/screens/users/users_view.dart';
@@ -46,7 +47,9 @@ class _MyAppState extends ConsumerState<MyApp> {
           routeInfo: Routes.home,
           pageWidget: HomeView(),
           routes: [
-            TreeRoute(routeInfo: Routes.mrzReader, pageWidget: MrzReaderView()),
+            TreeRoute(routeInfo: Routes.mrzReader, pageWidget: MrzReaderView(),routes: [
+              TreeRoute(routeInfo: Routes.dynamsoft, pageWidget: DynamsoftMrzView()),
+            ]),
             TreeRoute(routeInfo: Routes.barcodeReader, pageWidget: BarcodeReaderView()),
           ],
         ),

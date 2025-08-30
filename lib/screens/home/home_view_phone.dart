@@ -46,6 +46,84 @@ import '../../widgets/MyTimePicker.dart';
 import 'home_controller.dart';
 import 'home_state.dart';
 
+String? expiryValidator(String v, DateTime? expiry) {
+  bool isExpired = expiry != null && expiry.difference(DateTime.now()).inDays < -1;
+
+  bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
+
+  bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
+
+  int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
+  int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
+
+  if (isExpiryFake) {
+    return "Document(s) expiry date is unreadable !";
+  } else if (isExpired) {
+    return "Expired: ${StringUtility.formatDaysToYearsMonths(expiredDays)}";
+  } else if (isExpiring) {
+    return "Expiring: ${StringUtility.formatDaysToYearsMonths(expiryRemain)}";
+  } else if (expiry != null) {
+    int remaining = expiry.difference(DateTime.now()).inDays;
+
+    return "Valid: ${StringUtility.formatDaysToYearsMonths(remaining)}";
+  }
+
+  return null;
+}
+
+Color? expiryValidationColor(DateTime? expiry) {
+  bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
+
+  bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
+
+  bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
+
+  int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
+  int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
+
+  if (isExpiryFake) {
+    return Colors.red;
+  } else if (isExpired) {
+    return Colors.red;
+  } else if (isExpiring) {
+    return Colors.orange;
+  } else if (expiry != null) {
+    int remaining = expiry.difference(DateTime.now()).inDays;
+
+    return MyColors.green2;
+  }
+
+  return null;
+}
+
+
+String? birthDateValidator(String v, DateTime? bDate) {
+  if (bDate == null) return null;
+  int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
+  String s = StringUtility.formatDaysToAge(bDate.difference(DateTime.now()).inDays.abs());
+  return s;
+  if (years > 0) {
+    return "$s years old";
+  } else {
+    int mounts = (bDate.difference(DateTime.now()).inDays / 12).floor().abs();
+    return "$mounts months old";
+  }
+
+  return null;
+}
+
+Color? birthDateValidationColor(DateTime? bDate) {
+  if (bDate == null) return null;
+  int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
+  if (years < 2) {
+    return Colors.orange;
+  }
+  if (years < 12) {
+    return Colors.orange;
+  }
+  return MyColors.green2;
+}
+
 class HomeViewPhone extends ConsumerStatefulWidget {
   static HomeController myHomeController = getIt<HomeController>();
 
@@ -308,7 +386,6 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                         label: "Scan Doc",
                                         onPressed: () {
                                           HomeViewPhone.myHomeController.goMrzReadr();
-
                                         },
                                         radius: 10,
                                         icon: ArtemisIcons.scan,
@@ -768,71 +845,6 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
       ),
     );
   }
-
-  String? expiryValidator(String v, DateTime? expiry) {
-    bool isExpired = expiry != null && expiry.difference(DateTime.now()).inDays < -1;
-
-    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
-
-    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
-
-    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
-    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
-
-    if (isExpiryFake) {
-      return "Document(s) expiry date is unreadable !";
-    } else if (isExpired) {
-      return "Expired: ${StringUtility.formatDaysToYearsMonths(expiredDays)} ago";
-    } else if (isExpiring) {
-      return "Expiring: ${StringUtility.formatDaysToYearsMonths(expiryRemain)}";
-    }
-
-    return null;
-  }
-
-  Color? expiryValidationColor(DateTime? expiry) {
-    bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
-
-    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
-
-    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
-
-    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
-    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
-
-    if (isExpiryFake) {
-      return Colors.red;
-    } else if (isExpired) {
-      return Colors.red;
-    } else if (isExpiring) {
-      return Colors.orange;
-    }
-
-    return null;
-  }
-
-  String? birthDateValidator(String v, DateTime? bDate) {
-    if (bDate == null) return null;
-    int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-    if (years > 0) {
-      return "$years years old";
-    } else {
-      int mounts = (bDate.difference(DateTime.now()).inDays / 12).floor().abs();
-      return "$mounts months old";
-    }
-
-    return null;
-  }
-
-  Color? birthDateValidationColor(DateTime? bDate) {
-    if (bDate == null) return null;
-    return MyColors.green2;
-  }
-
-  Widget buildExpiryValidation(DateTime? expiry) {
-    if (expiry == null) return SizedBox();
-    return Container();
-  }
 }
 
 class VisaItemRow extends ConsumerStatefulWidget {
@@ -1144,71 +1156,6 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
         ],
       ),
     );
-  }
-
-  String? expiryValidator(String v, DateTime? expiry) {
-    bool isExpired = expiry != null && expiry.difference(DateTime.now()).inDays < -1;
-
-    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
-
-    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
-
-    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
-    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
-
-    if (isExpiryFake) {
-      return "Document(s) expiry date is unreadable !";
-    } else if (isExpired) {
-      return "Expired: ${StringUtility.formatDaysToYearsMonths(expiredDays)} ago";
-    } else if (isExpiring) {
-      return "Expiring: ${StringUtility.formatDaysToYearsMonths(expiryRemain)}";
-    }
-
-    return null;
-  }
-
-  Color? expiryValidationColor(DateTime? expiry) {
-    bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
-
-    bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
-
-    bool isExpiring = !isExpired && expiry != null && expiry!.difference(DateTime.now()).inDays.abs() < 180;
-
-    int? expiryRemain = expiry == null ? null : -(DateTime.now().difference(expiry!).inDays);
-    int? expiredDays = expiry == null ? null : (DateTime.now().difference(expiry!).inDays);
-
-    if (isExpiryFake) {
-      return Colors.red;
-    } else if (isExpired) {
-      return Colors.red;
-    } else if (isExpiring) {
-      return Colors.orange;
-    }
-
-    return null;
-  }
-
-  String? birthDateValidator(String v, DateTime? bDate) {
-    if (bDate == null) return null;
-    int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-    if (years > 0) {
-      return "$years years old";
-    } else {
-      int mounts = (bDate.difference(DateTime.now()).inDays / 12).floor().abs();
-      return "$mounts months old";
-    }
-
-    return null;
-  }
-
-  Color? birthDateValidationColor(DateTime? bDate) {
-    if (bDate == null) return null;
-    return MyColors.green2;
-  }
-
-  Widget buildExpiryValidation(DateTime? expiry) {
-    if (expiry == null) return SizedBox();
-    return Container();
   }
 }
 
@@ -1813,23 +1760,6 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     );
   }
 
-  String? birthDateValidator(String v, DateTime? bDate) {
-    if (bDate == null) return null;
-    int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-    if (years > 0) {
-      return "$years years old";
-    } else {
-      int mounts = (bDate.difference(DateTime.now()).inDays / 12).floor().abs();
-      return "$mounts months old";
-    }
-
-    return null;
-  }
-
-  Color? birthDateValidationColor(DateTime? bDate) {
-    if (bDate == null) return null;
-    return MyColors.green2;
-  }
 }
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {

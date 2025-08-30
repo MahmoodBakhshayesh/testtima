@@ -39,6 +39,15 @@ PODS:
   - DKPhotoGallery/Resource (0.0.19):
     - SDWebImage
     - SwiftyGif
+  - dynamsoft_capture_vision_flutter (3.0.5200):
+    - DynamsoftCaptureVisionBundle (< 4.0.0, >= 3.0.5200)
+    - Flutter
+  - dynamsoft_mrz_scanner_bundle_flutter (3.0.5200):
+    - DynamsoftMRZScannerBundle (< 4.0.0, >= 3.0.5200)
+    - Flutter
+  - DynamsoftCaptureVisionBundle (3.0.5200)
+  - DynamsoftMRZScannerBundle (3.0.5200):
+    - DynamsoftCaptureVisionBundle (= 3.0.5200)
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -137,6 +146,8 @@ DEPENDENCIES:
   - camera_kit_plus (from `.symlinks/plugins/camera_kit_plus/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - dynamsoft_capture_vision_flutter (from `.symlinks/plugins/dynamsoft_capture_vision_flutter/ios`)
+  - dynamsoft_mrz_scanner_bundle_flutter (from `.symlinks/plugins/dynamsoft_mrz_scanner_bundle_flutter/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
@@ -156,6 +167,8 @@ SPEC REPOS:
   trunk:
     - DKImagePickerController
     - DKPhotoGallery
+    - DynamsoftCaptureVisionBundle
+    - DynamsoftMRZScannerBundle
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -181,6 +194,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
+  dynamsoft_capture_vision_flutter:
+    :path: ".symlinks/plugins/dynamsoft_capture_vision_flutter/ios"
+  dynamsoft_mrz_scanner_bundle_flutter:
+    :path: ".symlinks/plugins/dynamsoft_mrz_scanner_bundle_flutter/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
@@ -217,6 +234,10 @@ SPEC CHECKSUMS:
   device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
+  dynamsoft_capture_vision_flutter: 8589f6773891c8e7500be84e7a6261f8a3e0f63c
+  dynamsoft_mrz_scanner_bundle_flutter: e46eff2048537352805b8a2a7fda62545d7cae23
+  DynamsoftCaptureVisionBundle: fc241cc8ea94be985767acecb7231862db7111de
+  DynamsoftMRZScannerBundle: d210d2cda2a84337d785df3ef8c991b4073c3e01
   file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
@@ -247,6 +268,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 76957ab028e12bfa4e66813c99e46637f367fc7e
   webview_flutter_wkwebview: a4af96a051138e28e29f60101d094683b9f82188
 
-PODFILE CHECKSUM: 4305caec6b40dde0ae97be1573c53de1882a07e5
+PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 
 COCOAPODS: 1.16.2

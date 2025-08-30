@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/mrz_agg_class.dart';
 import 'package:flutter/material.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';
@@ -22,13 +23,15 @@ class SendLogsUseCase extends UseCase<SendLogsResponse,SendLogsRequest> {
 
 class SendLogsRequest extends RequestInterface {
   final List<OcrMrzLog> current;
-  final OcrMrzResult? improving;
-  SendLogsRequest({required this.current,required this.improving});
+  // final OcrMrzResult? improving;
+  final OcrMrzConsensus? consensus;
+  SendLogsRequest({required this.current, required this.consensus});
 
   @override
   Map<String, dynamic> toJson() =>{
     "logs":current.map((a)=>a.toJson()).toList(),
-    "improving": improving?.toJson()
+    "improving": consensus?.toResult().toJson(),
+    "consensus":consensus?.toJson(includeHistograms: true)
   };
 
   Failure? validate(){

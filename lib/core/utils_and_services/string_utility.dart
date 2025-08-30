@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class StringUtility {
   static String getDurationDetailsString (DateTime dt,{bool justValue = false,bool longStr = false}){
     Duration d = DateTime.now().difference(dt);
@@ -48,17 +50,42 @@ class StringUtility {
     int months = (days % 365) ~/ 30;
 
     String result = "";
-    if (years > 0) result += "${years}y ";
-    if (months > 0) result += "${months}m";
+
+    if (years > 0) result += "${years}Y";
+    if (months > 0) result += " ${months}M";
 
     if (result.isEmpty) {
       // fallback to days if both y and m are zero
       if(days == 0){
         return 'today';
       }
-      return "${days}d";
+      return "${days}D";
     }
+    log("days ${days} => ${result.trim()}");
+    return result.trim();
+  }
 
+  static String formatDaysToAge(int? days) {
+    if(days == null) return '';
+    if (days < 0) return "0d";
+
+    int years = days ~/ 365;
+    int months = (days % 365) ~/ 30;
+
+    String result = "";
+
+    if (years > 0) result += "${years}Y";
+    if (months > 0) result += " ${months}M";
+    log("age days ${days} => ${result.trim()}");
+
+    if (result.isEmpty) {
+      // fallback to days if both y and m are zero
+      if(days == 0){
+        return 'today';
+      }
+      return "${days}D";
+    }
+    // result += " old";
     return result.trim();
   }
 

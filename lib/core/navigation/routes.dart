@@ -67,6 +67,11 @@ abstract class Routes {
     name: 'profile',
     isShellRoute: false,
   );
+  static MyRouteInfo dynamsoft = MyRouteInfo(
+    path: 'dynamsoft',
+    name: 'dynamsoft',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,
