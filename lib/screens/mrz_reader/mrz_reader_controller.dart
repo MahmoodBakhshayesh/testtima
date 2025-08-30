@@ -50,48 +50,50 @@ class MrzReaderController extends ControllerInterface {
         current.valid.personalNumberValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.nationalityValid){
+      if(res.valid.nationalityValid && !current.valid.nationalityValid){
         current.nationality = res.nationality;
         current.valid.nationalityValid = true;
+
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.nameValid){
+      if(res.valid.nameValid && !current.valid.nameValid){
         current.firstName = res.firstName;
         current.lastName = res.lastName;
         current.valid.nameValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.linesLengthValid){
+      if(res.valid.linesLengthValid && !current.valid.linesLengthValid){
         current.line1 = res.line1;
         current.line2 = res.line2;
         current.line3 = res.line3;
         current.valid.linesLengthValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.finalCheckValid){
+      if(res.valid.finalCheckValid && !current.valid.finalCheckValid){
         current.valid.finalCheckValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.expiryDateValid){
+      if(res.valid.expiryDateValid && !current.valid.expiryDateValid){
         current.expiryDate = res.expiryDate;
         current.valid.expiryDateValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.docNumberValid){
+      if(res.valid.docNumberValid && !current.valid.docNumberValid){
         current.documentNumber = res.documentNumber;
         current.valid.docNumberValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.countryValid){
+      if(res.valid.countryValid && !current.valid.countryValid){
         current.countryCode = res.countryCode;
         current.valid.countryValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
-      if(res.valid.birthDateValid){
+      if(res.valid.birthDateValid && !current.valid.birthDateValid){
         current.birthDate = res.birthDate;
         current.valid.birthDateValid = true;
         // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       }
+      ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
       if(current.matchSetting(setting)){
         onDocScan(current);
       }
@@ -101,7 +103,9 @@ class MrzReaderController extends ControllerInterface {
   void onDocScan(OcrMrzResult res) {
     try {
       if (popping) return;
+
       // if(!(res.isPassport || res.isVisa)){
+
       //   return;
       // }
       popping = true;

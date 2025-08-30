@@ -13,7 +13,10 @@ class MrzReaderState extends ChangeNotifier {
 }
 
 final ocrMrzSettingProvider = StateProvider<OcrMrzSetting>(
-  (ref) => OcrMrzSetting(validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false),
+  (ref) => OcrMrzSetting(
+
+      validateBirthDateValid: false,
+      validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false),
 );
 final ocrMrzLogsProvider = StateProvider<List<OcrMrzLog>>((ref) => []);
 final improvingMrzResultProvider = StateProvider<OcrMrzResult?>((ref) => null);
