@@ -43,50 +43,57 @@ class StringUtility {
   }
 
   static String formatDaysToYearsMonths(int? days) {
-    if(days == null) return '';
-    if (days < 0) return "0d";
+    if (days == null) return '';
+    if (days < 0) return "0D";
 
-    int years = days ~/ 365;
-    int months = (days % 365) ~/ 30;
+    final years = days ~/ 365;
+    final remAfterYears = days % 365;
+    final months = remAfterYears ~/ 30;
+    final leftoverDays = remAfterYears % 30;
 
-    String result = "";
+    final parts = <String>[];
+    if (years > 0) parts.add("${years}Y");
+    if (months > 0) parts.add("${months}M");
+    if (leftoverDays > 0) parts.add("${leftoverDays}D");
 
-    if (years > 0) result += "${years}Y";
-    if (months > 0) result += " ${months}M";
+    final result = parts.join(' ');
+    // debug log
+    // import 'dart:developer'; to use log
+    // log("age days $days => ${result.isEmpty ? (days == 0 ? 'today' : '${days}D') : result}");
 
     if (result.isEmpty) {
-      // fallback to days if both y and m are zero
-      if(days == 0){
-        return 'today';
-      }
+      // fallback when y and m are zero
+      if (days == 0) return 'today';
       return "${days}D";
     }
-    log("days ${days} => ${result.trim()}");
-    return result.trim();
+    return result;
   }
 
   static String formatDaysToAge(int? days) {
-    if(days == null) return '';
-    if (days < 0) return "0d";
+    if (days == null) return '';
+    if (days < 0) return "0D";
 
-    int years = days ~/ 365;
-    int months = (days % 365) ~/ 30;
+    final years = days ~/ 365;
+    final remAfterYears = days % 365;
+    final months = remAfterYears ~/ 30;
+    final leftoverDays = remAfterYears % 30;
 
-    String result = "";
+    final parts = <String>[];
+    if (years > 0) parts.add("${years}Y");
+    if (months > 0) parts.add("${months}M");
+    if (leftoverDays > 0) parts.add("${leftoverDays}D");
 
-    if (years > 0) result += "${years}Y";
-    if (months > 0) result += " ${months}M";
-    log("age days ${days} => ${result.trim()}");
+    final result = parts.join(' ');
+    // debug log
+    // import 'dart:developer'; to use log
+    // log("age days $days => ${result.isEmpty ? (days == 0 ? 'today' : '${days}D') : result}");
 
     if (result.isEmpty) {
-      // fallback to days if both y and m are zero
-      if(days == 0){
-        return 'today';
-      }
+      // fallback when y and m are zero
+      if (days == 0) return 'today';
       return "${days}D";
     }
-    // result += " old";
-    return result.trim();
+    return result;
   }
 
 }

@@ -25,13 +25,15 @@ class SendLogsRequest extends RequestInterface {
   final List<OcrMrzLog> current;
   // final OcrMrzResult? improving;
   final OcrMrzConsensus? consensus;
-  SendLogsRequest({required this.current, required this.consensus});
+  final String? base64;
+  SendLogsRequest({required this.current, required this.consensus,required this.base64});
 
   @override
   Map<String, dynamic> toJson() =>{
     "logs":current.map((a)=>a.toJson()).toList(),
     "improving": consensus?.toResult().toJson(),
-    "consensus":consensus?.toJson(includeHistograms: true)
+    "consensus":consensus?.toJson(includeHistograms: true),
+    "base64":base64
   };
 
   Failure? validate(){

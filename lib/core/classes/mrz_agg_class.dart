@@ -62,6 +62,7 @@ class FieldStat<T> {
 class OcrMrzConsensus {
   // Final chosen values (null means no valid votes)
   final String? countryCode;
+  final String? docCode;
   final String? issuingState;
   final String? documentNumber;
   final String? lastName;
@@ -75,9 +76,11 @@ class OcrMrzConsensus {
   final String? line1;
   final String? line2;
   final String? line3;
+  final String? docType;
 
   // Per-field stats
   final FieldStat<String> countryCodeStat;
+  final FieldStat<String> docCodeStat;
   final FieldStat<String> issuingStateStat;
   final FieldStat<String> documentNumberStat;
   final FieldStat<String> lastNameStat;
@@ -89,11 +92,14 @@ class OcrMrzConsensus {
   final FieldStat<String> line1Stat;
   final FieldStat<String> line2Stat;
   final FieldStat<String> line3Stat;
+  final FieldStat<String> docTypeStat;
   final FieldStat<String> birthDateStat; // key is yyyy-MM-dd
   final FieldStat<String> expiryDateStat; // key is yyyy-MM-dd
 
   OcrMrzConsensus({
     required this.countryCode,
+    required this.docCode,
+    required this.docCodeStat,
     required this.issuingState,
     required this.documentNumber,
     required this.lastName,
@@ -121,18 +127,21 @@ class OcrMrzConsensus {
     required this.line3Stat,
     required this.birthDateStat,
     required this.expiryDateStat,
+    required this.docTypeStat,
+    required this.docType,
   });
 
   OcrMrzValidation get valid => toResult().valid;
 
-  OcrMrzResult toResult({MrzFormat format = MrzFormat.TD3, MrzFormat mrzFormat = MrzFormat.TD3, String documentType = 'P'}) {
+  OcrMrzResult toResult({MrzFormat format = MrzFormat.TD3, MrzFormat mrzFormat = MrzFormat.TD3}) {
     return OcrMrzResult(
       line1: line1 ?? '',
       line2: line2 ?? '',
       line3: line3,
-      documentType: documentType,
+      documentType: docType ?? 'P',
       mrzFormat: mrzFormat,
       countryCode: countryCode ?? '',
+      documentCode: docCode  ?? '',
       issuingState: issuingState ?? (countryCode ?? ''),
       lastName: lastName ?? '',
       firstName: firstName ?? '',
@@ -145,6 +154,7 @@ class OcrMrzConsensus {
       optionalData: optionalData ?? '',
       valid: OcrMrzValidation(
         docNumberValid: documentNumber != null,
+        docCodeValid: docCode!=null,
         countryValid: countryCode != null,
         birthDateValid: birthDate != null,
         nameValid: firstName != null,
@@ -152,7 +162,7 @@ class OcrMrzConsensus {
         linesLengthValid: line1 != null,
         expiryDateValid: expiryDate != null,
         nationalityValid: nationality != null,
-        finalCheckValid: (documentNumber != null && countryCode != null && birthDate != null && firstName != null && personalNumber != null && line1 != null && expiryDate != null && nationality != null),
+        finalCheckValid: docType!="P" || (documentNumber != null && countryCode != null && birthDate != null && firstName != null && personalNumber != null && line1 != null && expiryDate != null && nationality != null),
       ),
       // fresh; you could pass something smarter here
       checkDigits: CheckDigits(document: false, birth: false, expiry: false, optional: false),
@@ -186,6 +196,7 @@ class OcrMrzConsensus {
     logField("Line1", line1Stat);
     logField("Line2", line2Stat);
     logField("Line3", line3Stat);
+    logField("docType", docTypeStat);
 
     return buf.toString();
   }
@@ -197,6 +208,7 @@ class OcrMrzConsensus {
 
     return {
       "countryCode": fieldToJson(countryCodeStat),
+      "docCode": fieldToJson(docCodeStat),
       "issuingState": fieldToJson(issuingStateStat),
       "documentNumber": fieldToJson(documentNumberStat),
       "lastName": fieldToJson(lastNameStat),
@@ -210,6 +222,7 @@ class OcrMrzConsensus {
       "line1": fieldToJson(line1Stat),
       "line2": fieldToJson(line2Stat),
       "line3": fieldToJson(line3Stat),
+      "docType": fieldToJson(docTypeStat),
     };
   }
 }
@@ -219,6 +232,7 @@ class OcrMrzConsensus {
 class OcrMrzAggregator {
   // Counters (normalize for robust grouping)
   final _country = MajorityCounter<String>(normalize: _normCode);
+  final _docCode = MajorityCounter<String>(normalize: _normCode);
   final _issuing = MajorityCounter<String>(normalize: _normCode);
   final _docNo = MajorityCounter<String>(normalize: _normString);
   final _lname = MajorityCounter<String>(normalize: _normName);
@@ -234,6 +248,7 @@ class OcrMrzAggregator {
   // Dates are counted as yyyy-MM-dd keys, then converted back
   final _birth = MajorityCounter<String>(normalize: _normString);
   final _expiry = MajorityCounter<String>(normalize: _normString);
+  final _docType = MajorityCounter<String>(normalize: _normString);
 
   int _framesSeen = 0;
 
@@ -243,6 +258,8 @@ class OcrMrzAggregator {
 
     final v = r.valid;
     final cd = r.checkDigits;
+    _docType.add(r.documentType);
+    _docCode.add(r.documentCode);
 
     // Country / issuing state:
     if (v.countryValid && r.countryCode.trim().isNotEmpty) _country.add(r.countryCode);
@@ -302,6 +319,7 @@ class OcrMrzAggregator {
     int _pickCnt(MajorityCounter<String> c) => c.top()?.$2 ?? 0;
 
     final country = _pickStr(_country);
+    final docCode = _pickStr(_docCode);
     final issuing = _pickStr(_issuing);
     final docNo = _pickStr(_docNo);
     final lname = _pickStr(_lname);
@@ -316,10 +334,12 @@ class OcrMrzAggregator {
 
     final birthKey = _pickStr(_birth);
     final expiryKey = _pickStr(_expiry);
+    final docType = _pickStr(_docType);
 
     return OcrMrzConsensus(
       countryCode: country,
       issuingState: issuing ?? country,
+      docCode: docCode ?? docCode,
       // fallback
       documentNumber: docNo,
       lastName: lname,
@@ -333,7 +353,9 @@ class OcrMrzAggregator {
       line1: l1,
       line2: l2,
       line3: l3,
+      docType: docType,
       countryCodeStat: FieldStat(consensus: country, consensusCount: _pickCnt(_country), histogram: _country.snapshot()),
+      docCodeStat: FieldStat(consensus: docCode, consensusCount: _pickCnt(_docCode), histogram: _docCode.snapshot()),
       issuingStateStat: FieldStat(consensus: issuing, consensusCount: _pickCnt(_issuing), histogram: _issuing.snapshot()),
       documentNumberStat: FieldStat(consensus: docNo, consensusCount: _pickCnt(_docNo), histogram: _docNo.snapshot()),
       lastNameStat: FieldStat(consensus: lname, consensusCount: _pickCnt(_lname), histogram: _lname.snapshot()),
@@ -347,11 +369,13 @@ class OcrMrzAggregator {
       line3Stat: FieldStat(consensus: l3, consensusCount: _pickCnt(_line3), histogram: _line3.snapshot()),
       birthDateStat: FieldStat(consensus: birthKey, consensusCount: _pickCnt(_birth), histogram: _birth.snapshot()),
       expiryDateStat: FieldStat(consensus: expiryKey, consensusCount: _pickCnt(_expiry), histogram: _expiry.snapshot()),
+      docTypeStat: FieldStat(consensus: docType, consensusCount: _pickCnt(_docType), histogram: _docType.snapshot()),
     );
   }
 
   void reset() {
     _country._counts.clear();
+    _docCode._counts.clear();
     _issuing._counts.clear();
     _docNo._counts.clear();
     _lname._counts.clear();
@@ -365,6 +389,7 @@ class OcrMrzAggregator {
     _line3._counts.clear();
     _birth._counts.clear();
     _expiry._counts.clear();
+    _docType._counts.clear();
     _framesSeen = 0;
   }
 

@@ -16,8 +16,9 @@ class MrzReaderState extends ChangeNotifier {
 
 final ocrMrzSettingProvider = StateProvider<OcrMrzSetting>(
   (ref) => OcrMrzSetting(
-
       validateBirthDateValid: false,
+      macro: true,
+      validationDocumentCode: true,
       validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false),
 );
 final ocrMrzLogsProvider = StateProvider<List<OcrMrzLog>>((ref) => []);
@@ -25,3 +26,5 @@ final ocrMrzLogsProvider = StateProvider<List<OcrMrzLog>>((ref) => []);
 final improvingMrzResultProvider = StateProvider<OcrMrzConsensus?>((ref) => null);
 final enableDynamsoftProvider = StateProvider<bool?>((ref) => false);
 final showLogProvider = StateProvider<bool>((ref) => false);
+final showDynamsoftProvider = StateProvider<bool>((ref) => false);
+final supportModeProvider = StateProvider<bool>((ref) => false);

@@ -1,17 +1,25 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/interfaces/failures_int.dart';
+import 'package:abds/core/uploader.dart';
 import 'package:abds/core/utils_and_services/ext/mrz_ext.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/screens/mrz_reader/usecases/send_logs_usecase.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
+import 'package:ocr_mrz/ocr_mrz.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/mrz_agg_class.dart';
 import '../../core/interfaces/controller_int.dart';
@@ -19,15 +27,17 @@ import '../../core/interfaces/result_int.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../home/home_state.dart';
+import '../login/login_state.dart';
 
 class MrzReaderController extends ControllerInterface {
   final _log = Logger('MrzReaderController');
   bool popping = false;
   final agg = OcrMrzAggregator();
+  final ocrMrzController = OcrMrzController();
 
   void docImproving(OcrMrzResult scanned) {
-    log(scanned.toString());
-    log("scanned.toString()");
+    // log(scanned.toString());
+    // log("scanned.toString()");
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
 
@@ -35,6 +45,10 @@ class MrzReaderController extends ControllerInterface {
     final consensus = agg.build();
     // log(jsonEncode(consensus.toJson(includeHistograms: true)));
     final res = consensus.toResult();
+    // log("consensus type ${consensus.docType}");
+    // log("consensus type ${consensus.docTypeStat.histogram}");
+    // log("res type ${res.documentType}");
+    // log("scanned type type ${scanned.documentType}");
     ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
     if (res.matchSetting(setting)) {
       onDocScan(res);
@@ -222,7 +236,18 @@ class MrzReaderController extends ControllerInterface {
         }
       }
 
-      PassengerDetails passengerDetails = PassengerDetails(nationality: nationality, gender: gender, birthDate: res.birthDate, birthCountry: nationality);
+      final currentPax = ref.read(passengerProvider);
+      PassengerDetails passengerDetails = PassengerDetails(
+        nationality: currentPax.nationality ?? nationality,
+        gender: gender,
+        birthDate: res.birthDate,
+        birthCountry: currentPax.birthCountry ?? nationality,
+        residentCountryCode: currentPax.residentCountryCode ?? issueCountry,
+      );
+
+      if (res.documentCode.startsWith("C") || res.documentCode.startsWith("I")) {
+        passengerDetails = passengerDetails.copyWith(residentCountryCode: issueCountry);
+      }
       ref.read(passengerProvider.notifier).update((s) => passengerDetails);
 
       navigation.pop();
@@ -235,43 +260,110 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
+
     // return;
-    if (l.rawMrzLines.isEmpty) {
+    if (!l.rawText.contains("<")) {
       return;
     }
-    log(l.validation.toString());
-    log(l.fixedMrzLines.join("\n"));
+
+    // log("logs count ==> mrzLogger");
+    // log(l.validation.toString());
+    // log(l.fixedMrzLines.join("\n"));
     l.extractedData["improving"] = ref.read(improvingMrzResultProvider)?.toJson();
     final current = ref.read(ocrMrzLogsProvider);
-
+    // final uniqs = current.map((a)=>a.rawMrzLines.join("\n")).toSet().toList();
     if (current.length == 60) {
       sendLogs(current);
       ref.read(ocrMrzLogsProvider.notifier).update((s) => [l]);
     } else {
       ref.read(ocrMrzLogsProvider.notifier).update((s) => [...current, l]);
     }
-    // log("logs count ${current.length}");
+    log("logs count ${current.length}");
   }
 
   Future<void> sendLogs(List<OcrMrzLog> current) async {
     void msg;
+    String? base64;
     SendLogsUseCase sendLogsUseCase = SendLogsUseCase();
-    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build());
-    final result = await sendLogsUseCase(request: sendLogsRequest);
+    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build(), base64: base64);
+    if (ref.read(supportModeProvider)) {
+      final imgPath = await ocrMrzController.takePicture();
+      if (imgPath != null) {
+        // File f = File(imgPath);
+        // final newP = await getTemporaryDirectory();
+        // final com = await testCompressAndGetFile(f, "${newP.path}/comp.jpg");
+        // log("file size = ${f.lengthSync()}--> ${await com?.length()}");
+        // if(com!=null){
+        //   sendLogs2(com.path);
+        // }
+        log("send logs2 =>$imgPath");
+        sendLogs2(imgPath,sendLogsRequest);
+      }
+    } else {
+      log("send logs =>");
+      final result = await sendLogsUseCase(request: sendLogsRequest);
 
-    switch (result) {
-      case Err<SendLogsResponse>():
-      // FailureHandler.handle(result.error);
+      switch (result) {
+        case Err<SendLogsResponse>():
+        // FailureHandler.handle(result.error);
 
-      case Ok<SendLogsResponse>():
-        log("logs sent");
-      // final r = result.value;
+        case Ok<SendLogsResponse>():
+          log("logs sent");
+        // final r = result.value;
+      }
     }
-
     return msg;
   }
 
   void submitCurrent(OcrMrzConsensus improving) {
     onDocScan(improving.toResult());
+  }
+
+  Future<void> sendLogs2(String path, SendLogsRequest sendLogsRequest) async {
+    final fileName = path.split('/').last;
+    File f = File(path);
+    String url = "${ref.watch(selectedServerProvider).apiAddress}/mrzlog2";
+    final u = Uri.parse(url);
+    Uploader().uploadImagesWithLog(url: u, images: [f], log: sendLogsRequest.toJson(), headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"});
+    return;
+
+    // final formData = FormData.fromMap({
+    //   'images': [await MultipartFile.fromFile(
+    //     path,
+    //     filename: fileName,
+    //     contentType: MediaType('image', 'jpg'), // Or 'image', 'webp', etc.
+    //   )],
+    //   'log': jsonEncode(agg.build().toJson(includeHistograms: true))
+    // });
+    // log("sending logs 2 ${path}");
+    // log("*"*100);
+    // log();
+    // log(jsonEncode(agg.build().toJson(includeHistograms: true)));
+    // final serverAddress = ref.watch(selectedServerProvider)!.apiAddress;
+    //
+    // String apiAddress = "$serverAddress/mrzlogs2";
+    // // log(apiAddress);
+    // try {
+    //   final dio = Dio(BaseOptions(receiveTimeout: Duration(minutes: 10),sendTimeout: Duration(minutes: 10),connectTimeout: Duration(minutes: 10)));
+    //   final response = await dio.put(
+    //     apiAddress,
+    //     data: formData,
+    //     options: Options(headers: {'Content-Type': 'multipart/form-data', "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
+    //   );
+    //
+    //   if (response.statusCode == 200) {
+    //     log('log success: ');
+    //   }
+    // } catch (e) {
+    //   log('log failed: $e');
+    //   // FailureHandler.handle(ServerFailure(code: -1, msg: e.toString(), traceMsg:  e.toString()));
+    //
+    // }
+  }
+
+  Future<XFile?> testCompressAndGetFile(File file, String targetPath) async {
+    var result = await FlutterImageCompress.compressAndGetFile(file.absolute.path, targetPath, quality: 50, rotate: 0);
+
+    return result;
   }
 }

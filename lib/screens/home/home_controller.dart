@@ -62,6 +62,7 @@ class HomeController extends ControllerInterface {
   void goMrzReadr() {
     ref.read(ocrMrzLogsProvider.notifier).update((s)=>[]);
     ref.read(improvingMrzResultProvider.notifier).update((s)=>null);
+    ref.read(showDynamsoftProvider.notifier).update((s)=>false);
     goNamed(Routes.mrzReader);
   }
 

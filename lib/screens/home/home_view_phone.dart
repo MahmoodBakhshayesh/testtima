@@ -115,10 +115,12 @@ String? birthDateValidator(String v, DateTime? bDate) {
 Color? birthDateValidationColor(DateTime? bDate) {
   if (bDate == null) return null;
   int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-  if (years < 2) {
+  double realYears = (bDate.difference(DateTime.now()).inDays / 365).abs();
+  log("realYears $realYears");
+  if (realYears < 2) {
     return Colors.orange;
   }
-  if (years < 12) {
+  if (realYears <= 12) {
     return Colors.orange;
   }
   return MyColors.green2;
@@ -605,10 +607,12 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.item.documentNumber);
-
-    controller.addListener(() {
-      ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      controller.addListener(() {
+          ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+      });
     });
+
   }
 
   @override

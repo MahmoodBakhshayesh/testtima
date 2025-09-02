@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/constants/ui.dart';
@@ -14,6 +15,7 @@ import 'package:ocr_mrz/ocr_mrz.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:ocr_mrz/ocr_setting_dialog.dart';
 import '../../core/classes/mrz_agg_class.dart';
+import 'dialogs/my_ocr_setting.dart';
 import 'mrz_reader_controller.dart';
 import 'mrz_reader_state.dart';
 import '../../initialize.dart';
@@ -37,6 +39,12 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   void initState() {
     myMrzReaderController.popping = false;
     myMrzReaderController.agg.reset();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      Future.delayed(Duration(seconds: 3),(){
+        myMrzReaderController.ref.read(showDynamsoftProvider.notifier).update((s)=>true);
+      });
+
+    });
     super.initState();
   }
 
@@ -71,6 +79,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
           line2: lines[1],
           format: MrzFormat.unknown,
           documentType: data.documentType,
+          documentCode: data.documentType,
           mrzFormat: MrzFormat.unknown,
           countryCode: data.nationality,
           issuingState: data.issuingState,
@@ -109,11 +118,12 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return OcrSettingDialog(current: myMrzReaderController.ref.read(ocrMrzSettingProvider));
+        return MyOcrSettingDialog(current: myMrzReaderController.ref.read(ocrMrzSettingProvider));
       },
     ).then((sett) {
       if (sett is OcrMrzSetting) {
-        myMrzReaderController.ref.read(ocrMrzSettingProvider.notifier).update((s) => sett);
+        log(jsonEncode(sett.toJson()));
+        myMrzReaderController.ref.read(ocrMrzSettingProvider.notifier).update((s) => OcrMrzSetting.fromJson(sett.toJson()));
         setState(() {});
       }
     });
@@ -126,6 +136,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
         actions: [
           DotButton(
             onLongPress: () {
+              myMrzReaderController.sendLogs([]);
+              return;
               myMrzReaderController.ref.read(showLogProvider.notifier).update((s)=>!s);
               setState(() {});
             },
@@ -148,6 +160,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                   children: [
                     OcrMrzReader(
                       // filterTypes: [DocumentType.passport, DocumentType.visa],
+                      controller: myMrzReaderController.ocrMrzController,
                       mrzLogger: myMrzReaderController.mrzLogger,
                       onFoundMrz: myMrzReaderController.docImproving,
                       setting: OcrMrzSetting(
@@ -160,7 +173,9 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                         validateBirthDateValid: false,
                         validateCountry: false,
                         validateNationality: false,
-                      ), rotion: ref.read(ocrMrzSettingProvider).rotation,
+                        rotation: ref.watch(ocrMrzSettingProvider).rotation,
+                        macro: ref.watch(ocrMrzSettingProvider).macro,
+                      ),
                     ),
                     Positioned(top: 0, left: 0, right: 0, child: ImprovingResultWidget(_launchMrzScanner)),
                     Positioned(
@@ -271,6 +286,9 @@ class ImprovingResultWidget extends ConsumerWidget {
               ?setting.validateNationality
                   ? SingularValidationWidget(label: 'Nationality', valid: improving?.valid.nationalityValid ?? false, value: improving?.nationality, count: improving?.nationalityStat.consensusCount)
                   : null,
+              ?setting.validationDocumentCode
+                  ? SingularValidationWidget(label: 'Doc Type', valid: improving?.valid.docCodeValid ?? false, value: improving?.docCode, count: improving?.docCodeStat.consensusCount)
+                  : null,
               ?setting.validateCountry ? SingularValidationWidget(label: 'Issuing', valid: improving?.valid.countryValid ?? false, value: improving?.countryCode, count: improving?.countryCodeStat.consensusCount) : null,
               ?setting.validateExpiryDateValid
                   ? SingularValidationWidget(label: 'Expiry Date', valid: improving?.valid.expiryDateValid ?? false, value: improving?.expiryDate?.format_yyyyMMdd, count: improving?.expiryDateStat.consensusCount)
@@ -301,12 +319,12 @@ class ImprovingResultWidget extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Visibility(
-            visible: improving != null,
-            child: Row(
-              spacing: 12,
-              children: [
-                Expanded(
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: Visibility(
+                  visible: improving!=null,
                   child: MyButton(
                     label: "Submit",
                     onPressed: () {
@@ -314,15 +332,18 @@ class ImprovingResultWidget extends ConsumerWidget {
                     },
                   ),
                 ),
-                MyButton(
+              ),
+              Visibility(
+                visible: improving!=null || ref.watch(showDynamsoftProvider) ,
+                child: MyButton(
                   label: "Dynamsoft",
                   onPressed: () {
                     luncher.call();
                     // getIt<MrzReaderController>().goNamed(Routes.dynamsoft);
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
