@@ -52,7 +52,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   String _displayString = "";
 
   void _launchMrzScanner() async {
-    var config = MRZScannerConfig(license: "DLS2eyJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSJ9");
+
+    var config = MRZScannerConfig(license: "t0108HAEAAFuUUCZglgo8GwMcHSsS/hmoftYbPmdVszqv7y1geIXhILFWDVmCFQRhpWo42ThAPDayTfo9K9kcXy4WPiDm2mTiAnAaYIqd7dvc9IE7euZHjWOPs8PxzNUpKv879dKW6qbSfQNgRTmN;t0111HAEAAFvgiyPmMNjwq1eLJlZIdaEzDmgK5UM4LRntJnTyHIbt8PDY5nkFJz5R8m+cQjIjQX2YYdhZHh9nHUvq1MeRWpl6QVwKnAQYIks9zUUz3Kun7Ajezy3evoxfXZnCec7UH3b0Zhpr2wBrvDmZ");
     MRZScanResult mrzScanResult = await MRZScanner.launch(config);
 
     setState(() {
