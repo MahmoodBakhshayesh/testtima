@@ -1257,10 +1257,10 @@ packages:
     dependency: "direct main"
     description:
       name: ocr_mrz
-      sha256: dee9d043ffeb40fbbac503eb3312e02b5197d1ab37acf04f17d9e3cee4b6e5b5
+      sha256: "0d262e0dfb7560f5499a3562d125d72d84b772130f75c76cd3d1ab25d634efba"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.26"
+    version: "0.0.29"
   octo_image:
     dependency: transitive
     description:
@@ -1778,6 +1778,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  tostore:
+    dependency: "direct main"
+    description:
+      name: tostore
+      sha256: "91aa135d188c1a46916989632619b973fc62f3122931b815c750c20376c257b4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   tree_navigation:
     dependency: "direct main"
     description:

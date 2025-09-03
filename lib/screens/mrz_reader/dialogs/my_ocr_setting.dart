@@ -179,6 +179,22 @@ class _MyOcrSettingDialogState extends State<MyOcrSettingDialog> {
                   ],
                 ),),
                 Divider(),
+                Padding(padding: EdgeInsets.symmetric(vertical: 4),child: Row(
+                  children: [
+                    Text("Parse Algorithm"),
+                    Expanded(
+                      child: CupertinoSegmentedControl<ParseAlgorithm>(
+                        groupValue: tmp.algorithm,
+                        children: Map.fromIterable(ParseAlgorithm.values,key: (a)=>a,value:(a)=>Row(children: [Padding(padding: EdgeInsets.symmetric(horizontal: 2), child: Text("${(a as ParseAlgorithm).name}"))]),),
+                        onValueChanged: (a) {
+                          tmp = tmp.copyWith(algorithm: a);
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ],
+                ),),
+                Divider(),
                 Row(
                   children: [
                     Expanded(child: Text("Macro Mode")),

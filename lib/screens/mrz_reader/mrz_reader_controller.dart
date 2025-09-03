@@ -176,7 +176,7 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void onDocScan(OcrMrzResult res) {
-    // return;
+    return;
     try {
       if (popping) return;
 

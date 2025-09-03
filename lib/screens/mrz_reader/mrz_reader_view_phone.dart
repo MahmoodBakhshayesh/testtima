@@ -3,12 +3,14 @@ import 'dart:developer';
 
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/navigation/routes.dart';
+import 'package:abds/screens/mrz_reader/dialogs/field_stat_dialog.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:camera_kit_plus/camera_kit_ocr_plus_view.dart';
 import 'package:dynamsoft_mrz_scanner_bundle_flutter/dynamsoft_mrz_scanner_bundle_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz.dart';
@@ -39,11 +41,10 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   void initState() {
     myMrzReaderController.popping = false;
     myMrzReaderController.agg.reset();
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      Future.delayed(Duration(seconds: 3),(){
-        myMrzReaderController.ref.read(showDynamsoftProvider.notifier).update((s)=>true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(Duration(seconds: 3), () {
+        myMrzReaderController.ref.read(showDynamsoftProvider.notifier).update((s) => true);
       });
-
     });
     super.initState();
   }
@@ -72,8 +73,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
             "Nationality: ${data.nationality}\n\n"
             "Date of Birth(YYYY-MM-DD): ${data.dateOfBirth}\n\n"
             "Date of Expiry(YYYY-MM-DD): ${data.dateOfExpire}";
-        List<String>lines = data.mrzText.split("\n");
-        lines.addAll(["","",""]);
+        List<String> lines = data.mrzText.split("\n");
+        lines.addAll(["", "", ""]);
         OcrMrzResult res = OcrMrzResult(
           line1: lines[0],
           line2: lines[1],
@@ -102,7 +103,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
             linesLengthValid: true,
             hasFinalCheck: true,
             nameValid: true,
-            finalCheckValid: true
+            finalCheckValid: true,
           ),
           checkDigits: CheckDigits(document: true, birth: true, expiry: true, optional: true),
           ocrData: OcrData(text: "", lines: []),
@@ -136,9 +137,9 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
         actions: [
           DotButton(
             onLongPress: () {
-              myMrzReaderController.sendLogs([]);
-              return;
-              myMrzReaderController.ref.read(showLogProvider.notifier).update((s)=>!s);
+              // myMrzReaderController.sendLogs([]);
+              // return;
+              myMrzReaderController.ref.read(showLogProvider.notifier).update((s) => !s);
               setState(() {});
             },
             icon: Icons.settings,
@@ -156,6 +157,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                 final lastLog = ref.watch(ocrMrzLogsProvider).lastOrNull;
                 final improving = ref.watch(improvingMrzResultProvider);
                 final showLog = ref.watch(showLogProvider);
+
+                log("show log ${showLog}");
                 return Stack(
                   children: [
                     OcrMrzReader(
@@ -175,6 +178,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                         validateNationality: false,
                         rotation: ref.watch(ocrMrzSettingProvider).rotation,
                         macro: ref.watch(ocrMrzSettingProvider).macro,
+                        algorithm: ref.watch(ocrMrzSettingProvider).algorithm,
                       ),
                     ),
                     Positioned(top: 0, left: 0, right: 0, child: ImprovingResultWidget(_launchMrzScanner)),
@@ -190,11 +194,19 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                               child: Column(
                                 children: [
                                   Row(
-                                    children: [Expanded(child: FittedBox(child: Text(lastLog.rawMrzLines.join("\n"))))],
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(child: Text(lastLog.rawMrzLines.join("\n"), style: GoogleFonts.robotoMono())),
+                                      ),
+                                    ],
                                   ),
                                   Divider(),
                                   Row(
-                                    children: [Expanded(child: FittedBox(child: Text(lastLog.fixedMrzLines.join("\n"))))],
+                                    children: [
+                                      Expanded(
+                                        child: FittedBox(child: Text(lastLog.fixedMrzLines.join("\n"), style: GoogleFonts.robotoMono())),
+                                      ),
+                                    ],
                                   ),
                                   Divider(),
                                   Row(
@@ -204,7 +216,11 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                                   improving == null
                                       ? SizedBox()
                                       : Row(
-                                          children: [Expanded(child: FittedBox(child: Text(improving.valid.toString())))],
+                                          children: [
+                                            Expanded(
+                                              child: FittedBox(child: Text(improving.valid.toString(), style: GoogleFonts.robotoMono())),
+                                            ),
+                                          ],
                                         ),
                                 ],
                               ),
@@ -284,23 +300,50 @@ class ImprovingResultWidget extends ConsumerWidget {
 
             children: [
               ?setting.validateNationality
-                  ? SingularValidationWidget(label: 'Nationality', valid: improving?.valid.nationalityValid ?? false, value: improving?.nationality, count: improving?.nationalityStat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.nationalityStat,
+                      label: 'Nationality',
+                      valid: improving?.valid.nationalityValid ?? false,
+                      value: improving?.nationality,
+                      count: improving?.nationalityStat.consensusCount,
+                    )
                   : null,
               ?setting.validationDocumentCode
-                  ? SingularValidationWidget(label: 'Doc Type', valid: improving?.valid.docCodeValid ?? false, value: improving?.docCode, count: improving?.docCodeStat.consensusCount)
+                  ? SingularValidationWidget(state: improving?.docCodeStat, label: 'Doc Type', valid: improving?.valid.docCodeValid ?? false, value: improving?.docCode, count: improving?.docCodeStat.consensusCount)
                   : null,
-              ?setting.validateCountry ? SingularValidationWidget(label: 'Issuing', valid: improving?.valid.countryValid ?? false, value: improving?.countryCode, count: improving?.countryCodeStat.consensusCount) : null,
+              ?setting.validateCountry
+                  ? SingularValidationWidget(state: improving?.countryCodeStat, label: 'Issuing', valid: improving?.valid.countryValid ?? false, value: improving?.countryCode, count: improving?.countryCodeStat.consensusCount)
+                  : null,
               ?setting.validateExpiryDateValid
-                  ? SingularValidationWidget(label: 'Expiry Date', valid: improving?.valid.expiryDateValid ?? false, value: improving?.expiryDate?.format_yyyyMMdd, count: improving?.expiryDateStat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.expiryDateStat,
+                      label: 'Expiry Date',
+                      valid: improving?.valid.expiryDateValid ?? false,
+                      value: improving?.expiryDate?.format_yyyyMMdd,
+                      count: improving?.expiryDateStat.consensusCount,
+                    )
                   : null,
               ?setting.validateBirthDateValid
-                  ? SingularValidationWidget(label: 'Birth Date', valid: improving?.valid.birthDateValid ?? false, value: improving?.birthDate?.format_yyyyMMdd, count: improving?.birthDateStat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.birthDateStat,
+                      label: 'Birth Date',
+                      valid: improving?.valid.birthDateValid ?? false,
+                      value: improving?.birthDate?.format_yyyyMMdd,
+                      count: improving?.birthDateStat.consensusCount,
+                    )
                   : null,
               ?setting.validateDocNumberValid
-                  ? SingularValidationWidget(label: 'Doc NO.', valid: improving?.valid.docNumberValid ?? false, value: improving?.documentNumber, count: improving?.documentNumberStat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.documentNumberStat,
+                      label: 'Doc NO.',
+                      valid: improving?.valid.docNumberValid ?? false,
+                      value: improving?.documentNumber,
+                      count: improving?.documentNumberStat.consensusCount,
+                    )
                   : null,
               ?setting.validateFinalCheckValid
                   ? SingularValidationWidget(
+                      state: improving?.firstNameStat,
                       label: 'Final Check',
                       valid: improving?.valid.finalCheckValid ?? false,
                       value: (improving?.valid.finalCheckValid ?? false) ? "Yes" : "No",
@@ -308,13 +351,31 @@ class ImprovingResultWidget extends ConsumerWidget {
                     )
                   : null,
               ?setting.validateNames
-                  ? SingularValidationWidget(label: 'Name', valid: improving?.valid.nationalityValid ?? false, value: "${improving?.firstName ?? ''} ${improving?.lastName}", count: improving?.firstNameStat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.firstNameStat,
+                      label: 'Name',
+                      valid: improving?.valid.nationalityValid ?? false,
+                      value: "${improving?.firstName ?? ''} ${improving?.lastName}",
+                      count: improving?.firstNameStat.consensusCount,
+                    )
                   : null,
               ?setting.validatePersonalNumberValid
-                  ? SingularValidationWidget(label: 'Personal NO.', valid: improving?.valid.personalNumberValid ?? false, value: improving?.personalNumber, count: improving?.personalNumberStat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.personalNumberStat,
+                      label: 'Personal NO.',
+                      valid: improving?.valid.personalNumberValid ?? false,
+                      value: improving?.personalNumber,
+                      count: improving?.personalNumberStat.consensusCount,
+                    )
                   : null,
               ?setting.validateLinesLength
-                  ? SingularValidationWidget(label: 'Lines Length', valid: improving?.valid.linesLengthValid ?? false, value: (improving?.valid.linesLengthValid ?? false) ? "Yes" : "No", count: improving?.line1Stat.consensusCount)
+                  ? SingularValidationWidget(
+                      state: improving?.line1Stat,
+                      label: 'Lines Length',
+                      valid: improving?.valid.linesLengthValid ?? false,
+                      value: (improving?.valid.linesLengthValid ?? false) ? "Yes" : "No",
+                      count: improving?.line1Stat.consensusCount,
+                    )
                   : null,
             ],
           ),
@@ -324,7 +385,7 @@ class ImprovingResultWidget extends ConsumerWidget {
             children: [
               Expanded(
                 child: Visibility(
-                  visible: improving!=null,
+                  visible: improving != null,
                   child: MyButton(
                     label: "Submit",
                     onPressed: () {
@@ -334,7 +395,7 @@ class ImprovingResultWidget extends ConsumerWidget {
                 ),
               ),
               Visibility(
-                visible: improving!=null || ref.watch(showDynamsoftProvider) ,
+                visible: improving != null || ref.watch(showDynamsoftProvider),
                 child: MyButton(
                   label: "Dynamsoft",
                   onPressed: () {
@@ -355,9 +416,10 @@ class SingularValidationWidget extends StatelessWidget {
   final String label;
   final String? value;
   final bool valid;
+  final FieldStat? state;
   final int? count;
 
-  const SingularValidationWidget({super.key, required this.label, required this.value, required this.valid, required this.count});
+  const SingularValidationWidget({super.key, required this.label, required this.value, required this.valid, required this.count, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -365,44 +427,52 @@ class SingularValidationWidget extends StatelessWidget {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     Color color = valid ? MyColors.green2 : Colors.grey;
-    return Stack(
-      children: [
-        Container(
-          width: (context.width - 60) * 0.25,
-          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-          decoration: BoxDecoration(
-            border: Border.all(color: color, width: 1),
-            color: color.withOpacity(.3),
-            borderRadius: BorderRadius.circular(5),
+    return GestureDetector(
+      onTap: () {
+        if(state == null){
+          return;
+        }
+        showDialog(context: context, builder: (BuildContext context) {
+          return FieldStatDialog(stat: state!, label: label,);
+        });
+      },
+      child: Stack(
+        children: [
+          Container(
+            width: (context.width - 60) * 0.25,
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            decoration: BoxDecoration(
+              border: Border.all(color: color, width: 1),
+              color: color.withOpacity(.3),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                Text(
+                  // "${label} (${count??0})",
+                  "${label}",
+                  style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 10, height: 1),
+                ),
+                Text(
+                  value ?? '',
+                  style: TextStyle(color: color, fontSize: 11, height: 1),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-          alignment: Alignment.center,
-          child: Column(
-            children: [
-              Text(
-                // "${label} (${count??0})",
-                "${label}",
-                style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 10, height: 1),
-              ),
-              Text(
-                value ?? '',
-                style: TextStyle(color: color, fontSize: 11, height: 1),
-                overflow: TextOverflow.ellipsis,
-              ),
-
-            ],
+          Positioned(
+            right: 2,
+            bottom: 2,
+            child: Text(
+              '${count?.toString() ?? ''}',
+              style: TextStyle(color: Colors.black, fontSize: 9, height: 1, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-        Positioned(
-          right: 2,
-          bottom: 2,
-          child: Text(
-            '${count?.toString()??''}',
-            style: TextStyle(color: Colors.black, fontSize: 9, height: 1,fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-
-      ],
+        ],
+      ),
     );
   }
 }
