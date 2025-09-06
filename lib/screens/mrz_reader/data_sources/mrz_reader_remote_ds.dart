@@ -15,6 +15,7 @@ class MrzReaderRemoteDataSource implements MrzReaderDataSourceInterface {
   @override
   Future<SendLogsResponse> sendLogs({required SendLogsRequest request}) async {
     String api = '/mrzLog';
+    // String api = '/mrzReader';
     ResponseInterface res = await networkManager.post(request, api: api);
     SendLogsResponse response = await Parser().parse(SendLogsResponse.fromResponse, res, executionReq: request);
     return response;

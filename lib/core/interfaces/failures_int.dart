@@ -4,8 +4,9 @@ abstract class Failure {
   final int code;
   final String msg;
   final String traceMsg;
+  final dynamic data;
 
-  Failure({required this.code, required this.msg, required this.traceMsg});
+  Failure({required this.code, required this.msg, required this.traceMsg, this.data});
 
   @override
   String toString() {
@@ -16,11 +17,11 @@ abstract class Failure {
 }
 
 class ServerFailure extends Failure {
-  ServerFailure({required int code, required String msg, required String traceMsg})
-      : super(code: code, msg: msg, traceMsg: traceMsg);
+  ServerFailure({required int code, required String msg, required String traceMsg, dynamic data})
+      : super(code: code, msg: msg, traceMsg: traceMsg,data: data);
 
   factory ServerFailure.fromAppException(AppException e) {
-    return ServerFailure(code: e.code, msg: e.message, traceMsg: e.traceMsg);
+    return ServerFailure(code: e.code, msg: e.message, traceMsg: e.traceMsg,data: e.data);
   }
 }
 

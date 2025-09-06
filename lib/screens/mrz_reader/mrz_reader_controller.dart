@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:abds/core/classes/server_mrz_result_class.dart';
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/uploader.dart';
 import 'package:abds/core/utils_and_services/ext/mrz_ext.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
+import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/screens/mrz_reader/usecases/send_logs_usecase.dart';
@@ -28,14 +30,19 @@ import '../../core/utils_and_services/stateControllers/passports_state_controlle
 import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../home/home_state.dart';
 import '../login/login_state.dart';
+import 'dialogs/confirm_server_mrz_result_dialog.dart';
 
 class MrzReaderController extends ControllerInterface {
   final _log = Logger('MrzReaderController');
   bool popping = false;
+  bool scanning = true;
   final agg = OcrMrzAggregator();
   final ocrMrzController = OcrMrzController();
 
   void docImproving(OcrMrzResult scanned) {
+    if (!scanning) {
+      return;
+    }
     // log(scanned.toString());
     // log("scanned.toString()");
 
@@ -51,6 +58,8 @@ class MrzReaderController extends ControllerInterface {
     // log("scanned type type ${scanned.documentType}");
     ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
     if (res.matchSetting(setting)) {
+      final current = ref.read(ocrMrzLogsProvider);
+      sendLogs(current, confirm: false);
       onDocScan(res);
     } else {}
     return;
@@ -236,12 +245,19 @@ class MrzReaderController extends ControllerInterface {
         } else {
           ref.read(passportsProvider.notifier).updateAt(emptyIndex, documentDetail);
         }
-      } else {
+      } else if (res.isVisa) {
         int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
         if (emptyIndex == -1) {
           ref.read(visasProvider.notifier).add(documentDetail);
         } else {
           ref.read(visasProvider.notifier).updateAt(emptyIndex, documentDetail);
+        }
+      } else {
+        int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
+        if (emptyIndex == -1) {
+          ref.read(residentsProvider.notifier).add(documentDetail);
+        } else {
+          ref.read(residentsProvider.notifier).updateAt(emptyIndex, documentDetail);
         }
       }
 
@@ -269,6 +285,9 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
+    if (!scanning) {
+      return;
+    }
     // return;
     if (!l.rawText.contains("<")) {
       return;
@@ -289,11 +308,11 @@ class MrzReaderController extends ControllerInterface {
     log("logs count ${current.length}");
   }
 
-  Future<void> sendLogs(List<OcrMrzLog> current) async {
+  Future<void> sendLogs(List<OcrMrzLog> current, {bool confirm = true}) async {
     void msg;
     String? base64;
     SendLogsUseCase sendLogsUseCase = SendLogsUseCase();
-    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build(), base64: base64);
+    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build(), base64: base64,setting: ref.read(ocrMrzSettingProvider));
     if (ref.read(supportModeProvider)) {
       final imgPath = await ocrMrzController.takePicture();
       if (imgPath != null) {
@@ -309,14 +328,33 @@ class MrzReaderController extends ControllerInterface {
       }
     } else {
       log("send logs =>");
-      final result = await sendLogsUseCase(request: sendLogsRequest);
+      final fOrR = await sendLogsUseCase(request: sendLogsRequest);
 
-      switch (result) {
+      switch (fOrR) {
         case Err<SendLogsResponse>():
+          // fOrR.error;
+          log("logs sent error ${fOrR.error.msg}");
+          // log("logs sent error ${fOrR.error.runtimeType}");
+          // if (fOrR.error is ServerFailure) {
+          //   final a = fOrR.error as ServerFailure;
+          //   if (a.data is Map<String, dynamic> && (a.data as Map<String, dynamic>).containsKey("type")) {
+          //     ServerMrzResult serverMrzResult = ServerMrzResult.fromJson(a.data);
+          //     if (confirm) {
+          //       askForServerResult(serverMrzResult);
+          //     }
+          //   }
+          // }
         // FailureHandler.handle(result.error);
 
+
         case Ok<SendLogsResponse>():
-          log("logs sent");
+          final r = fOrR.value;
+          // final r = fOrR.value;
+          // log("logs sent");
+          // log("${r.result?.toJson()}");
+          if (confirm && r.result != null) {
+            askForServerResult(r.result!);
+          }
         // final r = result.value;
       }
     }
@@ -373,5 +411,18 @@ class MrzReaderController extends ControllerInterface {
     var result = await FlutterImageCompress.compressAndGetFile(file.absolute.path, targetPath, quality: 50, rotate: 0);
 
     return result;
+  }
+
+  askForServerResult(ServerMrzResult result) {
+    if (popping) {
+      return;
+    }
+    scanning = false;
+    navigation.openDialog(dialog: ConfirmServerMrzResultDialog(result: result)).then((confirm) {
+      scanning = true;
+      if (confirm is OcrMrzResult) {
+        onDocScan(confirm);
+      }
+    });
   }
 }

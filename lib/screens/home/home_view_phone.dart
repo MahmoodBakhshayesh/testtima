@@ -11,6 +11,7 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
+import 'package:abds/screens/home/dialogs/requested_data_dialog.dart';
 import 'package:abds/screens/home/home_drawer.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
@@ -36,6 +37,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
+import '../../core/utils_and_services/stateControllers/residents_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../../core/utils_and_services/string_utility.dart';
@@ -95,7 +97,6 @@ Color? expiryValidationColor(DateTime? expiry) {
 
   return null;
 }
-
 
 String? birthDateValidator(String v, DateTime? bDate) {
   if (bDate == null) return null;
@@ -162,6 +163,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> visas = ref.watch(visasProvider);
+    final List<DocumentDetail> residents = ref.watch(residentsProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     // log("passes ${passports.length}");
@@ -504,6 +506,40 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                     ],
                                   ),
                                 ),
+                                const SizedBox(height: 12),
+                                Visibility(
+                                  visible: residents.isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: MyColors.scaffoldHeader,
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("RESIDENTS", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Builder(
+                                        builder: (context) {
+                                          return Column(
+                                            children: residents.map((d) {
+                                              int index = residents.indexOf(d);
+                                              bool isLast = residents.length == index + 1;
+                                              bool isFirst = index == 0;
+                                              return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                            }).toList(),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -563,7 +599,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               onPressed: () async {
                                 // FailureHandler.handle(ServerFailure(code: -1, msg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l", traceMsg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l"));
 
-                                List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider)].where((a) => a.documentCode != null).toList();
+                                List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
                                 final timResult = await HomeViewPhone.myHomeController.timaticApi.submitDocumentRequest(
                                   DocumentRequest(
                                     documentDetails: ddl,
@@ -607,12 +643,11 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.item.documentNumber);
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.addListener(() {
-          ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+        ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
       });
     });
-
   }
 
   @override
@@ -1152,6 +1187,318 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                   onChange: (a) {
                     d = d.copyWith(documentFeature: a);
                     ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ResidentItemRow extends ConsumerStatefulWidget {
+  const ResidentItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
+
+  final bool isFirst;
+  final bool isLast;
+  final int index;
+  final DocumentDetail item;
+
+  @override
+  ConsumerState<ResidentItemRow> createState() => _ResidentItemRowState();
+}
+
+class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.item.documentNumber);
+
+    controller.addListener(() {
+      ref.read(residentsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+    });
+  }
+
+  @override
+  void didUpdateWidget(ResidentItemRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // log(widget.item.toJson().toString());
+
+    if (controller.text != widget.item.documentNumber) {
+      controller.text = widget.item.documentNumber ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Widget countryBuilder(dynamic a) => Row(
+    children: [
+      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      const SizedBox(width: 8),
+      Text("$a (${(a as Location).name})"),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    bool isLast = widget.isLast;
+    bool isFirst = widget.isFirst;
+    int index = widget.index;
+    DocumentDetail d = widget.item;
+    final PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    final tim = BasicClass.timData;
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.white)),
+      ),
+      child: MyExpansionTile(
+        initiallyExpanded: d.isScanned,
+        backgroundColor: MyColors.scaffoldBg,
+        collapsedBackgroundColor: MyColors.scaffoldBg,
+        footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+        shape: RoundedRectangleBorder(),
+        collapsedShape: RoundedRectangleBorder(),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        footerExtra: IndexedStack(
+          index: isLast ? 0 : 1,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: MyButton(
+                height: 30,
+                label: "Resident",
+                icon: Icons.add_circle_outline,
+                onPressed: () {
+                  ref.read(residentsProvider.notifier).add(DocumentDetail());
+                },
+                textColor: Colors.blueAccent,
+                color: Colors.blueAccent.withOpacity(0.1),
+              ),
+            ),
+            SizedBox(),
+          ],
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Resident ${index + 1}",
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
+                    ),
+                  ),
+                  DotButton(
+                    icon: ArtemisIcons.trash,
+                    color: Colors.red,
+                    flat: true,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                      if (!confirm) return;
+                      ref.read(residentsProvider.notifier).removeAt(index);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  DotButton(
+                    border: BorderSide(color: Colors.blueAccent),
+                    icon: ArtemisIcons.eraser_1,
+                    flat: true,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                      if (!confirm) return;
+                      ref.read(residentsProvider.notifier).updateAt(index, DocumentDetail());
+
+                      // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              spacing: 12,
+              children: [
+                MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  items: tim.params.of(ParameterType.documentCode),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
+                MyFieldPicker<Location>(
+                  label: "Issued In",
+                  placeholder: "Country",
+                  itemToWidget: countryBuilder,
+                  searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                  items: tim.locations.of(LocationType.country),
+                  value: d.documentIssueCountry,
+                  onChange: (a) {
+                    d = d.copyWith(documentIssueCountry: a);
+                    ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyDatePicker(
+                        label: "Expiry",
+                        rowLabelRatio: [3, 7],
+                        required: true,
+                        validator: (a) => expiryValidator(a, d.documentExpiryDate),
+                        validationColor: expiryValidationColor(d.documentExpiryDate),
+                        validationIcon: ArtemisIcons.danger,
+                        placeholder: "Date",
+                        value: d.documentExpiryDate,
+                        onChanged: (a) {
+                          d = d.copyWith(documentExpiryDate: a);
+                          ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+                        },
+                      ),
+                    ),
+                    // ExpiryInfoWidget(d.documentExpiryDate)
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+        children: [
+          MyDatePicker(
+            required: true,
+            rowLabelRatio: [3, 7],
+            label: "Birth Date",
+            placeholder: "Birth Date",
+            validator: (a) => birthDateValidator(a, d.birthDate),
+            validationColor: birthDateValidationColor(d.birthDate),
+            validationIcon: ArtemisIcons.user_square,
+            value: d.birthDate,
+            onChanged: (a) {
+              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+              d = d.copyWith(birthDate: a);
+              ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+
+          const SizedBox(height: 12),
+          MyFieldPicker<Location>(
+            hasSearch: true,
+            label: "Nationality",
+            required: true,
+            placeholder: "Country",
+            searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+            itemToWidget: countryBuilder,
+            items: tim.locations.of(LocationType.country),
+            value: d.nationality,
+            onChange: (a) {
+              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+              d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
+              ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+          const SizedBox(height: 12),
+          MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          const SizedBox(height: 12),
+          // Row(
+          //   spacing: 12,
+          //   children: [
+          //     Expanded(
+          //       child: MyFieldPicker<Location>(
+          //         hasSearch: true,
+          //         label: "Nationality",
+          //         required: true,
+          //         placeholder: "Country",
+          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+          //         itemToWidget: countryBuilder,
+          //         items: tim.locations.of(LocationType.country),
+          //         value: passengerDetails.nationality,
+          //         onChange: (a) {
+          //           ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+          //           d = d.copyWith(nationality: a);
+          //           if (widget.isResident) {
+          //             ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+          //           } else {
+          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: MyFieldPicker<Location>(
+          //         label: "Issuing",
+          //         placeholder: "Country",
+          //         itemToWidget: countryBuilder,
+          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+          //         items: tim.locations.of(LocationType.country),
+          //         value: d.documentIssueCountry,
+          //         onChange: (a) {
+          //           d = d.copyWith(documentIssueCountry: a);
+          //           if (widget.isResident) {
+          //             ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+          //           } else {
+          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+          //           }
+          //         },
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          MyDatePicker(
+            label: "Issue Date",
+            rowLabelRatio: [3, 7],
+            placeholder: "Issue Date",
+            value: d.documentIssueDate,
+            onChanged: (a) {
+              d = d.copyWith(documentIssueDate: a);
+              ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+          const SizedBox(height: 12),
+
+          Row(
+            spacing: 12,
+            children: [
+              // Expanded(
+              //   child: MyFieldPicker<Location>(
+              //     rowLabelRatio: [3, 4],
+              //     label: "Birth Place",
+              //     hasSearch: true,
+              //     placeholder: "Country",
+              //     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+              //     items: tim.locations.of(LocationType.country),
+              //     itemToWidget: countryBuilder,
+              //     value: passengerDetails.birthCountry,
+              //     onChange: (a) {
+              //       ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+              //     },
+              //   ),
+              // ),
+              Expanded(
+                child: MyFieldPicker<DocumentFeature>(
+                  rowLabelRatio: [3, 7],
+                  hasSearch: false,
+                  label: "Feature",
+                  placeholder: "Feature",
+                  items: DocumentFeature.values,
+                  value: d.documentFeature,
+                  onChange: (a) {
+                    d = d.copyWith(documentFeature: a);
+                    ref.read(residentsProvider.notifier).updateAt(widget.index, d);
                   },
                 ),
               ),
@@ -1763,7 +2110,6 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
       ),
     );
   }
-
 }
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -1942,29 +2288,53 @@ class TimaticTrueResultWidget extends StatelessWidget {
               margin: EdgeInsets.only(left: 16, right: 16, bottom: 0),
               decoration: BoxDecoration(color: res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Text(
-                      "${res.evaluationResult.getTitle}",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: res.evaluationResult.getColor),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: res.evaluationResult.getColor, borderRadius: BorderRadius.circular(8)),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(res.evaluationResult.getIcon, color: Colors.white, size: 25),
-                          const SizedBox(width: 4),
-                          Text(
-                            res.evaluationResult.name,
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
-                          ),
-                        ],
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "${res.evaluationResult.getTitle}",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: res.evaluationResult.getColor),
+                        ),
                       ),
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: res.evaluationResult.getColor, borderRadius: BorderRadius.circular(8)),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(res.evaluationResult.getIcon, color: Colors.white, size: 25),
+                              const SizedBox(width: 4),
+                              Text(
+                                res.evaluationResult.name,
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(5),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return RequestedDataDialog();
+                        },
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: MyColors.black8),
+                      ),
+                      child: RequestBriefWidget(),
                     ),
                   ),
                 ],
@@ -2845,5 +3215,107 @@ class WarningsBuilder extends ConsumerWidget {
     //     );
     //   }).toList(),
     // );
+  }
+}
+
+class RequestBriefWidget extends ConsumerWidget {
+  const RequestBriefWidget({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    List<ItinerarySegment> segments = ref.watch(segmentsProvider);
+    List<DocumentDetail> passports = ref.watch(passportsProvider);
+    List<DocumentDetail> visas = ref.watch(visasProvider);
+    return Container(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      spacing: 2,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Pax", style: TextStyle(fontSize: 9)),
+                            Row(
+                              spacing: 2,
+                              children: [
+                                BriefFiledInfoWidget(label: "Nat", value: passengerDetails.nationality?.code3 ?? ''),
+                                BriefFiledInfoWidget(label: "Res", value: passengerDetails.residentCountryCode?.code3 ?? ''),
+                              ],
+                            ),
+                          ],
+                        ),
+                        passports.isEmpty
+                            ? SizedBox()
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Passport", style: TextStyle(fontSize: 9)),
+                                  Row(
+                                    children: passports
+                                        .map(
+                                          (pass) => Row(
+                                            spacing: 2,
+                                            children: [
+                                              Row(
+                                                spacing: 2,
+                                                children: [
+                                                  BriefFiledInfoWidget(label: "Iss", value: pass.documentIssueCountry?.code3),
+                                                  BriefFiledInfoWidget(label: "Exp", value: pass.documentExpiryDate?.format_yyMMdd),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ],
+                              ),
+                        visas.isEmpty
+                            ? SizedBox()
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Visa", style: TextStyle(fontSize: 9)),
+                                  Row(
+                                    children: visas
+                                        .map(
+                                          (visa) => Row(
+                                            spacing: 2,
+                                            children: [
+                                              Row(
+                                                spacing: 2,
+                                                children: [
+                                                  BriefFiledInfoWidget(label: "Iss", value: visa.documentIssueCountry?.code3),
+                                                  BriefFiledInfoWidget(label: "Exp", value: visa.documentExpiryDate?.format_yyMMdd),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ],
+                              ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:abds/core/classes/mrz_agg_class.dart';
+import 'package:abds/core/classes/server_mrz_result_class.dart';
 import 'package:flutter/material.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
+import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';
 import '../../../core/interfaces/failures_int.dart';
 import '../../../core/interfaces/request_int.dart';
@@ -9,52 +11,47 @@ import '../../../core/interfaces/result_int.dart';
 import '../../../core/interfaces/usecase_int.dart';
 import '../mrz_reader_repository.dart';
 
-class SendLogsUseCase extends UseCase<SendLogsResponse,SendLogsRequest> {
+class SendLogsUseCase extends UseCase<SendLogsResponse, SendLogsRequest> {
   SendLogsUseCase();
 
   @override
   Future<Result<SendLogsResponse>> call({required SendLogsRequest request}) {
-  if(request.validate()!=null) return Future(() =>Result.error(request.validate()!));
+    if (request.validate() != null) return Future(() => Result.error(request.validate()!));
     MrzReaderRepository repository = MrzReaderRepository();
     return repository.sendLogs(request);
   }
-
 }
 
 class SendLogsRequest extends RequestInterface {
   final List<OcrMrzLog> current;
+  final OcrMrzSetting setting;
   // final OcrMrzResult? improving;
   final OcrMrzConsensus? consensus;
   final String? base64;
-  SendLogsRequest({required this.current, required this.consensus,required this.base64});
+
+  SendLogsRequest({required this.current, required this.consensus, required this.base64,required this.setting});
 
   @override
-  Map<String, dynamic> toJson() =>{
-    "logs":current.map((a)=>a.toJson()).toList(),
+  Map<String, dynamic> toJson() => {
+    // "logs": current.map((a) => a.rawText).toList(),
+    "logs":current.map((a)=>a..toJson()).toList(),
     "improving": consensus?.toResult().toJson(),
     "consensus":consensus?.toJson(includeHistograms: true),
-    "base64":base64
+    "setting":setting.toJson()
   };
 
-  Failure? validate(){
+  Map<String, dynamic> toJsonFull() => {"logs": current.map((a) => a.toJson()).toList(), "improving": consensus?.toResult().toJson(), "consensus": consensus?.toJson(includeHistograms: true), "base64": base64};
+
+  Failure? validate() {
     return null;
   }
 }
 
-
 class SendLogsResponse extends ResponseInterface {
   final String msg;
-  SendLogsResponse({required super.status, required super.message, required this.msg})
-      : super(
-          body: {
-          },
-        );
+  final ServerMrzResult? result;
 
-    factory SendLogsResponse.fromResponse(ResponseInterface res) => SendLogsResponse(
-        status: res.status,
-        message: res.message,
-        msg:res.message
-      );
+  SendLogsResponse({required super.status, required super.message, required this.msg, required this.result}) : super(body: result?.toJson());
 
+  factory SendLogsResponse.fromResponse(ResponseInterface res) => SendLogsResponse(status: res.status, message: res.message, msg: res.message, result: ServerMrzResult.fromJson(res.body));
 }
-
