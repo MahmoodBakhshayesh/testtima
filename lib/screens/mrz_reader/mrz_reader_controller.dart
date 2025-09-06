@@ -188,6 +188,15 @@ class MrzReaderController extends ControllerInterface {
       ParameterValue? docType;
       if (res.isPassport) {
         docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "PASSPORT");
+        if (res.documentCode == "PO") {
+          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "OFFICIALPASSPORT") ?? docType;
+        }
+        if (res.documentCode == "PS") {
+          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "SPECIALPASSPORT") ?? docType;
+        }
+        if (res.documentCode == "PD") {
+          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "DIPLOMATICPASSPORT") ?? docType;
+        }
       } else if (res.isVisa) {
         docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "VVV");
       } else {
@@ -260,7 +269,6 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
-
     // return;
     if (!l.rawText.contains("<")) {
       return;
@@ -297,7 +305,7 @@ class MrzReaderController extends ControllerInterface {
         //   sendLogs2(com.path);
         // }
         log("send logs2 =>$imgPath");
-        sendLogs2(imgPath,sendLogsRequest);
+        sendLogs2(imgPath, sendLogsRequest);
       }
     } else {
       log("send logs =>");
