@@ -305,6 +305,7 @@ class _MyTextFieldState extends State<MyTextField> {
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.48),
                           hintText: widget.placeholder,
+                          prefix: widget.prefix,
                           counter: widget.showLimit ? null : SizedBox(),
                           hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
                           border: hasError && false

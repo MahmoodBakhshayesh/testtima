@@ -174,7 +174,6 @@ class ItemWidgetState extends State<ItemWidget>
 
   @override
   Widget build(BuildContext context) {
-    print(map.keys.length);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -410,21 +409,21 @@ class ItemWidgetState extends State<ItemWidget>
   }
 
   Widget _item(int i,[isMonth]) {
+    double baseFontSize = 20;
     TextStyle? textStyle = Theme.of(context).textTheme.bodyLarge;
     if (selectedIndex == i) {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
-        fontSize: 17,
+        fontSize: baseFontSize+3,
         color: widget.textColor?.withOpacity(isTextEditing ? 0.0 : 1.0),
       );
     } else {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
-        fontSize: 14,
+        fontSize: baseFontSize,
         color: widget.textColor?.withOpacity(0.4),
       );
     }
-
     return Center(
       child: Text(
         '${map[i]}'.padLeft(2,'0') + (isMonth?DateFormat(' MMM').format(DateTime(0, i+1)):''),

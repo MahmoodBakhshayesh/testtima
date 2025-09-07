@@ -160,8 +160,9 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                     .lastOrNull;
                 final improving = ref.watch(improvingMrzResultProvider);
                 final showLog = ref.watch(showLogProvider);
-
-                log("show log ${showLog}");
+                final lastFrameLog = ref.watch(lastFrameLogProvider);
+                log(lastFrameLog?.fixedMrzLines.join("\n")??'');
+                // log("show log ${showLog}");
                 return Stack(
                   children: [
                     OcrMrzReader(
@@ -202,10 +203,11 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                         color: Colors.white,
                         child: Column(
                           children: [
+                            lastFrameLog == null?SizedBox():
                             Row(
                               children: [
                                 Expanded(
-                                  child: FittedBox(child: Text(lastLog.rawMrzLines.join("\n"), style: GoogleFonts.robotoMono())),
+                                  child: FittedBox(child: Text(lastFrameLog.rawMrzLines.join("\n"), style: GoogleFonts.robotoMono())),
                                 ),
                               ],
                             ),
@@ -273,6 +275,17 @@ class MrzReaderAppBar extends StatelessWidget implements PreferredSizeWidget {
                     children: [
                       BackButton(),
                       Text("MRZ Reader", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      const SizedBox(width: 8),
+                      Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        return Text("Method ${ref.watch(ocrMrzSettingProvider).algorithm.toString()}");
+                      },),
+                      const SizedBox(width: 8),
+                      Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        if(ref.watch(showLogProvider)){
+                          return Icon(Icons.bug_report,color: Colors.orange,);
+                        }
+                        return SizedBox();
+                      },),
                       Spacer(),
                       ...actions,
                       SizedBox(width: 8),

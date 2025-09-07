@@ -97,6 +97,7 @@ Color? expiryValidationColor(DateTime? expiry) {
 
   return null;
 }
+
 Color? visaExpiryValidationColor(DateTime? expiry) {
   bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
 
@@ -122,7 +123,7 @@ Color? visaExpiryValidationColor(DateTime? expiry) {
   return null;
 }
 
-IconData ? expiryValidationIcon(DateTime? expiry) {
+IconData? expiryValidationIcon(DateTime? expiry) {
   bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
 
   bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
@@ -135,18 +136,19 @@ IconData ? expiryValidationIcon(DateTime? expiry) {
   if (isExpiryFake) {
     return ArtemisIcons.danger;
   } else if (isExpired) {
-    return  ArtemisIcons.danger;
+    return ArtemisIcons.danger;
   } else if (isExpiring) {
-    return  ArtemisIcons.warning_2;
+    return ArtemisIcons.warning_2;
   } else if (expiry != null) {
     int remaining = expiry.difference(DateTime.now()).inDays;
 
-    return  ArtemisIcons.tick_square;
+    return ArtemisIcons.tick_square;
   }
 
   return null;
 }
-IconData ? visaExpiryValidationIcon(DateTime? expiry) {
+
+IconData? visaExpiryValidationIcon(DateTime? expiry) {
   bool isExpired = expiry != null && expiry!.isBefore(DateTime.now());
 
   bool isExpiryFake = (expiry?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
@@ -159,13 +161,13 @@ IconData ? visaExpiryValidationIcon(DateTime? expiry) {
   if (isExpiryFake) {
     return ArtemisIcons.danger;
   } else if (isExpired) {
-    return  ArtemisIcons.danger;
+    return ArtemisIcons.danger;
   } else if (isExpiring) {
-    return  ArtemisIcons.tick_square;
+    return ArtemisIcons.tick_square;
   } else if (expiry != null) {
     int remaining = expiry.difference(DateTime.now()).inDays;
 
-    return  ArtemisIcons.tick_square;
+    return ArtemisIcons.tick_square;
   }
 
   return null;
@@ -242,6 +244,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // log("passes ${passports.length}");
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
+    bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty);
     return PopScope(
       canPop: false,
       child: Container(
@@ -254,6 +257,25 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
             appBar: HomeAppBar(scaffoldKey: flightsScaffoldKey),
             drawer: HomeDrawer(),
             backgroundColor: Colors.white,
+            floatingActionButton: Container(
+              width: 56,
+              height: 56,
+              margin: EdgeInsets.only(bottom: 56),
+              child: MyButton(
+                radius: 10,
+                label: "",
+                child: Column(
+                  children: [
+                    const SizedBox(height: 4),
+                    Icon(ArtemisIcons.scanner, color: Colors.white),
+                    Text("Scan\nDocs", style: TextStyle(color: Colors.white, fontSize: 12, height: 1)),
+                  ],
+                ),
+                onPressed: () {
+                  HomeViewPhone.myHomeController.goMrzReadr();
+                },
+              ),
+            ),
             body: Column(
               children: [
                 if (!resultMode)
@@ -458,9 +480,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                 Row(
                                   spacing: 12,
                                   children: [
-                                    Expanded(
-                                      child: SizedBox()
-                                    ),
+                                    Expanded(child: SizedBox()),
                                     Expanded(
                                       child: MyButton(
                                         label: "Manual",
@@ -493,7 +513,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                         decoration: BoxDecoration(
                                           // color: MyColors.scaffoldHeader,
-                                          color:  Color(0xff324073).withOpacity(0.4),
+                                          color: Color(0xff324073).withOpacity(0.4),
                                           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                                         ),
                                         child: Row(
@@ -509,7 +529,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                                                 if (!confirm) return;
                                                 // ref.read(passportsProvider.notifier).removeAt(index);
-                                                int lastIndex = passports.length-1;
+                                                int lastIndex = passports.length - 1;
                                                 ref.read(passportsProvider.notifier).removeAt(lastIndex);
                                               },
                                             ),
@@ -521,7 +541,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               onPressed: () async {
                                                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                                                 if (!confirm) return;
-                                                int lastIndex = passports.length-1;
+                                                int lastIndex = passports.length - 1;
                                                 ref.read(passportsProvider.notifier).updateAt(lastIndex, DocumentDetail());
                                               },
                                             ),
@@ -579,7 +599,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               onPressed: () async {
                                                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                                                 if (!confirm) return;
-                                                int lastIndex = visas.length-1;
+                                                int lastIndex = visas.length - 1;
                                                 ref.read(visasProvider.notifier).removeAt(lastIndex);
                                               },
                                             ),
@@ -591,7 +611,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               onPressed: () async {
                                                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                                                 if (!confirm) return;
-                                                int lastIndex = visas.length-1;
+                                                int lastIndex = visas.length - 1;
                                                 ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
 
                                                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
@@ -650,7 +670,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               onPressed: () async {
                                                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                                                 if (!confirm) return;
-                                                int lastIndex = residents.length-1;
+                                                int lastIndex = residents.length - 1;
                                                 ref.read(residentsProvider.notifier).removeAt(lastIndex);
                                               },
                                             ),
@@ -662,7 +682,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               onPressed: () async {
                                                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                                                 if (!confirm) return;
-                                                int lastIndex = residents.length-1;
+                                                int lastIndex = residents.length - 1;
                                                 ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
 
                                                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
@@ -686,6 +706,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                     ],
                                   ),
                                 ),
+                                const SizedBox(height: 64),
                               ],
                             ),
                           ),
@@ -715,9 +736,10 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               color: Colors.black,
                             )
                           : Row(
-                            children: [
-                              MyButton(
+                              children: [
+                                MyButton(
                                   label: "Clear",
+                                  radius: 10,
                                   borderSide: BorderSide(color: MyColors.black8),
                                   icon: Icons.refresh,
                                   onPressed: () async {
@@ -728,17 +750,17 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   reverse: true,
                                   color: Colors.black,
                                 ),
-                              const SizedBox(width: 12),
-                              MyButton(
-                                label: "Scan Doc",
-                                onPressed: () {
-                                  HomeViewPhone.myHomeController.goMrzReadr();
-                                },
-                                radius: 10,
-                                icon: ArtemisIcons.scan,
-                              ),
-                            ],
-                          ),
+                                // const SizedBox(width: 12),
+                                // MyButton(
+                                //   label: "Scan Doc",
+                                //   onPressed: () {
+                                //     HomeViewPhone.myHomeController.goMrzReadr();
+                                //   },
+                                //   radius: 10,
+                                //   icon: ArtemisIcons.scan,
+                                // ),
+                              ],
+                            ),
                       Spacer(),
                       resultMode
                           ? MyButton(
@@ -755,19 +777,21 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               label: "TIMATIC Check",
                               icon: Icons.perm_identity,
                               iconInRight: true,
-                              onPressed: () async {
-                                // FailureHandler.handle(ServerFailure(code: -1, msg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l", traceMsg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l"));
+                              onPressed: !canCheck
+                                  ? null
+                                  : () async {
+                                      // FailureHandler.handle(ServerFailure(code: -1, msg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l", traceMsg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l"));
 
-                                List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
-                                final timResult = await HomeViewPhone.myHomeController.timaticApi.submitDocumentRequest(
-                                  DocumentRequest(
-                                    documentDetails: ddl,
-                                    itineraryDetails: ItineraryDetails(segments: segments),
-                                    passengerDetails: passengerDetails,
-                                  ),
-                                );
-                                ref.read(timaticResultProvider.notifier).update((s) => timResult);
-                              },
+                                      List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
+                                      final timResult = await HomeViewPhone.myHomeController.timaticApi.submitDocumentRequest(
+                                        DocumentRequest(
+                                          documentDetails: ddl,
+                                          itineraryDetails: ItineraryDetails(segments: segments),
+                                          passengerDetails: passengerDetails,
+                                        ),
+                                      );
+                                      ref.read(timaticResultProvider.notifier).update((s) => timResult);
+                                    },
                               radius: 12,
                             ),
                     ],
@@ -832,6 +856,20 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
       Text("$a (${(a as Location).name})"),
     ],
   );
+  Widget? countryPrefixBuilder(String? a) {
+    if(a != null) {
+      return Row(
+        children: [
+          const SizedBox(width: 4),
+          SizedBox(
+              width: 15,height: 10,
+              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+          const SizedBox(width: 4),
+          Text(a,style: TextStyle(fontSize: 12),)
+        ],
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -922,9 +960,10 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         label: "Issued In",
-                        rowLabelRatio: [4,4],
+                        rowLabelRatio: [4, 4],
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
+                        prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                         items: tim.locations.of(LocationType.country),
                         value: d.documentIssueCountry,
@@ -937,8 +976,9 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         hasSearch: true,
-                        rowLabelRatio: [4,4],
+                        rowLabelRatio: [4, 4],
                         label: "Nationality",
+                        prefixIcon: countryPrefixBuilder(d.nationality?.code3),
                         required: true,
                         placeholder: "Country",
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
@@ -946,6 +986,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         items: tim.locations.of(LocationType.country),
                         value: d.nationality,
                         onChange: (a) {
+
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                           d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
@@ -1004,7 +1045,6 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
           ),
 
           const SizedBox(height: 12),
-
 
           // const SizedBox(height: 12),
           MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
@@ -1110,6 +1150,21 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
       Text("$a (${(a as Location).name})"),
     ],
   );
+  Widget? countryPrefixBuilder(String? a) {
+    if(a != null) {
+      return Row(
+        children: [
+          const SizedBox(width: 4),
+          SizedBox(
+              width: 15,height: 10,
+              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+          const SizedBox(width: 4),
+          Text(a,style: TextStyle(fontSize: 12),)
+        ],
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1202,8 +1257,10 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         label: "Issued In",
-                        rowLabelRatio: [4,4],
+                        rowLabelRatio: [4, 4],
                         placeholder: "Country",
+                        prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+
                         itemToWidget: countryBuilder,
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                         items: tim.locations.of(LocationType.country),
@@ -1218,9 +1275,11 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                       child: MyFieldPicker<Location>(
                         hasSearch: true,
                         label: "Nationality",
-                        rowLabelRatio: [4,4],
+                        rowLabelRatio: [4, 4],
                         required: true,
                         placeholder: "Country",
+                        prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                         itemToWidget: countryBuilder,
                         items: tim.locations.of(LocationType.country),
@@ -1244,7 +1303,6 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     ref.read(visasProvider.notifier).updateAt(widget.index, d);
                   },
                 ),
-               
 
                 Row(
                   children: [
@@ -1290,7 +1348,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
           ),
 
           const SizedBox(height: 12),
-          
+
           // const SizedBox(height: 12),
           MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
@@ -1439,6 +1497,21 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     ],
   );
 
+  Widget? countryPrefixBuilder(String? a) {
+    if(a != null) {
+      return Row(
+        children: [
+          const SizedBox(width: 4),
+          SizedBox(
+              width: 15,height: 10,
+              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+          const SizedBox(width: 4),
+          Text(a,style: TextStyle(fontSize: 12),)
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isLast = widget.isLast;
@@ -1456,7 +1529,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
         initiallyExpanded: d.isScanned,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor:  Colors.green.withOpacity(0.2),
+        backgroundColor: Colors.green.withOpacity(0.2),
         collapsedBackgroundColor: Colors.green.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
@@ -1530,9 +1603,11 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         label: "Issued In",
-                        rowLabelRatio: [4,4],
+                        rowLabelRatio: [4, 4],
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
+                        prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                         items: tim.locations.of(LocationType.country),
                         value: d.documentIssueCountry,
@@ -1548,7 +1623,9 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         label: "Nationality",
                         required: true,
                         placeholder: "Country",
-                        rowLabelRatio: [4,4],
+                        prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+
+                        rowLabelRatio: [4, 4],
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                         itemToWidget: countryBuilder,
                         items: tim.locations.of(LocationType.country),
@@ -1593,11 +1670,6 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     // ExpiryInfoWidget(d.documentExpiryDate)
                   ],
                 ),
-
-
-
-
-
               ],
             ),
           ],
@@ -2204,6 +2276,21 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     ],
   );
 
+  Widget? countryPrefixBuilder(String? a) {
+    if(a != null) {
+      return Row(
+        children: [
+          const SizedBox(width: 4),
+          SizedBox(
+              width: 15,height: 10,
+              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+          const SizedBox(width: 4),
+          Text(a,style: TextStyle(fontSize: 12),)
+        ],
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isLast = widget.isLast;
@@ -2236,6 +2323,8 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     label: "Nationality",
                     required: true,
                     placeholder: "Country",
+                    prefixIcon: countryPrefixBuilder( details.nationality?.code3),
+
                     rowLabelRatio: [4, 4],
                     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                     itemToWidget: countryBuilder,
@@ -2254,6 +2343,8 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     required: true,
                     rowLabelRatio: [4, 4],
                     placeholder: "Country",
+                    prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
+
                     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                     itemToWidget: countryBuilder,
                     items: tim.locations.of(LocationType.country),
@@ -2308,6 +2399,9 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
             label: "Birth Place",
             hasSearch: true,
             placeholder: "Country",
+            prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
+
+
             searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
             items: tim.locations.of(LocationType.country),
             itemToWidget: countryBuilder,
@@ -3359,8 +3453,11 @@ class WarningsBuilder extends ConsumerWidget {
     PassengerDetails passengerDetails = ref.watch(passengerProvider);
     List<DocumentDetail> passports = ref.watch(passportsProvider);
     List<DocumentDetail> visas = ref.watch(visasProvider);
+    List<DocumentDetail> residents = ref.watch(residentsProvider);
+    List<String> warningList = [];
     String? warning;
     List<String> nats = [];
+    List<String> bDates = [];
     if (passengerDetails.nationality != null) {
       nats.add(passengerDetails.nationality!.code3);
     }
@@ -3371,7 +3468,24 @@ class WarningsBuilder extends ConsumerWidget {
       nats.add(v.nationality!.code3);
     });
     if (nats.toSet().toList().length > 1) {
-      warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
+      // warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
+      warningList.add("Nationalities do not match: ${nats.toSet().join(", ")}");
+    }
+    bDates.addAll(passports.where((a)=>a.birthDate!=null).map((a)=>a.birthDate!.format_yyMMdd));
+    bDates.addAll(visas.where((a)=>a.birthDate!=null).map((a)=>a.birthDate!.format_yyMMdd));
+    bDates.addAll(residents.where((a)=>a.birthDate!=null).map((a)=>a.birthDate!.format_yyMMdd));
+    if(passengerDetails.birthDate!=null){
+      bDates.add(passengerDetails.birthDate!.format_yyMMdd);
+    }
+
+    if (bDates.toSet().toList().length > 1) {
+      // warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
+      warningList.add("BirthDates do not match: ${bDates.toSet().join(", ")}");
+    }
+
+
+    if(warningList.isNotEmpty){
+      warning = warningList.join("\n");
     }
 
     if (warning == null || !ref.watch(showWarningsProvider)) return SizedBox();

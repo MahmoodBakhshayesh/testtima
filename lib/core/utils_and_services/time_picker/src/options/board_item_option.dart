@@ -170,7 +170,7 @@ class BoardPickerItemOption {
   /// Flex for Row children
   int get flex {
     if (type == DateType.year) {
-      return 2;
+      return 1;
     }
     return 1;
   }

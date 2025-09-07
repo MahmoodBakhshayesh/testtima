@@ -72,6 +72,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
 
   Widget calendar({required Color? background, required bool isWide}) {
     if (args.multiple) {
+
       return SizedBox(
         child: MultipleCalendarWidget(
           key: calendarKey,

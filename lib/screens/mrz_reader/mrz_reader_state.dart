@@ -22,6 +22,7 @@ final ocrMrzSettingProvider = StateProvider<OcrMrzSetting>(
       validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false,algorithm: ParseAlgorithm.method3),
 );
 final ocrMrzLogsProvider = StateProvider<List<OcrMrzLog>>((ref) => []);
+final lastFrameLogProvider = StateProvider<OcrMrzLog?>((ref) => null);
 // final improvingMrzResultProvider = StateProvider<OcrMrzResult?>((ref) => null);
 final improvingMrzResultProvider = StateProvider<OcrMrzConsensus?>((ref) => null);
 final enableDynamsoftProvider = StateProvider<bool?>((ref) => false);

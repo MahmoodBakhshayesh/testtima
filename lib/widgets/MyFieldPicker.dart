@@ -26,6 +26,8 @@ class MyFieldPicker<T> extends StatefulWidget {
   final bool showClearButton;
   final bool supportNull;
   final bool locked;
+  final Widget? prefix;
+  final Widget? prefixIcon;
   final bool hasSearch;
   final bool required;
   final bool labelInRow;
@@ -52,6 +54,8 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.showClearButton = true,
     this.supportNull = true,
     this.itemToWidget,
+    this.prefix,
+    this.prefixIcon,
     this.rowLabelRatio = const [3, 7],
   });
 
@@ -141,6 +145,8 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               showError: false,
               labelStyle: widget.labelStyle,
               required: widget.required,
+              prefix:widget.prefix ,
+              prefixIcon: widget.prefixIcon,
               rowLabelRatio: widget.rowLabelRatio,
               labelInRow: true,
               controller: controller,

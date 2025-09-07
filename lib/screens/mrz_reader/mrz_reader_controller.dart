@@ -41,14 +41,31 @@ class MrzReaderController extends ControllerInterface {
   final ocrMrzController = OcrMrzController();
 
   void docImproving(OcrMrzResult scanned) {
+    // log("doc imprving");
+    // try {
+    //   OcrMrzLog l = OcrMrzLog(rawText: scanned.ocrData.text,
+    //       rawMrzLines: scanned.mrzLines,
+    //       fixedMrzLines: scanned.mrzLines,
+    //       validation: scanned.valid,
+    //       extractedData: scanned.toJson());
+    //   ref.read(lastFrameLogProvider.notifier).update((s) => l);
+    //   log("updating last frame");
+    // }catch(e){
+    //   log("$e");
+    // }
+
     if (!scanning) {
       return;
     }
 
-    log(scanned.expiryDate?.toIso8601String() ?? '');
+
+    // log(jsonEncode(scanned.toJson()));
     // log("scanned.toString()");
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
+    if(scanned.line2.isEmpty){
+      return;
+    }
 
     agg.add(scanned); // only validated fields contribute
     final consensus = agg.build();
@@ -59,11 +76,15 @@ class MrzReaderController extends ControllerInterface {
     // log("res type ${res.documentType}");
     // log("scanned type type ${scanned.documentType}");
     ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
-    if (res.matchSetting(setting)) {
-      if (consensus.docCodeStat.consensusCount >= 15) {
-        onDocScan(res);
+    if(ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method4) {
+      if (res.matchSetting(setting)) {
+        // if (consensus.docCodeStat.consensusCount >= 15) {
+          onDocScan(res);
+        // }
+      } else {
+
       }
-    } else {}
+    }
     return;
     //
     // // log('Doc No -> ${consensus.documentNumber} (count: ${consensus.documentNumberStat.consensusCount})');
@@ -274,7 +295,7 @@ class MrzReaderController extends ControllerInterface {
         gender: gender,
         birthDate: res.birthDate,
         birthCountry: currentPax.birthCountry ?? nationality,
-        // residentCountryCode: currentPax.residentCountryCode ?? issueCountry,
+        residentCountryCode: currentPax.residentCountryCode ,
       );
 
       if (res.documentCode.startsWith("C") || res.documentCode.startsWith("I")) {
@@ -295,10 +316,12 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
+    // log("logger");
     if (!scanning) {
       return;
     }
     // return;
+    // ref.read(lastFrameLogProvider.notifier).update((s)=>l);
     if (!l.rawText.contains("<")) {
       return;
     }

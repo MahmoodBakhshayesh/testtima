@@ -138,7 +138,6 @@ class _MultipleCalendarWidgetState
 
     const double space = 4;
     const double radius = 50;
-
     if (result) {
       if (first.compareDate(last)) {
         return CalendarSelectedProps(
