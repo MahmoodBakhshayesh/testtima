@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:abds/core/interfaces/local_data_base_int.dart';
+import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
@@ -29,6 +30,7 @@ class HomeController extends ControllerInterface {
     // ref.read(visasProvider.notifier).update((s) => [DocumentDetail()]);
     ref.read(passportsProvider.notifier).removeAll();
     ref.read(visasProvider.notifier).removeAll();
+    ref.read(residentsProvider.notifier).removeAll();
     ref.read(segmentsProvider.notifier).removeAll();
 
     ref.read(showWarningsProvider.notifier).update((s) => true);

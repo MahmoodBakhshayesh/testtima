@@ -46,7 +46,8 @@ String _dateKey(DateTime d) => d.toIso8601String().split('T').first; // yyyy-MM-
 
 DateTime _parseDateKey(String k) {
   // k is in yyyy-MM-dd format
-  return DateTime.tryParse("$k 00:00:00Z")?.toLocal() ?? DateTime.now();
+  return DateTime.tryParse("$k 00:00:00Z") ?? DateTime.now().toUtc();
+
 }
 
 /// ---------- Aggregated Field Stats ----------

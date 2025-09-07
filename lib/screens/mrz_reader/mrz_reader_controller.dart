@@ -26,6 +26,7 @@ import '../../core/classes/basic_class.dart';
 import '../../core/classes/mrz_agg_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
+import '../../core/type_converto.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/visas_state_controller.dart';
 import '../home/home_state.dart';
@@ -43,7 +44,8 @@ class MrzReaderController extends ControllerInterface {
     if (!scanning) {
       return;
     }
-    // log(scanned.toString());
+
+    log(scanned.expiryDate?.toIso8601String() ?? '');
     // log("scanned.toString()");
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
@@ -58,9 +60,9 @@ class MrzReaderController extends ControllerInterface {
     // log("scanned type type ${scanned.documentType}");
     ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
     if (res.matchSetting(setting)) {
-      final current = ref.read(ocrMrzLogsProvider);
-      sendLogs(current, confirm: false);
-      onDocScan(res);
+      if (consensus.docCodeStat.consensusCount >= 15) {
+        onDocScan(res);
+      }
     } else {}
     return;
     //
@@ -195,21 +197,26 @@ class MrzReaderController extends ControllerInterface {
       // }
       popping = true;
       ParameterValue? docType;
+
+      // log(jsonEncode(res.toJson()));
+      docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
+      log("setting doctype of ${res.documentCode} to ${docType?.code}");
+      // docType = mapMrzDocCodeToTimatic()
       if (res.isPassport) {
-        docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "PASSPORT");
+        // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "PASSPORT");
         if (res.documentCode == "PO") {
-          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "OFFICIALPASSPORT") ?? docType;
+          // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "OFFICIALPASSPORT") ?? docType;
         }
         if (res.documentCode == "PS") {
-          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "SPECIALPASSPORT") ?? docType;
+          // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "SPECIALPASSPORT") ?? docType;
         }
         if (res.documentCode == "PD") {
-          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "DIPLOMATICPASSPORT") ?? docType;
+          // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "DIPLOMATICPASSPORT") ?? docType;
         }
       } else if (res.isVisa) {
-        docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "VVV");
+        // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "VVV");
       } else {
-        docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "TRAVELCERTIFICATE");
+        // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "TRAVELCERTIFICATE");
       }
 
       res.nationality = res.nationality;
@@ -267,13 +274,16 @@ class MrzReaderController extends ControllerInterface {
         gender: gender,
         birthDate: res.birthDate,
         birthCountry: currentPax.birthCountry ?? nationality,
-        residentCountryCode: currentPax.residentCountryCode ?? issueCountry,
+        // residentCountryCode: currentPax.residentCountryCode ?? issueCountry,
       );
 
       if (res.documentCode.startsWith("C") || res.documentCode.startsWith("I")) {
         passengerDetails = passengerDetails.copyWith(residentCountryCode: issueCountry);
       }
       ref.read(passengerProvider.notifier).update((s) => passengerDetails);
+
+      final current = ref.read(ocrMrzLogsProvider);
+      sendLogs(current, confirm: false);
 
       navigation.pop();
     } catch (e) {
@@ -312,7 +322,7 @@ class MrzReaderController extends ControllerInterface {
     void msg;
     String? base64;
     SendLogsUseCase sendLogsUseCase = SendLogsUseCase();
-    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build(), base64: base64,setting: ref.read(ocrMrzSettingProvider));
+    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build(), base64: base64, setting: ref.read(ocrMrzSettingProvider));
     if (ref.read(supportModeProvider)) {
       final imgPath = await ocrMrzController.takePicture();
       if (imgPath != null) {
@@ -334,18 +344,17 @@ class MrzReaderController extends ControllerInterface {
         case Err<SendLogsResponse>():
           // fOrR.error;
           log("logs sent error ${fOrR.error.msg}");
-          // log("logs sent error ${fOrR.error.runtimeType}");
-          // if (fOrR.error is ServerFailure) {
-          //   final a = fOrR.error as ServerFailure;
-          //   if (a.data is Map<String, dynamic> && (a.data as Map<String, dynamic>).containsKey("type")) {
-          //     ServerMrzResult serverMrzResult = ServerMrzResult.fromJson(a.data);
-          //     if (confirm) {
-          //       askForServerResult(serverMrzResult);
-          //     }
-          //   }
-          // }
+        // log("logs sent error ${fOrR.error.runtimeType}");
+        // if (fOrR.error is ServerFailure) {
+        //   final a = fOrR.error as ServerFailure;
+        //   if (a.data is Map<String, dynamic> && (a.data as Map<String, dynamic>).containsKey("type")) {
+        //     ServerMrzResult serverMrzResult = ServerMrzResult.fromJson(a.data);
+        //     if (confirm) {
+        //       askForServerResult(serverMrzResult);
+        //     }
+        //   }
+        // }
         // FailureHandler.handle(result.error);
-
 
         case Ok<SendLogsResponse>():
           final r = fOrR.value;

@@ -327,6 +327,7 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
 
   /// Generate a list of items in the calendar
   List<Widget> _generateCalendarOfMonth(DateTime date) {
+
     // Get beginning of month and end of month
     final x = DateTime(date.year, date.month, 1);
     final y = DateTime(date.year, date.month + 1, 1).addDay(-1);
@@ -395,7 +396,6 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
     final selected = isSelected(z);
 
     final props = getProps(z);
-
     return Material(
       color: Colors.transparent,
       clipBehavior: Clip.antiAlias,
@@ -416,6 +416,8 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
               child: Text(
                 '$i',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 30,
+
                       color: selected
                           ? widget.activeTextColor
                           : textColor(z.weekday, disabled),

@@ -353,7 +353,7 @@ class _MyTextFieldState extends State<MyTextField> {
                               ),
                               child: Row(
                                 children: [
-                                  widget.validationIcon == null?SizedBox():Icon(widget.validationIcon!,color: validationColor,size: 10,),
+                                  widget.validationIcon == null?SizedBox():Icon(widget.validationIcon!,color: validationColor,size: 20,),
                                   Expanded(child: Text("${widget.validator?.call(widget.controller?.text ?? '')}", style: TextStyle(color: validationColor, fontSize: 9, height: 1),textAlign: TextAlign.center,)),
                                 ],
                               ),

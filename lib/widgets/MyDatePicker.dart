@@ -158,7 +158,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
             maximumDate: widget.max ?? DateTime(3000),
             minimumDate: widget.min ?? DateTime(1900),
             // headerWidget: MyTextField(),
-            options: BoardDateTimeOptions(boardTitle: widget.label),
+            options: BoardDateTimeOptions(boardTitle: widget.label,boardTitleTextStyle: TextStyle(fontSize: 22)),
           ).then((v) {
             final newVal = v??widget.value;
             widget.onChanged(newVal);
@@ -192,6 +192,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
           labelInRow: true,
           validationColor: widget.validationColor,
           validationIcon: widget.validationIcon,
+
           placeholder: widget.placeholder,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
           // suffixIcon: Padding(
