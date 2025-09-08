@@ -19,7 +19,7 @@ final ocrMrzSettingProvider = StateProvider<OcrMrzSetting>(
       validateBirthDateValid: false,
       macro: true,
       validationDocumentCode: true,
-      validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false,algorithm: ParseAlgorithm.method3),
+      validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false,algorithm: ParseAlgorithm.method2),
 );
 final ocrMrzLogsProvider = StateProvider<List<OcrMrzLog>>((ref) => []);
 final lastFrameLogProvider = StateProvider<OcrMrzLog?>((ref) => null);

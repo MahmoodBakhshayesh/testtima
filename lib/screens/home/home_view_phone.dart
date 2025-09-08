@@ -257,25 +257,25 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
             appBar: HomeAppBar(scaffoldKey: flightsScaffoldKey),
             drawer: HomeDrawer(),
             backgroundColor: Colors.white,
-            floatingActionButton: Container(
-              width: 56,
-              height: 56,
-              margin: EdgeInsets.only(bottom: 56),
-              child: MyButton(
-                radius: 10,
-                label: "",
-                child: Column(
-                  children: [
-                    const SizedBox(height: 4),
-                    Icon(ArtemisIcons.scanner, color: Colors.white),
-                    Text("Scan\nDocs", style: TextStyle(color: Colors.white, fontSize: 12, height: 1)),
-                  ],
-                ),
-                onPressed: () {
-                  HomeViewPhone.myHomeController.goMrzReadr();
-                },
-              ),
-            ),
+            // floatingActionButton: Container(
+            //   width: 56,
+            //   height: 56,
+            //   margin: EdgeInsets.only(bottom: 56),
+            //   child: MyButton(
+            //     radius: 10,
+            //     label: "",
+            //     child: Column(
+            //       children: [
+            //         const SizedBox(height: 4),
+            //         Icon(ArtemisIcons.scanner, color: Colors.white),
+            //         Text("Scan\nDocs", style: TextStyle(color: Colors.white, fontSize: 12, height: 1)),
+            //       ],
+            //     ),
+            //     onPressed: () {
+            //       HomeViewPhone.myHomeController.goMrzReadr();
+            //     },
+            //   ),
+            // ),
             body: Column(
               children: [
                 if (!resultMode)
@@ -477,33 +477,33 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
 
                                 PassengerDetailsWidget(),
                                 const SizedBox(height: 12),
-                                Row(
-                                  spacing: 12,
-                                  children: [
-                                    Expanded(child: SizedBox()),
-                                    Expanded(
-                                      child: MyButton(
-                                        label: "Manual",
-                                        onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
-                                            ? null
-                                            : () {
-                                                if (ref.read(passportsProvider).isEmpty) {
-                                                  ref.read(passportsProvider.notifier).add(DocumentDetail());
-                                                }
-                                                if (ref.read(visasProvider).isEmpty) {
-                                                  ref.read(visasProvider.notifier).add(DocumentDetail());
-                                                }
-                                                if (ref.read(residentsProvider).isEmpty) {
-                                                  ref.read(residentsProvider.notifier).add(DocumentDetail());
-                                                }
-                                              },
-                                        radius: 10,
-                                        reverse: true,
-                                        borderSide: BorderSide(color: context.mainColor),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                // Row(
+                                //   spacing: 12,
+                                //   children: [
+                                //     Expanded(child: SizedBox()),
+                                //     Expanded(
+                                //       child: MyButton(
+                                //         label: "Manual",
+                                //         onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
+                                //             ? null
+                                //             : () {
+                                //                 if (ref.read(passportsProvider).isEmpty) {
+                                //                   ref.read(passportsProvider.notifier).add(DocumentDetail());
+                                //                 }
+                                //                 if (ref.read(visasProvider).isEmpty) {
+                                //                   ref.read(visasProvider.notifier).add(DocumentDetail());
+                                //                 }
+                                //                 if (ref.read(residentsProvider).isEmpty) {
+                                //                   ref.read(residentsProvider.notifier).add(DocumentDetail());
+                                //                 }
+                                //               },
+                                //         radius: 10,
+                                //         reverse: true,
+                                //         borderSide: BorderSide(color: context.mainColor),
+                                //       ),
+                                //     ),
+                                //   ],
+                                // ),
                                 const SizedBox(height: 12),
                                 Visibility(
                                   visible: passports.isNotEmpty,
@@ -750,15 +750,36 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   reverse: true,
                                   color: Colors.black,
                                 ),
-                                // const SizedBox(width: 12),
-                                // MyButton(
-                                //   label: "Scan Doc",
-                                //   onPressed: () {
-                                //     HomeViewPhone.myHomeController.goMrzReadr();
-                                //   },
-                                //   radius: 10,
-                                //   icon: ArtemisIcons.scan,
-                                // ),
+                                const SizedBox(width: 12),
+                                MyButton(
+                                  label: "Manual",
+                                  onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
+                                      ? null
+                                      : () {
+                                    if (ref.read(passportsProvider).isEmpty) {
+                                      ref.read(passportsProvider.notifier).add(DocumentDetail());
+                                    }
+                                    if (ref.read(visasProvider).isEmpty) {
+                                      ref.read(visasProvider.notifier).add(DocumentDetail());
+                                    }
+                                    if (ref.read(residentsProvider).isEmpty) {
+                                      ref.read(residentsProvider.notifier).add(DocumentDetail());
+                                    }
+                                  },
+                                  radius: 10,
+                                  reverse: true,
+                                  borderSide: BorderSide(color: context.mainColor),
+                                ),
+                                const SizedBox(width: 12),
+                                MyButton(
+                                  label: "Scan",
+                                  onPressed: () {
+                                    HomeViewPhone.myHomeController.goMrzReadr();
+                                  },
+                                  radius: 10,
+                                  icon: ArtemisIcons.scan,
+                                ),
+
                               ],
                             ),
                       Spacer(),
@@ -774,7 +795,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               radius: 12,
                             )
                           : MyButton(
-                              label: "TIMATIC Check",
+                              label: "TIMATIC",
                               icon: Icons.perm_identity,
                               iconInRight: true,
                               onPressed: !canCheck

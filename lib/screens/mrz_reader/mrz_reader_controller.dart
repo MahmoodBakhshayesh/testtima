@@ -32,6 +32,7 @@ import '../../core/utils_and_services/stateControllers/visas_state_controller.da
 import '../home/home_state.dart';
 import '../login/login_state.dart';
 import 'dialogs/confirm_server_mrz_result_dialog.dart';
+import 'dialogs/session_log_history_dialog.dart';
 
 class MrzReaderController extends ControllerInterface {
   final _log = Logger('MrzReaderController');
@@ -59,32 +60,35 @@ class MrzReaderController extends ControllerInterface {
     }
 
 
-    // log(jsonEncode(scanned.toJson()));
+    log(jsonEncode(scanned.valid.toString()));
+    log(jsonEncode(scanned.expiryDate.toString()));
     // log("scanned.toString()");
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
-    if(scanned.line2.isEmpty){
-      return;
-    }
+    // if(scanned.line2.isEmpty){
+    //   return;
+    // }
 
-    agg.add(scanned); // only validated fields contribute
-    final consensus = agg.build();
-    // log(jsonEncode(consensus.toJson(includeHistograms: true)));
-    final res = consensus.toResult();
-    // log("consensus type ${consensus.docType}");
-    // log("consensus type ${consensus.docTypeStat.histogram}");
-    // log("res type ${res.documentType}");
-    // log("scanned type type ${scanned.documentType}");
-    ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
-    if(ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method4) {
-      if (res.matchSetting(setting)) {
-        // if (consensus.docCodeStat.consensusCount >= 15) {
+    if(setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
+      agg.add(scanned); // only validated fields contribute
+      final consensus = agg.build();
+      final res = consensus.toResult();
+
+      ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
+      if(ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
+        if (res.matchSetting(setting)) {
           onDocScan(res);
-        // }
-      } else {
+        }
+      }
+    }else if(setting.algorithm == ParseAlgorithm.method2){
 
+        if(ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
+          if(scanned.matchSetting(setting)){
+            onDocScan(scanned);
+          }
       }
     }
+
     return;
     //
     // // log('Doc No -> ${consensus.documentNumber} (count: ${consensus.documentNumberStat.consensusCount})');
@@ -218,8 +222,10 @@ class MrzReaderController extends ControllerInterface {
       // }
       popping = true;
       ParameterValue? docType;
-
+      // log("*"*100);
       // log(jsonEncode(res.toJson()));
+      // log("*"*100);
+
       docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
       log("setting doctype of ${res.documentCode} to ${docType?.code}");
       // docType = mapMrzDocCodeToTimatic()
@@ -456,5 +462,10 @@ class MrzReaderController extends ControllerInterface {
         onDocScan(confirm);
       }
     });
+  }
+
+  void showMrzSessionLog() {
+    final sg = ocrMrzController.getSessionHistory.value;
+    navigation.openDialog(dialog: SessionLogHistoryDialog(sl: sg,));
   }
 }

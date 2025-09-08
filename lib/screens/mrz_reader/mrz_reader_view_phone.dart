@@ -41,6 +41,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   void initState() {
     myMrzReaderController.popping = false;
     myMrzReaderController.agg.reset();
+    myMrzReaderController.ocrMrzController.resetSession();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(seconds: 3), () {
         myMrzReaderController.ref.read(showDynamsoftProvider.notifier).update((s) => true);
@@ -282,7 +283,11 @@ class MrzReaderAppBar extends StatelessWidget implements PreferredSizeWidget {
                       const SizedBox(width: 8),
                       Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
                         if(ref.watch(showLogProvider)){
-                          return Icon(Icons.bug_report,color: Colors.orange,);
+                          return GestureDetector(
+                              onTap: (){
+                                myMrzReaderController.showMrzSessionLog();
+                              },
+                              child: Icon(Icons.bug_report,color: Colors.orange,));
                         }
                         return SizedBox();
                       },),

@@ -260,7 +260,10 @@ class OcrMrzAggregator {
     final v = r.valid;
     final cd = r.checkDigits;
     _docType.add(r.documentType);
-    _docCode.add(r.documentCode);
+
+    if(v.docCodeValid){
+      _docCode.add(r.documentCode);
+    }
 
     // Country / issuing state:
     if (v.countryValid && r.countryCode.trim().isNotEmpty) _country.add(r.countryCode);
@@ -271,9 +274,16 @@ class OcrMrzAggregator {
 
     // Document number:
     // Gate by both OcrMrzValidation.docNumberValid and checkDigits.document when present.
-    if (v.docNumberValid && (cd.document == true) && r.documentNumber.trim().isNotEmpty) {
+    // if (v.docNumberValid && (cd.document == true) && r.documentNumber.trim().isNotEmpty) {
+    //   _docNo.add(r.documentNumber);
+    // }
+    // Document number:
+
+    // Gate by both OcrMrzValidation.docNumberValid and checkDigits.document when present.
+    if (r.documentNumber.isNotEmpty ) {
       _docNo.add(r.documentNumber);
     }
+
 
     // Names (gate by nameValid)
     if (v.nameValid) {
@@ -285,12 +295,22 @@ class OcrMrzAggregator {
     if (v.nationalityValid && r.nationality.trim().isNotEmpty) _nat.add(r.nationality);
 
     // Dates
-    if (v.birthDateValid && (cd.birth == true) && r.birthDate != null) {
-      _birth.add(_dateKey(r.birthDate!));
-    }
-    if (v.expiryDateValid && (cd.expiry == true) && r.expiryDate != null) {
+    // if (v.birthDateValid && (cd.birth == true) && r.birthDate != null) {
+    //   _birth.add(_dateKey(r.birthDate!));
+    // }
+    // if (v.expiryDateValid && (cd.expiry == true) && r.expiryDate != null) {
+    //   _expiry.add(_dateKey(r.expiryDate!));
+    // }
+
+    if(r.expiryDate!=null){
       _expiry.add(_dateKey(r.expiryDate!));
     }
+
+    if(r.birthDate!=null){
+      _birth.add(_dateKey(r.birthDate!));
+    }
+
+
 
     // Sex (no explicit flag; count when char looks MRZ-like and lines lengths are valid)
     if (v.linesLengthValid && r.sex.trim().isNotEmpty) {
