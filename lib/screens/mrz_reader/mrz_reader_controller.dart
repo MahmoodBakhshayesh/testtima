@@ -322,15 +322,15 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
-    // log("logger");
+    log("logger");
     if (!scanning) {
       return;
     }
     // return;
     // ref.read(lastFrameLogProvider.notifier).update((s)=>l);
-    if (!l.rawText.contains("<")) {
-      return;
-    }
+    // if (!l.rawText.contains("<")) {
+    //   return;
+    // }
 
     // log("logs count ==> mrzLogger");
     // log(l.validation.toString());

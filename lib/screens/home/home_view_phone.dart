@@ -192,7 +192,7 @@ Color? birthDateValidationColor(DateTime? bDate) {
   if (bDate == null) return null;
   int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
   double realYears = (bDate.difference(DateTime.now()).inDays / 365).abs();
-  log("realYears $realYears");
+  // log("realYears $realYears");
   if (realYears < 2) {
     return Colors.orange;
   }
