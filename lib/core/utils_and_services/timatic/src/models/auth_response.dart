@@ -185,26 +185,31 @@ class Profile {
 
 class ConstData {
   AllPermissions userPermissionAttributes;
-
+  List<DocumentTypeMapper> documentTypeMappers;
 
   ConstData({
     required this.userPermissionAttributes,
+    required this.documentTypeMappers,
   });
 
   ConstData copyWith({
     AllPermissions? userPermissionAttributes,
+    List<DocumentTypeMapper>? documentTypeMappers,
 
   }) =>
       ConstData(
         userPermissionAttributes: userPermissionAttributes ?? this.userPermissionAttributes,
+        documentTypeMappers: documentTypeMappers ?? this.documentTypeMappers,
       );
 
   factory ConstData.fromJson(Map<String, dynamic> json) => ConstData(
     userPermissionAttributes: AllPermissions.fromJson(json["permission"]),
+    documentTypeMappers:List<DocumentTypeMapper>.from((json["documentType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
   );
 
   Map<String, dynamic> toJson() => {
     "permission": userPermissionAttributes.toJson(),
+    "documentType": documentTypeMappers.map((a)=>a.toJson()).toList(),
   };
 }
 
@@ -238,5 +243,52 @@ class PermissionEntry {
   Map<String, dynamic> toJson() => {
     'flag': flag,
     'value': value,
+  };
+}
+
+class DocumentTypeMapper {
+  final String? type;
+  final String? subType;
+  final String? country;
+  final String? code;
+  final String? title;
+
+  DocumentTypeMapper({
+    this.type,
+    this.subType,
+    this.country,
+    this.code,
+    this.title,
+  });
+
+  DocumentTypeMapper copyWith({
+    String? type,
+    String? subType,
+    String? country,
+    String? code,
+    String? title,
+  }) =>
+      DocumentTypeMapper(
+        type: type ?? this.type,
+        subType: subType ?? this.subType,
+        country: country ?? this.country,
+        code: code ?? this.code,
+        title: title ?? this.title,
+      );
+
+  factory DocumentTypeMapper.fromJson(Map<String, dynamic> json) => DocumentTypeMapper(
+    type: json["type"],
+    subType: json["subType"],
+    country: json["country"],
+    code: json["code"],
+    title: json["title"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "type": type,
+    "subType": subType,
+    "country": country,
+    "code": code,
+    "title": title,
   };
 }

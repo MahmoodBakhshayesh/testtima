@@ -1,3 +1,4 @@
+import 'package:camera_kit_plus/camera_kit_ocr_plus_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
@@ -16,10 +17,18 @@ class MrzReaderState extends ChangeNotifier {
 
 final ocrMrzSettingProvider = StateProvider<OcrMrzSetting>(
   (ref) => OcrMrzSetting(
-      validateBirthDateValid: false,
-      macro: true,
-      validationDocumentCode: true,
-      validateLinesLength: false, validateDocNumberValid: false, validateNames: false, validatePersonalNumberValid: false, validateFinalCheckValid: false,algorithm: ParseAlgorithm.method2),
+    validateBirthDateValid: true,
+    macro: true,
+    validationDocumentCode: true,
+    validateNationality: true,
+    validateCountry: true,
+    validateLinesLength: false,
+    validateDocNumberValid: true,
+    validateNames: false,
+    validatePersonalNumberValid: false,
+    validateFinalCheckValid: false,
+    algorithm: ParseAlgorithm.method2,
+  ),
 );
 final ocrMrzLogsProvider = StateProvider<List<OcrMrzLog>>((ref) => []);
 final lastFrameLogProvider = StateProvider<OcrMrzLog?>((ref) => null);
@@ -29,3 +38,5 @@ final enableDynamsoftProvider = StateProvider<bool?>((ref) => false);
 final showLogProvider = StateProvider<bool>((ref) => false);
 final showDynamsoftProvider = StateProvider<bool>((ref) => false);
 final supportModeProvider = StateProvider<bool>((ref) => false);
+// final lastVisaOcrProvider = StateProvider<OcrData?>((ref) => null);
+// final lastPassportOcrProvider = StateProvider<OcrData?>((ref) => null);

@@ -52,18 +52,20 @@ class MyDatePicker extends StatefulWidget {
   final DateTime? max;
   final DatePickerEntryMode mode;
   final Color? validationColor;
+  final Color? backgroundColor;
   final IconData? validationIcon;
-  final List<int>  rowLabelRatio;
+  final List<int> rowLabelRatio;
 
   const MyDatePicker({
     Key? key,
     this.label,
     this.value,
-    this.rowLabelRatio=const[3,5],
+    this.rowLabelRatio = const [3, 5],
     this.controller,
     this.focusNode,
     this.maxLength,
     this.validationColor,
+    this.backgroundColor,
     this.placeholder,
     this.height = 40,
     this.fontSize = 14,
@@ -158,9 +160,9 @@ class _MyDatePickerState extends State<MyDatePicker> {
             maximumDate: widget.max ?? DateTime(3000),
             minimumDate: widget.min ?? DateTime(1900),
             // headerWidget: MyTextField(),
-            options: BoardDateTimeOptions(boardTitle: widget.label,boardTitleTextStyle: TextStyle(fontSize: 22)),
+            options: BoardDateTimeOptions(boardTitle: ((widget.label ?? '').isEmpty) ? "${widget.placeholder}" : widget.label, boardTitleTextStyle: TextStyle(fontSize: 22)),
           ).then((v) {
-            final newVal = v??widget.value;
+            final newVal = v ?? widget.value;
             widget.onChanged(newVal);
             if (v == null) return;
             controller?.text = newVal.format_yyMMddSlash ?? '';
@@ -190,9 +192,9 @@ class _MyDatePickerState extends State<MyDatePicker> {
           label: widget.label,
           rowLabelRatio: widget.rowLabelRatio,
           labelInRow: true,
+          backgroundColor: widget.backgroundColor,
           validationColor: widget.validationColor,
           validationIcon: widget.validationIcon,
-
           placeholder: widget.placeholder,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
           // suffixIcon: Padding(
@@ -335,6 +337,7 @@ extension Formm on DateTime? {
   String get format_yyMMdd {
     return this == null ? "" : DateFormat("yy-MM-dd").format(this!);
   }
+
   String get format_yyMMddSlash {
     return this == null ? "" : DateFormat("dd,MMM yyyy").format(this!);
   }

@@ -1,7 +1,9 @@
+
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ocr_mrz/mrz_result_class_fix.dart';
 
 import '../../artemis_timatic.dart';
 import 'enums.dart';
@@ -50,6 +52,7 @@ class DocumentDetail {
   final DocumentFeature? documentFeature;
   final DateTime? applicationDate;
   final String? mrz;
+  final String? ocrText;
 
   const DocumentDetail({
     this.documentNumber,
@@ -65,6 +68,7 @@ class DocumentDetail {
     this.documentFeature,
     this.applicationDate,
     this.mrz,
+    this.ocrText,
   });
 
   static const _unset = Object();
@@ -83,6 +87,7 @@ class DocumentDetail {
     Object? documentFeature = _unset,
     Object? applicationDate = _unset,
     Object? mrz = _unset,
+    Object? ocrText = _unset,
   }) {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
@@ -98,6 +103,7 @@ class DocumentDetail {
       documentFeature: identical(documentFeature, _unset) ? this.documentFeature : documentFeature as DocumentFeature?,
       applicationDate: identical(applicationDate, _unset) ? this.applicationDate : applicationDate as DateTime?,
       mrz: identical(mrz, _unset) ? this.mrz : mrz as String?,
+      ocrText: identical(ocrText, _unset) ? this.ocrText : ocrText as String?,
     );
   }
 
@@ -116,6 +122,7 @@ class DocumentDetail {
       documentFeature: json['documentFeature'] != null ? DocumentFeatureDetails.fromValue(json['documentFeature']?.toString()) : null,
       applicationDate: parseDate(json['applicationDate']),
       mrz: json["mrz"],
+      ocrText: json["ocrText"],
     );
   }
 
@@ -133,6 +140,7 @@ class DocumentDetail {
     'documentFeature': documentFeature?.value,
     'applicationDate': formatDate(applicationDate),
     'mrz': mrz,
+    'ocrText': ocrText,
   };
 
   bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now());
@@ -146,6 +154,13 @@ class DocumentDetail {
   bool get isEmpty => documentCode == null;
 
   bool get isScanned => mrz != null;
+
+  bool isSameAs(OcrMrzResult res) {
+    // log("${res.documentCode} -- ${documentCode?.code}");
+    // log("${res.documentNumber} -- ${documentNumber}");
+
+    return (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
+  }
 }
 
 // ---------------- ItineraryDetails ----------------
@@ -312,13 +327,7 @@ class PassengerDetails {
 
   static const _unset = Object();
 
-  PassengerDetails copyWith({
-    Object? birthDate = _unset,
-    Object? nationality = _unset,
-    Object? birthCountry = _unset,
-    Object? gender = _unset,
-    Object? residentCountryCode = _unset,
-  }) {
+  PassengerDetails copyWith({Object? birthDate = _unset, Object? nationality = _unset, Object? birthCountry = _unset, Object? gender = _unset, Object? residentCountryCode = _unset}) {
     return PassengerDetails(
       birthDate: identical(birthDate, _unset) ? this.birthDate : birthDate as DateTime?,
       nationality: identical(nationality, _unset) ? this.nationality : nationality as Location?,

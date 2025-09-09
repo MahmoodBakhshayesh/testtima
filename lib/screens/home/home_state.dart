@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:abds/core/utils_and_services/import_toggler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -23,3 +25,5 @@ final passengerProvider = StateProvider<PassengerDetails>((ref) => PassengerDeta
 final documentNumberProvider =  StateProvider<String>((ref) => "");
 final warningsProvider =  StateProvider<List<String>>((ref) => []);
 final showWarningsProvider =  StateProvider<bool>((ref) => true);
+final passNumberInVisaProvider = StateProvider<bool>((ref) => false);
+final attachingPhotoProvider = StateProvider<List<Uint8List>>((ref) => []);

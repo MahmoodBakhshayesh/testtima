@@ -116,6 +116,7 @@ class MyExpansionTile extends StatefulWidget {
     this.showTrailingIcon = false,
     this.initiallyExpanded = false,
     this.maintainState = false,
+    this.tapOnTitleActive = true,
     this.tilePadding,
     this.footerPadding,
     this.expandedCrossAxisAlignment,
@@ -161,6 +162,7 @@ class MyExpansionTile extends StatefulWidget {
   /// Typically a [Text] widget.
   final Widget title;
   final bool showFooter;
+  final bool tapOnTitleActive;
 
   /// Additional content displayed below the title.
   ///
@@ -590,7 +592,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
         textColor: _headerColor.value,
         child: ListTile(
           enabled: widget.enabled,
-          onTap: _tileController.isExpanded ? _tileController.collapse : _tileController.expand,
+          onTap: !widget.tapOnTitleActive?null:_tileController.isExpanded ? _tileController.collapse : _tileController.expand,
           dense: widget.dense,
           visualDensity: widget.visualDensity,
           enableFeedback: widget.enableFeedback,

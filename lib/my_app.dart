@@ -13,7 +13,9 @@ import 'package:tree_navigation/tree_navigation.dart';
 import 'core/constants/ui.dart';
 import 'core/navigation/routes.dart';
 import 'initialize.dart';
+import 'screens/performance/performance_view.dart';
 import 'screens/profile/profile_view.dart';
+
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -43,6 +45,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         TreeRoute(routeInfo: Routes.logs, pageWidget: LogsView()),
         TreeRoute(routeInfo: Routes.addUser, pageWidget: AddUserView()),
         TreeRoute(routeInfo: Routes.profile, pageWidget: ProfileView()),
+        TreeRoute(routeInfo: Routes.performance, pageWidget: PerformanceView()),
         TreeRoute(
           routeInfo: Routes.home,
           pageWidget: HomeView(),

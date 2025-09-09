@@ -50,6 +50,7 @@ class MyTextField extends StatefulWidget {
   final bool labelInRow;
   final bool showError;
   final Color? validationColor;
+  final Color? backgroundColor;
   final BorderRadius? radius;
   final double? height;
   final double? suffixWidth;
@@ -62,6 +63,7 @@ class MyTextField extends StatefulWidget {
     this.nextFn,
     this.rowLabelRatio = const[3,7],
     this.validationColor,
+    this.backgroundColor,
     this.prevFn,
     this.labelInRow = false,
     this.controller,
@@ -254,20 +256,22 @@ class _MyTextFieldState extends State<MyTextField> {
             flex: widget.rowLabelRatio[0],
             child: widget.label == null
                 ? const SizedBox()
-                : Row(
-                    children: [
-                      Text(
-                        widget.label ?? '',
-                        style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
-                      ),
-                      widget.required
-                          ? Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
-                            )
-                          : const SizedBox(),
-                    ],
-                  ),
+                : IgnorePointer(
+                  child: Row(
+                      children: [
+                        Text(
+                          widget.label ?? '',
+                          style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
+                        ),
+                        widget.required
+                            ? Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
+                                child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
+                              )
+                            : const SizedBox(),
+                      ],
+                    ),
+                ),
           ),
           Expanded(
             flex: widget.rowLabelRatio[1],
@@ -303,11 +307,11 @@ class _MyTextFieldState extends State<MyTextField> {
                         decoration: InputDecoration(
                           contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.48),
+                          fillColor: widget.backgroundColor??Colors.white.withOpacity(0.48),
                           hintText: widget.placeholder,
                           prefix: widget.prefix,
                           counter: widget.showLimit ? null : SizedBox(),
-                          hintStyle: TextStyle(color: MyColors.notImportant, fontWeight: FontWeight.w400, fontSize: widget.fontSize),
+                          hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
                           border: hasError && false
                               ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))
                               : OutlineInputBorder(borderSide: widget.borderSide ?? BorderSide.none, borderRadius: widget.radius ?? BorderRadius.circular(5)),

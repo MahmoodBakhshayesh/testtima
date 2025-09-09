@@ -72,6 +72,11 @@ abstract class Routes {
     name: 'dynamsoft',
     isShellRoute: false,
   );
+  static MyRouteInfo performance = MyRouteInfo(
+    path: '/performance',
+    name: 'performance',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,

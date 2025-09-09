@@ -155,6 +155,7 @@ class _MyButtonState extends State<MyButton> {
                       : Text(
                     widget.label,
                     style: TextStyle(fontSize: widget.fontSize, color: foregroundColor, fontWeight: widget.fontWeight),
+                    textAlign: TextAlign.center,
                   ),
                   !widget.iconInRight || widget.icon == null
                       ? const SizedBox()

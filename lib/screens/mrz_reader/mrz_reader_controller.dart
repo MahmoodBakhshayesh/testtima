@@ -11,6 +11,7 @@ import 'package:abds/core/utils_and_services/stateControllers/residents_state_co
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/screens/mrz_reader/usecases/send_logs_usecase.dart';
+import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -59,9 +60,8 @@ class MrzReaderController extends ControllerInterface {
       return;
     }
 
-
-    log(jsonEncode(scanned.valid.toString()));
-    log(jsonEncode(scanned.expiryDate.toString()));
+    // log(jsonEncode(scanned.valid.toString()));
+    // log(jsonEncode(scanned.expiryDate.toString()));
     // log("scanned.toString()");
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
@@ -69,23 +69,23 @@ class MrzReaderController extends ControllerInterface {
     //   return;
     // }
 
-    if(setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
+    if (setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
       agg.add(scanned); // only validated fields contribute
       final consensus = agg.build();
       final res = consensus.toResult();
+      res.ocrData = scanned.ocrData;
 
       ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
-      if(ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
+      if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
         if (res.matchSetting(setting)) {
           onDocScan(res);
         }
       }
-    }else if(setting.algorithm == ParseAlgorithm.method2){
-
-        if(ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
-          if(scanned.matchSetting(setting)){
-            onDocScan(scanned);
-          }
+    } else if (setting.algorithm == ParseAlgorithm.method2) {
+      if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
+        if (scanned.matchSetting(setting)) {
+          onDocScan(scanned);
+        }
       }
     }
 
@@ -227,6 +227,16 @@ class MrzReaderController extends ControllerInterface {
       // log("*"*100);
 
       docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
+
+
+      if(BasicClass.constData.documentTypeMappers.isNotEmpty){
+          final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last));
+          if(match != null){
+            docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
+          }
+      }
+
+
       log("setting doctype of ${res.documentCode} to ${docType?.code}");
       // docType = mapMrzDocCodeToTimatic()
       if (res.isPassport) {
@@ -251,8 +261,8 @@ class MrzReaderController extends ControllerInterface {
       final nationality = BasicClass.getLocationWithCode(res.nationality);
       final issueCountry = BasicClass.getLocationWithCode(res.countryCode);
 
-      log("res.nationality ${res.nationality}");
-      log("res.countryCode ${res.countryCode}");
+      // log("res.nationality ${res.nationality}");
+      // log("res.countryCode ${res.countryCode}");
 
       DocumentDetail documentDetail = DocumentDetail(
         documentExpiryDate: res.expiryDate,
@@ -264,10 +274,28 @@ class MrzReaderController extends ControllerInterface {
         documentFeature: DocumentFeature.mrd,
         mrz: res.mrzLines.join("\n"),
         birthDate: res.birthDate,
+        ocrText: res.ocrData.text
       );
 
+      log("*"*100);
+      log(documentDetail.ocrText??'--');
+      log("*"*100);
+
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
+
+      if(ref.read(passportsProvider).any((a)=>a.isSameAs(res)) || ref.read(visasProvider).any((a)=>a.isSameAs(res)) || ref.read(residentsProvider).any((a)=>a.isSameAs(res)) ){
+        log("was isSameAs");
+        navigation.pop();
+        Future.delayed(Duration(seconds: 1),(){
+          FailureHandler.handle(ServerFailure(code: -1, msg: 'Duplicate Document', traceMsg: 'Duplicate Document'));
+        });
+        return;
+      }else{
+        log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a)=>a.documentNumber)}");
+      }
+
       if (res.isPassport) {
+
         int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
         if (emptyIndex == -1) {
           if (ref.read(passportsProvider).isEmpty) {
@@ -300,8 +328,8 @@ class MrzReaderController extends ControllerInterface {
         nationality: currentPax.nationality ?? nationality,
         gender: gender,
         birthDate: res.birthDate,
-        birthCountry: currentPax.birthCountry ?? nationality,
-        residentCountryCode: currentPax.residentCountryCode ,
+        birthCountry: currentPax.birthCountry,
+        residentCountryCode: currentPax.residentCountryCode,
       );
 
       if (res.documentCode.startsWith("C") || res.documentCode.startsWith("I")) {
@@ -322,7 +350,7 @@ class MrzReaderController extends ControllerInterface {
   }
 
   void mrzLogger(OcrMrzLog l) {
-    log("logger");
+    // log("logger");
     if (!scanning) {
       return;
     }
@@ -344,7 +372,7 @@ class MrzReaderController extends ControllerInterface {
     } else {
       ref.read(ocrMrzLogsProvider.notifier).update((s) => [...current, l]);
     }
-    log("logs count ${current.length}");
+    // log("logs count ${current.length}");
   }
 
   Future<void> sendLogs(List<OcrMrzLog> current, {bool confirm = true}) async {
@@ -466,6 +494,6 @@ class MrzReaderController extends ControllerInterface {
 
   void showMrzSessionLog() {
     final sg = ocrMrzController.getSessionHistory.value;
-    navigation.openDialog(dialog: SessionLogHistoryDialog(sl: sg,));
+    navigation.openDialog(dialog: SessionLogHistoryDialog(sl: sg));
   }
 }

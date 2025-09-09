@@ -35,6 +35,7 @@ import 'core/utils_and_services/timatic/src/timatic_client.dart';
 import 'screens/home/home_controller.dart';
 import 'screens/login/login_controller.dart';
 import 'core/interface_implementations/network_manager_imp.dart';
+import 'screens/performance/performance_controller.dart';
 
 final getIt = GetIt.instance;
 final String apiVersion = "/v1";
@@ -218,6 +219,7 @@ Future<void> initNavigation() async {
   LogsController logsController = LogsController();
   ProfileController profileController = ProfileController();
   DynamsoftMrzController dynamsoftMrzController = DynamsoftMrzController();
+  PerformanceController performanceController = PerformanceController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -228,8 +230,9 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(logsController);
   getIt.registerSingleton(profileController);
   getIt.registerSingleton(dynamsoftMrzController);
+  getIt.registerSingleton(performanceController);
 
-  TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController});
+  TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController,Routes.performance:performanceController});
 
   print("registerAllControllers");
 }

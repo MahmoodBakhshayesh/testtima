@@ -15,6 +15,7 @@ import 'dart:developer' as dev;
 
 class MyFieldPicker<T> extends StatefulWidget {
   final String Function(T)? itemToString;
+  final String Function(T)? valueToString;
   final String Function(T)? searchBuilder;
   final Color Function(T)? itemToColor;
   final Widget Function(T)? itemToWidget;
@@ -31,18 +32,22 @@ class MyFieldPicker<T> extends StatefulWidget {
   final bool hasSearch;
   final bool required;
   final bool labelInRow;
+  final bool searchAutoFocus;
   final TextStyle? style;
+  final Color? backgroundColor;
   final TextStyle? labelStyle;
   final List<int> rowLabelRatio;
 
   const MyFieldPicker({
     super.key,
     this.itemToString,
+    this.valueToString,
     this.searchBuilder,
     this.locked = false,
     this.required = false,
     this.labelInRow = false,
     this.style,
+    this.backgroundColor,
     this.itemToColor,
     required this.label,
     this.placeholder,
@@ -50,6 +55,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.onChange,
     this.labelStyle,
     this.hasSearch = true,
+    this.searchAutoFocus = false,
     this.value,
     this.showClearButton = true,
     this.supportNull = true,
@@ -90,7 +96,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
   @override
   void didUpdateWidget(covariant MyFieldPicker<T> oldWidget) {
     if (widget.value != oldWidget.value && mounted) {
-      controller.text = widget.value == null ? "" : widget.value.toString();
+      controller.text = widget.value == null ? "" :widget.valueToString?.call(widget.value!)?? widget.value.toString();
       value.value = widget.value;
       setState(() {});
     }
@@ -104,7 +110,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
     return ValueListenableBuilder<T?>(
       valueListenable: value,
       builder: (context, v, _) {
-        return InkWell(
+        return GestureDetector(
           onTap: () {
             dev.log("pick item");
             showModalBottomSheet(
@@ -116,6 +122,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                   child: PickerSheetWidget(
                     value: widget.value,
+                    searchAutoFocus: widget.searchAutoFocus,
                     hasClear: widget.showClearButton,
                     searchBuilder: widget.searchBuilder,
                     items: widget.items,
@@ -140,23 +147,23 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               }
             });
           },
-          child: AbsorbPointer(
-            child: MyTextField(
-              showError: false,
-              labelStyle: widget.labelStyle,
-              required: widget.required,
-              prefix:widget.prefix ,
-              prefixIcon: widget.prefixIcon,
-              rowLabelRatio: widget.rowLabelRatio,
-              labelInRow: true,
-              controller: controller,
-              borderSide: BorderSide(color: Colors.white, width: 1),
-              radius: BorderRadius.circular(8),
-              label: widget.label,
-              fontSize: 12,
-              placeholder: widget.placeholder,
-              suffixIcon: Icon(Icons.arrow_drop_down),
-            ),
+          child: MyTextField(
+            showError: false,
+            disabled: true,
+            backgroundColor: widget.backgroundColor,
+            labelStyle: widget.labelStyle,
+            required: widget.required,
+            prefix:widget.prefix ,
+            prefixIcon: widget.prefixIcon,
+            rowLabelRatio: widget.rowLabelRatio,
+            labelInRow: true,
+            controller: controller,
+            borderSide: BorderSide(color: Colors.white, width: 1),
+            radius: BorderRadius.circular(8),
+            label: widget.label,
+            fontSize: 12,
+            placeholder: widget.placeholder,
+            suffixIcon: Icon(Icons.arrow_drop_down),
           ),
         );
       },
@@ -169,15 +176,17 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final String label;
   final bool hasSearch;
   final bool hasClear;
+  final bool searchAutoFocus;
   final T? value;
   final Widget Function(T)? itemToWidget;
   final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items, required this.label, required this.hasClear, this.itemToWidget, required this.value, this.searchBuilder, required this.hasSearch});
+  const PickerSheetWidget({super.key, required this.items, required this.label, required this.hasClear, this.itemToWidget, required this.value, required this.searchAutoFocus, this.searchBuilder, required this.hasSearch});
 
   @override
   State<PickerSheetWidget<T>> createState() => _PickerSheetWidgetState<T>();
 }
+
 
 class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   final TextEditingController searchC = TextEditingController();
@@ -346,6 +355,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
                 CupertinoTextField(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   controller: searchC,
+                  autofocus: widget.searchAutoFocus,
                   prefix: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.search)),
                 ),
 
