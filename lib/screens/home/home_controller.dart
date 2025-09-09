@@ -49,6 +49,8 @@ class HomeController extends ControllerInterface {
 
     ref.read(showWarningsProvider.notifier).update((s) => true);
     ref.read(passNumberInVisaProvider.notifier).update((s) => false);
+    ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
+    ref.read(showingLogsProvider.notifier).update((s) => []);
     // ref.read(lastVisaOcrProvider.notifier).update((s)=>null);
     // ref.read(lastPassportOcrProvider.notifier).update((s)=>null);
 
@@ -223,7 +225,7 @@ class HomeController extends ControllerInterface {
   }
 
   askSuperVisorDialog() {
-
+    ref.read(attachingPhotoPathProvider.notifier).update((s)=>[]);
     navigation.openDialog(dialog: AskSupervisorDialog(logId:ref.read(timaticResultProvider)?.refCode??''));
   }
 
