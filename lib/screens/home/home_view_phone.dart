@@ -1735,47 +1735,60 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                   children: [
                                     Row(
                                       children: [
-                                        Expanded(child: Text((l.payload?.title ?? '').toUpperCase(), style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-                                        Text(l.at?.format_ddMMMEEE ?? '', style: TextStyle(fontSize: 8, fontWeight: FontWeight.normal)),
+
+                                        Expanded(child: Text(( "${l.payload?.title ?? ''} (${(l.type??'')})").toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                                        Text(l.user?.username??l.user?.email??'', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
                                       ],
                                     ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text((l.payload?.description ?? '').toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal)),
-                                        ),
-                                        Text(l.at?.format_HHmmss ?? '', style: TextStyle(fontSize: 8, fontWeight: FontWeight.normal)),
-                                      ],
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text((l.payload?.description ?? '').toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal)),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     (l.payload?.attachFiles ?? []).isEmpty
                                         ? SizedBox()
-                                        : Wrap(
-                                            children: [
-                                              ...(l.payload?.attachFiles ?? [])
-                                                  .map(
-                                                    (img) => GestureDetector(
-                                                      onTap:(){
-                                                        showDialog(context: context, builder: (BuildContext context) {
-                                                          return PhotoPreviewDialog(address: img);
-                                                        },);
-                                                      },
-                                                      child: SizedBox(
-                                                        width: 40,
-                                                        height: 40,
-                                                        child: ClipRRect(
-                                                          borderRadius: BorderRadiusGeometry.circular(5),
-                                                          child: Image.network(
-                                                            "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
-                                                            fit: BoxFit.fill,
-                                                            headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+                                        : Row(
+                                          children: [
+                                            Expanded(
+                                              child: Wrap(
+                                                  children: [
+                                                    ...(l.payload?.attachFiles ?? [])
+                                                        .map(
+                                                          (img) => GestureDetector(
+                                                            onTap:(){
+                                                              showDialog(context: context, builder: (BuildContext context) {
+                                                                return PhotoPreviewDialog(address: img);
+                                                              },);
+                                                            },
+                                                            child: SizedBox(
+                                                              width: 40,
+                                                              height: 40,
+                                                              child: ClipRRect(
+                                                                borderRadius: BorderRadiusGeometry.circular(5),
+                                                                child: Image.network(
+                                                                  "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
+                                                                  fit: BoxFit.fill,
+                                                                  headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+                                                                ),
+                                                              ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  )
-                                                  .toList(),
-                                            ],
-                                          ),
+                                                        )
+                                                        .toList(),
+                                                  ],
+                                                ),
+                                            ),
+                                            Column(children: [
+                                              Text(l.at?.format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                              Text(l.at?.format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                            ],)
+                                          ],
+                                        ),
                                   ],
                                 ),
                               ),
