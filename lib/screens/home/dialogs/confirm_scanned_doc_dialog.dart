@@ -179,19 +179,6 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         footerExtra: IndexedStack(
           index: isLast ? 0 : 1,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: MyButton(
-                height: 30,
-                label: "Confirming",
-                icon: Icons.add_circle_outline,
-                onPressed: () {
-                  ref.read(confirmingDocumentProvider.notifier).update((s)=>DocumentDetail());
-                },
-                textColor: Colors.blueAccent,
-                color: Colors.blueAccent.withOpacity(0.1),
-              ),
-            ),
             SizedBox(),
           ],
         ),

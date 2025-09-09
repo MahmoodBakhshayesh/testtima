@@ -313,7 +313,16 @@ class OcrMrzAggregator {
 
 
     // Sex (no explicit flag; count when char looks MRZ-like and lines lengths are valid)
-    if (v.linesLengthValid && r.sex.trim().isNotEmpty) {
+    // if (v.linesLengthValid && r.sex.trim().isNotEmpty) {
+    //   final s = _normSex(r.sex);
+    //   if (s == 'M' || s == 'F' || s == 'X' || s == '<') {
+    //     _sex.add(s);
+    //   }
+    // }
+
+
+    // Sex (no explicit flag; count when char looks MRZ-like and lines lengths are valid)
+    if (r.sex.trim().isNotEmpty) {
       final s = _normSex(r.sex);
       if (s == 'M' || s == 'F' || s == 'X' || s == '<') {
         _sex.add(s);
