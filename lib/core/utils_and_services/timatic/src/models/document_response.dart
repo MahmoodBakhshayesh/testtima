@@ -91,7 +91,7 @@ extension EvalResultX on EvalResult {
 
 class DocumentResponse {
   final String? transactionId;
-  final String? refCode;
+  String? refCode;
   final String? passengerId;
   final EvalResult evaluationResult;
   final List<SubmittedDocument>? submittedDocuments;

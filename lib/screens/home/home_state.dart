@@ -4,6 +4,7 @@ import 'package:abds/core/utils_and_services/import_toggler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/classes/ref_history_log_class.dart';
 import '../../core/utils_and_services/timatic/artemis_timatic.dart';
 
 final homeProvider = ChangeNotifierProvider<HomeState>((_) => HomeState());
@@ -26,5 +27,7 @@ final documentNumberProvider =  StateProvider<String>((ref) => "");
 final warningsProvider =  StateProvider<List<String>>((ref) => []);
 final showWarningsProvider =  StateProvider<bool>((ref) => true);
 final passNumberInVisaProvider = StateProvider<bool>((ref) => false);
-final attachingPhotoProvider = StateProvider<List<Uint8List>>((ref) => []);
+// final attachingPhotoProvider = StateProvider<List<Uint8List>>((ref) => []);
+final attachingPhotoPathProvider = StateProvider<List<String>>((ref) => []);
 final confirmingDocumentProvider = StateProvider<DocumentDetail?>((ref) => null);
+final showingLogsProvider =  StateProvider<List<RefHistoryLog>>((ref) => []);

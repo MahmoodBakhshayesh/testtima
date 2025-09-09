@@ -1,3 +1,5 @@
+import '../usecases/get_report_usecase.dart';
+
 abstract class PerformanceDataSourceInterface {
-  // Future<Response> ({required Request request});
+  Future<GetReportResponse> getReport({required GetReportRequest request});
 }

@@ -186,30 +186,36 @@ class Profile {
 class ConstData {
   AllPermissions userPermissionAttributes;
   List<DocumentTypeMapper> documentTypeMappers;
+  List<String> logNoteTypes;
 
   ConstData({
     required this.userPermissionAttributes,
     required this.documentTypeMappers,
+    required this.logNoteTypes,
   });
 
   ConstData copyWith({
     AllPermissions? userPermissionAttributes,
     List<DocumentTypeMapper>? documentTypeMappers,
+    List<String>? logNoteTypes,
 
   }) =>
       ConstData(
         userPermissionAttributes: userPermissionAttributes ?? this.userPermissionAttributes,
         documentTypeMappers: documentTypeMappers ?? this.documentTypeMappers,
+        logNoteTypes: logNoteTypes ?? this.logNoteTypes,
       );
 
   factory ConstData.fromJson(Map<String, dynamic> json) => ConstData(
     userPermissionAttributes: AllPermissions.fromJson(json["permission"]),
     documentTypeMappers:List<DocumentTypeMapper>.from((json["documentType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
+    logNoteTypes:List<String>.from((json["logNoteType"]??[])),
   );
 
   Map<String, dynamic> toJson() => {
     "permission": userPermissionAttributes.toJson(),
     "documentType": documentTypeMappers.map((a)=>a.toJson()).toList(),
+    "logNoteTypes": logNoteTypes,
   };
 }
 

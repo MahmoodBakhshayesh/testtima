@@ -20,22 +20,22 @@ import '../../../widgets/MyDatePicker.dart';
 import '../../../widgets/MyExpansionTile.dart';
 import '../../../widgets/MyFieldPicker.dart';
 import '../../../widgets/MyTextField.dart';
+import '../../login/login_state.dart';
 import '../home_controller.dart';
 import '../home_view_phone.dart';
 
-class AskRefCodeDialog extends StatefulWidget {
-  const AskRefCodeDialog({super.key});
+class PhotoPreviewDialog extends ConsumerStatefulWidget {
+  final String address;
+  const PhotoPreviewDialog({super.key, required this.address});
 
   @override
-  State<AskRefCodeDialog> createState() => _AskRefCodeDialogState();
+  ConsumerState<PhotoPreviewDialog> createState() => _PhotoPreviewDialogState();
 }
 
-class _AskRefCodeDialogState extends State<AskRefCodeDialog> {
-  TextEditingController textEditingController = TextEditingController();
+class _PhotoPreviewDialogState extends ConsumerState<PhotoPreviewDialog> {
 
   @override
   void initState() {
-    textEditingController.addListener(()=>setState((){}));
     super.initState();
   }
   @override
@@ -54,39 +54,34 @@ class _AskRefCodeDialogState extends State<AskRefCodeDialog> {
               padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0),
               child: Row(children: [
                 const SizedBox(width: 16),
-                Expanded(child: Text("Reference Code History",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w700),)),
+                Expanded(child: Text("Photo Overview",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w700),)),
                 CloseButton(),
               ],),
             ),
             Divider(height: 1,),
             const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-              child: Row(children: [
-                Text("Please insert your reference code!"),
-              ],),
+            SizedBox(
+              height: MediaQuery.of(context).size.height *0.6,
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                child:Image.network(
+                  "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${widget.address}",
+                  fit: BoxFit.fill,
+                  headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+                ),
+              ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CupertinoTextField(
-                keyboardType: TextInputType.numberWithOptions(signed: true),
-                controller: textEditingController,placeholder: "Code",decoration: BoxDecoration(color: Colors.black.withOpacity(0.08)),),
-            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: MyButton(
                 label: "OK",
                 reverse: true,
                 borderSide: BorderSide(color: context.mainColor),
-                onPressed:textEditingController.text.isEmpty?null: () async {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  final a = await getIt<HomeController>().getRefHistoryLog(textEditingController.text);
-                  if(a!=null){
-                    Navigator.of(context).pop();
-                  }
+                onPressed:() async {
+                  Navigator.of(context).pop();
 
-                  // Navigator.of(context).pop();
                 },
               ),
             ),

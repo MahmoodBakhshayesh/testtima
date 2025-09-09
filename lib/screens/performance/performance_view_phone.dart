@@ -1,6 +1,7 @@
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/widgets/DotButton.dart';
+import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,8 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
   DateTime? fromDate;
   DateTime? toDate;
 
+  PerformanceLog? log;
+
   @override
   Widget build(BuildContext context) {
     Color textFieldBG = Color(0xff6e6e6e).withOpacity(0.15);
@@ -37,7 +40,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
     Color redParts = Color(0xffFF3f42);
     Color blueParts = Color(0xff2A5CFF);
     Color orangeParts = Color(0xffFFA32C);
-    List<PerformanceLog> logList = [PerformanceLog.test(), PerformanceLog.test(), PerformanceLog.test()];
+
     return Scaffold(
       appBar: PerformanceAppBar(),
       backgroundColor: Colors.white,
@@ -101,225 +104,248 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
                 ),
               ],
             ),
-            Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "TOTAL CHECKS",
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
-                        ),
-                      ),
-                      Icon(ArtemisIcons.user_octagon, size: 20),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text("2,569", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            log == null
+                ? SizedBox()
+                : Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 12,
                       children: [
+                        Container(
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      "TOTAL CHECKS",
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                                    ),
+                                  ),
+                                  Icon(ArtemisIcons.user_octagon, size: 20),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text("${log!.total}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+                              ),
+                            ],
+                          ),
+                        ),
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                "ALLOWED",
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                              child: Container(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "ALLOWED",
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                                          ),
+                                        ),
+                                        Icon(ArtemisIcons.tick_square, color: greenParts, size: 20),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${log!.allowes}",
+                                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: greenParts),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            Icon(ArtemisIcons.tick_square, color: greenParts, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "NOT ALLOWED",
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                                          ),
+                                        ),
+                                        Icon(ArtemisIcons.close_square, color: redParts, size: 20),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${log!.notAllowed}",
+                                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: redParts),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            "2,569",
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: greenParts),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                "NOT ALLOWED",
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                              child: Container(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "CONDITIONAL",
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                                          ),
+                                        ),
+                                        Icon(ArtemisIcons.danger, color: orangeParts, size: 20),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${log!.conditional}",
+                                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: orangeParts),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            Icon(ArtemisIcons.close_square, color: redParts, size: 20),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            "2,569",
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: redParts),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
+                            const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                "CONDITIONAL",
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                              child: Container(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "FORCE APPROVED",
+                                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
+                                          ),
+                                        ),
+                                        Icon(ArtemisIcons.tick_square, color: blueParts, size: 20),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        "${log!.forceApproved}",
+                                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: blueParts),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            Icon(ArtemisIcons.danger, color: orangeParts, size: 20),
                           ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            "2,569",
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: orangeParts),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "FORCE APPROVED",
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
-                              ),
-                            ),
-                            Icon(ArtemisIcons.tick_square, color: blueParts, size: 20),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            "2,569",
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: blueParts),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: MyColors.white3,
-                      border: Border(
-                        top: BorderSide(color: MyColors.lineColor),
-                        left: BorderSide(color: MyColors.lineColor),
-                        right: BorderSide(color: MyColors.lineColor),
-                      ),
-                      borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                            ),
-                            child: Center(child: Text("TIME", style: TextStyle(fontSize: 10, wordSpacing: 0))),
-                          ),
                         ),
                         Expanded(
-                          flex: 4,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                            ),
-                            child: Center(child: Text("ROUTE", style: TextStyle(fontSize: 10))),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                            ),
+                          child: Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: MyColors.white3,
+                                  border: Border(
+                                    top: BorderSide(color: MyColors.lineColor),
+                                    left: BorderSide(color: MyColors.lineColor),
+                                    right: BorderSide(color: MyColors.lineColor),
+                                  ),
+                                  borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 7,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        decoration: BoxDecoration(
+                                          border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                        ),
+                                        child: Center(child: Text("TIME", style: TextStyle(fontSize: 10, wordSpacing: 0))),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        decoration: BoxDecoration(
+                                          border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                        ),
+                                        child: Center(child: Text("ROUTE", style: TextStyle(fontSize: 10))),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        decoration: BoxDecoration(
+                                          border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                        ),
 
-                            child: Center(child: Text("CODE", style: TextStyle(fontSize: 10))),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 6,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(),
-                            child: Center(child: Text("RESULT", style: TextStyle(fontSize: 10))),
+                                        child: Center(child: Text("CODE", style: TextStyle(fontSize: 10))),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 6,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        decoration: BoxDecoration(),
+                                        child: Center(child: Text("RESULT", style: TextStyle(fontSize: 10))),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: log == null
+                                    ? SizedBox()
+                                    : ListView.builder(
+                                        itemCount: (log!.details ?? []).length,
+                                        itemBuilder: (c, i) {
+                                          PerformanceLogDetail det = (log!.details ?? [])[i];
+                                          return PerformanceLogWidget(index: i, log: det);
+                                        },
+                                      ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: logList.length,
-                      itemBuilder: (c, i) {
-                        PerformanceLog log = logList[i];
-                        return PerformanceLogWidget(index: i, log: log);
-                      },
-                    ),
-                  ),
-                ],
-              ),
+
+            MyButton(
+              label: "Get Report",
+              onPressed: () async {
+                final l = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
+                if (l != null) {
+                  log = l;
+                  setState(() {});
+                }
+              },
             ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
@@ -368,7 +394,7 @@ class PerformanceAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class PerformanceLogWidget extends StatelessWidget {
-  final PerformanceLog log;
+  final PerformanceLogDetail log;
   final int index;
   final void Function()? onTap;
 
@@ -379,7 +405,8 @@ class PerformanceLogWidget extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     bool isOdd = index % 2 != 0;
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
-
+    List<Color> partColors = [Color(0xff00C68E), Color(0xffFF3f42), Color(0xffFFA32C), Color(0xff2A5CFF)];
+    List<String> partNames = ["Allowed", "Not Allowed", "Conditional", "Forced"];
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -396,7 +423,7 @@ class PerformanceLogWidget extends StatelessWidget {
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text("${DateFormat("dd MMM 2025 - hh:mm").format(log.dateTime!)}", style: TextStyle(fontSize: 10, wordSpacing: 0))),
+                child: Center(child: Text("${log.dateTime}", style: TextStyle(fontSize: 10, wordSpacing: 0))),
               ),
             ),
             Expanded(
@@ -406,7 +433,7 @@ class PerformanceLogWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text("${log.from}-${log.to}", style: TextStyle(fontSize: 10))),
+                child: Center(child: Text("${log.route}", style: TextStyle(fontSize: 10))),
               ),
             ),
             Expanded(
@@ -417,7 +444,7 @@ class PerformanceLogWidget extends StatelessWidget {
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
 
-                child: Center(child: Text("${log.code}", style: TextStyle(fontSize: 10))),
+                child: Center(child: Text((log.code ?? '').split("-").last, style: TextStyle(fontSize: 10))),
               ),
             ),
             Expanded(
@@ -427,7 +454,9 @@ class PerformanceLogWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text("${log.result}", style: TextStyle(fontSize: 10))),
+                child: Center(
+                  child: Text("${partNames[log.result ?? 0]}", style: TextStyle(fontSize: 10, color: partColors[log.result ?? 0])),
+                ),
               ),
             ),
           ],

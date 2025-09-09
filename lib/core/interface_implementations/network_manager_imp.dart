@@ -100,12 +100,13 @@ class NetworkManagerImp implements NetworkManagerInterface {
       }
     } else {
       String? errorMsg;
-      if (networkResponse.responseBody is String) {
-        errorMsg =networkResponse.extractedMessage?? networkResponse.responseBody;
+      if (networkResponse.responseBody is Map<String, dynamic>) {
+        errorMsg = networkResponse.responseBody["message"];
+        // errorMsg =networkResponse.extractedMessage?? networkResponse.responseBody;
       } else {
-        errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+        // errorMsg =networkResponse.responseBody["message"];
       }
-      log(jsonEncode(networkResponse.responseDetails));
+      // log(jsonEncode(networkResponse.responseDetails));
 
       throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }

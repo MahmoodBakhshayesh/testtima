@@ -11,6 +11,7 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
+import 'package:abds/screens/home/dialogs/photo_preview_dialog.dart';
 import 'package:abds/screens/home/dialogs/requested_data_dialog.dart';
 import 'package:abds/screens/home/home_drawer.dart';
 import 'package:abds/screens/login/login_controller.dart';
@@ -712,7 +713,6 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               },
                               reverse: true,
                               color: Colors.black,
-
                             )
                           : Row(
                               children: [
@@ -763,19 +763,18 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                       Spacer(),
                       resultMode
                           ? Row(
-                            spacing: 8,
-                            children: [
-                              MyButton(
-                                label: "Ask Supervisor",
-                                icon: ArtemisIcons.user_tag,
-                                iconInRight: true,
-                                onPressed: () async {
-                                  HomeViewPhone.myHomeController.clear();
-                                  ref.read(timaticResultProvider.notifier).update((s) => null);
-                                },
-                                radius: 12,
-                              ),
-                              MyButton(
+                              spacing: 8,
+                              children: [
+                                MyButton(
+                                  label: "Ask Supervisor",
+                                  icon: ArtemisIcons.user_tag,
+                                  iconInRight: true,
+                                  onPressed: () async {
+                                    HomeViewPhone.myHomeController.askSuperVisorDialog();
+                                  },
+                                  radius: 12,
+                                ),
+                                MyButton(
                                   label: "Start Again",
                                   icon: Icons.refresh,
                                   iconInRight: true,
@@ -785,8 +784,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   },
                                   radius: 12,
                                 ),
-                            ],
-                          )
+                              ],
+                            )
                           : MyButton(
                               label: "TIMATIC",
                               icon: Icons.perm_identity,
@@ -1637,8 +1636,8 @@ class TimaticTrueResultWidget extends ConsumerStatefulWidget {
 }
 
 class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidget> {
-
   ExpansibleController expansibleController = ExpansibleController();
+
   @override
   Widget build(BuildContext context) {
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
@@ -1646,6 +1645,7 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
     final List<DocumentDetail> residents = ref.watch(residentsProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
+    final showingLogs = ref.watch(showingLogsProvider);
     return Column(
       children: [
         Stack(
@@ -1689,7 +1689,7 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Text(
-                "${(widget.res.refCode ?? '')}",
+                (widget.res.refCode ?? ''),
                 style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900),
               ),
             ),
@@ -1698,22 +1698,107 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
         Expanded(
           child: ListView(
             children: [
+              showingLogs.isEmpty
+                  ? SizedBox()
+                  : MyExpansionTile(
+                      controller: expansibleController,
+                      key: Key("showing logs exp"),
+                      tilePadding: EdgeInsets.symmetric(horizontal: 8),
+                      showFooter: false,
+                      title: Container(
+                        // margin: EdgeInsets.only(left: 16, right: 16, bottom: 0),
+                        decoration: BoxDecoration(color: widget.res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: MyColors.black8),
+                              ),
+                              child: Text("Note And Logs"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      childrenPadding: EdgeInsets.symmetric(horizontal: 16),
+                      children: showingLogs.map((l) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(child: Text((l.payload?.title ?? '').toUpperCase(), style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+                                        Text(l.at?.format_ddMMMEEE ?? '', style: TextStyle(fontSize: 8, fontWeight: FontWeight.normal)),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text((l.payload?.description ?? '').toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal)),
+                                        ),
+                                        Text(l.at?.format_HHmmss ?? '', style: TextStyle(fontSize: 8, fontWeight: FontWeight.normal)),
+                                      ],
+                                    ),
+                                    (l.payload?.attachFiles ?? []).isEmpty
+                                        ? SizedBox()
+                                        : Wrap(
+                                            children: [
+                                              ...(l.payload?.attachFiles ?? [])
+                                                  .map(
+                                                    (img) => GestureDetector(
+                                                      onTap:(){
+                                                        showDialog(context: context, builder: (BuildContext context) {
+                                                          return PhotoPreviewDialog(address: img);
+                                                        },);
+                                                      },
+                                                      child: SizedBox(
+                                                        width: 40,
+                                                        height: 40,
+                                                        child: ClipRRect(
+                                                          borderRadius: BorderRadiusGeometry.circular(5),
+                                                          child: Image.network(
+                                                            "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
+                                                            fit: BoxFit.fill,
+                                                            headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                            ],
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
               MyExpansionTile(
-                controller:expansibleController,
-                key:Key("result req exp"),
+                controller: expansibleController,
+                key: Key("result req exp"),
                 tilePadding: EdgeInsets.symmetric(horizontal: 8),
                 showFooter: false,
-                title:  Container(
+                title: Container(
                   // margin: EdgeInsets.only(left: 16, right: 16, bottom: 0),
                   decoration: BoxDecoration(color: widget.res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  // padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Column(
                     children: [
-
                       Container(
-                        padding: EdgeInsets.symmetric(vertical: 4),
+                        // padding: EdgeInsets.symmetric(vertical: 4),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
+                          borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: MyColors.black8),
                         ),
                         child: RequestBriefWidget(),
@@ -1808,7 +1893,6 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                         ref.read(passportsProvider.notifier).updateAt(lastIndex, DocumentDetail());
                                       },
                                     ),
-
                                   ],
                                 ),
                               ),
@@ -1955,92 +2039,94 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                   );
                                 },
                               ),
-                              PhotoAttachmentWidget()
+                              PhotoAttachmentWidget(),
                             ],
                           ),
                         ),
-                      ],),
-                  )
+                      ],
+                    ),
+                  ),
                 ],
               ),
               ...widget.res.segmentResults.map((segRes) {
-              int index = widget.res.segmentResults.indexOf(segRes);
-              segRes.ruleSetEvaluations.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
-              return MyExpansionTile(
-                initiallyExpanded: segRes.ruleSetEvaluations.any((a) => a.evaluationResult.index < 2),
-                tilePadding: EdgeInsets.symmetric(horizontal: 16),
-                showFooter: false,
-                title: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.12)),
-                        color: segRes.segmentEvaluationResult.getColor.withOpacity(0.08),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            child: Row(children: [Text("Seg #${index + 1} "), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
-                          ),
-                          FittedBox(
-                            fit: BoxFit.fitWidth,
-                            child: Text(segRes.segmentEvaluationResult.getTitle, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(
-                              // visaField.applicable ? 'Applicable' : "Not applicable",
-                              segRes.segmentEvaluationResult.getSubtitle,
-                              style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.w600),
+                int index = widget.res.segmentResults.indexOf(segRes);
+                segRes.ruleSetEvaluations.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
+                return MyExpansionTile(
+                  initiallyExpanded: segRes.ruleSetEvaluations.any((a) => a.evaluationResult.index < 2),
+                  tilePadding: EdgeInsets.symmetric(horizontal: 16),
+                  showFooter: false,
+                  title: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.12)),
+                          color: segRes.segmentEvaluationResult.getColor.withOpacity(0.08),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              child: Row(children: [Text("Seg #${index + 1} "), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            height: 72,
-                            decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor, borderRadius: BorderRadius.circular(12)),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(segRes.segmentEvaluationResult.getIcon, color: Colors.white, size: 25),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    segRes.segmentEvaluationResult.getActionName,
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
-                                  ),
-                                ],
+                            FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(segRes.segmentEvaluationResult.getTitle, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                // visaField.applicable ? 'Applicable' : "Not applicable",
+                                segRes.segmentEvaluationResult.getSubtitle,
+                                style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.w600),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Container(
+                              height: 72,
+                              decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor, borderRadius: BorderRadius.circular(12)),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(segRes.segmentEvaluationResult.getIcon, color: Colors.white, size: 25),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      segRes.segmentEvaluationResult.getActionName,
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                  children: [
+                    segRes.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: segRes.commonBorder!),
+                    ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)),
                   ],
-                ),
-                children: [
-                  segRes.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: segRes.commonBorder!),
-                  ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)),
-                ],
-                // children: res.segmentResults.first.ruleSetEvaluations.map((a) => RuleSetWidget(ruleSet: a)).toList(),
-                // children: res.segmentResults.map((a) {
-                //
-                //   log(a.ruleSetEvaluations.first.evaluationResult.name);
-                //
-                //   a.ruleSetEvaluations.sort((a,b)=>a.evaluationResult.name.compareTo(b.evaluationResult.name));
-                //   return Column(
-                //     mainAxisSize: MainAxisSize.min,
-                //     children: [
-                //       a.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: a.commonBorder!),
-                //       ...a.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)).toList(),
-                //     ],
-                //   );
-                // }).toList(),
-              );
-            }).toList()],
+                  // children: res.segmentResults.first.ruleSetEvaluations.map((a) => RuleSetWidget(ruleSet: a)).toList(),
+                  // children: res.segmentResults.map((a) {
+                  //
+                  //   log(a.ruleSetEvaluations.first.evaluationResult.name);
+                  //
+                  //   a.ruleSetEvaluations.sort((a,b)=>a.evaluationResult.name.compareTo(b.evaluationResult.name));
+                  //   return Column(
+                  //     mainAxisSize: MainAxisSize.min,
+                  //     children: [
+                  //       a.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: a.commonBorder!),
+                  //       ...a.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)).toList(),
+                  //     ],
+                  //   );
+                  // }).toList(),
+                );
+              }).toList(),
+            ],
           ),
         ),
       ],
@@ -2072,7 +2158,7 @@ class TimaticResultWidget extends StatelessWidget {
               Container(
                 decoration: BoxDecoration(color: Colors.lightBlueAccent.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Row(children: [Text("(${(res.refCode ?? '').split("-").last}) Seg #${index + 1} "), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
+                child: Row(children: [Text("(${(res.refCode ?? '')}) Seg #${index + 1} "), Spacer(), Text(segRes.departure.point), Icon(Icons.arrow_right_alt), Text(segRes.arrival.point)]),
               ),
               const SizedBox(height: 8),
               visaField == null
@@ -2859,6 +2945,20 @@ class RequestBriefWidget extends ConsumerWidget {
     List<DocumentDetail> passports = ref.watch(passportsProvider);
     List<DocumentDetail> visas = ref.watch(visasProvider);
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        // color: MyColors.scaffoldHeader,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12),bottom: Radius.circular(12)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text("PASSENGER", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+          ),
+        ],
+      ),
+    );
+    return Container(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
         child: Column(
@@ -2957,58 +3057,58 @@ class PhotoAttachmentWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox();
-    final photos = ref.watch(attachingPhotoProvider);
-    return Container(
-      margin: EdgeInsets.only(top: 12),
-      width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.start,
-        runAlignment: WrapAlignment.start,
-        direction: Axis.horizontal,
-        spacing: 8,
-        runSpacing: 4,
-        children: [
-          MyButton(
-            width: 75,
-            height: 75,
-            label: "Attach\nPhoto",
-            // child: Text("Attach\nPhoto",textAlign: TextAlign.center,),
-            onPressed: () {
-              getIt<HomeController>().selectPhotoToAttachMethodDialog();
-            },
-            radius: 10,
-          ),
-          ...photos.map(
-            (p) => SizedBox(
-              width: 75,
-              height: 75,
-              child: Stack(
-                children: [
-                  SizedBox(
-                    width: 75,
-                    height: 75,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(5),
-                      child: Image.memory(p, fit: BoxFit.fill),
-                    ),
-                  ),
-                  Positioned(
-                    right: 2,
-                    top: 2,
-                    child: DotButton(
-                      icon: Icons.delete,
-                      color: Colors.red,
-                      onPressed: () {
-                        ref.read(attachingPhotoProvider.notifier).update((s) => [...s.where((a) => a != p)]);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    // final photos = ref.watch(attachingPhotoProvider);
+    // return Container(
+    //   margin: EdgeInsets.only(top: 12),
+    //   width: double.infinity,
+    //   child: Wrap(
+    //     alignment: WrapAlignment.start,
+    //     runAlignment: WrapAlignment.start,
+    //     direction: Axis.horizontal,
+    //     spacing: 8,
+    //     runSpacing: 4,
+    //     children: [
+    //       MyButton(
+    //         width: 75,
+    //         height: 75,
+    //         label: "Attach\nPhoto",
+    //         // child: Text("Attach\nPhoto",textAlign: TextAlign.center,),
+    //         onPressed: () {
+    //           getIt<HomeController>().selectPhotoToAttachMethodDialog();
+    //         },
+    //         radius: 10,
+    //       ),
+    //       ...photos.map(
+    //         (p) => SizedBox(
+    //           width: 75,
+    //           height: 75,
+    //           child: Stack(
+    //             children: [
+    //               SizedBox(
+    //                 width: 75,
+    //                 height: 75,
+    //                 child: ClipRRect(
+    //                   borderRadius: BorderRadius.circular(5),
+    //                   child: Image.memory(p, fit: BoxFit.fill),
+    //                 ),
+    //               ),
+    //               Positioned(
+    //                 right: 2,
+    //                 top: 2,
+    //                 child: DotButton(
+    //                   icon: Icons.delete,
+    //                   color: Colors.red,
+    //                   onPressed: () {
+    //                     ref.read(attachingPhotoProvider.notifier).update((s) => [...s.where((a) => a != p)]);
+    //                   },
+    //                 ),
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }
