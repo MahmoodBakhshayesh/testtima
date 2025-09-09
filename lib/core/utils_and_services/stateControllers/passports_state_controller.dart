@@ -29,4 +29,8 @@ class ItemsController extends StateNotifier<List<DocumentDetail>> {
     final List<DocumentDetail> next = [];
     state = next;
   }
+
+  void setAll(List<DocumentDetail> next) {
+    state = [...next];
+  }
 }

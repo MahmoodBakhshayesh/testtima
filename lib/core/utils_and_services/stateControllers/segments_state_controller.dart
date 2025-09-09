@@ -29,4 +29,8 @@ class ItemsController extends StateNotifier<List<ItinerarySegment>> {
     final next = [ItinerarySegment.empty()];
     state = next;
   }
+
+  void setAll(List<ItinerarySegment> next) {
+    state = [...next];
+  }
 }

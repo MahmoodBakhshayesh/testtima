@@ -19,7 +19,7 @@ class NetworkManagerImp implements NetworkManagerInterface {
   NetworkManagerImp();
 
   @override
-  Future<ResponseImplementation> post(RequestInterface request, {String? api, Map<String, String>? headers, Duration? timeout,bool isBridge = false}) async {
+  Future<ResponseImplementation> post(RequestInterface request, {String? api, Map<String, String>? headers, Duration? timeout, bool isBridge = false}) async {
     NetworkOption option = NetworkOption();
 
     String apiAddress = api == null
@@ -53,21 +53,18 @@ class NetworkManagerImp implements NetworkManagerInterface {
       }
     } else {
       String? errorMsg;
-      if(networkResponse.responseBody is Map<String,dynamic>) {
-        errorMsg= networkResponse.responseBody["message"];
-      }else if(networkResponse.responseBody is  String){
-        errorMsg= jsonDecode(networkResponse.responseBody)["message"];
+      if (networkResponse.responseBody is Map<String, dynamic>) {
+        errorMsg = networkResponse.responseBody["message"];
+      } else if (networkResponse.responseBody is String) {
+        errorMsg = jsonDecode(networkResponse.responseBody)["message"];
       }
 
-      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 
   @override
-  Future<ResponseImplementation> get(
-      String? url, {
-        Map<String, String>? headers,
-      }) async {
+  Future<ResponseImplementation> get(String? url, {Map<String, String>? headers}) async {
     NetworkOption option = NetworkOption();
     String apiAddress = url == null
         ? option.baseUrl!
@@ -77,13 +74,12 @@ class NetworkManagerImp implements NetworkManagerInterface {
 
     NetworkRequest networkRequest = NetworkRequest(api: apiAddress, data: '');
     String? token = getIt<WidgetRef>().read(userProvider)?.token;
-    log(getIt<WidgetRef>().read(userProvider)?.token.toString()??'');
+    log(getIt<WidgetRef>().read(userProvider)?.token.toString() ?? '');
 
     if (token != null) {
       log("no null token");
       networkRequest.options.headers?.addAll({"Authorization": "Bearer $token"});
       log(networkRequest.options.headers.toString());
-
     }
 
     if (headers != null) {
@@ -103,9 +99,15 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+      String? errorMsg;
+      if (networkResponse.responseBody is String) {
+        errorMsg =networkResponse.extractedMessage?? networkResponse.responseBody;
+      } else {
+        errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+      }
+      log(jsonEncode(networkResponse.responseDetails));
 
-      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
     // return res;
   }
@@ -143,7 +145,7 @@ class NetworkManagerImp implements NetworkManagerInterface {
     } else {
       String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
 
-      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 
@@ -179,7 +181,7 @@ class NetworkManagerImp implements NetworkManagerInterface {
     } else {
       String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
 
-      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 
@@ -214,15 +216,13 @@ class NetworkManagerImp implements NetworkManagerInterface {
       }
     } else {
       String? errorMsg;
-      if(networkResponse.responseBody is String){
-         errorMsg = jsonDecode(networkResponse.responseBody)["message"];
-
-      }else {
-         errorMsg =networkResponse.responseBody["message"];
-
+      if (networkResponse.responseBody is String) {
+        errorMsg = jsonDecode(networkResponse.responseBody)["message"];
+      } else {
+        errorMsg = networkResponse.responseBody["message"];
       }
 
-      throw ServerException(code: networkResponse.responseCode, message:errorMsg?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
   }
 }

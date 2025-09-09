@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:abds/core/classes/server_mrz_result_class.dart';
+import 'package:abds/core/extenstions/mrz_res_ext.dart';
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/uploader.dart';
 import 'package:abds/core/utils_and_services/ext/mrz_ext.dart';
@@ -265,6 +266,7 @@ class MrzReaderController extends ControllerInterface {
       // log("res.countryCode ${res.countryCode}");
 
       DocumentDetail documentDetail = DocumentDetail(
+        shortType: res.getShortType,
         documentExpiryDate: res.expiryDate,
         documentIssueCountry: issueCountry,
         documentCode: docType,
@@ -294,34 +296,36 @@ class MrzReaderController extends ControllerInterface {
         log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a)=>a.documentNumber)}");
       }
 
-      if (res.isPassport) {
+      ref.read(confirmingDocumentProvider.notifier).update((s)=>documentDetail);
 
-        int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
-        if (emptyIndex == -1) {
-          if (ref.read(passportsProvider).isEmpty) {
-            ref.read(passportsProvider.notifier).add(documentDetail);
-          } else {
-            int lastIndex = ref.read(passportsProvider).length - 1;
-            ref.read(passportsProvider.notifier).updateAt(lastIndex, documentDetail);
-          }
-        } else {
-          ref.read(passportsProvider.notifier).updateAt(emptyIndex, documentDetail);
-        }
-      } else if (res.isVisa) {
-        int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
-        if (emptyIndex == -1) {
-          ref.read(visasProvider.notifier).add(documentDetail);
-        } else {
-          ref.read(visasProvider.notifier).updateAt(emptyIndex, documentDetail);
-        }
-      } else {
-        int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
-        if (emptyIndex == -1) {
-          ref.read(residentsProvider.notifier).add(documentDetail);
-        } else {
-          ref.read(residentsProvider.notifier).updateAt(emptyIndex, documentDetail);
-        }
-      }
+      // if (res.isPassport) {
+      //
+      //   int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
+      //   if (emptyIndex == -1) {
+      //     if (ref.read(passportsProvider).isEmpty) {
+      //       ref.read(passportsProvider.notifier).add(documentDetail);
+      //     } else {
+      //       int lastIndex = ref.read(passportsProvider).length - 1;
+      //       ref.read(passportsProvider.notifier).updateAt(lastIndex, documentDetail);
+      //     }
+      //   } else {
+      //     ref.read(passportsProvider.notifier).updateAt(emptyIndex, documentDetail);
+      //   }
+      // } else if (res.isVisa) {
+      //   int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
+      //   if (emptyIndex == -1) {
+      //     ref.read(visasProvider.notifier).add(documentDetail);
+      //   } else {
+      //     ref.read(visasProvider.notifier).updateAt(emptyIndex, documentDetail);
+      //   }
+      // } else {
+      //   int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
+      //   if (emptyIndex == -1) {
+      //     ref.read(residentsProvider.notifier).add(documentDetail);
+      //   } else {
+      //     ref.read(residentsProvider.notifier).updateAt(emptyIndex, documentDetail);
+      //   }
+      // }
 
       final currentPax = ref.read(passengerProvider);
       PassengerDetails passengerDetails = PassengerDetails(

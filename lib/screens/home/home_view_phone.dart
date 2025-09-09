@@ -704,11 +704,15 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               borderSide: BorderSide(color: MyColors.black8),
                               icon: Icons.refresh,
                               iconSize: 20,
-                              onPressed: () {
+                              onPressed: () async {
+                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                                if (!confirm) return;
+                                getIt<HomeController>().clear();
                                 ref.read(timaticResultProvider.notifier).update((s) => null);
                               },
                               reverse: true,
                               color: Colors.black,
+
                             )
                           : Row(
                               children: [
@@ -758,16 +762,31 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                             ),
                       Spacer(),
                       resultMode
-                          ? MyButton(
-                              label: "Start Again",
-                              icon: Icons.refresh,
-                              iconInRight: true,
-                              onPressed: () async {
-                                HomeViewPhone.myHomeController.clear();
-                                ref.read(timaticResultProvider.notifier).update((s) => null);
-                              },
-                              radius: 12,
-                            )
+                          ? Row(
+                            spacing: 8,
+                            children: [
+                              MyButton(
+                                label: "Ask Supervisor",
+                                icon: ArtemisIcons.user_tag,
+                                iconInRight: true,
+                                onPressed: () async {
+                                  HomeViewPhone.myHomeController.clear();
+                                  ref.read(timaticResultProvider.notifier).update((s) => null);
+                                },
+                                radius: 12,
+                              ),
+                              MyButton(
+                                  label: "Start Again",
+                                  icon: Icons.refresh,
+                                  iconInRight: true,
+                                  onPressed: () async {
+                                    HomeViewPhone.myHomeController.clear();
+                                    ref.read(timaticResultProvider.notifier).update((s) => null);
+                                  },
+                                  radius: 12,
+                                ),
+                            ],
+                          )
                           : MyButton(
                               label: "TIMATIC",
                               icon: Icons.perm_identity,
@@ -1566,6 +1585,20 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                         //   ),
                         // ),
                         Spacer(),
+                        // Consumer(
+                        //   builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        //     return MyButton(
+                        //       borderSide: BorderSide(color: MyColors.mainColor),
+                        //       radius: 12,
+                        //       reverse: true,
+                        //       fontWeight: FontWeight.w700,
+                        //       label: ref.watch(userProvider)?.profile.defaultAirport ?? 'Set Airport',
+                        //       onPressed: () async {
+                        //         await myHomeController.setAirportDialog(context);
+                        //       },
+                        //     );
+                        //   },
+                        // ),
                         Consumer(
                           builder: (BuildContext context, WidgetRef ref, Widget? child) {
                             return MyButton(
@@ -1573,9 +1606,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                               radius: 12,
                               reverse: true,
                               fontWeight: FontWeight.w700,
-                              label: ref.watch(userProvider)?.profile.defaultAirport ?? 'Set Airport',
+                              label: 'History',
                               onPressed: () async {
-                                await myHomeController.setAirportDialog(context);
+                                await myHomeController.askRefCodeDialog(context);
                               },
                             );
                           },
@@ -1656,7 +1689,7 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Text(
-                "${(widget.res.refCode ?? '').split("-").last}",
+                "${(widget.res.refCode ?? '')}",
                 style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900),
               ),
             ),

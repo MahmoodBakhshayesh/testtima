@@ -301,6 +301,7 @@ class _MyTextFieldState extends State<MyTextField> {
                             widget.style ??
                             TextStyle(
                               fontSize: widget.fontSize,
+                              color: Colors.black
                               // height: 1,
                             ),
                         textAlignVertical: TextAlignVertical.center,
@@ -311,6 +312,7 @@ class _MyTextFieldState extends State<MyTextField> {
                           hintText: widget.placeholder,
                           prefix: widget.prefix,
                           counter: widget.showLimit ? null : SizedBox(),
+
                           hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
                           border: hasError && false
                               ? OutlineInputBorder(borderSide: BorderSide(color: validationColor))

@@ -27,3 +27,4 @@ final warningsProvider =  StateProvider<List<String>>((ref) => []);
 final showWarningsProvider =  StateProvider<bool>((ref) => true);
 final passNumberInVisaProvider = StateProvider<bool>((ref) => false);
 final attachingPhotoProvider = StateProvider<List<Uint8List>>((ref) => []);
+final confirmingDocumentProvider = StateProvider<DocumentDetail?>((ref) => null);

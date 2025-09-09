@@ -1,3 +1,5 @@
+import '../usecases/get_ref_code_log_usecase.dart';
+
 abstract class HomeDataSourceInterface {
-  // Future<Response> ({required Request request});
+  Future<GetRefCodeLogResponse> getRefCodeLog({required GetRefCodeLogRequest request});
 }

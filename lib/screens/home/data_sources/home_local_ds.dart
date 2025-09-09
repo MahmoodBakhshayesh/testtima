@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
+
 import '../../../core/interfaces/local_data_base_int.dart';
 
 import '../../../core/classes/user_class.dart';
@@ -13,6 +15,12 @@ const String userJsonLocalKey = "UserJson";
 class HomeLocalDataSource implements HomeDataSourceInterface {
   final LocalDataSourceInterface localDataSource = getIt<LocalDataBase>();
   HomeLocalDataSource();
+
+  @override
+  Future<GetRefCodeLogResponse> getRefCodeLog({required GetRefCodeLogRequest request}) {
+    // TODO: implement getRefCodeLog
+    throw UnimplementedError();
+  }
 
 
 

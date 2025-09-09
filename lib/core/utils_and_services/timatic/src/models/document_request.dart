@@ -1,5 +1,6 @@
 
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/extenstions/mrz_res_ext.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -53,9 +54,11 @@ class DocumentDetail {
   final DateTime? applicationDate;
   final String? mrz;
   final String? ocrText;
+  final String? shortType;
 
   const DocumentDetail({
     this.documentNumber,
+    this.shortType,
     this.fullName,
     this.documentCode,
     this.documentExpiryDate,
@@ -88,6 +91,7 @@ class DocumentDetail {
     Object? applicationDate = _unset,
     Object? mrz = _unset,
     Object? ocrText = _unset,
+    Object? shortType = _unset,
   }) {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
@@ -104,6 +108,7 @@ class DocumentDetail {
       applicationDate: identical(applicationDate, _unset) ? this.applicationDate : applicationDate as DateTime?,
       mrz: identical(mrz, _unset) ? this.mrz : mrz as String?,
       ocrText: identical(ocrText, _unset) ? this.ocrText : ocrText as String?,
+      shortType: identical(shortType, _unset) ? this.shortType : ocrText as String?,
     );
   }
 
@@ -123,6 +128,7 @@ class DocumentDetail {
       applicationDate: parseDate(json['applicationDate']),
       mrz: json["mrz"],
       ocrText: json["ocrText"],
+      shortType: json["shortType"],
     );
   }
 
@@ -141,6 +147,7 @@ class DocumentDetail {
     'applicationDate': formatDate(applicationDate),
     'mrz': mrz,
     'ocrText': ocrText,
+    'shortType': shortType,
   };
 
   bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now());
@@ -155,11 +162,14 @@ class DocumentDetail {
 
   bool get isScanned => mrz != null;
 
+  bool get isVisa => shortType == "V";
+  bool get isPassport => shortType == "P";
+
   bool isSameAs(OcrMrzResult res) {
     // log("${res.documentCode} -- ${documentCode?.code}");
     // log("${res.documentNumber} -- ${documentNumber}");
 
-    return (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
+    return (shortType == res.getShortType)&& (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 }
 
