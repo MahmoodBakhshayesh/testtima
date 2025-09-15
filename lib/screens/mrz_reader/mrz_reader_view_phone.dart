@@ -343,7 +343,7 @@ class ImprovingResultWidget extends ConsumerWidget {
                     )
                   : null,
               ?setting.validateExpiryDateValid
-                  ? SingularValidationWidget(state: improving?.sexStat, label: 'Gender', valid: improving?.valid.nationalityValid ?? false, value: improving?.sex ?? '', count: improving?.sexStat.consensusCount)
+                  ? SingularValidationWidget(state: improving?.sexStat, label: 'Gender', valid: improving?.valid.expiryDateValid ?? false, value: improving?.sex ?? '', count: improving?.sexStat.consensusCount)
                   : null,
             ],
           ),

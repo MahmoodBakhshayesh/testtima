@@ -208,13 +208,13 @@ class ConstData {
 
   factory ConstData.fromJson(Map<String, dynamic> json) => ConstData(
     userPermissionAttributes: AllPermissions.fromJson(json["permission"]),
-    documentTypeMappers:List<DocumentTypeMapper>.from((json["documentType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
+    documentTypeMappers:List<DocumentTypeMapper>.from((json["documentDetailType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
     logNoteTypes:List<String>.from((json["logNoteType"]??[])),
   );
 
   Map<String, dynamic> toJson() => {
     "permission": userPermissionAttributes.toJson(),
-    "documentType": documentTypeMappers.map((a)=>a.toJson()).toList(),
+    "documentDetailType": documentTypeMappers.map((a)=>a.toJson()).toList(),
     "logNoteTypes": logNoteTypes,
   };
 }

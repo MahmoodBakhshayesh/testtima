@@ -227,35 +227,40 @@ class MrzReaderController extends ControllerInterface {
       // log(jsonEncode(res.toJson()));
       // log("*"*100);
 
-      docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
+      // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
 
       if(BasicClass.constData.documentTypeMappers.isNotEmpty){
-          final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last));
+
+          final match = BasicClass.constData.documentTypeMappers.lastOrNullWhere((a)=>a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode));
           if(match != null){
             docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
+          }else{
+            log("no mapper match for ${res.documentCode}");
           }
+      }else{
+        log("BasicClass.constData.documentTypeMappers is empty");
       }
 
 
       log("setting doctype of ${res.documentCode} to ${docType?.code}");
       // docType = mapMrzDocCodeToTimatic()
-      if (res.isPassport) {
-        // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "PASSPORT");
-        if (res.documentCode == "PO") {
-          // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "OFFICIALPASSPORT") ?? docType;
-        }
-        if (res.documentCode == "PS") {
-          // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "SPECIALPASSPORT") ?? docType;
-        }
-        if (res.documentCode == "PD") {
-          // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "DIPLOMATICPASSPORT") ?? docType;
-        }
-      } else if (res.isVisa) {
-        // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "VVV");
-      } else {
-        // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "TRAVELCERTIFICATE");
-      }
+      // if (res.isPassport) {
+      //   // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "PASSPORT");
+      //   if (res.documentCode == "PO") {
+      //     // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "OFFICIALPASSPORT") ?? docType;
+      //   }
+      //   if (res.documentCode == "PS") {
+      //     // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "SPECIALPASSPORT") ?? docType;
+      //   }
+      //   if (res.documentCode == "PD") {
+      //     // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "DIPLOMATICPASSPORT") ?? docType;
+      //   }
+      // } else if (res.isVisa) {
+      //   // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "VVV");
+      // } else {
+      //   // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == "TRAVELCERTIFICATE");
+      // }
 
       res.nationality = res.nationality;
       res.countryCode = res.countryCode;
@@ -280,7 +285,8 @@ class MrzReaderController extends ControllerInterface {
       );
 
       log("*"*100);
-      log(documentDetail.ocrText??'--');
+      log(documentDetail.documentCode?.code??'--');
+      log(docType?.code??'--');
       log("*"*100);
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
@@ -296,6 +302,8 @@ class MrzReaderController extends ControllerInterface {
         log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a)=>a.documentNumber)}");
       }
 
+
+      log("setting confirm ${documentDetail.toJson()}");
       ref.read(confirmingDocumentProvider.notifier).update((s)=>documentDetail);
 
       // if (res.isPassport) {

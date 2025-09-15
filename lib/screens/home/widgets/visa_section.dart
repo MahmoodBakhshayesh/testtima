@@ -20,8 +20,6 @@ import '../../../widgets/MyTextField.dart';
 import '../home_state.dart';
 import '../home_view_phone.dart';
 
-
-
 class VisaItemRow extends ConsumerStatefulWidget {
   const VisaItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
 
@@ -70,21 +68,23 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
       Text("$a (${(a as Location).name})"),
     ],
   );
+
   Widget? countryPrefixBuilder(String? a) {
-    if(a != null) {
+    if (a != null) {
       return Row(
         children: [
           const SizedBox(width: 4),
           SizedBox(
-              width: 15,height: 10,
-              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+            width: 15,
+            height: 10,
+            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+          ),
           const SizedBox(width: 4),
-          Text(a,style: TextStyle(fontSize: 12),)
+          Text(a, style: TextStyle(fontSize: 12)),
         ],
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +95,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    bool foundPassInVisa = passports.any((p)=>(p.documentNumber??'').isNotEmpty &&(d.ocrText??'').contains(p.documentNumber??'-------------------'));
+    bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (d.ocrText??'').contains('N97191'));
     // log(d.ocrText??'-');
 
@@ -224,7 +224,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                 MyFieldPicker<ParameterValue>(
                   label: "Code",
                   placeholder: "Code",
-                  valueToString: docCodeToString,
+                  // valueToString: docCodeToString,
                   items: tim.params.of(ParameterType.documentCode),
                   value: d.documentCode,
                   onChange: (a) {
@@ -279,7 +279,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
           const SizedBox(height: 12),
 
           // const SizedBox(height: 12),
-          MyTextField(controller: controller, label: "Document # ${foundPassInVisa?'✅':''}", placeholder: "Number", labelInRow: true),
+          MyTextField(controller: controller, label: "Document # ${foundPassInVisa ? '✅' : ''}", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           // Row(
           //   spacing: 12,
@@ -376,12 +376,11 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     );
   }
 
-  String docCodeToString(ParameterValue p1) {
-    final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
-    if(match != null){
-      return match.title??p1.toString();
-    }
-    return p1.toString();
-  }
-
+  // String docCodeToString(ParameterValue p1) {
+  //   final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
+  //   if(match != null){
+  //     return match.title??p1.toString();
+  //   }
+  //   return p1.toString();
+  // }
 }

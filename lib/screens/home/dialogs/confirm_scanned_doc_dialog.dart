@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
@@ -26,7 +28,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
+    log(documentDetail.documentCode?.code??'');
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
       insetPadding: EdgeInsets.symmetric(horizontal: 12),

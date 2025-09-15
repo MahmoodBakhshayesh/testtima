@@ -214,7 +214,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                 MyFieldPicker<ParameterValue>(
                   label: "Code",
                   placeholder: "Code",
-                  valueToString: docCodeToString,
+                  // valueToString: docCodeToString,
 
                   items: tim.params.of(ParameterType.documentCode),
                   value: d.documentCode,
@@ -364,12 +364,12 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     );
   }
 
-  String docCodeToString(ParameterValue p1) {
-    final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
-    if(match != null){
-      return match.title??p1.toString();
-    }
-    return p1.toString();
-  }
+  // String docCodeToString(ParameterValue p1) {
+  //   final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
+  //   if(match != null){
+  //     return match.title??p1.toString();
+  //   }
+  //   return p1.toString();
+  // }
 
 }

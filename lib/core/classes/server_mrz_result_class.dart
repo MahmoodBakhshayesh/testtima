@@ -49,7 +49,7 @@ class ServerMrzResult {
     line1: '',
     line2: '',
     format: MrzFormat.unknown,
-    documentCode: type?.value??'',
+    documentCode: (type?.value??'')+(subType?.value??'<'),
     documentType: type?.value??'',
     mrzFormat: MrzFormat.unknown,
     countryCode: issueCountry?.value??'',
