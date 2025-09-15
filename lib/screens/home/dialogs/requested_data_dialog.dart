@@ -18,7 +18,7 @@ class RequestedDataDialog extends ConsumerWidget {
     PassengerDetails passengerDetails = ref.watch(passengerProvider);
     List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     List<DocumentDetail> passports = ref.watch(passportsProvider);
-    List<DocumentDetail> visas = ref.watch(visasProvider);
+    // List<DocumentDetail> visas = ref.watch(visasProvider);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
       insetPadding: EdgeInsets.symmetric(horizontal: 12),
@@ -114,44 +114,44 @@ class RequestedDataDialog extends ConsumerWidget {
                         const SizedBox(height: 16),
                       ],
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("VISA", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 12),
-                        Column(
-                          children: visas
-                              .map(
-                                (visa) => Column(
-                                  spacing: 12,
-                                  children: [
-                                    Row(
-                                      spacing: 12,
-                                      children: [
-                                        Expanded(
-                                          child: FiledInfoWidget(label: "ISSUING", value: visa.documentIssueCountry?.code3),
-                                        ),
-                                        Expanded(
-                                          child: FiledInfoWidget(label: "Expiry", value: visa.documentExpiryDate?.format_ddMMMEEE),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 12,
-                                      children: [
-                                        Expanded(
-                                          child: FiledInfoWidget(label: "CODE", value: visa.documentCode?.code),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              )
-                              .toList(),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
+                    // Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   children: [
+                    //     Text("VISA", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    //     const SizedBox(height: 12),
+                    //     Column(
+                    //       children: visas
+                    //           .map(
+                    //             (visa) => Column(
+                    //               spacing: 12,
+                    //               children: [
+                    //                 Row(
+                    //                   spacing: 12,
+                    //                   children: [
+                    //                     Expanded(
+                    //                       child: FiledInfoWidget(label: "ISSUING", value: visa.documentIssueCountry?.code3),
+                    //                     ),
+                    //                     Expanded(
+                    //                       child: FiledInfoWidget(label: "Expiry", value: visa.documentExpiryDate?.format_ddMMMEEE),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //                 Row(
+                    //                   spacing: 12,
+                    //                   children: [
+                    //                     Expanded(
+                    //                       child: FiledInfoWidget(label: "CODE", value: visa.documentCode?.code),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           )
+                    //           .toList(),
+                    //     ),
+                    //     const SizedBox(height: 16),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),

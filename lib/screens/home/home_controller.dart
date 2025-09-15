@@ -43,8 +43,8 @@ class HomeController extends ControllerInterface {
     ref.read(improvingMrzResultProvider.notifier).update((s) => null);
     // ref.read(visasProvider.notifier).update((s) => [DocumentDetail()]);
     ref.read(passportsProvider.notifier).removeAll();
-    ref.read(visasProvider.notifier).removeAll();
-    ref.read(residentsProvider.notifier).removeAll();
+    // ref.read(visasProvider.notifier).removeAll();
+    // ref.read(residentsProvider.notifier).removeAll();
     ref.read(segmentsProvider.notifier).removeAll();
 
     ref.read(showWarningsProvider.notifier).update((s) => true);
@@ -101,39 +101,39 @@ class HomeController extends ControllerInterface {
 
   addConfirmingDocument() {
     final doc = ref.read(confirmingDocumentProvider)!;
-    if (doc.isPassport) {
-      int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
-      if (emptyIndex == -1) {
-        if (ref.read(passportsProvider).isEmpty) {
-          ref.read(passportsProvider.notifier).add(doc);
-        } else {
-          int lastIndex = ref.read(passportsProvider).length - 1;
-          ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
-        }
+    // if (doc.isPassport) {
+    int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
+    if (emptyIndex == -1) {
+      if (ref.read(passportsProvider).isEmpty) {
+        ref.read(passportsProvider.notifier).add(doc);
       } else {
-        ref.read(passportsProvider.notifier).updateAt(emptyIndex, doc);
-      }
-    } else if (doc.isVisa) {
-      int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
-      if (emptyIndex == -1) {
-        ref.read(visasProvider.notifier).add(doc);
-      } else {
-        ref.read(visasProvider.notifier).updateAt(emptyIndex, doc);
+        int lastIndex = ref.read(passportsProvider).length - 1;
+        ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
       }
     } else {
-      int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
-      if (emptyIndex == -1) {
-        ref.read(residentsProvider.notifier).add(doc);
-      } else {
-        ref.read(residentsProvider.notifier).updateAt(emptyIndex, doc);
-      }
+      ref.read(passportsProvider.notifier).updateAt(emptyIndex, doc);
     }
+    // } else if (doc.isVisa) {
+    //   int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
+    //   if (emptyIndex == -1) {
+    //     ref.read(visasProvider.notifier).add(doc);
+    //   } else {
+    //     ref.read(visasProvider.notifier).updateAt(emptyIndex, doc);
+    //   }
+    // } else {
+    //   int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
+    //   if (emptyIndex == -1) {
+    //     ref.read(residentsProvider.notifier).add(doc);
+    //   } else {
+    //     ref.read(residentsProvider.notifier).updateAt(emptyIndex, doc);
+    //   }
+    // }
     ref.read(confirmingDocumentProvider.notifier).update((s) => null);
   }
 
   selectPhotoToAttach(ImageSource source) async {
     ImagePicker picker = ImagePicker();
-    final XFile? pic = await picker.pickImage(source: source,imageQuality: 30);
+    final XFile? pic = await picker.pickImage(source: source, imageQuality: 30);
     if (pic != null) {
       // Uint8List fileBytes = await pic.readAsBytes();
       String path = pic.path;
@@ -170,23 +170,23 @@ class HomeController extends ControllerInterface {
       case Ok<GetRefCodeLogResponse>():
         final r = result.value;
         historyLog = r.history;
-        fillWithRefHistory(r.history,code);
+        fillWithRefHistory(r.history, code);
     }
 
     return historyLog;
   }
 
-  fillWithRefHistory(RefHistory his,String code) {
-    final timaticReqLog = (his.logs ?? []).firstWhereOrNull((a) => (a.type ?? '')==("timaticCheck"));
-    final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '')==("note")).toList();
-    ref.read(showingLogsProvider.notifier).update((s)=>showingLogs);
+  fillWithRefHistory(RefHistory his, String code) {
+    final timaticReqLog = (his.logs ?? []).firstWhereOrNull((a) => (a.type ?? '') == ("timaticCheck"));
+    final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') == ("note")).toList();
+    ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
     if (timaticReqLog != null) {
       final tim = BasicClass.timData;
       Map<String, dynamic> input = jsonDecode(timaticReqLog.payload?.input ?? "{}");
       Map<String, dynamic> output = jsonDecode(timaticReqLog.payload?.output ?? "{}");
 
       PassengerDetails pd = PassengerDetails(
-        birthDate: DateTime.tryParse(input["passengerDetails"]["birthDate"]??''),
+        birthDate: DateTime.tryParse(input["passengerDetails"]["birthDate"] ?? ''),
         nationality: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["nationality"]),
         birthCountry: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["birthCountry"]),
         residentCountryCode: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["residentCountryCode"]),
@@ -206,14 +206,15 @@ class HomeController extends ControllerInterface {
           ),
         ),
       );
-      final passes = allDocs.where((a) => (a.documentCode?.code ?? '').contains("PASS")).toList();
-      final visas = allDocs.where((a) => (a.documentCode?.code ?? '').contains("V")).toList();
-      final residents = allDocs.where((a) => !(a.documentCode?.code ?? '').contains("PASS") && !(a.documentCode?.code ?? '').contains("V")).toList();
+      final passes = allDocs;
+      // final passes = allDocs.where((a) => (a.documentCode?.code ?? '').contains("PASS")).toList();
+      // final visas = allDocs.where((a) => (a.documentCode?.code ?? '').contains("V")).toList();
+      // final residents = allDocs.where((a) => !(a.documentCode?.code ?? '').contains("PASS") && !(a.documentCode?.code ?? '').contains("V")).toList();
       final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]))));
 
       ref.read(passportsProvider.notifier).setAll(passes);
-      ref.read(visasProvider.notifier).setAll(visas);
-      ref.read(residentsProvider.notifier).setAll(residents);
+      // ref.read(visasProvider.notifier).setAll(visas);
+      // ref.read(residentsProvider.notifier).setAll(residents);
       ref.read(segmentsProvider.notifier).setAll(allSegs);
       ref.read(passengerProvider.notifier).update((s) => pd);
 
@@ -225,11 +226,11 @@ class HomeController extends ControllerInterface {
   }
 
   askSuperVisorDialog() {
-    ref.read(attachingPhotoPathProvider.notifier).update((s)=>[]);
-    navigation.openDialog(dialog: AskSupervisorDialog(logId:ref.read(timaticResultProvider)?.refCode??''));
+    ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
+    navigation.openDialog(dialog: AskSupervisorDialog(logId: ref.read(timaticResultProvider)?.refCode ?? ''));
   }
 
-  Future<bool> uploadDataForSupervision(String? noteType, String desc,String logId) async {
+  Future<bool> uploadDataForSupervision(String? noteType, String desc, String logId) async {
     bool result = false;
     final dio = Dio();
 
@@ -249,18 +250,13 @@ class HomeController extends ControllerInterface {
       final response = await dio.post(
         api,
         data: formData,
-        options: Options(
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": "Bearer ${ref.read(userProvider)!.token}"
-          },
-        ),
+        options: Options(headers: {"Content-Type": "multipart/form-data", "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
       );
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         result = true;
-        ref.read(attachingPhotoPathProvider.notifier).update((s)=>[]);
-      }else{
-        FailureHandler.handle(ServerFailure(code: response.statusCode??-1, msg: response.statusMessage??'Unknown Error', traceMsg:  response.statusMessage??'Unknown Error'));
+        ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
+      } else {
+        FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
       }
       log("Response: ${response.data}");
       return result;

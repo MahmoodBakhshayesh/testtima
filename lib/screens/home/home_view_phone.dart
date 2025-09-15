@@ -241,8 +241,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    final List<DocumentDetail> visas = ref.watch(visasProvider);
-    final List<DocumentDetail> residents = ref.watch(residentsProvider);
+    // final List<DocumentDetail> visas = ref.watch(visasProvider);
+    // final List<DocumentDetail> residents = ref.watch(residentsProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     // log("passes ${passports.length}");
@@ -551,137 +551,137 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 12),
-                                Visibility(
-                                  visible: visas.isNotEmpty,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          // color: MyColors.scaffoldHeader,
-                                          color: Colors.orange.withOpacity(0.4),
-                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                            ),
-                                            DotButton(
-                                              icon: ArtemisIcons.trash,
-                                              color: Colors.red,
-                                              flat: true,
-                                              onPressed: () async {
-                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-                                                if (!confirm) return;
-                                                int lastIndex = visas.length - 1;
-                                                ref.read(visasProvider.notifier).removeAt(lastIndex);
-                                              },
-                                            ),
-                                            const SizedBox(width: 8),
-                                            DotButton(
-                                              border: BorderSide(color: Colors.blueAccent),
-                                              icon: Icons.refresh,
-                                              flat: true,
-                                              onPressed: () async {
-                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                                                if (!confirm) return;
-                                                int lastIndex = visas.length - 1;
-                                                ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
-
-                                                // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-                                              },
-                                            ),
-                                            // MyButton(
-                                            //   label: "Scan",
-                                            //   icon: Icons.qr_code_scanner,
-                                            //   onPressed: () {
-                                            //     myHomeController.goNamed(Routes.mrzReader);
-                                            //   },
-                                            //   textColor: Colors.white,
-                                            //   // textColor: context.mainColor,
-                                            //   borderSide: BorderSide(color: Colors.white),
-                                            //   radius: 12,
-                                            // ),
-                                          ],
-                                        ),
-                                      ),
-                                      Builder(
-                                        builder: (context) {
-                                          return Column(
-                                            children: visas.map((d) {
-                                              int index = visas.indexOf(d);
-                                              bool isLast = visas.length == index + 1;
-                                              bool isFirst = index == 0;
-                                              return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                            }).toList(),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Visibility(
-                                  visible: residents.isNotEmpty,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        decoration: BoxDecoration(
-                                          // color: MyColors.scaffoldHeader,
-                                          color: Colors.green.withOpacity(0.4),
-                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text("ID / Residency Card".toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                            ),
-                                            DotButton(
-                                              icon: ArtemisIcons.trash,
-                                              color: Colors.red,
-                                              flat: true,
-                                              onPressed: () async {
-                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-                                                if (!confirm) return;
-                                                int lastIndex = residents.length - 1;
-                                                ref.read(residentsProvider.notifier).removeAt(lastIndex);
-                                              },
-                                            ),
-                                            const SizedBox(width: 8),
-                                            DotButton(
-                                              border: BorderSide(color: Colors.blueAccent),
-                                              icon: Icons.refresh,
-                                              flat: true,
-                                              onPressed: () async {
-                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                                                if (!confirm) return;
-                                                int lastIndex = residents.length - 1;
-                                                ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
-
-                                                // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Builder(
-                                        builder: (context) {
-                                          return Column(
-                                            children: residents.map((d) {
-                                              int index = residents.indexOf(d);
-                                              bool isLast = residents.length == index + 1;
-                                              bool isFirst = index == 0;
-                                              return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                            }).toList(),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                // const SizedBox(height: 12),
+                                // Visibility(
+                                //   visible: visas.isNotEmpty,
+                                //   child: Column(
+                                //     children: [
+                                //       Container(
+                                //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                //         decoration: BoxDecoration(
+                                //           // color: MyColors.scaffoldHeader,
+                                //           color: Colors.orange.withOpacity(0.4),
+                                //           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                //         ),
+                                //         child: Row(
+                                //           children: [
+                                //             Expanded(
+                                //               child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                //             ),
+                                //             DotButton(
+                                //               icon: ArtemisIcons.trash,
+                                //               color: Colors.red,
+                                //               flat: true,
+                                //               onPressed: () async {
+                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                                //                 if (!confirm) return;
+                                //                 int lastIndex = visas.length - 1;
+                                //                 ref.read(visasProvider.notifier).removeAt(lastIndex);
+                                //               },
+                                //             ),
+                                //             const SizedBox(width: 8),
+                                //             DotButton(
+                                //               border: BorderSide(color: Colors.blueAccent),
+                                //               icon: Icons.refresh,
+                                //               flat: true,
+                                //               onPressed: () async {
+                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                                //                 if (!confirm) return;
+                                //                 int lastIndex = visas.length - 1;
+                                //                 ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
+                                //
+                                //                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                                //               },
+                                //             ),
+                                //             // MyButton(
+                                //             //   label: "Scan",
+                                //             //   icon: Icons.qr_code_scanner,
+                                //             //   onPressed: () {
+                                //             //     myHomeController.goNamed(Routes.mrzReader);
+                                //             //   },
+                                //             //   textColor: Colors.white,
+                                //             //   // textColor: context.mainColor,
+                                //             //   borderSide: BorderSide(color: Colors.white),
+                                //             //   radius: 12,
+                                //             // ),
+                                //           ],
+                                //         ),
+                                //       ),
+                                //       Builder(
+                                //         builder: (context) {
+                                //           return Column(
+                                //             children: visas.map((d) {
+                                //               int index = visas.indexOf(d);
+                                //               bool isLast = visas.length == index + 1;
+                                //               bool isFirst = index == 0;
+                                //               return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                //             }).toList(),
+                                //           );
+                                //         },
+                                //       ),
+                                //     ],
+                                //   ),
+                                // ),
+                                // const SizedBox(height: 12),
+                                // Visibility(
+                                //   visible: residents.isNotEmpty,
+                                //   child: Column(
+                                //     children: [
+                                //       Container(
+                                //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                //         decoration: BoxDecoration(
+                                //           // color: MyColors.scaffoldHeader,
+                                //           color: Colors.green.withOpacity(0.4),
+                                //           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                //         ),
+                                //         child: Row(
+                                //           children: [
+                                //             Expanded(
+                                //               child: Text("ID / Residency Card".toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                //             ),
+                                //             DotButton(
+                                //               icon: ArtemisIcons.trash,
+                                //               color: Colors.red,
+                                //               flat: true,
+                                //               onPressed: () async {
+                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                                //                 if (!confirm) return;
+                                //                 int lastIndex = residents.length - 1;
+                                //                 ref.read(residentsProvider.notifier).removeAt(lastIndex);
+                                //               },
+                                //             ),
+                                //             const SizedBox(width: 8),
+                                //             DotButton(
+                                //               border: BorderSide(color: Colors.blueAccent),
+                                //               icon: Icons.refresh,
+                                //               flat: true,
+                                //               onPressed: () async {
+                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                                //                 if (!confirm) return;
+                                //                 int lastIndex = residents.length - 1;
+                                //                 ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
+                                //
+                                //                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                                //               },
+                                //             ),
+                                //           ],
+                                //         ),
+                                //       ),
+                                //       Builder(
+                                //         builder: (context) {
+                                //           return Column(
+                                //             children: residents.map((d) {
+                                //               int index = residents.indexOf(d);
+                                //               bool isLast = residents.length == index + 1;
+                                //               bool isFirst = index == 0;
+                                //               return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                //             }).toList(),
+                                //           );
+                                //         },
+                                //       ),
+                                //     ],
+                                //   ),
+                                // ),
                                 PhotoAttachmentWidget(),
                               ],
                             ),
@@ -730,20 +730,39 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   color: Colors.black,
                                 ),
                                 const SizedBox(width: 12),
+                                // MyButton(
+                                //   label: "Manual",
+                                //   onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
+                                //       ? null
+                                //       : () {
+                                //           if (ref.read(passportsProvider).isEmpty) {
+                                //             ref.read(passportsProvider.notifier).add(DocumentDetail());
+                                //           }
+                                //           if (ref.read(visasProvider).isEmpty) {
+                                //             ref.read(visasProvider.notifier).add(DocumentDetail());
+                                //           }
+                                //           if (ref.read(residentsProvider).isEmpty) {
+                                //             ref.read(residentsProvider.notifier).add(DocumentDetail());
+                                //           }
+                                //         },
+                                //   radius: 10,
+                                //   reverse: true,
+                                //   borderSide: BorderSide(color: context.mainColor),
+                                // ),
                                 MyButton(
                                   label: "Manual",
-                                  onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
+                                  onPressed: ref.watch(passportsProvider).isNotEmpty
                                       ? null
                                       : () {
                                           if (ref.read(passportsProvider).isEmpty) {
                                             ref.read(passportsProvider.notifier).add(DocumentDetail());
                                           }
-                                          if (ref.read(visasProvider).isEmpty) {
-                                            ref.read(visasProvider.notifier).add(DocumentDetail());
-                                          }
-                                          if (ref.read(residentsProvider).isEmpty) {
-                                            ref.read(residentsProvider.notifier).add(DocumentDetail());
-                                          }
+                                          // if (ref.read(visasProvider).isEmpty) {
+                                          //   ref.read(visasProvider.notifier).add(DocumentDetail());
+                                          // }
+                                          // if (ref.read(residentsProvider).isEmpty) {
+                                          //   ref.read(residentsProvider.notifier).add(DocumentDetail());
+                                          // }
                                         },
                                   radius: 10,
                                   reverse: true,
@@ -795,7 +814,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   : () async {
                                       // FailureHandler.handle(ServerFailure(code: -1, msg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l", traceMsg: "dakldjasd\adnjaskdaskj\na;skdsa;ldk\adnjad\nklkd;ad;askd;l"));
 
-                                      List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
+                                      // List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
+                                      List<DocumentDetail> ddl = [...ref.read(passportsProvider)].where((a) => a.documentCode != null).toList();
                                       final timResult = await HomeViewPhone.myHomeController.timaticApi.submitDocumentRequest(
                                         DocumentRequest(
                                           documentDetails: ddl,
@@ -1641,8 +1661,8 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
   @override
   Widget build(BuildContext context) {
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    final List<DocumentDetail> visas = ref.watch(visasProvider);
-    final List<DocumentDetail> residents = ref.watch(residentsProvider);
+    // final List<DocumentDetail> visas = ref.watch(visasProvider);
+    // final List<DocumentDetail> residents = ref.watch(residentsProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     final showingLogs = ref.watch(showingLogsProvider);
@@ -1735,9 +1755,10 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                   children: [
                                     Row(
                                       children: [
-
-                                        Expanded(child: Text(( "${l.payload?.title ?? ''} (${(l.type??'')})").toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
-                                        Text(l.user?.username??l.user?.email??'', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                        Expanded(
+                                          child: Text(("${l.payload?.title ?? ''} (${(l.type ?? '')})").toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                        ),
+                                        Text(l.user?.username ?? l.user?.email ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
                                       ],
                                     ),
                                     Padding(
@@ -1753,17 +1774,20 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                     (l.payload?.attachFiles ?? []).isEmpty
                                         ? SizedBox()
                                         : Row(
-                                          children: [
-                                            Expanded(
-                                              child: Wrap(
+                                            children: [
+                                              Expanded(
+                                                child: Wrap(
                                                   children: [
                                                     ...(l.payload?.attachFiles ?? [])
                                                         .map(
                                                           (img) => GestureDetector(
-                                                            onTap:(){
-                                                              showDialog(context: context, builder: (BuildContext context) {
-                                                                return PhotoPreviewDialog(address: img);
-                                                              },);
+                                                            onTap: () {
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context) {
+                                                                  return PhotoPreviewDialog(address: img);
+                                                                },
+                                                              );
                                                             },
                                                             child: SizedBox(
                                                               width: 40,
@@ -1782,13 +1806,15 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                                         .toList(),
                                                   ],
                                                 ),
-                                            ),
-                                            Column(children: [
-                                              Text(l.at?.format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
-                                              Text(l.at?.format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
-                                            ],)
-                                          ],
-                                        ),
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text(l.at?.format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                                  Text(l.at?.format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                   ],
                                 ),
                               ),
@@ -1924,138 +1950,138 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Visibility(
-                          visible: visas.isNotEmpty,
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  // color: MyColors.scaffoldHeader,
-                                  color: Colors.orange.withOpacity(0.4),
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                    ),
-                                    DotButton(
-                                      icon: ArtemisIcons.trash,
-                                      color: Colors.red,
-                                      flat: true,
-                                      onPressed: () async {
-                                        final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-                                        if (!confirm) return;
-                                        int lastIndex = visas.length - 1;
-                                        ref.read(visasProvider.notifier).removeAt(lastIndex);
-                                      },
-                                    ),
-                                    const SizedBox(width: 8),
-                                    DotButton(
-                                      border: BorderSide(color: Colors.blueAccent),
-                                      icon: Icons.refresh,
-                                      flat: true,
-                                      onPressed: () async {
-                                        final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                                        if (!confirm) return;
-                                        int lastIndex = visas.length - 1;
-                                        ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
-
-                                        // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-                                      },
-                                    ),
-                                    // MyButton(
-                                    //   label: "Scan",
-                                    //   icon: Icons.qr_code_scanner,
-                                    //   onPressed: () {
-                                    //     myHomeController.goNamed(Routes.mrzReader);
-                                    //   },
-                                    //   textColor: Colors.white,
-                                    //   // textColor: context.mainColor,
-                                    //   borderSide: BorderSide(color: Colors.white),
-                                    //   radius: 12,
-                                    // ),
-                                  ],
-                                ),
-                              ),
-                              Builder(
-                                builder: (context) {
-                                  return Column(
-                                    children: visas.map((d) {
-                                      int index = visas.indexOf(d);
-                                      bool isLast = visas.length == index + 1;
-                                      bool isFirst = index == 0;
-                                      return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                    }).toList(),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Visibility(
-                          visible: residents.isNotEmpty,
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  // color: MyColors.scaffoldHeader,
-                                  color: Colors.green.withOpacity(0.4),
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text("ID / Residency Card".toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                    ),
-                                    DotButton(
-                                      icon: ArtemisIcons.trash,
-                                      color: Colors.red,
-                                      flat: true,
-                                      onPressed: () async {
-                                        final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-                                        if (!confirm) return;
-                                        int lastIndex = residents.length - 1;
-                                        ref.read(residentsProvider.notifier).removeAt(lastIndex);
-                                      },
-                                    ),
-                                    const SizedBox(width: 8),
-                                    DotButton(
-                                      border: BorderSide(color: Colors.blueAccent),
-                                      icon: Icons.refresh,
-                                      flat: true,
-                                      onPressed: () async {
-                                        final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                                        if (!confirm) return;
-                                        int lastIndex = residents.length - 1;
-                                        ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
-
-                                        // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Builder(
-                                builder: (context) {
-                                  return Column(
-                                    children: residents.map((d) {
-                                      int index = residents.indexOf(d);
-                                      bool isLast = residents.length == index + 1;
-                                      bool isFirst = index == 0;
-                                      return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                    }).toList(),
-                                  );
-                                },
-                              ),
-                              PhotoAttachmentWidget(),
-                            ],
-                          ),
-                        ),
+                        // const SizedBox(height: 12),
+                        // Visibility(
+                        //   visible: visas.isNotEmpty,
+                        //   child: Column(
+                        //     children: [
+                        //       Container(
+                        //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        //         decoration: BoxDecoration(
+                        //           // color: MyColors.scaffoldHeader,
+                        //           color: Colors.orange.withOpacity(0.4),
+                        //           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                        //         ),
+                        //         child: Row(
+                        //           children: [
+                        //             Expanded(
+                        //               child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                        //             ),
+                        //             DotButton(
+                        //               icon: ArtemisIcons.trash,
+                        //               color: Colors.red,
+                        //               flat: true,
+                        //               onPressed: () async {
+                        //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                        //                 if (!confirm) return;
+                        //                 int lastIndex = visas.length - 1;
+                        //                 ref.read(visasProvider.notifier).removeAt(lastIndex);
+                        //               },
+                        //             ),
+                        //             const SizedBox(width: 8),
+                        //             DotButton(
+                        //               border: BorderSide(color: Colors.blueAccent),
+                        //               icon: Icons.refresh,
+                        //               flat: true,
+                        //               onPressed: () async {
+                        //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                        //                 if (!confirm) return;
+                        //                 int lastIndex = visas.length - 1;
+                        //                 ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
+                        //
+                        //                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                        //               },
+                        //             ),
+                        //             // MyButton(
+                        //             //   label: "Scan",
+                        //             //   icon: Icons.qr_code_scanner,
+                        //             //   onPressed: () {
+                        //             //     myHomeController.goNamed(Routes.mrzReader);
+                        //             //   },
+                        //             //   textColor: Colors.white,
+                        //             //   // textColor: context.mainColor,
+                        //             //   borderSide: BorderSide(color: Colors.white),
+                        //             //   radius: 12,
+                        //             // ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //       Builder(
+                        //         builder: (context) {
+                        //           return Column(
+                        //             children: visas.map((d) {
+                        //               int index = visas.indexOf(d);
+                        //               bool isLast = visas.length == index + 1;
+                        //               bool isFirst = index == 0;
+                        //               return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                        //             }).toList(),
+                        //           );
+                        //         },
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 12),
+                        // Visibility(
+                        //   visible: residents.isNotEmpty,
+                        //   child: Column(
+                        //     children: [
+                        //       Container(
+                        //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        //         decoration: BoxDecoration(
+                        //           // color: MyColors.scaffoldHeader,
+                        //           color: Colors.green.withOpacity(0.4),
+                        //           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                        //         ),
+                        //         child: Row(
+                        //           children: [
+                        //             Expanded(
+                        //               child: Text("ID / Residency Card".toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                        //             ),
+                        //             DotButton(
+                        //               icon: ArtemisIcons.trash,
+                        //               color: Colors.red,
+                        //               flat: true,
+                        //               onPressed: () async {
+                        //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                        //                 if (!confirm) return;
+                        //                 int lastIndex = residents.length - 1;
+                        //                 ref.read(residentsProvider.notifier).removeAt(lastIndex);
+                        //               },
+                        //             ),
+                        //             const SizedBox(width: 8),
+                        //             DotButton(
+                        //               border: BorderSide(color: Colors.blueAccent),
+                        //               icon: Icons.refresh,
+                        //               flat: true,
+                        //               onPressed: () async {
+                        //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                        //                 if (!confirm) return;
+                        //                 int lastIndex = residents.length - 1;
+                        //                 ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
+                        //
+                        //                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                        //               },
+                        //             ),
+                        //           ],
+                        //         ),
+                        //       ),
+                        //       Builder(
+                        //         builder: (context) {
+                        //           return Column(
+                        //             children: residents.map((d) {
+                        //               int index = residents.indexOf(d);
+                        //               bool isLast = residents.length == index + 1;
+                        //               bool isFirst = index == 0;
+                        //               return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                        //             }).toList(),
+                        //           );
+                        //         },
+                        //       ),
+                        //       PhotoAttachmentWidget(),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -2859,8 +2885,8 @@ class WarningsBuilder extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     PassengerDetails passengerDetails = ref.watch(passengerProvider);
     List<DocumentDetail> passports = ref.watch(passportsProvider);
-    List<DocumentDetail> visas = ref.watch(visasProvider);
-    List<DocumentDetail> residents = ref.watch(residentsProvider);
+    // List<DocumentDetail> visas = ref.watch(visasProvider);
+    // List<DocumentDetail> residents = ref.watch(residentsProvider);
     List<String> warningList = [];
     String? warning;
     List<String> nats = [];
@@ -2871,16 +2897,16 @@ class WarningsBuilder extends ConsumerWidget {
     passports.where((a) => a.nationality != null).forEach((p) {
       nats.add(p.nationality!.code3);
     });
-    visas.where((a) => a.nationality != null).forEach((v) {
-      nats.add(v.nationality!.code3);
-    });
+    // visas.where((a) => a.nationality != null).forEach((v) {
+    //   nats.add(v.nationality!.code3);
+    // });
     if (nats.toSet().toList().length > 1) {
       // warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
       warningList.add("Nationalities do not match: ${nats.toSet().join(", ")}");
     }
     bDates.addAll(passports.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
-    bDates.addAll(visas.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
-    bDates.addAll(residents.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
+    // bDates.addAll(visas.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
+    // bDates.addAll(residents.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
     if (passengerDetails.birthDate != null) {
       bDates.add(passengerDetails.birthDate!.format_yyMMdd);
     }
@@ -2956,12 +2982,12 @@ class RequestBriefWidget extends ConsumerWidget {
     PassengerDetails passengerDetails = ref.watch(passengerProvider);
     List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     List<DocumentDetail> passports = ref.watch(passportsProvider);
-    List<DocumentDetail> visas = ref.watch(visasProvider);
+    // List<DocumentDetail> visas = ref.watch(visasProvider);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         // color: MyColors.scaffoldHeader,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12),bottom: Radius.circular(12)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12), bottom: Radius.circular(12)),
       ),
       child: Row(
         children: [
@@ -2969,96 +2995,6 @@ class RequestBriefWidget extends ConsumerWidget {
             child: Text("PASSENGER", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
           ),
         ],
-      ),
-    );
-    return Container(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      spacing: 2,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Pax", style: TextStyle(fontSize: 9)),
-                            Row(
-                              spacing: 2,
-                              children: [
-                                BriefFiledInfoWidget(label: "Nat", value: passengerDetails.nationality?.code3 ?? ''),
-                                BriefFiledInfoWidget(label: "Res", value: passengerDetails.residentCountryCode?.code3 ?? ''),
-                              ],
-                            ),
-                          ],
-                        ),
-                        passports.isEmpty
-                            ? SizedBox()
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Passport", style: TextStyle(fontSize: 9)),
-                                  Row(
-                                    children: passports
-                                        .map(
-                                          (pass) => Row(
-                                            spacing: 2,
-                                            children: [
-                                              Row(
-                                                spacing: 2,
-                                                children: [
-                                                  BriefFiledInfoWidget(label: "Iss", value: pass.documentIssueCountry?.code3),
-                                                  BriefFiledInfoWidget(label: "Exp", value: pass.documentExpiryDate?.format_yyMMdd),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                ],
-                              ),
-                        visas.isEmpty
-                            ? SizedBox()
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Visa", style: TextStyle(fontSize: 9)),
-                                  Row(
-                                    children: visas
-                                        .map(
-                                          (visa) => Row(
-                                            spacing: 2,
-                                            children: [
-                                              Row(
-                                                spacing: 2,
-                                                children: [
-                                                  BriefFiledInfoWidget(label: "Iss", value: visa.documentIssueCountry?.code3),
-                                                  BriefFiledInfoWidget(label: "Exp", value: visa.documentExpiryDate?.format_yyMMdd),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                ],
-                              ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

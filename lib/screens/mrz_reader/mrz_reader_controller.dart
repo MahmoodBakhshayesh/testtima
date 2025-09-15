@@ -229,14 +229,12 @@ class MrzReaderController extends ControllerInterface {
 
       docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
-
-      if(BasicClass.constData.documentTypeMappers.isNotEmpty){
-          final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last));
-          if(match != null){
-            docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
-          }
+      if (BasicClass.constData.documentTypeMappers.isNotEmpty) {
+        final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last));
+        if (match != null) {
+          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
+        }
       }
-
 
       log("setting doctype of ${res.documentCode} to ${docType?.code}");
       // docType = mapMrzDocCodeToTimatic()
@@ -276,27 +274,28 @@ class MrzReaderController extends ControllerInterface {
         documentFeature: DocumentFeature.mrd,
         mrz: res.mrzLines.join("\n"),
         birthDate: res.birthDate,
-        ocrText: res.ocrData.text
+        ocrText: res.ocrData.text,
       );
 
-      log("*"*100);
-      log(documentDetail.ocrText??'--');
-      log("*"*100);
+      log("*" * 100);
+      log(documentDetail.ocrText ?? '--');
+      log("*" * 100);
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
 
-      if(ref.read(passportsProvider).any((a)=>a.isSameAs(res)) || ref.read(visasProvider).any((a)=>a.isSameAs(res)) || ref.read(residentsProvider).any((a)=>a.isSameAs(res)) ){
+      if (ref.read(passportsProvider).any((a) => a.isSameAs(res))) {
+        // if(ref.read(passportsProvid/er).any((a)=>a.isSameAs(res)) || ref.read(visasProvider).any((a)=>a.isSameAs(res)) || ref.read(residentsProvider).any((a)=>a.isSameAs(res)) ){
         log("was isSameAs");
         navigation.pop();
-        Future.delayed(Duration(seconds: 1),(){
+        Future.delayed(Duration(seconds: 1), () {
           FailureHandler.handle(ServerFailure(code: -1, msg: 'Duplicate Document', traceMsg: 'Duplicate Document'));
         });
         return;
-      }else{
-        log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a)=>a.documentNumber)}");
+      } else {
+        log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a) => a.documentNumber)}");
       }
 
-      ref.read(confirmingDocumentProvider.notifier).update((s)=>documentDetail);
+      ref.read(confirmingDocumentProvider.notifier).update((s) => documentDetail);
 
       // if (res.isPassport) {
       //

@@ -213,7 +213,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   placeholder: "Code",
                   items: tim.params.of(ParameterType.documentCode),
                   // itemToString: docCodeToString,
-                  valueToString: docCodeToString,
+                  // valueToString: docCodeToString,
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -317,11 +317,11 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     );
   }
 
-  String docCodeToString(ParameterValue p1) {
-    final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
-    if(match != null){
-      return match.title??p1.toString();
-    }
-    return p1.toString();
-  }
+  // String docCodeToString(ParameterValue p1) {
+  //   final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
+  //   if(match != null){
+  //     return match.title??p1.toString();
+  //   }
+  //   return p1.toString();
+  // }
 }
