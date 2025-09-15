@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/navigation/routes.dart';
@@ -171,6 +172,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                       controller: myMrzReaderController.ocrMrzController,
                       mrzLogger: myMrzReaderController.mrzLogger,
                       onFoundMrz: myMrzReaderController.docImproving,
+                      showZoom: Platform.isIOS,
+                      showFrame: false,
                       setting: OcrMrzSetting(
                         validatePersonalNumberValid: false,
                         validateNames: false,
