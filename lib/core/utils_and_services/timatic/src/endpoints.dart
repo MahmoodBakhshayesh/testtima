@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:abds/core/interfaces/failures_int.dart';
+import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import '../../../../initialize.dart';
+import '../../../../screens/login/login_controller.dart';
 import '../../../../screens/login/usecases/login_usecase.dart';
 import 'defaults.dart';
 import 'errors.dart';
@@ -166,7 +171,15 @@ class TimaticApi {
         data: body.toJson(), // json_serializable handles maps
       );
       log(jsonEncode(body.toJson()));
-      if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
+      if(res.statusCode == 401){
+        // LoginController homeController = getIt<LoginController>();
+        // homeController.logout(isTokenExpire: true);
+        // throw TimaticNetworkError('Token Expired',statusCode: 401);
+
+
+
+
+      }else if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
         if (res.data["timaticErrors"] is List) {
           final erL = (res.data["timaticErrors"] as List<dynamic>).map((a) => a["details"].toString());
           throw TimaticError(erL.join("\n"), cause: res.data["timaticErrors"]);
@@ -178,7 +191,23 @@ class TimaticApi {
       }
       throw TimaticParsingError('Unexpected response for /documentRequest');
     } on DioException catch (e) {
+
+      if(e.response?.statusCode == 401){
+        log("-"* 100 );
+        log("${e.response?.data}");
+        String? message;
+        if(e.response?.data is Map<String,dynamic>){
+          message =  e.response?.data["message"];
+        }
+        message=message??"Token Expire";
+        LoginController homeController = getIt<LoginController>();
+        homeController.logout(isTokenExpire: true);
+        Future.delayed(Duration(milliseconds: 300),(){
+          FailureHandler.handle(ServerFailure(code: 401, msg: message!, traceMsg: message!));
+        });
+      }
       throw TimaticNetworkError(e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
+
     } catch (e) {
       throw TimaticError(e.toString(), cause: e);
     }

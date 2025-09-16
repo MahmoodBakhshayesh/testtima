@@ -24,6 +24,7 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
@@ -32,6 +33,8 @@
 	<string>In order to set Profile picture</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>In order to scan Documents</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>In order to attach voice to document.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

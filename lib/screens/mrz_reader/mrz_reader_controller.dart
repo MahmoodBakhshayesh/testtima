@@ -14,6 +14,8 @@ import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/screens/mrz_reader/usecases/send_logs_usecase.dart';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:http_parser/http_parser.dart';
@@ -35,6 +37,7 @@ import '../home/home_state.dart';
 import '../login/login_state.dart';
 import 'dialogs/confirm_server_mrz_result_dialog.dart';
 import 'dialogs/session_log_history_dialog.dart';
+import 'dialogs/support_warning_dialog.dart';
 
 class MrzReaderController extends ControllerInterface {
   final _log = Logger('MrzReaderController');
@@ -229,19 +232,18 @@ class MrzReaderController extends ControllerInterface {
 
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
-
-      if(BasicClass.constData.documentTypeMappers.isNotEmpty){
-
-          final match = BasicClass.constData.documentTypeMappers.lastOrNullWhere((a)=>a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode));
-          if(match != null){
-            docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
-          }else{
-            log("no mapper match for ${res.documentCode}");
-          }
-      }else{
+      if (BasicClass.constData.documentTypeMappers.isNotEmpty) {
+        final match = BasicClass.constData.documentTypeMappers.lastOrNullWhere(
+          (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
+        );
+        if (match != null) {
+          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
+        } else {
+          log("no mapper match for ${res.documentCode}");
+        }
+      } else {
         log("BasicClass.constData.documentTypeMappers is empty");
       }
-
 
       log("setting doctype of ${res.documentCode} to ${docType?.code}");
       // docType = mapMrzDocCodeToTimatic()
@@ -281,30 +283,29 @@ class MrzReaderController extends ControllerInterface {
         documentFeature: DocumentFeature.mrd,
         mrz: res.mrzLines.join("\n"),
         birthDate: res.birthDate,
-        ocrText: res.ocrData.text
+        ocrText: res.ocrData.text,
       );
 
-      log("*"*100);
-      log(documentDetail.documentCode?.code??'--');
-      log(docType?.code??'--');
-      log("*"*100);
+      log("*" * 100);
+      log(documentDetail.documentCode?.code ?? '--');
+      log(docType?.code ?? '--');
+      log("*" * 100);
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
 
-      if(ref.read(passportsProvider).any((a)=>a.isSameAs(res)) || ref.read(visasProvider).any((a)=>a.isSameAs(res)) || ref.read(residentsProvider).any((a)=>a.isSameAs(res)) ){
+      if (ref.read(passportsProvider).any((a) => a.isSameAs(res)) || ref.read(visasProvider).any((a) => a.isSameAs(res)) || ref.read(residentsProvider).any((a) => a.isSameAs(res))) {
         log("was isSameAs");
         navigation.pop();
-        Future.delayed(Duration(seconds: 1),(){
+        Future.delayed(Duration(seconds: 1), () {
           FailureHandler.handle(ServerFailure(code: -1, msg: 'Duplicate Document', traceMsg: 'Duplicate Document'));
         });
         return;
-      }else{
-        log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a)=>a.documentNumber)}");
+      } else {
+        log("was isSameAs  => not ${res.documentNumber} vs ${ref.read(passportsProvider).map((a) => a.documentNumber)}");
       }
 
-
       log("setting confirm ${documentDetail.toJson()}");
-      ref.read(confirmingDocumentProvider.notifier).update((s)=>documentDetail);
+      ref.read(confirmingDocumentProvider.notifier).update((s) => documentDetail);
 
       // if (res.isPassport) {
       //
@@ -507,5 +508,15 @@ class MrzReaderController extends ControllerInterface {
   void showMrzSessionLog() {
     final sg = ocrMrzController.getSessionHistory.value;
     navigation.openDialog(dialog: SessionLogHistoryDialog(sl: sg));
+  }
+
+  void askActiveSupport(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SupportWarningDialog();
+      },
+      isScrollControlled: true,
+    );
   }
 }

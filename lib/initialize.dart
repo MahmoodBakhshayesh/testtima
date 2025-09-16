@@ -141,6 +141,9 @@ initNetworkManager([String? baseUrl]) {
       return (data["message"] ?? data["Message"] ?? data["ResultText"] ?? "Done").toString();
     },
     tokenExpireCheck: (NetworkRequest req, NetworkResponse res) {
+      if(res.responseCode == 401){
+        return true;
+      }
       if (res.responseBody is Map && res.responseBody["Body"] != null) {
         return res.extractedMessage?.contains("Token Expired") ?? false;
       } else {
@@ -149,7 +152,7 @@ initNetworkManager([String? baseUrl]) {
     },
     onTokenExpire: (NetworkRequest req, NetworkResponse res) {
       LoginController homeController = getIt<LoginController>();
-      homeController.logout();
+      homeController.logout(isTokenExpire: true);
     },
   );
 }

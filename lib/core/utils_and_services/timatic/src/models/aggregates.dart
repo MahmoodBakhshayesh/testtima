@@ -21,7 +21,7 @@ class TimaticLocations {
 
     res.sort((a,b)=>a.code3.compareTo(b.code3));
     // log("${res.firstOrNull?.code3} ${res.firstOrNull?.toString()} ${res.firstOrNull?.name}");
-    return res;
+    return res.where((a)=>a.code3.isNotEmpty).toList();
   }
 }
 

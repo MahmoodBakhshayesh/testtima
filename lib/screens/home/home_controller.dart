@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:abds/core/interfaces/failures_int.dart';
@@ -16,6 +17,7 @@ import 'package:abds/screens/users/users_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/ref_history_log_class.dart';
@@ -32,6 +34,7 @@ import '../../initialize.dart';
 import '../../widgets/MyFieldPicker.dart';
 import '../mrz_reader/mrz_reader_state.dart';
 import 'dialogs/image_pick_method_select_sheet.dart';
+import 'dialogs/option_sheet_dialog.dart';
 import 'home_state.dart';
 
 class HomeController extends ControllerInterface {
@@ -131,26 +134,34 @@ class HomeController extends ControllerInterface {
     ref.read(confirmingDocumentProvider.notifier).update((s) => null);
   }
 
-  selectPhotoToAttach(ImageSource source) async {
+  Future<String?> selectPhotoToAttach(ImageSource source) async {
     ImagePicker picker = ImagePicker();
     final XFile? pic = await picker.pickImage(source: source, imageQuality: 30);
-    if (pic != null) {
-      // Uint8List fileBytes = await pic.readAsBytes();
-      String path = pic.path;
-      // ref.read(attachingPhotoProvider.notifier).update((s) => [...s, fileBytes]);
-      ref.read(attachingPhotoPathProvider.notifier).update((s) => [...s, path]);
-    }
+    return pic?.path;
+    // if (pic != null) {
+    //   // Uint8List fileBytes = await pic.readAsBytes();
+    //   String path = pic.path;
+    //   // ref.read(attachingPhotoProvider.notifier).update((s) => [...s, fileBytes]);
+    //   ref.read(attachingPhotoPathProvider.notifier).update((s) => [...s, path]);
+    // }
   }
 
-  selectPhotoToAttachMethodDialog() {
-    navigation.openBottomSheet(bottomSheet: ImagePickMethodSelectSheet()).then((a) {
-      if (a == 1) {
-        selectPhotoToAttach(ImageSource.gallery);
-      }
-      if (a == 2) {
-        selectPhotoToAttach(ImageSource.camera);
-      }
-    });
+  Future<String?> selectPhotoToAttachMethodDialog() async {
+    final source = await navigation.openBottomSheet(bottomSheet: ImagePickMethodSelectSheet());
+    if (source == 1) {
+      return selectPhotoToAttach(ImageSource.gallery);
+    } else if (source == 2) {
+      return selectPhotoToAttach(ImageSource.camera);
+    }
+    return null;
+    //     .then((a) {
+    //   if (a == 1) {
+    //     selectPhotoToAttach(ImageSource.gallery);
+    //   }
+    //   if (a == 2) {
+    //     selectPhotoToAttach(ImageSource.camera);
+    //   }
+    // });
   }
 
   Future<void> askRefCodeDialog(BuildContext context) async {
@@ -226,8 +237,8 @@ class HomeController extends ControllerInterface {
   }
 
   askSuperVisorDialog() {
-    ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
-    navigation.openDialog(dialog: AskSupervisorDialog(logId: ref.read(timaticResultProvider)?.refCode ?? ''));
+    // ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
+    // navigation.openDialog(dialog: AskSupervisorDialog(logId: ref.read(timaticResultProvider)?.refCode ?? ''));
   }
 
   Future<bool> uploadDataForSupervision(String? noteType, String desc, String logId) async {
@@ -267,5 +278,73 @@ class HomeController extends ControllerInterface {
     }
   }
 
-  // UseCase UseCase = UseCase(repository: Repository());
+  void showOptionSheet() {
+    navigation.openBottomSheet(
+      bottomSheet: OptionSheetDialog(),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      isScrollControlled: true,
+    );
+  }
+
+  Future<bool> attachToResult({required String logId,List<String> images = const[],List<String> voices = const []}) async {
+    bool result = false;
+    final dio = Dio();
+
+    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final attachings = [...imageFiles,...voiceFiles];
+    log("\n${[...images,...voices].join("\n")}\n to $logId");
+    final formData = FormData.fromMap({
+      "attachFiles": attachings, // multiple images
+      "data": jsonEncode({"logNoteType": null, "description": "test"}),
+    });
+    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
+
+    try {
+      final response = await dio.post(
+        api,
+        data: formData,
+        options: Options(headers: {"Content-Type": "multipart/form-data", "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
+      );
+      if (response.statusCode == 200) {
+        result = true;
+        ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
+      } else {
+        FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
+      }
+      log("Response: ${response.data}");
+      return result;
+    } catch (e) {
+      log("Error: $e");
+      FailureHandler.handle(ServerFailure(code: -1, msg: "$e", traceMsg: "$e"));
+      return false;
+    }
+  }
+
+  Future<File> getFile({required String url}) async {
+    /// Get Image from server
+    final Response res = await Dio().get<List<int>>(
+      url,
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"}
+      ),
+    );
+
+    /// Get App local storage
+    final Directory appDir = await getApplicationDocumentsDirectory();
+
+    /// Generate Image Name
+    final String imageName = url.split('/').last;
+
+    /// Create Empty File in app dir & fill with new image
+    final File file = File(appDir.path+ "/${imageName}");
+
+    file.writeAsBytesSync(res.data as List<int>);
+
+    return file;
+  }
+
+
+// UseCase UseCase = UseCase(repository: Repository());
 }

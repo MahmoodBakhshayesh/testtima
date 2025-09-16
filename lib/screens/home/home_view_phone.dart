@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/constants/ui.dart';
@@ -13,9 +14,11 @@ import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:abds/screens/home/dialogs/photo_preview_dialog.dart';
 import 'package:abds/screens/home/dialogs/requested_data_dialog.dart';
+import 'package:abds/screens/home/dialogs/voice_preview_dialog.dart';
 import 'package:abds/screens/home/home_drawer.dart';
 import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
+import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/DurationOfStayPicker.dart';
@@ -29,12 +32,15 @@ import 'package:abds/widgets/check_permission.dart';
 import 'package:abds/widgets/user_avatar.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
@@ -46,6 +52,7 @@ import '../../core/utils_and_services/timatic/artemis_timatic.dart';
 import '../../initialize.dart';
 import '../../widgets/MyExpansionTile.dart';
 import '../../widgets/MyTimePicker.dart';
+import '../mrz_reader/dialogs/support_warning_dialog.dart';
 import 'home_controller.dart';
 import 'home_state.dart';
 import 'widgets/passport_section.dart';
@@ -700,6 +707,18 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                   child: Row(
                     children: [
                       resultMode
+                          ? Padding(
+                              padding: const EdgeInsets.only(right: 12.0),
+                              child: DotButton(
+                                icon: ArtemisIcons.more,
+                                size: 40,
+                                onPressed: () {
+                                  getIt<HomeController>().showOptionSheet();
+                                },
+                              ),
+                            )
+                          : SizedBox(),
+                      resultMode
                           ? MyButton(
                               label: "Clear",
                               borderSide: BorderSide(color: MyColors.black8),
@@ -772,6 +791,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                 MyButton(
                                   label: "Scan",
                                   onPressed: () {
+                                    // getIt<MrzReaderController>().askActiveSupport(context);
                                     HomeViewPhone.myHomeController.goMrzReadr();
                                   },
                                   radius: 10,
@@ -784,15 +804,15 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                           ? Row(
                               spacing: 8,
                               children: [
-                                MyButton(
-                                  label: "Ask Supervisor",
-                                  icon: ArtemisIcons.user_tag,
-                                  iconInRight: true,
-                                  onPressed: () async {
-                                    HomeViewPhone.myHomeController.askSuperVisorDialog();
-                                  },
-                                  radius: 12,
-                                ),
+                                // MyButton(
+                                //   label: "Ask Supervisor",
+                                //   icon: ArtemisIcons.user_tag,
+                                //   iconInRight: true,
+                                //   onPressed: () async {
+                                //     HomeViewPhone.myHomeController.askSuperVisorDialog();
+                                //   },
+                                //   radius: 12,
+                                // ),
                                 MyButton(
                                   label: "Start Again",
                                   icon: Icons.refresh,
@@ -1778,32 +1798,52 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                               Expanded(
                                                 child: Wrap(
                                                   children: [
-                                                    ...(l.payload?.attachFiles ?? [])
-                                                        .map(
-                                                          (img) => GestureDetector(
-                                                            onTap: () {
+                                                    ...(l.payload?.attachFiles ?? []).map((img) {
+                                                      bool isVoice = img.endsWith("m4a");
+                                                      if (isVoice) {
+                                                        return Padding(
+                                                          padding: const EdgeInsets.only(left: 8.0),
+                                                          child: DotButton(
+                                                            size: 40,
+                                                            icon: Icons.record_voice_over,
+                                                            onPressed: () async {
+                                                              String dlUrl = "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${img}";
+                                                              final f = await getIt<HomeController>().getFile(url: dlUrl);
+                                                              log(f.path);
                                                               showDialog(
                                                                 context: context,
                                                                 builder: (BuildContext context) {
-                                                                  return PhotoPreviewDialog(address: img);
+                                                                  return VoicePreviewDialog(address: f.path);
                                                                 },
                                                               );
                                                             },
-                                                            child: SizedBox(
-                                                              width: 40,
-                                                              height: 40,
-                                                              child: ClipRRect(
-                                                                borderRadius: BorderRadiusGeometry.circular(5),
-                                                                child: Image.network(
-                                                                  "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
-                                                                  fit: BoxFit.fill,
-                                                                  headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
-                                                                ),
-                                                              ),
+                                                          ),
+                                                        );
+                                                      }
+                                                      log(img);
+                                                      return GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return PhotoPreviewDialog(address: img);
+                                                            },
+                                                          );
+                                                        },
+                                                        child: SizedBox(
+                                                          width: 40,
+                                                          height: 40,
+                                                          child: ClipRRect(
+                                                            borderRadius: BorderRadiusGeometry.circular(5),
+                                                            child: Image.network(
+                                                              "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
+                                                              fit: BoxFit.fill,
+                                                              headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
                                                             ),
                                                           ),
-                                                        )
-                                                        .toList(),
+                                                        ),
+                                                      );
+                                                    }).toList(),
                                                   ],
                                                 ),
                                               ),
