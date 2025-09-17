@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_windows
   camera_kit_plus
   connectivity_plus
   file_selector_windows

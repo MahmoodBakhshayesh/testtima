@@ -77,6 +77,11 @@ abstract class Routes {
     name: 'performance',
     isShellRoute: false,
   );
+  static MyRouteInfo inbox = MyRouteInfo(
+    path: '/inbox',
+    name: 'inbox',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,
@@ -84,6 +89,7 @@ abstract class Routes {
     barcodeReader,
     mrzReader,
     logs,
-    profile
+    profile,
+    inbox,
   ];
 }

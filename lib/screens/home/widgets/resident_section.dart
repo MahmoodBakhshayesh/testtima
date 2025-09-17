@@ -193,7 +193,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                       child: MyFieldPicker<Location>(
                         hasSearch: true,
                         label: "Nationality",
-                        required: true,
+                        // required: true,
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
 
@@ -229,7 +229,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                       child: MyDatePicker(
                         label: "Expiry",
                         rowLabelRatio: [3, 7],
-                        required: true,
+                        // required: true,
                         validator: (a) => expiryValidator(a, d.documentExpiryDate),
                         validationColor: expiryValidationColor(d.documentExpiryDate),
                         validationIcon: expiryValidationIcon(d.documentExpiryDate),
@@ -251,7 +251,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
           MyDatePicker(
-            required: true,
+            // required: true,
             rowLabelRatio: [3, 7],
             label: "Birth Date",
             placeholder: "Birth Date",

@@ -12,6 +12,7 @@ import 'package:abds/screens/home/dialogs/ask_ref_code_dialog.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/confirm_scanned_doc_dialog.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
+import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:dio/dio.dart';
@@ -21,6 +22,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/ref_history_log_class.dart';
+import '../../core/classes/supervisor_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import 'package:logging/logging.dart';
 
@@ -46,8 +48,8 @@ class HomeController extends ControllerInterface {
     ref.read(improvingMrzResultProvider.notifier).update((s) => null);
     // ref.read(visasProvider.notifier).update((s) => [DocumentDetail()]);
     ref.read(passportsProvider.notifier).removeAll();
-    // ref.read(visasProvider.notifier).removeAll();
-    // ref.read(residentsProvider.notifier).removeAll();
+    ref.read(visasProvider.notifier).removeAll();
+    ref.read(residentsProvider.notifier).removeAll();
     ref.read(segmentsProvider.notifier).removeAll();
 
     ref.read(showWarningsProvider.notifier).update((s) => true);
@@ -89,8 +91,8 @@ class HomeController extends ControllerInterface {
     ref.read(confirmingDocumentProvider.notifier).update((s) => null);
     goNamed(Routes.mrzReader).then((a) {
       if (ref.read(confirmingDocumentProvider) != null) {
-        Future.delayed(Duration(milliseconds: 500), () {
-          navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!)).then((v) {
+        Future(() {
+          navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!),barrierDismissible: false).then((v) {
             if (v == true) {
               addConfirmingDocument();
             } else {
@@ -98,39 +100,63 @@ class HomeController extends ControllerInterface {
             }
           });
         });
+        // Future.delayed(Duration(milliseconds: 500), () {
+        //   navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!)).then((v) {
+        //     if (v == true) {
+        //       addConfirmingDocument();
+        //     } else {
+        //       ref.read(confirmingDocumentProvider.notifier).update((s) => null);
+        //     }
+        //   });
+        // });
       }
     });
   }
 
   addConfirmingDocument() {
     final doc = ref.read(confirmingDocumentProvider)!;
-    // if (doc.isPassport) {
-    int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
-    if (emptyIndex == -1) {
-      if (ref.read(passportsProvider).isEmpty) {
-        ref.read(passportsProvider.notifier).add(doc);
+    if (doc.isPassport) {
+      int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
+      if (emptyIndex == -1) {
+        if (ref.read(passportsProvider).isEmpty) {
+          ref.read(passportsProvider.notifier).add(doc);
+        } else {
+          int lastIndex = ref.read(passportsProvider).length - 1;
+          ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
+        }
       } else {
-        int lastIndex = ref.read(passportsProvider).length - 1;
-        ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
+        ref.read(passportsProvider.notifier).updateAt(emptyIndex, doc);
+      }
+    } else if (doc.isVisa) {
+      int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
+      if (emptyIndex == -1) {
+        ref.read(visasProvider.notifier).add(doc);
+      } else {
+        ref.read(visasProvider.notifier).updateAt(emptyIndex, doc);
       }
     } else {
-      ref.read(passportsProvider.notifier).updateAt(emptyIndex, doc);
+      int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
+      if (emptyIndex == -1) {
+        ref.read(residentsProvider.notifier).add(doc);
+      } else {
+        ref.read(residentsProvider.notifier).updateAt(emptyIndex, doc);
+      }
     }
-    // } else if (doc.isVisa) {
-    //   int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
-    //   if (emptyIndex == -1) {
-    //     ref.read(visasProvider.notifier).add(doc);
-    //   } else {
-    //     ref.read(visasProvider.notifier).updateAt(emptyIndex, doc);
-    //   }
-    // } else {
-    //   int emptyIndex = ref.read(residentsProvider).indexWhere((s) => s.isEmpty);
-    //   if (emptyIndex == -1) {
-    //     ref.read(residentsProvider.notifier).add(doc);
-    //   } else {
-    //     ref.read(residentsProvider.notifier).updateAt(emptyIndex, doc);
-    //   }
-    // }
+    final currentPax = ref.read(passengerProvider);
+    final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(doc.sex??''));
+
+    PassengerDetails passengerDetails = PassengerDetails(
+      nationality: currentPax.nationality ?? doc.nationality,
+      gender: gender,
+      birthDate:currentPax.birthDate?? doc.birthDate,
+      birthCountry: currentPax.birthCountry,
+      residentCountryCode: currentPax.residentCountryCode,
+    );
+
+    if ((doc.docCode??'').startsWith("C") || (doc.docCode??'').startsWith("I")) {
+      passengerDetails = passengerDetails.copyWith(residentCountryCode: doc.documentIssueCountry?.code3);
+    }
+    ref.read(passengerProvider.notifier).update((s) => passengerDetails);
     ref.read(confirmingDocumentProvider.notifier).update((s) => null);
   }
 
@@ -286,17 +312,17 @@ class HomeController extends ControllerInterface {
     );
   }
 
-  Future<bool> attachToResult({required String logId,List<String> images = const[],List<String> voices = const []}) async {
+  Future<bool> attachToResult({required String logId, List<String> images = const [], List<String> voices = const [],Map<String,dynamic>? data}) async {
     bool result = false;
     final dio = Dio();
 
     final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
     final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final attachings = [...imageFiles,...voiceFiles];
-    log("\n${[...images,...voices].join("\n")}\n to $logId");
+    final attachings = [...imageFiles, ...voiceFiles];
+    log("\n${[...images, ...voices].join("\n")}\n to $logId");
     final formData = FormData.fromMap({
       "attachFiles": attachings, // multiple images
-      "data": jsonEncode({"logNoteType": null, "description": "test"}),
+      "data": jsonEncode(data),
     });
     String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
 
@@ -325,10 +351,7 @@ class HomeController extends ControllerInterface {
     /// Get Image from server
     final Response res = await Dio().get<List<int>>(
       url,
-      options: Options(
-        responseType: ResponseType.bytes,
-        headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"}
-      ),
+      options: Options(responseType: ResponseType.bytes, headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
     );
 
     /// Get App local storage
@@ -338,7 +361,7 @@ class HomeController extends ControllerInterface {
     final String imageName = url.split('/').last;
 
     /// Create Empty File in app dir & fill with new image
-    final File file = File(appDir.path+ "/${imageName}");
+    final File file = File(appDir.path + "/${imageName}");
 
     file.writeAsBytesSync(res.data as List<int>);
 
@@ -346,5 +369,23 @@ class HomeController extends ControllerInterface {
   }
 
 
-// UseCase UseCase = UseCase(repository: Repository());
+    Future<List<Supervisor>?> getSupervisors() async {
+        List<Supervisor>? supervisors;
+        GetSupervisorsUseCase getSupervisorsUseCase = GetSupervisorsUseCase();
+        GetSupervisorsRequest getSupervisorsRequest = GetSupervisorsRequest();
+        final result = await getSupervisorsUseCase(request: getSupervisorsRequest);
+
+        switch (result) {
+          case Err<GetSupervisorsResponse>():
+            FailureHandler.handle(result.error);
+
+          case Ok<GetSupervisorsResponse>():
+            final r = result.value;
+            supervisors = r.supervisors;
+        }
+
+        return supervisors;
+      }
+
+  // UseCase UseCase = UseCase(repository: Repository());
 }

@@ -122,6 +122,7 @@ class Profile {
   final String? middlename;
   final String? lastname;
   final String? defaultAirport;
+  final Attributes? attributes;
   final bool hasImage;
   final int? gender;
 
@@ -133,6 +134,7 @@ class Profile {
     this.lastname,
     this.hasImage = false,
     this.gender,
+    this.attributes,
     this.defaultAirport,
   });
 
@@ -143,6 +145,7 @@ class Profile {
     String? middlename,
     String? lastname,
     String? defaultAirport,
+    Attributes? attributes,
     bool? hasImage,
     int? gender,
   }) {
@@ -155,6 +158,7 @@ class Profile {
       lastname: lastname ?? this.lastname,
       hasImage: hasImage ?? this.hasImage,
       gender: gender ?? this.gender,
+      attributes: attributes ?? this.attributes,
     );
   }
 
@@ -168,6 +172,7 @@ class Profile {
       defaultAirport: json['defaultAirport'],
       hasImage: json['hasImage']??false,
       gender: json['gender'],
+      attributes: json['attributes']==null?null:Attributes.fromJson(json["attributes"]),
     );
   }
 
@@ -180,6 +185,7 @@ class Profile {
     'lastname': lastname,
     'hasImage': hasImage,
     'gender': gender,
+    'attributes': attributes?.toJson(),
   };
 }
 
@@ -297,4 +303,59 @@ class DocumentTypeMapper {
     "code": code,
     "title": title,
   };
+}
+
+class Attributes {
+  final String? region;
+  final String? type;
+  final String? defaultAirport;
+  final String? defaultLanguage;
+  final bool? rtlLanguage;
+
+  Attributes({
+    this.region,
+    this.type,
+    this.defaultAirport,
+    this.defaultLanguage,
+    this.rtlLanguage,
+  });
+
+  // CopyWith
+  Attributes copyWith({
+    String? region,
+    String? type,
+    String? defaultAirport,
+    String? defaultLanguage,
+    bool? rtlLanguage,
+  }) {
+    return Attributes(
+      region: region ?? this.region,
+      type: type ?? this.type,
+      defaultAirport: defaultAirport ?? this.defaultAirport,
+      defaultLanguage: defaultLanguage ?? this.defaultLanguage,
+      rtlLanguage: rtlLanguage ?? this.rtlLanguage,
+    );
+  }
+
+  // From JSON
+  factory Attributes.fromJson(Map<String, dynamic> json) {
+    return Attributes(
+      region: json['region'] as String?,
+      type: json['type'] as String?,
+      defaultAirport: json['defaultAirport'] as String?,
+      defaultLanguage: json['defaultLanguage'] as String?,
+      rtlLanguage: json['rtlLanguage'] as bool?,
+    );
+  }
+
+  // To JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'region': region,
+      'type': type,
+      'defaultAirport': defaultAirport,
+      'defaultLanguage': defaultLanguage,
+      'rtlLanguage': rtlLanguage,
+    };
+  }
 }

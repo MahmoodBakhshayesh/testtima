@@ -55,6 +55,8 @@ class DocumentDetail {
   final String? mrz;
   final String? ocrText;
   final String? shortType;
+  final String? docCode;
+  final String? sex;
 
   const DocumentDetail({
     this.documentNumber,
@@ -72,6 +74,8 @@ class DocumentDetail {
     this.applicationDate,
     this.mrz,
     this.ocrText,
+    this.docCode,
+    this.sex,
   });
 
   static const _unset = Object();
@@ -92,6 +96,8 @@ class DocumentDetail {
     Object? mrz = _unset,
     Object? ocrText = _unset,
     Object? shortType = _unset,
+    Object? docCode = _unset,
+    Object? sex = _unset,
   }) {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
@@ -109,6 +115,8 @@ class DocumentDetail {
       mrz: identical(mrz, _unset) ? this.mrz : mrz as String?,
       ocrText: identical(ocrText, _unset) ? this.ocrText : ocrText as String?,
       shortType: identical(shortType, _unset) ? this.shortType : ocrText as String?,
+      docCode: identical(docCode, _unset) ? this.docCode : ocrText as String?,
+      sex: identical(sex, _unset) ? this.sex : ocrText as String?,
     );
   }
 
@@ -129,6 +137,8 @@ class DocumentDetail {
       mrz: json["mrz"],
       ocrText: json["ocrText"],
       shortType: json["shortType"],
+      docCode: json["docCode"],
+      sex: json["sex"],
     );
   }
 
@@ -148,6 +158,8 @@ class DocumentDetail {
     'mrz': mrz,
     'ocrText': ocrText,
     'shortType': shortType,
+    'docCode': docCode,
+    'sex': sex,
   };
 
   bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now());

@@ -248,10 +248,11 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    // final List<DocumentDetail> visas = ref.watch(visasProvider);
-    // final List<DocumentDetail> residents = ref.watch(residentsProvider);
+    final List<DocumentDetail> visas = ref.watch(visasProvider);
+    final List<DocumentDetail> residents = ref.watch(residentsProvider);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
+
     // log("passes ${passports.length}");
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
@@ -558,137 +559,137 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                     ],
                                   ),
                                 ),
-                                // const SizedBox(height: 12),
-                                // Visibility(
-                                //   visible: visas.isNotEmpty,
-                                //   child: Column(
-                                //     children: [
-                                //       Container(
-                                //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                //         decoration: BoxDecoration(
-                                //           // color: MyColors.scaffoldHeader,
-                                //           color: Colors.orange.withOpacity(0.4),
-                                //           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                //         ),
-                                //         child: Row(
-                                //           children: [
-                                //             Expanded(
-                                //               child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                //             ),
-                                //             DotButton(
-                                //               icon: ArtemisIcons.trash,
-                                //               color: Colors.red,
-                                //               flat: true,
-                                //               onPressed: () async {
-                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-                                //                 if (!confirm) return;
-                                //                 int lastIndex = visas.length - 1;
-                                //                 ref.read(visasProvider.notifier).removeAt(lastIndex);
-                                //               },
-                                //             ),
-                                //             const SizedBox(width: 8),
-                                //             DotButton(
-                                //               border: BorderSide(color: Colors.blueAccent),
-                                //               icon: Icons.refresh,
-                                //               flat: true,
-                                //               onPressed: () async {
-                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                                //                 if (!confirm) return;
-                                //                 int lastIndex = visas.length - 1;
-                                //                 ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
-                                //
-                                //                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-                                //               },
-                                //             ),
-                                //             // MyButton(
-                                //             //   label: "Scan",
-                                //             //   icon: Icons.qr_code_scanner,
-                                //             //   onPressed: () {
-                                //             //     myHomeController.goNamed(Routes.mrzReader);
-                                //             //   },
-                                //             //   textColor: Colors.white,
-                                //             //   // textColor: context.mainColor,
-                                //             //   borderSide: BorderSide(color: Colors.white),
-                                //             //   radius: 12,
-                                //             // ),
-                                //           ],
-                                //         ),
-                                //       ),
-                                //       Builder(
-                                //         builder: (context) {
-                                //           return Column(
-                                //             children: visas.map((d) {
-                                //               int index = visas.indexOf(d);
-                                //               bool isLast = visas.length == index + 1;
-                                //               bool isFirst = index == 0;
-                                //               return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                //             }).toList(),
-                                //           );
-                                //         },
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
-                                // const SizedBox(height: 12),
-                                // Visibility(
-                                //   visible: residents.isNotEmpty,
-                                //   child: Column(
-                                //     children: [
-                                //       Container(
-                                //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                //         decoration: BoxDecoration(
-                                //           // color: MyColors.scaffoldHeader,
-                                //           color: Colors.green.withOpacity(0.4),
-                                //           borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                //         ),
-                                //         child: Row(
-                                //           children: [
-                                //             Expanded(
-                                //               child: Text("ID / Residency Card".toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                                //             ),
-                                //             DotButton(
-                                //               icon: ArtemisIcons.trash,
-                                //               color: Colors.red,
-                                //               flat: true,
-                                //               onPressed: () async {
-                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-                                //                 if (!confirm) return;
-                                //                 int lastIndex = residents.length - 1;
-                                //                 ref.read(residentsProvider.notifier).removeAt(lastIndex);
-                                //               },
-                                //             ),
-                                //             const SizedBox(width: 8),
-                                //             DotButton(
-                                //               border: BorderSide(color: Colors.blueAccent),
-                                //               icon: Icons.refresh,
-                                //               flat: true,
-                                //               onPressed: () async {
-                                //                 final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                                //                 if (!confirm) return;
-                                //                 int lastIndex = residents.length - 1;
-                                //                 ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
-                                //
-                                //                 // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-                                //               },
-                                //             ),
-                                //           ],
-                                //         ),
-                                //       ),
-                                //       Builder(
-                                //         builder: (context) {
-                                //           return Column(
-                                //             children: residents.map((d) {
-                                //               int index = residents.indexOf(d);
-                                //               bool isLast = residents.length == index + 1;
-                                //               bool isFirst = index == 0;
-                                //               return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
-                                //             }).toList(),
-                                //           );
-                                //         },
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
+                                const SizedBox(height: 12),
+                                Visibility(
+                                  visible: visas.isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          // color: MyColors.scaffoldHeader,
+                                          color: Colors.orange.withOpacity(0.4),
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("VISA", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                            ),
+                                            DotButton(
+                                              icon: ArtemisIcons.trash,
+                                              color: Colors.red,
+                                              flat: true,
+                                              onPressed: () async {
+                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                                                if (!confirm) return;
+                                                int lastIndex = visas.length - 1;
+                                                ref.read(visasProvider.notifier).removeAt(lastIndex);
+                                              },
+                                            ),
+                                            const SizedBox(width: 8),
+                                            DotButton(
+                                              border: BorderSide(color: Colors.blueAccent),
+                                              icon: Icons.refresh,
+                                              flat: true,
+                                              onPressed: () async {
+                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                                                if (!confirm) return;
+                                                int lastIndex = visas.length - 1;
+                                                ref.read(visasProvider.notifier).updateAt(lastIndex, DocumentDetail());
+
+                                                // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                                              },
+                                            ),
+                                            // MyButton(
+                                            //   label: "Scan",
+                                            //   icon: Icons.qr_code_scanner,
+                                            //   onPressed: () {
+                                            //     myHomeController.goNamed(Routes.mrzReader);
+                                            //   },
+                                            //   textColor: Colors.white,
+                                            //   // textColor: context.mainColor,
+                                            //   borderSide: BorderSide(color: Colors.white),
+                                            //   radius: 12,
+                                            // ),
+                                          ],
+                                        ),
+                                      ),
+                                      Builder(
+                                        builder: (context) {
+                                          return Column(
+                                            children: visas.map((d) {
+                                              int index = visas.indexOf(d);
+                                              bool isLast = visas.length == index + 1;
+                                              bool isFirst = index == 0;
+                                              return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                            }).toList(),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Visibility(
+                                  visible: residents.isNotEmpty,
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          // color: MyColors.scaffoldHeader,
+                                          color: Colors.green.withOpacity(0.4),
+                                          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("ID / Residency Card".toUpperCase(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                                            ),
+                                            DotButton(
+                                              icon: ArtemisIcons.trash,
+                                              color: Colors.red,
+                                              flat: true,
+                                              onPressed: () async {
+                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                                                if (!confirm) return;
+                                                int lastIndex = residents.length - 1;
+                                                ref.read(residentsProvider.notifier).removeAt(lastIndex);
+                                              },
+                                            ),
+                                            const SizedBox(width: 8),
+                                            DotButton(
+                                              border: BorderSide(color: Colors.blueAccent),
+                                              icon: Icons.refresh,
+                                              flat: true,
+                                              onPressed: () async {
+                                                final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                                                if (!confirm) return;
+                                                int lastIndex = residents.length - 1;
+                                                ref.read(residentsProvider.notifier).updateAt(lastIndex, DocumentDetail());
+
+                                                // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Builder(
+                                        builder: (context) {
+                                          return Column(
+                                            children: residents.map((d) {
+                                              int index = residents.indexOf(d);
+                                              bool isLast = residents.length == index + 1;
+                                              bool isFirst = index == 0;
+                                              return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+                                            }).toList(),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 PhotoAttachmentWidget(),
                               ],
                             ),
@@ -749,44 +750,44 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   color: Colors.black,
                                 ),
                                 const SizedBox(width: 12),
-                                // MyButton(
-                                //   label: "Manual",
-                                //   onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
-                                //       ? null
-                                //       : () {
-                                //           if (ref.read(passportsProvider).isEmpty) {
-                                //             ref.read(passportsProvider.notifier).add(DocumentDetail());
-                                //           }
-                                //           if (ref.read(visasProvider).isEmpty) {
-                                //             ref.read(visasProvider.notifier).add(DocumentDetail());
-                                //           }
-                                //           if (ref.read(residentsProvider).isEmpty) {
-                                //             ref.read(residentsProvider.notifier).add(DocumentDetail());
-                                //           }
-                                //         },
-                                //   radius: 10,
-                                //   reverse: true,
-                                //   borderSide: BorderSide(color: context.mainColor),
-                                // ),
                                 MyButton(
                                   label: "Manual",
-                                  onPressed: ref.watch(passportsProvider).isNotEmpty
+                                  onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
                                       ? null
                                       : () {
                                           if (ref.read(passportsProvider).isEmpty) {
                                             ref.read(passportsProvider.notifier).add(DocumentDetail());
                                           }
-                                          // if (ref.read(visasProvider).isEmpty) {
-                                          //   ref.read(visasProvider.notifier).add(DocumentDetail());
-                                          // }
-                                          // if (ref.read(residentsProvider).isEmpty) {
-                                          //   ref.read(residentsProvider.notifier).add(DocumentDetail());
-                                          // }
+                                          if (ref.read(visasProvider).isEmpty) {
+                                            ref.read(visasProvider.notifier).add(DocumentDetail());
+                                          }
+                                          if (ref.read(residentsProvider).isEmpty) {
+                                            ref.read(residentsProvider.notifier).add(DocumentDetail());
+                                          }
                                         },
                                   radius: 10,
                                   reverse: true,
                                   borderSide: BorderSide(color: context.mainColor),
                                 ),
+                                // MyButton(
+                                //   label: "Manual",
+                                //   onPressed: ref.watch(passportsProvider).isNotEmpty
+                                //       ? null
+                                //       : () {
+                                //           if (ref.read(passportsProvider).isEmpty) {
+                                //             ref.read(passportsProvider.notifier).add(DocumentDetail());
+                                //           }
+                                //           // if (ref.read(visasProvider).isEmpty) {
+                                //           //   ref.read(visasProvider.notifier).add(DocumentDetail());
+                                //           // }
+                                //           // if (ref.read(residentsProvider).isEmpty) {
+                                //           //   ref.read(residentsProvider.notifier).add(DocumentDetail());
+                                //           // }
+                                //         },
+                                //   radius: 10,
+                                //   reverse: true,
+                                //   borderSide: BorderSide(color: context.mainColor),
+                                // ),
                                 const SizedBox(width: 12),
                                 MyButton(
                                   label: "Scan",
@@ -1757,7 +1758,7 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: MyColors.black8),
                               ),
-                              child: Text("Note And Logs"),
+                              child: Text("Note And Attachments"),
                             ),
                           ],
                         ),
@@ -1849,8 +1850,8 @@ class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidge
                                               ),
                                               Column(
                                                 children: [
-                                                  Text(l.at?.format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
-                                                  Text(l.at?.format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                                  Text(l.at?.toLocal().format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+                                                  Text(l.at?.toLocal().format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
                                                 ],
                                               ),
                                             ],

@@ -261,7 +261,7 @@ class OcrMrzAggregator {
     final cd = r.checkDigits;
     _docType.add(r.documentType);
 
-    if(v.docCodeValid){
+    if(v.docCodeValid && r.documentCode.isNotEmpty){
       _docCode.add(r.documentCode);
     }
 

@@ -9,6 +9,7 @@ import 'interfaces/home_repository_interface.dart';
 import 'data_sources/home_local_ds.dart';
 import 'data_sources/home_remote_ds.dart';
 import 'usecases/get_ref_code_log_usecase.dart';
+import 'usecases/get_supervisors_usecase.dart';
 
 class HomeRepository implements HomeRepositoryInterface {
   final HomeRemoteDataSource homeRemoteDataSource = HomeRemoteDataSource();
@@ -31,4 +32,19 @@ class HomeRepository implements HomeRepositoryInterface {
       return Result.error(ServerFailure.fromAppException(e));
     }
   }
+
+    @override
+      Future<Result<GetSupervisorsResponse>> getSupervisors(GetSupervisorsRequest request) async {
+        try {
+          GetSupervisorsResponse getSupervisorsResponse;
+          if (await networkInfo.isConnected) {
+            getSupervisorsResponse = await homeRemoteDataSource.getSupervisors(request: request);
+          } else {
+            getSupervisorsResponse = await homeLocalDataSource.getSupervisors(request: request);
+          }
+          return Result.ok(getSupervisorsResponse);
+        } on AppException catch (e) {
+          return Result.error(ServerFailure.fromAppException(e));
+        }
+      }
 }

@@ -1,4 +1,5 @@
 import 'package:abds/core/classes/server_mrz_result_class.dart';
+import 'package:abds/core/classes/supervisor_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
@@ -29,6 +30,7 @@ class OptionSheetDialog extends StatefulWidget {
 }
 
 class _MyOcrSettingDialogState extends State<OptionSheetDialog> {
+  final  myHomeController = getIt<HomeController>();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -54,13 +56,16 @@ class _MyOcrSettingDialogState extends State<OptionSheetDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ListTile(
-                    onTap: () {
+                    onTap: () async {
+                      List<Supervisor>? supervisors =await  myHomeController.getSupervisors();
+                      if(supervisors==null) return;
+
                       String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
                       if (logId != null) {
                         showModalBottomSheet(
                           context: context,
                           builder: (BuildContext context) {
-                            return AskSupervisorSheet(logId: logId);
+                            return AskSupervisorSheet(logId: logId,supervisors: supervisors,);
                           },
                           isScrollControlled: true,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),

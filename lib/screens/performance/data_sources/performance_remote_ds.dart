@@ -16,7 +16,7 @@ class PerformanceRemoteDataSource implements PerformanceDataSourceInterface {
 
   @override
   Future<GetReportResponse> getReport({required GetReportRequest request}) async {
-    String api = "/report${request.fromDate==null?'':'${request.fromDate.format_yyyyMMdd}&'}${request.toDate==null?'':'${request.toDate.format_yyyyMMdd}&'}${request.from==null?'':'${request.from}&'}${request.to==null?'':'${request.to}'}";
+    String api = "/report?${request.fromDate==null?'':'startDT${request.fromDate.format_yyyyMMdd}&'}${request.toDate==null?'':'endDT${request.toDate.format_yyyyMMdd}&'}${request.from==null?'':'from${request.from}&'}${request.to==null?'':'to${request.to}'}";
     ResponseInterface res = await networkManager.get(api);
     GetReportResponse response = await Parser().parse(GetReportResponse.fromResponse, res, executionReq: request);
     return response;

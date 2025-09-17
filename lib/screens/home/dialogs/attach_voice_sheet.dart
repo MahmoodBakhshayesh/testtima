@@ -27,6 +27,8 @@ import 'package:voice_note_kit/voice_note_kit.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/interfaces/success_int.dart';
 import '../../../core/utils_and_services/handlers/success_handler.dart';
+import '../../../core/utils_and_services/recorder/my_player.dart';
+import '../../../core/utils_and_services/recorder/my_voice_recorder.dart';
 
 class AttachVoiceSheet extends StatefulWidget {
   final String logId;
@@ -38,7 +40,7 @@ class AttachVoiceSheet extends StatefulWidget {
 }
 
 class _MyOcrSettingDialogState extends State<AttachVoiceSheet> {
-  File? recordedSound;
+  List<String> attachingVoices = [];
 
   @override
   Widget build(BuildContext context) {
@@ -77,82 +79,43 @@ class _MyOcrSettingDialogState extends State<AttachVoiceSheet> {
                       child: Column(
                         spacing: 12,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Row(
-                              spacing: 12,
+                          MyVoiceRecorder(
+                            onSubmitRecord: (a) {
+                              dev.log("saved to $a");
+                              attachingVoices.insert(0, a);
+                              setState(() {});
+                            },
+                          ),
+                          Container(
+                            constraints: BoxConstraints(maxHeight: 100),
+                            child: ListView(
+                              shrinkWrap: true,
                               children: [
-                                Expanded(
-                                  child: Row(
+                                ...attachingVoices.map((a) {
+                                  dev.log(a);
+                                  return Row(
                                     children: [
+                                      Expanded(
+                                        child: MyAudioPlayerWidget(
+                                          key: Key(a),
+                                          audioPath: a,
+                                          backgroundColor: Colors.transparent,
+                                          timerTextStyle: TextStyle(color: Colors.blueAccent),
+                                          iconColor: Colors.blueAccent,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
                                       DotButton(
-                                        size: 40,
-                                        icon: recordedSound == null ? Icons.record_voice_over : Icons.delete,
+                                        color: Colors.red,
+                                        icon: ArtemisIcons.trash,
                                         onPressed: () {
-                                          recordedSound = null;
+                                          attachingVoices.remove(a);
                                           setState(() {});
                                         },
                                       ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: recordedSound == null
-                                            ? VoiceRecorderWidget(
-                                          iconSize: 48,
-                                          showTimerText: true,
-                                          style: VoiceUIStyle.compact,
-                                          showSwipeLeftToCancel: false,
-                                          onRecorded: (file) {
-                                            setState(() {
-                                              recordedSound = file;
-                                            });
-                                          },
-                                          onError: (error) {
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
-                                          },
-                                          actionWhenCancel: () {
-                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recording Cancelled')));
-                                          },
-                                          maxRecordDuration: const Duration(seconds: 600),
-                                          permissionNotGrantedMessage: 'Microphone permission required',
-                                          dragToLeftText: 'Swipe left to cancel recording',
-                                          dragToLeftTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 18),
-                                          cancelDoneText: 'Recording cancelled',
-                                          backgroundColor: Colors.blueAccent,
-                                          cancelHintColor: Colors.red,
-                                          iconColor: Colors.white,
-                                          timerFontSize: 14,
-                                          timerTextStyle: GoogleFonts.robotoMono(fontSize: 14),
-                                        )
-                                            : SizedBox(
-                                          height: 74,
-                                          child: AudioPlayerWidget(
-                                            autoPlay: false,
-                                            autoLoad: true,
-                                            audioPath: recordedSound!.path,
-                                            audioType: AudioType.directFile,
-                                            playerStyle: PlayerStyle.style1,
-                                            size: 45,
-                                            progressBarHeight: 5,
-                                            backgroundColor: context.mainColor,
-                                            progressBarColor: Colors.white,
-                                            progressBarBackgroundColor: Colors.white,
-                                            iconColor: Colors.white,
-                                            shapeType: PlayIconShapeType.circular,
-                                            showProgressBar: true,
-                                            showTimer: true,
-                                            width: 300,
-                                            audioSpeeds: const [0.5, 1.0, 1.5, 2.0, 3.0],
-                                            onSeek: (value) => dev.log('Seeked to: $value'),
-                                            onError: (message) => dev.log('Error: $message'),
-                                            onPause: () => dev.log("Paused"),
-                                            onPlay: (isPlaying) => dev.log("Playing: $isPlaying"),
-                                            onSpeedChange: (speed) => dev.log("Speed: $speed"), // Callback when playback speed is changed
-                                          ),
-                                        ),
-                                      ),
                                     ],
-                                  ),
-                                ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -183,8 +146,8 @@ class _MyOcrSettingDialogState extends State<AttachVoiceSheet> {
                   Expanded(
                     child: MyButton(
                       label: "Submit",
-                      onPressed:recordedSound == null?null: () async {
-                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, voices: [recordedSound!.path], images: []);
+                      onPressed: attachingVoices.isEmpty?null: () async {
+                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, voices: attachingVoices, images: []);
                         if (bool) {
                           Navigator.of(context).pop(true);
                           Future.delayed(Duration(milliseconds: 300), () {

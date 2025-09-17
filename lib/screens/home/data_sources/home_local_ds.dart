@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
+import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 
 import '../../../core/interfaces/local_data_base_int.dart';
 
@@ -19,6 +20,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<GetRefCodeLogResponse> getRefCodeLog({required GetRefCodeLogRequest request}) {
     // TODO: implement getRefCodeLog
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<GetSupervisorsResponse> getSupervisors({required GetSupervisorsRequest request}) {
+    // TODO: implement getSupervisors
     throw UnimplementedError();
   }
 

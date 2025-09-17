@@ -25,6 +25,8 @@ import 'package:voice_note_kit/recorder/voice_enums/voice_enums.dart';
 import 'package:voice_note_kit/voice_note_kit.dart';
 
 import '../../../core/classes/mrz_agg_class.dart';
+import '../../../core/interfaces/success_int.dart';
+import '../../../core/utils_and_services/handlers/success_handler.dart';
 
 class AttachCommentSheet extends StatefulWidget {
   final String logId;
@@ -37,7 +39,7 @@ class AttachCommentSheet extends StatefulWidget {
 
 class _MyOcrSettingDialogState extends State<AttachCommentSheet> {
   String? attachingPhoto;
-
+  TextEditingController commentC = TextEditingController();
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
@@ -81,6 +83,7 @@ class _MyOcrSettingDialogState extends State<AttachCommentSheet> {
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
                               child: Container(
+                                height: 300,
                                 padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: MyColors.lineColor),
@@ -88,14 +91,15 @@ class _MyOcrSettingDialogState extends State<AttachCommentSheet> {
                                 ),
                                 width: context.width * 0.9,
                                 child:CupertinoTextField(
+                                  controller: commentC,
                                   textAlignVertical: TextAlignVertical.top,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadiusGeometry.circular(10),
                                     border: Border.all(color: Colors.white),
                                     color: Colors.white,
                                   ),
-                                  minLines: 5,
-                                  maxLines: 5,
+                                  // minLines: 5,
+                                  // maxLines: 5,
                                   placeholder: "Enter your message",
                                 ),
                               ),
@@ -127,8 +131,19 @@ class _MyOcrSettingDialogState extends State<AttachCommentSheet> {
                     Expanded(
                       child: MyButton(
                         label: "Submit",
-                        onPressed: () {
-                          Navigator.of(context).pop(true);
+                        onPressed: () async {
+                          final bool = await getIt<HomeController>().attachToResult(
+                            logId: widget.logId,
+                            images: [],
+                            voices: [],
+                            data: {'comment': commentC.text},
+                          );
+                          if (bool) {
+                            Navigator.of(context).pop(true);
+                            Future.delayed(Duration(milliseconds: 300), () {
+                              SuccessHandler.handle(ServerSuccess(code: 1, msg: "Done"));
+                            });
+                          }
                         },
                       ),
                     ),

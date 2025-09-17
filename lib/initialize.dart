@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:abds/screens/add_user/add_user_controller.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_controller.dart';
+import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:abds/screens/logs/logs_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/profile/profile_controller.dart';
@@ -223,6 +224,7 @@ Future<void> initNavigation() async {
   ProfileController profileController = ProfileController();
   DynamsoftMrzController dynamsoftMrzController = DynamsoftMrzController();
   PerformanceController performanceController = PerformanceController();
+  InboxController inboxController = InboxController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -234,10 +236,11 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(profileController);
   getIt.registerSingleton(dynamsoftMrzController);
   getIt.registerSingleton(performanceController);
+  getIt.registerSingleton(inboxController);
 
   TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController,Routes.performance:performanceController});
 
-  print("registerAllControllers");
+  // print("registerAllControllers");
 }
 
 Future<void> _initPackages() async {

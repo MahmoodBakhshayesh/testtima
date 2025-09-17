@@ -159,7 +159,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     bool isLast = widget.isLast;
     bool isFirst = widget.isFirst;
     int index = widget.index;
-    DocumentDetail d = widget.item;
+    DocumentDetail d = ref.watch(confirmingDocumentProvider)??DocumentDetail();
+
+
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
     return Container(
@@ -169,7 +171,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
       ),
       child: MyExpansionTile(
         tapOnTitleActive: false,
-        initiallyExpanded: d.isScanned,
+
+        initiallyExpanded: true,
+        showFooter: false,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
         backgroundColor: Color(0xff324073).withOpacity(0.2),
@@ -279,6 +283,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
             max: DateTime.now(),
             validationIcon: ArtemisIcons.user_square,
             value: d.birthDate,
+
 
             onChanged: (a) {
               // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));

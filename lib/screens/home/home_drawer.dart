@@ -105,10 +105,17 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           title: 'Performance',
                           // permission: LogUiPermission.read(),
                           onTap: () {
-
                             myHomeController.goNamed(Routes.performance);
                           },
                           leadingIcon: Icons.bar_chart,
+                        ),
+                        DrawerAction(
+                          title: 'Inbox',
+                          // permission: LogUiPermission.read(),
+                          onTap: () {
+                            myHomeController.goNamed(Routes.inbox);
+                          },
+                          leadingIcon: Icons.inbox,
                         ),
                       ],
                     ),

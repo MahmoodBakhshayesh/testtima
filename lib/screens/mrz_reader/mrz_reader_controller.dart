@@ -64,9 +64,11 @@ class MrzReaderController extends ControllerInterface {
       return;
     }
 
-    // log(jsonEncode(scanned.valid.toString()));
-    // log(jsonEncode(scanned.expiryDate.toString()));
-    // log("scanned.toString()");
+    if(scanned.valid.docCodeValid) {
+      log(jsonEncode(scanned.valid.toString()));
+      log(jsonEncode(scanned.toJson()));
+      log("scanned.toString()");
+    }
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
     // if(scanned.line2.isEmpty){
@@ -232,7 +234,7 @@ class MrzReaderController extends ControllerInterface {
 
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
-      if (BasicClass.constData.documentTypeMappers.isNotEmpty) {
+      if (BasicClass.constData.documentTypeMappers.isNotEmpty && res.countryCode.length>1) {
         final match = BasicClass.constData.documentTypeMappers.lastOrNullWhere(
           (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
         );
@@ -284,6 +286,8 @@ class MrzReaderController extends ControllerInterface {
         mrz: res.mrzLines.join("\n"),
         birthDate: res.birthDate,
         ocrText: res.ocrData.text,
+        sex: res.sex,
+        docCode: res.documentCode,
       );
 
       log("*" * 100);
@@ -336,19 +340,19 @@ class MrzReaderController extends ControllerInterface {
       //   }
       // }
 
-      final currentPax = ref.read(passengerProvider);
-      PassengerDetails passengerDetails = PassengerDetails(
-        nationality: currentPax.nationality ?? nationality,
-        gender: gender,
-        birthDate: res.birthDate,
-        birthCountry: currentPax.birthCountry,
-        residentCountryCode: currentPax.residentCountryCode,
-      );
-
-      if (res.documentCode.startsWith("C") || res.documentCode.startsWith("I")) {
-        passengerDetails = passengerDetails.copyWith(residentCountryCode: issueCountry);
-      }
-      ref.read(passengerProvider.notifier).update((s) => passengerDetails);
+      // final currentPax = ref.read(passengerProvider);
+      // PassengerDetails passengerDetails = PassengerDetails(
+      //   nationality: currentPax.nationality ?? nationality,
+      //   gender: gender,
+      //   birthDate: res.birthDate,
+      //   birthCountry: currentPax.birthCountry,
+      //   residentCountryCode: currentPax.residentCountryCode,
+      // );
+      //
+      // if (res.documentCode.startsWith("C") || res.documentCode.startsWith("I")) {
+      //   passengerDetails = passengerDetails.copyWith(residentCountryCode: issueCountry);
+      // }
+      // ref.read(passengerProvider.notifier).update((s) => passengerDetails);
 
       final current = ref.read(ocrMrzLogsProvider);
       sendLogs(current, confirm: false);
