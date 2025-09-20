@@ -120,6 +120,9 @@ flutter:
     - assets/sounds/
     - assets/fonts/
   fonts:
+    - family: MyIcons
+      fonts:
+        - asset: assets/fonts/icomoon.ttf
     - family: ArtemisIcons
       fonts:
         - asset: assets/fonts/ArtemisIcons.ttf
