@@ -111,7 +111,7 @@ class _MyButtonState extends State<MyButton> {
     }
     foregroundColor = widget.textColor ?? foregroundColor;
     if (disable) {
-      backgroundColor = Colors.white12;
+      backgroundColor = Color(0xffECECEC);
       foregroundColor = Colors.black12;
       borderColor = Colors.black12;
     }

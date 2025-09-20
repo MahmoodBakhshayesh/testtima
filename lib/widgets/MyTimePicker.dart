@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 
 import '../core/constants/ui.dart';
 import '../core/utils_and_services/time_picker/board_datetime_picker.dart';
+import 'MyTextFieldNew.dart';
 
 // import '../core/utils_and_services/time_picker/src/board_datetime_options.dart';
 // import '../core/utils_and_services/time_picker/src/board_datetime_widget.dart';
@@ -52,6 +53,8 @@ class MyTimePicker extends StatefulWidget {
   final TimeOfDay? max;
   final DatePickerEntryMode mode;
   final Color? validationColor;
+  final Color? headerBgColor;
+  final Color? bodyBgColor;
   final IconData? validationIcon;
   final List<int>  rowLabelRatio;
 
@@ -59,6 +62,8 @@ class MyTimePicker extends StatefulWidget {
     Key? key,
     this.label,
     this.value,
+    this.headerBgColor,
+    this.bodyBgColor,
     this.rowLabelRatio=const[3,5],
     this.controller,
     this.focusNode,
@@ -189,37 +194,22 @@ class _MyTimePickerState extends State<MyTimePicker> {
         //   controller?.text = v?.format_yyMMddSlash ?? '';
         // });
       },
-      child: Container(
-        height: widget.height,
-        child: MyTextField(
-          disabled: true,
-          required: widget.required,
-          showError: true,
-          placeholder: widget.placeholder,
-          label: widget.label,
-          rowLabelRatio: widget.rowLabelRatio,
-          labelInRow: true,
-          validationColor: widget.validationColor,
-          validationIcon: widget.validationIcon,
-          style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
-          // suffixIcon: Padding(
-          //   padding: const EdgeInsets.all(2.0),
-          //   child: Icon(Icons.date_range,size: 12,),
-          // ),
-          validator: widget.validator,
-          // decoration: InputDecoration(
-          //   contentPadding: EdgeInsets.only(left: 8, right: 8),
-          //   fillColor: Colors.white,
-          //   filled: true,
-          //   hintText: widget.placeholder,
-          //   hintStyle: const TextStyle(color: Color(0xffb9b9b9), fontWeight: FontWeight.w400),
-          //   border: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-          //   disabledBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-          //   focusedBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-          //   suffix: const Icon(Icons.date_range, color: Colors.black, size: 12),
-          // ),
-          controller: controller,
-        ),
+      child: MyTextFieldNew(
+        headerBgColor: widget.headerBgColor,
+        bodyBgColor: widget.bodyBgColor,
+        disabled: true,
+        required: widget.required,
+        showError: true,
+        placeholder: widget.placeholder,
+        label: widget.label,
+        rowLabelRatio: widget.rowLabelRatio,
+        labelInRow: true,
+        validationColor: widget.validationColor,
+        validationIcon: widget.validationIcon,
+        suffixIcon: SizedBox(height: 20),
+        style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
+        validator: widget.validator,
+        controller: controller,
       ),
     );
     // return SizedBox(

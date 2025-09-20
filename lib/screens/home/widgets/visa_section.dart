@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -99,7 +100,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (d.ocrText??'').contains('N97191'));
     // log(d.ocrText??'-');
-
+    final headerBg = Color(0xffFFFFFF);
+    final bodyBg = Color(0xffFCF7F0);
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
@@ -110,27 +112,24 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
         initiallyExpanded: d.isScanned,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: Colors.orange.withOpacity(0.2),
-        collapsedBackgroundColor: Colors.orange.withOpacity(0.2),
+        // backgroundColor: Colors.orange.withOpacity(0.2),
+        // collapsedBackgroundColor: Colors.orange.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
-        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        tilePadding: EdgeInsets.symmetric(horizontal: 0),
         footerExtra: IndexedStack(
           index: isLast ? 0 : 1,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: MyButton(
-                height: 30,
-                label: "Visa",
-                icon: Icons.add_circle_outline,
-                onPressed: () {
-                  ref.read(visasProvider.notifier).add(DocumentDetail());
-                },
-                textColor: Colors.blueAccent,
-                color: Colors.blueAccent.withOpacity(0.1),
-              ),
+            MyButton(
+              height: 30,
+              label: "Visa",
+              icon: Icons.add_circle_outline,
+              onPressed: () {
+                ref.read(visasProvider.notifier).add(DocumentDetail());
+              },
+              textColor: Colors.blueAccent,
+              color: Colors.blueAccent.withOpacity(0.1),
             ),
             SizedBox(),
           ],
@@ -138,42 +137,6 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(vertical: 8.0),
-            //   child: Row(
-            //     children: [
-            //       Expanded(
-            //         child: Text(
-            //           "Visa ${index + 1}",
-            //           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-            //         ),
-            //       ),
-            //       DotButton(
-            //         icon: ArtemisIcons.trash,
-            //         color: Colors.red,
-            //         flat: true,
-            //         onPressed: () async {
-            //           final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-            //           if (!confirm) return;
-            //           ref.read(visasProvider.notifier).removeAt(index);
-            //         },
-            //       ),
-            //       const SizedBox(width: 8),
-            //       DotButton(
-            //         border: BorderSide(color: Colors.blueAccent),
-            //         icon: Icons.refresh,
-            //         flat: true,
-            //         onPressed: () async {
-            //           final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-            //           if (!confirm) return;
-            //           ref.read(visasProvider.notifier).updateAt(index, DocumentDetail());
-            //
-            //           // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-            //         },
-            //       ),
-            //     ],
-            //   ),
-            // ),
             const SizedBox(height: 12),
             Column(
               spacing: 12,
@@ -186,6 +149,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         label: "Issued In",
                         rowLabelRatio: [4, 4],
                         placeholder: "Country",
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         searchAutoFocus: true,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
 
@@ -205,7 +170,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         searchAutoFocus: true,
                         label: "Nationality",
                         rowLabelRatio: [4, 4],
-                        // required: true,
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
 
@@ -225,6 +191,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                 MyFieldPicker<ParameterValue>(
                   label: "Code",
                   placeholder: "Code",
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
                   // valueToString: docCodeToString,
                   items: tim.params.of(ParameterType.documentCode),
                   value: d.documentCode,
@@ -240,6 +208,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                       child: MyDatePicker(
                         label: "Expiry",
                         rowLabelRatio: [3, 7],
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         // required: true,
                         validator: (a) => expiryValidator(a, d.documentExpiryDate),
                         validationColor: visaExpiryValidationColor(d.documentExpiryDate),
@@ -259,11 +229,13 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             ),
           ],
         ),
-        childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+        childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
         children: [
           MyDatePicker(
             // required: true,
             rowLabelRatio: [3, 7],
+            headerBgColor: headerBg,
+            bodyBgColor: bodyBg,
             label: "Birth Date",
             placeholder: "Birth Date",
             validator: (a) => birthDateValidator(a, d.birthDate),
@@ -280,108 +252,15 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
           const SizedBox(height: 12),
 
           // const SizedBox(height: 12),
-          MyTextField(controller: controller, label: "Document # ${foundPassInVisa ? '✅' : ''}", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              controller: controller, label: "Document # ${foundPassInVisa ? '✅' : ''}", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
-          // Row(
-          //   spacing: 12,
-          //   children: [
-          //     Expanded(
-          //       child: MyFieldPicker<Location>(
-          //         hasSearch: true,
-          //         label: "Nationality",
-          //         required: true,
-          //         placeholder: "Country",
-          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //         itemToWidget: countryBuilder,
-          //         items: tim.locations.of(LocationType.country),
-          //         value: passengerDetails.nationality,
-          //         onChange: (a) {
-          //           ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-          //           d = d.copyWith(nationality: a);
-          //           if (widget.isVisa) {
-          //             ref.read(visasProvider.notifier).updateAt(widget.index, d);
-          //           } else {
-          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: MyFieldPicker<Location>(
-          //         label: "Issuing",
-          //         placeholder: "Country",
-          //         itemToWidget: countryBuilder,
-          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //         items: tim.locations.of(LocationType.country),
-          //         value: d.documentIssueCountry,
-          //         onChange: (a) {
-          //           d = d.copyWith(documentIssueCountry: a);
-          //           if (widget.isVisa) {
-          //             ref.read(visasProvider.notifier).updateAt(widget.index, d);
-          //           } else {
-          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // MyDatePicker(
-          //   label: "Issue Date",
-          //   rowLabelRatio: [3, 7],
-          //   placeholder: "Issue Date",
-          //   value: d.documentIssueDate,
-          //   onChanged: (a) {
-          //     d = d.copyWith(documentIssueDate: a);
-          //     ref.read(visasProvider.notifier).updateAt(widget.index, d);
-          //   },
-          // ),
-          // const SizedBox(height: 12),
 
-          // Row(
-          //   spacing: 12,
-          //   children: [
-          //     // Expanded(
-          //     //   child: MyFieldPicker<Location>(
-          //     //     rowLabelRatio: [3, 4],
-          //     //     label: "Birth Place",
-          //     //     hasSearch: true,
-          //     //     placeholder: "Country",
-          //     //     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //     //     items: tim.locations.of(LocationType.country),
-          //     //     itemToWidget: countryBuilder,
-          //     //     value: passengerDetails.birthCountry,
-          //     //     onChange: (a) {
-          //     //       ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-          //     //     },
-          //     //   ),
-          //     // ),
-          //     Expanded(
-          //       child: MyFieldPicker<DocumentFeature>(
-          //         rowLabelRatio: [3, 7],
-          //         hasSearch: false,
-          //         label: "Feature",
-          //         placeholder: "Feature",
-          //         items: DocumentFeature.values,
-          //         value: d.documentFeature,
-          //         onChange: (a) {
-          //           d = d.copyWith(documentFeature: a);
-          //           ref.read(visasProvider.notifier).updateAt(widget.index, d);
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );
   }
 
-  // String docCodeToString(ParameterValue p1) {
-  //   final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
-  //   if(match != null){
-  //     return match.title??p1.toString();
-  //   }
-  //   return p1.toString();
-  // }
 }

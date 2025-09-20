@@ -76,7 +76,7 @@ class _DotButtonState extends State<DotButton> {
   @override
   Widget build(BuildContext context) {
     Color c = widget.onPressed == null ? Colors.black12 : widget.color ?? Colors.blueAccent;
-    double iconSize = widget.size * 0.6;
+    double iconSize =widget.iconSize?? widget.size * 0.6;
     if (widget.badge != null) {
       return Stack(
         children: [

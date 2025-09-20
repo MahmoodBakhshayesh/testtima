@@ -13,6 +13,8 @@ import '../core/utils_and_services/pickers.dart';
 import 'DotButton.dart';
 import 'dart:developer' as dev;
 
+import 'MyTextFieldNew.dart';
+
 class MyFieldPicker<T> extends StatefulWidget {
   final String Function(T)? itemToString;
   final String Function(T)? valueToString;
@@ -35,6 +37,8 @@ class MyFieldPicker<T> extends StatefulWidget {
   final bool searchAutoFocus;
   final TextStyle? style;
   final Color? backgroundColor;
+  final Color? headerBgColor;
+  final Color? bodyBgColor;
   final TextStyle? labelStyle;
   final List<int> rowLabelRatio;
 
@@ -43,6 +47,8 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.itemToString,
     this.valueToString,
     this.searchBuilder,
+    this.headerBgColor,
+    this.bodyBgColor,
     this.locked = false,
     this.required = false,
     this.labelInRow = false,
@@ -147,8 +153,10 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               }
             });
           },
-          child: MyTextField(
+          child: MyTextFieldNew(
             showError: false,
+            headerBgColor: widget.headerBgColor,
+            bodyBgColor: widget.bodyBgColor,
             disabled: true,
             backgroundColor: widget.backgroundColor,
             labelStyle: widget.labelStyle,

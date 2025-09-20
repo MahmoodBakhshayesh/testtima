@@ -6,12 +6,14 @@ import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_controller.dart';
 import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:abds/screens/logs/logs_controller.dart';
+import 'package:abds/screens/message_details/message_details_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/profile/profile_controller.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 import '../../core/interfaces/network_info_int.dart';
 import '../../core/utils_and_services/app_config.dart';
 import '../../core/utils_and_services/app_data.dart';
@@ -225,6 +227,7 @@ Future<void> initNavigation() async {
   DynamsoftMrzController dynamsoftMrzController = DynamsoftMrzController();
   PerformanceController performanceController = PerformanceController();
   InboxController inboxController = InboxController();
+  MessageDetailsController messageDetailsController = MessageDetailsController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -237,6 +240,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(dynamsoftMrzController);
   getIt.registerSingleton(performanceController);
   getIt.registerSingleton(inboxController);
+  getIt.registerSingleton(messageDetailsController);
 
   TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController,Routes.performance:performanceController});
 
@@ -270,4 +274,7 @@ Future<void> _initPackages() async {
   final client = TimaticClient(const TimaticClientOptions(baseUrl: 'https://timatic.multidcs.com/api/v1'));
   final api = TimaticApi(client);
   getIt.registerLazySingleton(() => api);
+
+  await FastCachedImageConfig.init();
+
 }

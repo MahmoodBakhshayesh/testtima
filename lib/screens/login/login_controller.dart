@@ -68,6 +68,7 @@ class LoginController extends ControllerInterface {
         ref.read(userProvider.notifier).update((s) => user);
         ref.read(profileProvider.notifier).update((s) => user!.profile);
         initData(user);
+        checkNotifCount();
         if (user.setPassword) {
           navigation.openDialog(
             dialog: SetFirstPasswordDialog(user: user, oldPassword: password),
@@ -291,5 +292,16 @@ class LoginController extends ControllerInterface {
     log("${ref.read(userProvider)?.profile.toJson()}");
     log("${seg.departure.point} seg dep point");
     ref.read(segmentsProvider.notifier).updateAt(0, ItinerarySegment.empty());
+  }
+
+  checkNotifCount() {
+    if (ref.read(userProvider) == null) {
+      return;
+    }
+    getIt<HomeController>().getNotifCount().then((a) {
+      Future.delayed(Duration(seconds: 10), () {
+        checkNotifCount();
+      });
+    });
   }
 }

@@ -51,11 +51,11 @@ extension EvalResultX on EvalResult {
   String get getTitle {
     switch(this){
       case EvalResult.YES:
-        return "Travel Allowed";
+        return "Allowed";
       case EvalResult.NO:
-       return "Travel Not Allowed";
+       return "Not Allowed";
       case EvalResult.CONDITIONAL:
-        return "Travel Allowed\nWith Conditions";
+        return "Conditional";
       case EvalResult.UNKNOWN:
         return 'Unknown';
     }

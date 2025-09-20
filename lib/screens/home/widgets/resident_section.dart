@@ -1,3 +1,4 @@
+import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -16,7 +17,6 @@ import '../../../widgets/MyFieldPicker.dart';
 import '../../../widgets/MyTextField.dart';
 import '../home_state.dart';
 import '../home_view_phone.dart';
-
 
 class ResidentItemRow extends ConsumerStatefulWidget {
   const ResidentItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
@@ -68,15 +68,17 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
   );
 
   Widget? countryPrefixBuilder(String? a) {
-    if(a != null) {
+    if (a != null) {
       return Row(
         children: [
           const SizedBox(width: 4),
           SizedBox(
-              width: 15,height: 10,
-              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+            width: 15,
+            height: 10,
+            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+          ),
           const SizedBox(width: 4),
-          Text(a,style: TextStyle(fontSize: 12),)
+          Text(a, style: TextStyle(fontSize: 12)),
         ],
       );
     }
@@ -90,7 +92,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     DocumentDetail d = widget.item;
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
-
+    final headerBg = Color(0xffFFFFFF);
+    final bodyBg = Color(0xffF4F8F7);
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
@@ -101,27 +104,24 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
         initiallyExpanded: d.isScanned,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: Colors.green.withOpacity(0.2),
-        collapsedBackgroundColor: Colors.green.withOpacity(0.2),
+        // backgroundColor: Colors.green.withOpacity(0.2),
+        // collapsedBackgroundColor: Colors.green.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
-        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        tilePadding: EdgeInsets.symmetric(horizontal: 0),
         footerExtra: IndexedStack(
           index: isLast ? 0 : 1,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: MyButton(
-                height: 30,
-                label: "Resident",
-                icon: Icons.add_circle_outline,
-                onPressed: () {
-                  ref.read(residentsProvider.notifier).add(DocumentDetail());
-                },
-                textColor: Colors.blueAccent,
-                color: Colors.blueAccent.withOpacity(0.1),
-              ),
+            MyButton(
+              height: 30,
+              label: "Resident",
+              icon: Icons.add_circle_outline,
+              onPressed: () {
+                ref.read(residentsProvider.notifier).add(DocumentDetail());
+              },
+              textColor: Colors.blueAccent,
+              color: Colors.blueAccent.withOpacity(0.1),
             ),
             SizedBox(),
           ],
@@ -129,42 +129,6 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(vertical: 8.0),
-            //   child: Row(
-            //     children: [
-            //       Expanded(
-            //         child: Text(
-            //           "Resident ${index + 1}",
-            //           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: MyColors.greyText),
-            //         ),
-            //       ),
-            //       DotButton(
-            //         icon: ArtemisIcons.trash,
-            //         color: Colors.red,
-            //         flat: true,
-            //         onPressed: () async {
-            //           final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
-            //           if (!confirm) return;
-            //           ref.read(residentsProvider.notifier).removeAt(index);
-            //         },
-            //       ),
-            //       const SizedBox(width: 8),
-            //       DotButton(
-            //         border: BorderSide(color: Colors.blueAccent),
-            //         icon: Icons.refresh,
-            //         flat: true,
-            //         onPressed: () async {
-            //           final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-            //           if (!confirm) return;
-            //           ref.read(residentsProvider.notifier).updateAt(index, DocumentDetail());
-            //
-            //           // ref.read(segmentsProvider.notifier).updateAt(index, ItinerarySegment.empty());
-            //         },
-            //       ),
-            //     ],
-            //   ),
-            // ),
             const SizedBox(height: 12),
             Column(
               spacing: 12,
@@ -175,6 +139,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         label: "Issued In",
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         rowLabelRatio: [4, 4],
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
@@ -193,7 +159,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                       child: MyFieldPicker<Location>(
                         hasSearch: true,
                         label: "Nationality",
-                        // required: true,
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
 
@@ -215,7 +182,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   label: "Code",
                   placeholder: "Code",
                   // valueToString: docCodeToString,
-
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
                   items: tim.params.of(ParameterType.documentCode),
                   value: d.documentCode,
                   onChange: (a) {
@@ -230,6 +198,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         label: "Expiry",
                         rowLabelRatio: [3, 7],
                         // required: true,
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         validator: (a) => expiryValidator(a, d.documentExpiryDate),
                         validationColor: expiryValidationColor(d.documentExpiryDate),
                         validationIcon: expiryValidationIcon(d.documentExpiryDate),
@@ -248,13 +218,15 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
             ),
           ],
         ),
-        childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+        childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
         children: [
           MyDatePicker(
             // required: true,
             rowLabelRatio: [3, 7],
             label: "Birth Date",
             placeholder: "Birth Date",
+            headerBgColor: headerBg,
+            bodyBgColor: bodyBg,
             validator: (a) => birthDateValidator(a, d.birthDate),
             validationColor: birthDateValidationColor(d.birthDate),
             validationIcon: ArtemisIcons.user_square,
@@ -267,98 +239,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           ),
 
           const SizedBox(height: 12),
-          MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
-          // Row(
-          //   spacing: 12,
-          //   children: [
-          //     Expanded(
-          //       child: MyFieldPicker<Location>(
-          //         hasSearch: true,
-          //         label: "Nationality",
-          //         required: true,
-          //         placeholder: "Country",
-          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //         itemToWidget: countryBuilder,
-          //         items: tim.locations.of(LocationType.country),
-          //         value: passengerDetails.nationality,
-          //         onChange: (a) {
-          //           ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-          //           d = d.copyWith(nationality: a);
-          //           if (widget.isResident) {
-          //             ref.read(residentsProvider.notifier).updateAt(widget.index, d);
-          //           } else {
-          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: MyFieldPicker<Location>(
-          //         label: "Issuing",
-          //         placeholder: "Country",
-          //         itemToWidget: countryBuilder,
-          //         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //         items: tim.locations.of(LocationType.country),
-          //         value: d.documentIssueCountry,
-          //         onChange: (a) {
-          //           d = d.copyWith(documentIssueCountry: a);
-          //           if (widget.isResident) {
-          //             ref.read(residentsProvider.notifier).updateAt(widget.index, d);
-          //           } else {
-          //             ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-          //           }
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // MyDatePicker(
-          //   label: "Issue Date",
-          //   rowLabelRatio: [3, 7],
-          //   placeholder: "Issue Date",
-          //   value: d.documentIssueDate,
-          //   onChanged: (a) {
-          //     d = d.copyWith(documentIssueDate: a);
-          //     ref.read(residentsProvider.notifier).updateAt(widget.index, d);
-          //   },
-          // ),
-          // const SizedBox(height: 12),
-
-          // Row(
-          //   spacing: 12,
-          //   children: [
-          //     // Expanded(
-          //     //   child: MyFieldPicker<Location>(
-          //     //     rowLabelRatio: [3, 4],
-          //     //     label: "Birth Place",
-          //     //     hasSearch: true,
-          //     //     placeholder: "Country",
-          //     //     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //     //     items: tim.locations.of(LocationType.country),
-          //     //     itemToWidget: countryBuilder,
-          //     //     value: passengerDetails.birthCountry,
-          //     //     onChange: (a) {
-          //     //       ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-          //     //     },
-          //     //   ),
-          //     // ),
-          //     Expanded(
-          //       child: MyFieldPicker<DocumentFeature>(
-          //         rowLabelRatio: [3, 7],
-          //         hasSearch: false,
-          //         label: "Feature",
-          //         placeholder: "Feature",
-          //         items: DocumentFeature.values,
-          //         value: d.documentFeature,
-          //         onChange: (a) {
-          //           d = d.copyWith(documentFeature: a);
-          //           ref.read(residentsProvider.notifier).updateAt(widget.index, d);
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
     );
@@ -371,5 +253,4 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
   //   }
   //   return p1.toString();
   // }
-
 }

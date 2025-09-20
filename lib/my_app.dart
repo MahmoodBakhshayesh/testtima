@@ -3,6 +3,7 @@ import 'package:abds/screens/barcode_reader/barcode_reader_view.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_view.dart';
 import 'package:abds/screens/inbox/inbox_view.dart';
 import 'package:abds/screens/logs/logs_view.dart';
+import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
 import 'package:abds/screens/users/users_view.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -16,7 +17,6 @@ import 'core/navigation/routes.dart';
 import 'initialize.dart';
 import 'screens/performance/performance_view.dart';
 import 'screens/profile/profile_view.dart';
-
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -47,14 +47,20 @@ class _MyAppState extends ConsumerState<MyApp> {
         TreeRoute(routeInfo: Routes.addUser, pageWidget: AddUserView()),
         TreeRoute(routeInfo: Routes.profile, pageWidget: ProfileView()),
         TreeRoute(routeInfo: Routes.performance, pageWidget: PerformanceView()),
-        TreeRoute(routeInfo: Routes.inbox, pageWidget: InboxView()),
+        TreeRoute(
+          routeInfo: Routes.inbox,
+          pageWidget: InboxView(),
+          routes: [TreeRoute(routeInfo: Routes.messageDetails, pageWidget: MessageDetailsView())],
+        ),
         TreeRoute(
           routeInfo: Routes.home,
           pageWidget: HomeView(),
           routes: [
-            TreeRoute(routeInfo: Routes.mrzReader, pageWidget: MrzReaderView(),routes: [
-              TreeRoute(routeInfo: Routes.dynamsoft, pageWidget: DynamsoftMrzView()),
-            ]),
+            TreeRoute(
+              routeInfo: Routes.mrzReader,
+              pageWidget: MrzReaderView(),
+              routes: [TreeRoute(routeInfo: Routes.dynamsoft, pageWidget: DynamsoftMrzView())],
+            ),
             TreeRoute(routeInfo: Routes.barcodeReader, pageWidget: BarcodeReaderView()),
           ],
         ),

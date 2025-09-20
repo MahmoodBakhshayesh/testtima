@@ -1,4 +1,6 @@
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/screens/home/home_state.dart';
+import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -113,9 +115,12 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           title: 'Inbox',
                           // permission: LogUiPermission.read(),
                           onTap: () {
+                            ref.read(inboxMessagesProvider.notifier).update((s)=>[]);
+                            ref.read(nextMessageId.notifier).update((s)=>null);
                             myHomeController.goNamed(Routes.inbox);
                           },
                           leadingIcon: Icons.inbox,
+                          trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
                       ],
                     ),

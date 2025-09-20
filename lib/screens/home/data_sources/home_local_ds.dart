@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 
@@ -26,6 +27,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<GetSupervisorsResponse> getSupervisors({required GetSupervisorsRequest request}) {
     // TODO: implement getSupervisors
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<GetNotifCountResponse> getNotifCount({required GetNotifCountRequest request}) {
+    // TODO: implement getNotifCount
     throw UnimplementedError();
   }
 

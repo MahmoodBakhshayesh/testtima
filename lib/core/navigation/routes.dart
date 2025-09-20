@@ -82,6 +82,11 @@ abstract class Routes {
     name: 'inbox',
     isShellRoute: false,
   );
+  static MyRouteInfo messageDetails = MyRouteInfo(
+    path: 'messageDetails',
+    name: 'messageDetails',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,
@@ -91,5 +96,6 @@ abstract class Routes {
     logs,
     profile,
     inbox,
+    messageDetails,
   ];
 }

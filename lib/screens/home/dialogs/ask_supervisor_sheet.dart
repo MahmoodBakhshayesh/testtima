@@ -393,7 +393,7 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                           logId: widget.logId,
                           images: attachingPhotos,
                           voices: attachingVoices,
-                          data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id},
+                          data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id,'action':'askSupervisor'},
                         );
                         if (bool) {
                           Navigator.of(context).pop(true);

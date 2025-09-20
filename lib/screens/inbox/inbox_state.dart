@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/inbox_message_class.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -11,4 +12,5 @@ class InboxState extends ChangeNotifier {
 }
 
 
-///final userProvider = StateProvider<User?>((ref) => null);
+final inboxMessagesProvider = StateProvider<List<InboxMessage>>((ref) => []);
+final nextMessageId =  StateProvider<int?>((ref) => null);

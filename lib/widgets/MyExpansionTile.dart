@@ -612,13 +612,13 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
   Widget _buildFooter(context, animation) {
     if (!widget.showFooter) return SizedBox();
     return Container(
-      padding: EdgeInsets.only(left: 8,right: 8,bottom: 8),
+      padding: EdgeInsets.only(left: 0,right: 0,bottom: 00),
       decoration: BoxDecoration(
         color: widget.collapsedBackgroundColor,
         borderRadius: widget.footerRadius
       ),
       child: Container(
-        margin: EdgeInsets.only(top: 12),
+        margin: EdgeInsets.only(top: 0),
         decoration: BoxDecoration(
           // color: Colors.white.withOpacity(0.48),
           borderRadius: BorderRadius.circular(8),

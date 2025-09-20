@@ -20,6 +20,8 @@ import '../core/utils_and_services/pickers.dart';
 import 'DotButton.dart';
 import 'dart:developer' as dev;
 
+import 'MyTextFieldNew.dart';
+
 class MyDurationOfStayPicker extends StatefulWidget {
   final ValueChanged<DurationOfStay?>? onChange;
   final DurationOfStay? value;
@@ -31,6 +33,8 @@ class MyDurationOfStayPicker extends StatefulWidget {
   final bool hasSearch;
   final bool required;
   final bool labelInRow;
+  final Color? headerBgColor;
+  final Color? bodyBgColor;
   final TextStyle? style;
   final List<int>  rowLabelRatio;
 
@@ -41,6 +45,8 @@ class MyDurationOfStayPicker extends StatefulWidget {
     this.required = false,
     this.labelInRow = false,
     this.style,
+    this.headerBgColor,
+    this.bodyBgColor,
     required this.label,
     this.placeholder,
     this.onChange,
@@ -222,9 +228,11 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
             picker.showModal(context);
           },
           child: AbsorbPointer(
-            child: MyTextField(
+            child: MyTextFieldNew(
               rowLabelRatio: widget.rowLabelRatio,
               showError: false,
+              headerBgColor: widget.headerBgColor,
+              bodyBgColor: widget.bodyBgColor,
               required: widget.required,
               fontSize: 12,
               labelInRow: true,

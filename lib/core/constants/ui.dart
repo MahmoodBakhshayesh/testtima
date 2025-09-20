@@ -11,7 +11,8 @@ class MyColors {
   static const shade = Color.fromRGBO(0,0,0,0.12);
   static const darkSlateBlue = Color(0xff133159);
   static const slateBlue = Color(0xff5f7b98);
-  static const greyBG = Color(0xffeaeaea);
+  // static const greyBG = Color(0xffeaeaea);
+  static const greyBG = Color(0xffF0F0F1);
   static const greyText = Color(0xff858A99);
   static const white1 = Color.fromRGBO(245, 245, 245, 1);
   static const white2 = Color.fromRGBO(250, 250, 250, 1);

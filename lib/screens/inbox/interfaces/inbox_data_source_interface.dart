@@ -1,3 +1,5 @@
+import '../usecases/get_messages_usecase.dart';
+
 abstract class InboxDataSourceInterface {
-  // Future<Response> ({required Request request});
+  Future<GetMessagesResponse> getMessages({required GetMessagesRequest request});
 }

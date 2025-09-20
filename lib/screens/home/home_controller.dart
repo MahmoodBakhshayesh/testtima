@@ -11,6 +11,7 @@ import 'package:abds/core/utils_and_services/timatic/src/models/converters.dart'
 import 'package:abds/screens/home/dialogs/ask_ref_code_dialog.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/confirm_scanned_doc_dialog.dart';
+import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 import 'package:abds/screens/login/login_state.dart';
@@ -56,6 +57,7 @@ class HomeController extends ControllerInterface {
     ref.read(passNumberInVisaProvider.notifier).update((s) => false);
     ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
     ref.read(showingLogsProvider.notifier).update((s) => []);
+    ref.read(timaticResultProvider.notifier).update((s) => null);
     // ref.read(lastVisaOcrProvider.notifier).update((s)=>null);
     // ref.read(lastPassportOcrProvider.notifier).update((s)=>null);
 
@@ -92,7 +94,7 @@ class HomeController extends ControllerInterface {
     goNamed(Routes.mrzReader).then((a) {
       if (ref.read(confirmingDocumentProvider) != null) {
         Future(() {
-          navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!),barrierDismissible: false).then((v) {
+          navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!), barrierDismissible: false).then((v) {
             if (v == true) {
               addConfirmingDocument();
             } else {
@@ -143,17 +145,17 @@ class HomeController extends ControllerInterface {
       }
     }
     final currentPax = ref.read(passengerProvider);
-    final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(doc.sex??''));
+    final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(doc.sex ?? ''));
 
     PassengerDetails passengerDetails = PassengerDetails(
       nationality: currentPax.nationality ?? doc.nationality,
       gender: gender,
-      birthDate:currentPax.birthDate?? doc.birthDate,
+      birthDate: currentPax.birthDate ?? doc.birthDate,
       birthCountry: currentPax.birthCountry,
       residentCountryCode: currentPax.residentCountryCode,
     );
 
-    if ((doc.docCode??'').startsWith("C") || (doc.docCode??'').startsWith("I")) {
+    if ((doc.docCode ?? '').startsWith("C") || (doc.docCode ?? '').startsWith("I")) {
       passengerDetails = passengerDetails.copyWith(residentCountryCode: doc.documentIssueCountry?.code3);
     }
     ref.read(passengerProvider.notifier).update((s) => passengerDetails);
@@ -312,7 +314,7 @@ class HomeController extends ControllerInterface {
     );
   }
 
-  Future<bool> attachToResult({required String logId, List<String> images = const [], List<String> voices = const [],Map<String,dynamic>? data}) async {
+  Future<bool> attachToResult({required String logId, List<String> images = const [], List<String> voices = const [], Map<String, dynamic>? data}) async {
     bool result = false;
     final dio = Dio();
 
@@ -325,7 +327,7 @@ class HomeController extends ControllerInterface {
       "data": jsonEncode(data),
     });
     String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
-
+    log(jsonEncode(data));
     try {
       final response = await dio.post(
         api,
@@ -368,24 +370,43 @@ class HomeController extends ControllerInterface {
     return file;
   }
 
+  Future<List<Supervisor>?> getSupervisors() async {
+    List<Supervisor>? supervisors;
+    GetSupervisorsUseCase getSupervisorsUseCase = GetSupervisorsUseCase();
+    GetSupervisorsRequest getSupervisorsRequest = GetSupervisorsRequest();
+    final result = await getSupervisorsUseCase(request: getSupervisorsRequest);
 
-    Future<List<Supervisor>?> getSupervisors() async {
-        List<Supervisor>? supervisors;
-        GetSupervisorsUseCase getSupervisorsUseCase = GetSupervisorsUseCase();
-        GetSupervisorsRequest getSupervisorsRequest = GetSupervisorsRequest();
-        final result = await getSupervisorsUseCase(request: getSupervisorsRequest);
+    switch (result) {
+      case Err<GetSupervisorsResponse>():
+        FailureHandler.handle(result.error);
 
-        switch (result) {
-          case Err<GetSupervisorsResponse>():
-            FailureHandler.handle(result.error);
+      case Ok<GetSupervisorsResponse>():
+        final r = result.value;
+        supervisors = r.supervisors;
+    }
 
-          case Ok<GetSupervisorsResponse>():
-            final r = result.value;
-            supervisors = r.supervisors;
-        }
+    return supervisors;
+  }
 
-        return supervisors;
-      }
+  Future<int?> getNotifCount() async {
+    int? count;
+    GetNotifCountUseCase getNotifCountUseCase = GetNotifCountUseCase();
+    GetNotifCountRequest getNotifCountRequest = GetNotifCountRequest();
+    final result = await getNotifCountUseCase(request: getNotifCountRequest);
+
+    switch (result) {
+      case Err<GetNotifCountResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<GetNotifCountResponse>():
+        final r = result.value;
+        count = r.notifCount;
+        ref.read(notifCountProvider.notifier).update((s) => r.notifCount);
+        log("update notif count =>${r.notifCount}");
+    }
+
+    return count;
+  }
 
   // UseCase UseCase = UseCase(repository: Repository());
 }

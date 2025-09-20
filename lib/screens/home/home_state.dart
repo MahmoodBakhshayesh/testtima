@@ -31,3 +31,4 @@ final passNumberInVisaProvider = StateProvider<bool>((ref) => false);
 final attachingPhotoPathProvider = StateProvider<List<String>>((ref) => []);
 final confirmingDocumentProvider = StateProvider<DocumentDetail?>((ref) => null);
 final showingLogsProvider =  StateProvider<List<RefHistoryLog>>((ref) => []);
+final notifCountProvider =  StateProvider<int>((ref) => 0);

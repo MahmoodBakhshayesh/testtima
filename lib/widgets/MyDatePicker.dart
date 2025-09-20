@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 
 import '../core/constants/ui.dart';
 import '../core/utils_and_services/time_picker/board_datetime_picker.dart';
+import 'MyTextFieldNew.dart';
 
 // import '../core/utils_and_services/time_picker/src/board_datetime_options.dart';
 // import '../core/utils_and_services/time_picker/src/board_datetime_widget.dart';
@@ -53,6 +54,8 @@ class MyDatePicker extends StatefulWidget {
   final DatePickerEntryMode mode;
   final Color? validationColor;
   final Color? backgroundColor;
+  final Color? headerBgColor;
+  final Color? bodyBgColor;
   final IconData? validationIcon;
   final List<int> rowLabelRatio;
 
@@ -60,6 +63,8 @@ class MyDatePicker extends StatefulWidget {
     Key? key,
     this.label,
     this.value,
+    this.bodyBgColor,
+    this.headerBgColor,
     this.rowLabelRatio = const [3, 5],
     this.controller,
     this.focusNode,
@@ -185,7 +190,9 @@ class _MyDatePickerState extends State<MyDatePicker> {
       },
       child: Container(
         height: widget.height,
-        child: MyTextField(
+        child: MyTextFieldNew(
+          headerBgColor: widget.headerBgColor,
+          bodyBgColor: widget.bodyBgColor,
           disabled: true,
           required: widget.required,
           showError: true,
@@ -196,23 +203,10 @@ class _MyDatePickerState extends State<MyDatePicker> {
           validationColor: widget.validationColor,
           validationIcon: widget.validationIcon,
           placeholder: widget.placeholder,
-          style: const TextStyle(color: Colors.black, height: 1, fontSize: 13),
-          // suffixIcon: Padding(
-          //   padding: const EdgeInsets.all(2.0),
-          //   child: Icon(Icons.date_range,size: 12,),
-          // ),
+          style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
+
           validator: widget.validator,
-          // decoration: InputDecoration(
-          //   contentPadding: EdgeInsets.only(left: 8, right: 8),
-          //   fillColor: Colors.white,
-          //   filled: true,
-          //   hintText: widget.placeholder,
-          //   hintStyle: const TextStyle(color: Color(0xffb9b9b9), fontWeight: FontWeight.w400),
-          //   border: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-          //   disabledBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-          //   focusedBorder: OutlineInputBorder(borderSide: widget.border ?? BorderSide.none),
-          //   suffix: const Icon(Icons.date_range, color: Colors.black, size: 12),
-          // ),
+          suffixIcon: SizedBox(height: 20,),
           controller: controller,
         ),
       ),
