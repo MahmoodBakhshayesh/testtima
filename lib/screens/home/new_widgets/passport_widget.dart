@@ -32,7 +32,9 @@ class PassportWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
-
+    if(passports.isEmpty){
+      return SizedBox();
+    }
     return MyExpansionTile(
 
       title: Column(

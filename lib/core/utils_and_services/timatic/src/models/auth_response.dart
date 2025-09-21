@@ -193,35 +193,41 @@ class ConstData {
   AllPermissions userPermissionAttributes;
   List<DocumentTypeMapper> documentTypeMappers;
   List<String> logNoteTypes;
+  List<String> textMessage;
 
   ConstData({
     required this.userPermissionAttributes,
     required this.documentTypeMappers,
     required this.logNoteTypes,
+    required this.textMessage,
   });
 
   ConstData copyWith({
     AllPermissions? userPermissionAttributes,
     List<DocumentTypeMapper>? documentTypeMappers,
     List<String>? logNoteTypes,
+    List<String>? textMessage,
 
   }) =>
       ConstData(
         userPermissionAttributes: userPermissionAttributes ?? this.userPermissionAttributes,
         documentTypeMappers: documentTypeMappers ?? this.documentTypeMappers,
         logNoteTypes: logNoteTypes ?? this.logNoteTypes,
+        textMessage: textMessage ?? this.textMessage,
       );
 
   factory ConstData.fromJson(Map<String, dynamic> json) => ConstData(
     userPermissionAttributes: AllPermissions.fromJson(json["permission"]),
     documentTypeMappers:List<DocumentTypeMapper>.from((json["documentDetailType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
     logNoteTypes:List<String>.from((json["logNoteType"]??[])),
+    textMessage:List<String>.from((json["textMessage"]??[])),
   );
 
   Map<String, dynamic> toJson() => {
     "permission": userPermissionAttributes.toJson(),
     "documentDetailType": documentTypeMappers.map((a)=>a.toJson()).toList(),
     "logNoteTypes": logNoteTypes,
+    "textMessage": textMessage,
   };
 }
 

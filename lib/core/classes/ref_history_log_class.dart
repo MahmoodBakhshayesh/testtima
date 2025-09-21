@@ -78,19 +78,37 @@ class Payload {
   final String? output;
   final bool? result;
   final bool? cache;
+  final bool? approved;
+  final int? status;
   final String? title;
   final String? description;
+  final String? airline;
+  final String? message;
+  final String? flightNumber;
+  final String? supervisorId;
+  final String? action;
+  final String? comment;
+  final String? name;
   final List<String>? attachFiles;
 
   Payload({
     this.url,
     this.input,
     this.output,
+    this.status,
     this.result,
     this.cache,
     this.title,
+    this.approved,
     this.description,
     this.attachFiles,
+    this.airline,
+    this.message,
+    this.comment,
+    this.flightNumber,
+    this.supervisorId,
+    this.name,
+    this.action,
   });
 
   Payload copyWith({
@@ -99,8 +117,17 @@ class Payload {
     String? output,
     bool? result,
     bool? cache,
+    bool? approved,
+    int? status,
     String? title,
     String? description,
+    String? airline,
+    String? message,
+    String? flightNumber,
+    String? supervisorId,
+    String? action,
+    String? comment,
+    String? name,
     List<String>? attachFiles,
   }) =>
       Payload(
@@ -109,9 +136,18 @@ class Payload {
         output: output ?? this.output,
         result: result ?? this.result,
         cache: cache ?? this.cache,
+        status: status ?? this.status,
+        approved: approved ?? this.approved,
         title: title ?? this.title,
         description: description ?? this.description,
         attachFiles: attachFiles ?? this.attachFiles,
+        airline: airline ?? this.airline,
+        message: message ?? this.message,
+        flightNumber: flightNumber ?? this.flightNumber,
+        supervisorId: supervisorId ?? this.supervisorId,
+        comment: comment ?? this.comment,
+        name: name ?? this.name,
+        action: action ?? this.action,
       );
 
   factory Payload.fromJson(Map<String, dynamic> json) => Payload(
@@ -120,8 +156,17 @@ class Payload {
     output: json["output"],
     result: json["result"],
     cache: json["cache"],
+    status: json["status"],
+    approved: json["approved"],
     title: json["title"],
     description: json["description"],
+    airline: json["airline"],
+    message: json["message"],
+    flightNumber: json["flightNumber"],
+    supervisorId: json["supervisorId"],
+    action: json["action"],
+    comment: json["comment"],
+    name: json["name"],
     attachFiles: json["attachFiles"] == null ? [] : List<String>.from(json["attachFiles"]!.map((x) => x)),
   );
 
@@ -130,9 +175,18 @@ class Payload {
     "input": input,
     "output": output,
     "result": result,
+    "status": status,
     "cache": cache,
+    "approved": approved,
     "title": title,
     "description": description,
+    "airline": airline,
+    "message": message,
+    "flightNumber": flightNumber,
+    "supervisorId": supervisorId,
+    "action": action,
+    "comment": comment,
+    "name": name,
     "attachFiles": attachFiles == null ? [] : List<dynamic>.from(attachFiles!.map((x) => x)),
   };
 }

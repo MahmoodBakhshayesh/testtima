@@ -150,7 +150,7 @@ class _MyOcrSettingDialogState extends State<AttachEvisaSheet> {
                     child: MyButton(
                       label: "Submit",
                       onPressed:attachingPhoto == null?null: () async {
-                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, images: [attachingPhoto!], voices: []);
+                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, images: [attachingPhoto!], voices: [],data: {"action":"e-visa"});
                         if (bool) {
                           Navigator.of(context).pop(true);
                           Future.delayed(Duration(milliseconds: 300), () {

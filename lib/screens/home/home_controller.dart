@@ -363,7 +363,7 @@ class HomeController extends ControllerInterface {
     final String imageName = url.split('/').last;
 
     /// Create Empty File in app dir & fill with new image
-    final File file = File(appDir.path + "/${imageName}");
+    final File file = File(appDir.path + "/${imageName.replaceAll(".enc", ".m4a")}");
 
     file.writeAsBytesSync(res.data as List<int>);
 

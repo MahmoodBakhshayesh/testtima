@@ -34,7 +34,9 @@ class VisaWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<DocumentDetail> visas = ref.watch(visasProvider);
-
+    if(visas.isEmpty){
+      return SizedBox();
+    }
     return MyExpansionTile(
 
       title: Column(

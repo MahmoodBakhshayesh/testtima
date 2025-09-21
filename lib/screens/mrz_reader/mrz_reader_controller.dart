@@ -64,11 +64,11 @@ class MrzReaderController extends ControllerInterface {
       return;
     }
 
-    if(scanned.valid.docCodeValid) {
-      log(jsonEncode(scanned.valid.toString()));
-      log(jsonEncode(scanned.toJson()));
-      log("scanned.toString()");
-    }
+    // if(scanned.valid.docCodeValid) {
+    //   log(jsonEncode(scanned.valid.toString()));
+    //   log(jsonEncode(scanned.toJson()));
+    //   log("scanned.toString()");
+    // }
 
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
     // if(scanned.line2.isEmpty){

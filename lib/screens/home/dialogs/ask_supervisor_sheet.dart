@@ -92,18 +92,18 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                         setState(() {});
                       },
                     ),
-                    MyFieldPicker<ParameterValue?>(
-                      onChange: (a) {
-                        airline = a;
-                        setState(() {});
-                      },
-                      value: airline,
-                      label: 'Airline Code',
-                      items: BasicClass.timData.params.of(ParameterType.carrier),
-                      backgroundColor: Colors.white,
-                      placeholder: "Select",
-                    ),
-                    MyTextField(labelInRow: true, label: "Flight Number", backgroundColor: Colors.white, placeholder: "Flight Number", controller: flnbC, keyboardType: TextInputType.numberWithOptions(signed: true)),
+                    // MyFieldPicker<ParameterValue?>(
+                    //   onChange: (a) {
+                    //     airline = a;
+                    //     setState(() {});
+                    //   },
+                    //   value: airline,
+                    //   label: 'Airline Code',
+                    //   items: BasicClass.timData.params.of(ParameterType.carrier),
+                    //   backgroundColor: Colors.white,
+                    //   placeholder: "Select",
+                    // ),
+                    // MyTextField(labelInRow: true, label: "Flight Number", backgroundColor: Colors.white, placeholder: "Flight Number", controller: flnbC, keyboardType: TextInputType.numberWithOptions(signed: true)),
 
                     SizedBox(
                       height: 100,
@@ -119,251 +119,106 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                         placeholder: "Enter your message",
                       ),
                     ),
-                    Visibility(
-                      visible: !keyboardIsOpen,
-                      child: Column(
-                        spacing: 12,
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                            child: Wrap(
-                              alignment: WrapAlignment.start,
-                              spacing: 12,
-                              children: [
-                                ...attachingPhotos.map(
-                                  (p) => SizedBox(
-                                    width: 54,
-                                    height: 54,
-                                    child: Stack(
-                                      children: [
-                                        SizedBox(
-                                          width: 62,
-                                          height: 62,
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: Image.file(File(p), fit: BoxFit.fill),
-                                          ),
-                                        ),
-                                        Positioned(
-                                          right: 2,
-                                          top: 2,
-                                          child: DotButton(
-                                            icon: Icons.delete,
-                                            color: Colors.red,
-                                            onPressed: () {
-                                              // ref.read(attachingPhotoPathProvider.notifier).update((s) => [...s.where((a) => a != p)]);
-                                              attachingPhotos.remove(p);
-                                              setState(() {});
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                DotButton(
-                                  size: 54,
-                                  icon: Icons.image,
-                                  onPressed: () async {
-                                    final path = await getIt<HomeController>().selectPhotoToAttachMethodDialog();
-                                    if (path != null) {
-                                      attachingPhotos.add(path);
-                                      setState(() {});
-                                    }
-                                  },
-                                ),
-                                // Expanded(
-                                //   child: Row(
-                                //     children: [
-                                //       DotButton(
-                                //         size: 40,
-                                //         icon: Icons.attach_file,
-                                //         onPressed: () async {
-                                //           final path = await getIt<HomeController>().selectPhotoToAttachMethodDialog();
-                                //           if (path != null) {
-                                //             attachingPhotos.add(path);
-                                //             setState(() {});
-                                //           }
-                                //         },
-                                //       ),
-                                //       const SizedBox(width: 12),
-                                //       Expanded(
-                                //         child: Container(
-                                //           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                                //           decoration: BoxDecoration(
-                                //             border: Border.all(color: MyColors.lineColor),
-                                //             borderRadius: BorderRadiusGeometry.circular(10),
-                                //           ),
-                                //           height: 64,
-                                //           child: Wrap(
-                                //             runSpacing: 4,
-                                //             spacing: 4,
-                                //             children: [
-                                //               ...attachingPhotos.map(
-                                //                 (p) => SizedBox(
-                                //                   width: 54,
-                                //                   height: 54,
-                                //                   child: Stack(
-                                //                     children: [
-                                //                       SizedBox(
-                                //                         width: 62,
-                                //                         height: 62,
-                                //                         child: ClipRRect(
-                                //                           borderRadius: BorderRadius.circular(8),
-                                //                           child: Image.file(File(p), fit: BoxFit.fill),
-                                //                         ),
-                                //                       ),
-                                //                       Positioned(
-                                //                         right: 2,
-                                //                         top: 2,
-                                //                         child: DotButton(
-                                //                           icon: Icons.delete,
-                                //                           color: Colors.red,
-                                //                           onPressed: () {
-                                //                             // ref.read(attachingPhotoPathProvider.notifier).update((s) => [...s.where((a) => a != p)]);
-                                //                             attachingPhotos.remove(p);
-                                //                             setState(() {});
-                                //                           },
-                                //                         ),
-                                //                       ),
-                                //                     ],
-                                //                   ),
-                                //                 ),
-                                //               ),
-                                //             ],
-                                //           ),
-                                //         ),
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
-                              ],
-                            ),
-                          ),
-                          MyVoiceRecorder(
-                            onSubmitRecord: (a) {
-                              dev.log("saved to $a");
-                              attachingVoices.insert(0, a);
-                              setState(() {});
-                            },
-                          ),
-                          Container(
-                            constraints: BoxConstraints(maxHeight: 100),
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: [
-                                ...attachingVoices.map((a) {
-                                  dev.log(a);
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: MyAudioPlayerWidget(
-                                          key: Key(a),
-                                          audioPath: a,
-                                          backgroundColor: Colors.transparent,
-                                          timerTextStyle: TextStyle(color: Colors.blueAccent),
-                                          iconColor: Colors.blueAccent,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      DotButton(
-                                        color: Colors.red,
-                                        icon: ArtemisIcons.trash,
-                                        onPressed: () {
-                                          attachingVoices.remove(a);
-                                          setState(() {});
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-
-                          // Padding(
-                          //   padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          //   child: Row(
-                          //     spacing: 12,
-                          //     children: [
-                          //       Expanded(
-                          //         child: Row(
-                          //           children: [
-                          //             DotButton(
-                          //               size: 40,
-                          //               icon: recordedSound == null ? Icons.record_voice_over : Icons.delete,
-                          //               onPressed: () {
-                          //                 recordedSound = null;
-                          //                 setState(() {});
-                          //               },
-                          //             ),
-                          //             const SizedBox(width: 12),
-                          //             Expanded(
-                          //               child: recordedSound == null
-                          //                   ? VoiceRecorderWidget(
-                          //                       iconSize: 48,
-                          //                       showTimerText: true,
-                          //                       style: VoiceUIStyle.compact,
-                          //                       showSwipeLeftToCancel: false,
-                          //                       onRecorded: (file) {
-                          //                         setState(() {
-                          //                           recordedSound = file;
-                          //                         });
-                          //                       },
-                          //                       onError: (error) {
-                          //                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
-                          //                       },
-                          //                       actionWhenCancel: () {
-                          //                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recording Cancelled')));
-                          //                       },
-                          //                       maxRecordDuration: const Duration(seconds: 600),
-                          //                       permissionNotGrantedMessage: 'Microphone permission required',
-                          //                       dragToLeftText: 'Swipe left to cancel recording',
-                          //                       dragToLeftTextStyle: const TextStyle(color: Colors.blueAccent, fontSize: 18),
-                          //                       cancelDoneText: 'Recording cancelled',
-                          //                       backgroundColor: Colors.blueAccent,
-                          //                       cancelHintColor: Colors.red,
-                          //                       iconColor: Colors.white,
-                          //                       timerFontSize: 14,
-                          //                       timerTextStyle: GoogleFonts.robotoMono(fontSize: 14),
-                          //                     )
-                          //                   : SizedBox(
-                          //                       height: 74,
-                          //                       child: AudioPlayerWidget(
-                          //                         autoPlay: false,
-                          //                         autoLoad: true,
-                          //                         audioPath: recordedSound!.path,
-                          //                         audioType: AudioType.directFile,
-                          //                         playerStyle: PlayerStyle.style1,
-                          //                         size: 45,
-                          //                         progressBarHeight: 5,
-                          //                         backgroundColor: context.mainColor,
-                          //                         progressBarColor: Colors.white,
-                          //                         progressBarBackgroundColor: Colors.white,
-                          //                         iconColor: Colors.white,
-                          //                         shapeType: PlayIconShapeType.circular,
-                          //                         showProgressBar: true,
-                          //                         showTimer: true,
-                          //                         width: 300,
-                          //                         audioSpeeds: const [0.5, 1.0, 1.5, 2.0, 3.0],
-                          //                         onSeek: (value) => dev.log('Seeked to: $value'),
-                          //                         onError: (message) => dev.log('Error: $message'),
-                          //                         onPause: () => dev.log("Paused"),
-                          //                         onPlay: (isPlaying) => dev.log("Playing: $isPlaying"),
-                          //                         onSpeedChange: (speed) => dev.log("Speed: $speed"), // Callback when playback speed is changed
-                          //                       ),
-                          //                     ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                    ),
+                    // Visibility(
+                    //   visible: !keyboardIsOpen,
+                    //   child: Column(
+                    //     spacing: 12,
+                    //     children: [
+                    //       Container(
+                    //         width: double.infinity,
+                    //         padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    //         child: Wrap(
+                    //           alignment: WrapAlignment.start,
+                    //           spacing: 12,
+                    //           children: [
+                    //             ...attachingPhotos.map(
+                    //               (p) => SizedBox(
+                    //                 width: 54,
+                    //                 height: 54,
+                    //                 child: Stack(
+                    //                   children: [
+                    //                     SizedBox(
+                    //                       width: 62,
+                    //                       height: 62,
+                    //                       child: ClipRRect(
+                    //                         borderRadius: BorderRadius.circular(8),
+                    //                         child: Image.file(File(p), fit: BoxFit.fill),
+                    //                       ),
+                    //                     ),
+                    //                     Positioned(
+                    //                       right: 2,
+                    //                       top: 2,
+                    //                       child: DotButton(
+                    //                         icon: Icons.delete,
+                    //                         color: Colors.red,
+                    //                         onPressed: () {
+                    //                           // ref.read(attachingPhotoPathProvider.notifier).update((s) => [...s.where((a) => a != p)]);
+                    //                           attachingPhotos.remove(p);
+                    //                           setState(() {});
+                    //                         },
+                    //                       ),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             DotButton(
+                    //               size: 54,
+                    //               icon: Icons.image,
+                    //               onPressed: () async {
+                    //                 final path = await getIt<HomeController>().selectPhotoToAttachMethodDialog();
+                    //                 if (path != null) {
+                    //                   attachingPhotos.add(path);
+                    //                   setState(() {});
+                    //                 }
+                    //               },
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       MyVoiceRecorder(
+                    //         onSubmitRecord: (a) {
+                    //           dev.log("saved to $a");
+                    //           attachingVoices.insert(0, a);
+                    //           setState(() {});
+                    //         },
+                    //       ),
+                    //       Container(
+                    //         constraints: BoxConstraints(maxHeight: 100),
+                    //         child: ListView(
+                    //           shrinkWrap: true,
+                    //           children: [
+                    //             ...attachingVoices.map((a) {
+                    //               dev.log(a);
+                    //               return Row(
+                    //                 children: [
+                    //                   Expanded(
+                    //                     child: MyAudioPlayerWidget(
+                    //                       key: Key(a),
+                    //                       audioPath: a,
+                    //                       backgroundColor: Colors.transparent,
+                    //                       timerTextStyle: TextStyle(color: Colors.blueAccent),
+                    //                       iconColor: Colors.blueAccent,
+                    //                     ),
+                    //                   ),
+                    //                   const SizedBox(width: 8),
+                    //                   DotButton(
+                    //                     color: Colors.red,
+                    //                     icon: ArtemisIcons.trash,
+                    //                     onPressed: () {
+                    //                       attachingVoices.remove(a);
+                    //                       setState(() {});
+                    //                     },
+                    //                   ),
+                    //                 ],
+                    //               );
+                    //             }),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -387,7 +242,7 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: MyButton(
-                      label: "Submit",
+                      label: "Ask",
                       onPressed: () async {
                         final bool = await getIt<HomeController>().attachToResult(
                           logId: widget.logId,

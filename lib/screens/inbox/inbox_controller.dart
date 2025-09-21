@@ -34,10 +34,12 @@ class InboxController extends ControllerInterface {
     return messages;
   }
 
-  goMessageDetails(InboxMessage message) async {
-    final refHistory = await getIt<HomeController>().getRefHistoryLog(message.code!);
+  goMessageDetails(String messageCode) async {
+    final refHistory = await getIt<HomeController>().getRefHistoryLog(messageCode);
     if(refHistory!=null){
-      goNamed(Routes.messageDetails);
+      // ref.read(inboxMessageDetailsProvider.notifier).update((s)=>refHistory.logs??[]);
+      // goNamed(Routes.messageDetails);
+      navigation.pop();
     }
   }
 }

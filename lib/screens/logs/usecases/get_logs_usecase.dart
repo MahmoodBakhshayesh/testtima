@@ -48,6 +48,6 @@ class GetLogsResponse extends ResponseInterface {
   factory GetLogsResponse.fromResponse(ResponseInterface res) => GetLogsResponse(
         status: res.status,
         message: res.message,
-        logs: List<TimaticLog>.from(res.body["items"].map((x) => TimaticLog.fromJson(x))),
+        logs: List<TimaticLog>.from((res.body["items"]??[]).map((x) => TimaticLog.fromJson(x))),
       );
 }

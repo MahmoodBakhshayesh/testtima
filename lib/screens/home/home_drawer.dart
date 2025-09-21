@@ -115,8 +115,9 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           title: 'Inbox',
                           // permission: LogUiPermission.read(),
                           onTap: () {
-                            ref.read(inboxMessagesProvider.notifier).update((s)=>[]);
-                            ref.read(nextMessageId.notifier).update((s)=>null);
+                            Navigator.of(context).pop();
+                            ref.read(inboxMessagesProvider.notifier).update((s) => []);
+                            ref.read(nextMessageId.notifier).update((s) => null);
                             myHomeController.goNamed(Routes.inbox);
                           },
                           leadingIcon: Icons.inbox,

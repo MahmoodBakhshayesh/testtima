@@ -136,7 +136,7 @@ class _MyOcrSettingDialogState extends State<AttachCommentSheet> {
                             logId: widget.logId,
                             images: [],
                             voices: [],
-                            data: {'comment': commentC.text},
+                            data: {'comment': commentC.text,"action":"comment"},
                           );
                           if (bool) {
                             Navigator.of(context).pop(true);

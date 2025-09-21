@@ -1,8 +1,11 @@
 import 'dart:developer';
-
 import 'package:abds/widgets/AirlineLogo.dart';
+import 'package:abds/widgets/MyButton.dart';
+import 'package:abds/widgets/drawer_action.dart';
 import 'package:artemis_utils/artemis_utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/classes/inbox_message_class.dart';
@@ -21,7 +24,7 @@ class InboxViewPhone extends StatefulWidget {
 
 class _InboxViewPhoneState extends State<InboxViewPhone> {
   static InboxController myInboxController = getIt<InboxController>();
-
+  TextEditingController codeC = TextEditingController();
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((a) {
@@ -36,14 +39,32 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
       appBar: InboxAppBar(),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(children: [
+              Expanded(child: SizedBox(height:40,child: CupertinoTextField(controller: codeC,keyboardType: TextInputType.numberWithOptions(signed: true),))),
+              MyButton(label: "Get",onPressed: () async {
+                await myInboxController.goMessageDetails(codeC.text);
+              })
+            ],),
+          ),
           Expanded(
             child: Consumer(
               builder: (BuildContext context, WidgetRef ref, Widget? child) {
                 final messages = ref.watch(inboxMessagesProvider);
+
                 return ListView.builder(
-                  itemBuilder: (c, i) => InboxMessageWidget(
-                      key: Key(messages[i].code!),
-                      message: messages[i], index: i),
+                  itemBuilder: (c, i) {
+                    final message = messages[i];
+                    return InboxMessageWidget(
+                      key: Key(message.code!),
+                      onTap: () async {
+                        await myInboxController.goMessageDetails(message.code!);
+                      },
+                      message: message,
+                      index: i,
+                    );
+                  },
                   itemCount: messages.length,
                 );
               },
@@ -95,49 +116,74 @@ class InboxAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class InboxMessageWidget extends StatelessWidget {
+class InboxMessageWidget extends StatefulWidget {
   final InboxMessage message;
   final int index;
-  final void Function()? onTap;
+  final Function? onTap;
 
   const InboxMessageWidget({Key? key, required this.message, required this.index, this.onTap}) : super(key: key);
 
   @override
+  State<InboxMessageWidget> createState() => _InboxMessageWidgetState();
+}
+
+class _InboxMessageWidgetState extends State<InboxMessageWidget> {
+  bool loading = false;
+  @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    bool isOdd = index % 2 != 0;
+    bool isOdd = widget.index % 2 != 0;
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
-    log(message.airline??'');
     return InkWell(
-      onTap: onTap,
+      onTap: () async {
+        if(loading){
+          return;
+        }
+        loading = true;
+        setState((){});
+        await widget.onTap?.call();
+        loading = false;
+        setState((){});
+      },
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: !isOdd ? MyColors.white2 : MyColors.white3),
         child: Column(
           children: [
-            Row(children: [
-              Expanded(child: Text(message.code??'')),
-              Text("${message.user?.username??message?.user?.email}")
-            ]),
-            Row(children: [
-              Expanded(child: Row(
-                children: [
-                  AirlineLogo(message.airline??'--'),
-                  Column(
+            Row(
+              children: [
+                Expanded(child: Text(widget.message.code ?? '')),
+                loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
+                Text("${widget.message.user?.username ?? widget.message?.user?.email}"),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
                     children: [
-                      Text("${message.airline??''}${message.flightNumber??''}",style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold),),
-                      Text("${message.from??''}-${message.to??''}",style: TextStyle(fontSize: 12),),
+                      AirlineLogo(widget.message.airline ?? '--'),
+                      Column(
+                        children: [
+                          Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                          Text("${widget.message.from ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              )),
-              Column(
-                children: [
-                  // Text("${message.createdAt?.toLocal().format_ddMMM}\n${message.createdAt?.toLocal().format_HHmmss}",style: TextStyle(fontSize: 8),textAlign: TextAlign.center,),
-                  Text("${DateFormat("dd MMM yyyy - hh:mm").format(message.createdAt!.toLocal())}",style: TextStyle(fontSize: 14,color: Colors.grey),textAlign: TextAlign.center,),
-                ],
-              )
-            ]),
+                ),
+                Column(
+                  children: [
+                    // Text("${message.createdAt?.toLocal().format_ddMMM}\n${message.createdAt?.toLocal().format_HHmmss}",style: TextStyle(fontSize: 8),textAlign: TextAlign.center,),
+                    Text(
+                      "${DateFormat("dd MMM yyyy - hh:mm").format(widget.message.createdAt!.toLocal())}",
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),

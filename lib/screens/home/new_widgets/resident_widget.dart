@@ -35,7 +35,9 @@ class ResidentWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<DocumentDetail> residents = ref.watch(residentsProvider);
-
+    if(residents.isEmpty){
+      return SizedBox();
+    }
     return MyExpansionTile(
 
       title: Column(

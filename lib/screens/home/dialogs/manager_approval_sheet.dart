@@ -153,7 +153,8 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: MyButton(
-                      label: "Submit",
+                      label: "Decline",
+                      color: Color(0xffFF3F42),
                       onPressed: () async {
                         final size = (context.width*0.9).abs().floor();
                         final byteData = await control.toImage(width:size ,height: size);
@@ -169,7 +170,38 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                           logId: widget.logId,
                           images: [f.path],
                           voices: [],
-                          data: {'airline': airline?.code, 'name': nameC.text, 'flightNumber': flnbC.text},
+                          data: {'airline': airline?.code, 'name': nameC.text, 'flightNumber': flnbC.text,"action":"managerApproval","approved":false},
+                        );
+                        if (bool) {
+                          Navigator.of(context).pop(true);
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            SuccessHandler.handle(ServerSuccess(code: 1, msg: "Done"));
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MyButton(
+                      label: "Approve",
+                      color: Color(0xff00C68E),
+                      onPressed: () async {
+                        final size = (context.width*0.9).abs().floor();
+                        final byteData = await control.toImage(width:size ,height: size);
+                        if(byteData == null){
+                          return ;
+                        }
+                        final buffer = byteData.buffer;
+                        final dir = await getTemporaryDirectory();
+
+                        final String path = "${dir.path}/sign.png";
+                        final f =await  File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+                        final bool = await getIt<HomeController>().attachToResult(
+                          logId: widget.logId,
+                          images: [f.path],
+                          voices: [],
+                          data: {'airline': airline?.code, 'name': nameC.text, 'flightNumber': flnbC.text,"action":"managerApproval","approved":true},
                         );
                         if (bool) {
                           Navigator.of(context).pop(true);

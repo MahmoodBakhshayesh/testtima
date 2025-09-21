@@ -69,6 +69,7 @@ class LoginController extends ControllerInterface {
         ref.read(profileProvider.notifier).update((s) => user!.profile);
         initData(user);
         checkNotifCount();
+        getIt<HomeController>().clear();
         if (user.setPassword) {
           navigation.openDialog(
             dialog: SetFirstPasswordDialog(user: user, oldPassword: password),

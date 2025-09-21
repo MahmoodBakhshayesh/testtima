@@ -147,7 +147,7 @@ class _MyOcrSettingDialogState extends State<AttachVoiceSheet> {
                     child: MyButton(
                       label: "Submit",
                       onPressed: attachingVoices.isEmpty?null: () async {
-                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, voices: attachingVoices, images: []);
+                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, voices: attachingVoices, images: [],data: {"action":"attachVoice"});
                         if (bool) {
                           Navigator.of(context).pop(true);
                           Future.delayed(Duration(milliseconds: 300), () {
