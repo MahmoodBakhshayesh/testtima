@@ -44,7 +44,11 @@ class PassengerWidget extends ConsumerWidget {
                 icon: ArtemisIcons.eraser_1,
                 iconSize: 20,
 
-                onPressed: () {},
+                onPressed: () async {
+                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                  if (!confirm) return;
+                  ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
+                },
                 size: 40,
                 radius: 8,
                 flat: true,
@@ -52,7 +56,7 @@ class PassengerWidget extends ConsumerWidget {
               ),
             ],
           ),
-          PassengerDetailsRow(index: 0,isLast: true, isFirst: false, details: passengerDetails,),
+          PassengerDetailsRow(index: 0, isLast: true, isFirst: false, details: passengerDetails),
         ],
       ),
       showFooter: false,
@@ -109,8 +113,8 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     int index = widget.index;
     PassengerDetails details = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
-    final headerBgColor=  Color(0xffECECEC);
-    final bodyBgColor= Color(0xffE9E9E9).withOpacity(0.48);
+    final headerBgColor = Color(0xffECECEC);
+    final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
@@ -133,7 +137,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     searchAutoFocus: true,
                     label: "Nationality",
                     required: true,
-                    headerBgColor:headerBgColor,
+                    headerBgColor: headerBgColor,
                     bodyBgColor: bodyBgColor,
                     placeholder: "Country",
                     prefixIcon: countryPrefixBuilder(details.nationality?.code3),
@@ -155,7 +159,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     searchAutoFocus: true,
                     label: "Resident",
                     required: true,
-                    headerBgColor:headerBgColor,
+                    headerBgColor: headerBgColor,
                     bodyBgColor: bodyBgColor,
                     rowLabelRatio: [4, 4],
                     placeholder: "Country",
@@ -176,7 +180,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
             const SizedBox(height: 12),
             MyFieldPicker<Gender>(
               label: "Gender",
-              headerBgColor:headerBgColor,
+              headerBgColor: headerBgColor,
               bodyBgColor: bodyBgColor,
               placeholder: "Gender",
               items: Gender.values,
@@ -199,7 +203,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                   rowLabelRatio: [3, 7],
                   label: "Birth Date",
                   placeholder: "Birth Date",
-                  headerBgColor:headerBgColor,
+                  headerBgColor: headerBgColor,
                   bodyBgColor: bodyBgColor,
                   validator: (a) => birthDateValidator(a, details.birthDate),
                   validationColor: birthDateValidationColor(details.birthDate),
@@ -220,7 +224,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
             hasSearch: true,
             searchAutoFocus: true,
             placeholder: "Country",
-            headerBgColor:headerBgColor,
+            headerBgColor: headerBgColor,
             bodyBgColor: bodyBgColor,
             prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
 

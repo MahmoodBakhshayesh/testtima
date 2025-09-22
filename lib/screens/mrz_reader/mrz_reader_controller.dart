@@ -21,6 +21,7 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
+import 'package:ocr_mrz/aggregator.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
@@ -43,43 +44,188 @@ class MrzReaderController extends ControllerInterface {
   final _log = Logger('MrzReaderController');
   bool popping = false;
   bool scanning = true;
-  final agg = OcrMrzAggregator();
   final ocrMrzController = OcrMrzController();
 
-  void docImproving(OcrMrzResult scanned) {
-    // log("doc imprving");
-    // try {
-    //   OcrMrzLog l = OcrMrzLog(rawText: scanned.ocrData.text,
-    //       rawMrzLines: scanned.mrzLines,
-    //       fixedMrzLines: scanned.mrzLines,
-    //       validation: scanned.valid,
-    //       extractedData: scanned.toJson());
-    //   ref.read(lastFrameLogProvider.notifier).update((s) => l);
-    //   log("updating last frame");
-    // }catch(e){
-    //   log("$e");
-    // }
+  // void docImproving(OcrMrzResult scanned) {
+  //   // log("doc imprving");
+  //   // try {
+  //   //   OcrMrzLog l = OcrMrzLog(rawText: scanned.ocrData.text,
+  //   //       rawMrzLines: scanned.mrzLines,
+  //   //       fixedMrzLines: scanned.mrzLines,
+  //   //       validation: scanned.valid,
+  //   //       extractedData: scanned.toJson());
+  //   //   ref.read(lastFrameLogProvider.notifier).update((s) => l);
+  //   //   log("updating last frame");
+  //   // }catch(e){
+  //   //   log("$e");
+  //   // }
+  //
+  //   if (!scanning) {
+  //     return;
+  //   }
+  //
+  //   // if(scanned.valid.docCodeValid) {
+  //   //   log(jsonEncode(scanned.valid.toString()));
+  //   //   log(jsonEncode(scanned.toJson()));
+  //   //   log("scanned.toString()");
+  //   // }
+  //
+  //   OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
+  //   // if(scanned.line2.isEmpty){
+  //   //   return;
+  //   // }
+  //
+  //   if (setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
+  //     agg.add(scanned); // only validated fields contribute
+  //     final consensus = agg.build();
+  //     final res = consensus.toResult();
+  //     res.ocrData = scanned.ocrData;
+  //
+  //     ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
+  //     if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
+  //       if (res.matchSetting(setting)) {
+  //         onDocScan(res);
+  //       }
+  //     }
+  //   } else if (setting.algorithm == ParseAlgorithm.method2) {
+  //     if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
+  //       if (scanned.matchSetting(setting)) {
+  //         onDocScan(scanned);
+  //       }
+  //     }
+  //   }
+  //
+  //   return;
+  //   //
+  //   // // log('Doc No -> ${consensus.documentNumber} (count: ${consensus.documentNumberStat.consensusCount})');
+  //   // // log('Country -> ${consensus.countryCode} (hist: ${consensus.countryCodeStat.histogram})');
+  //   // // log('Birth   -> ${consensus.birthDate} (hist: ${consensus.birthDateStat.histogram})');
+  //   //
+  //   // // return;
+  //   // try {
+  //   //   log(res.valid.toString());
+  //   //   // return;
+  //   //   OcrMrzResult? current = ref.read(improvingMrzResultProvider);
+  //   //
+  //   //   // log("docImproving ${current == null}");
+  //   //   if (current == null) {
+  //   //     ref.read(improvingMrzResultProvider.notifier).update((s) => res);
+  //   //     // log("setting improvingMrzResultProvider");
+  //   //   } else {
+  //   //     // log("not setting improvingMrzResultProvider current not null");
+  //   //   }
+  //   //   if (res.matchSetting(setting)) {
+  //   //     // onDocScan(res);
+  //   //     // return;
+  //   //   }
+  //   //   if (current != null && current.matchSetting(setting)) {
+  //   //     // onDocScan(current);
+  //   //     // return;
+  //   //   }
+  //   //   if (current == null) {
+  //   //     ref.read(improvingMrzResultProvider.notifier).update((s) => res);
+  //   //     log(res.valid.toString());
+  //   //     if (res.valid.nationalityValid) {
+  //   //       log("valid nationalityValid -> ${res.nationality}");
+  //   //     }
+  //   //     if (res.valid.countryValid) {
+  //   //       log("valid countryValid -> ${res.countryCode}");
+  //   //     }
+  //   //     if (res.valid.expiryDateValid) {
+  //   //       log("valid expiryDate -> ${res.expiryDate}");
+  //   //     }
+  //   //     if (res.valid.birthDateValid) {
+  //   //       log("valid birthDateValid -> ${res.birthDate}");
+  //   //     }
+  //   //     if (res.valid.docNumberValid) {
+  //   //       log("valid docNumberValid -> ${res.documentNumber}");
+  //   //     }
+  //   //   } else {
+  //   //     if (res.valid.personalNumberValid && !current.valid.personalNumberValid) {
+  //   //       log("${'✅' * 10} valid persionality -> ${res.passportNumber} ");
+  //   //       current.personalNumber = res.personalNumber;
+  //   //       current.valid.personalNumberValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.nationalityValid && !current.valid.nationalityValid) {
+  //   //       log("${'✅' * 10} valid nationalityValid -> ${res.nationality}");
+  //   //       current.nationality = res.nationality;
+  //   //       current.valid.nationalityValid = true;
+  //   //
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.nameValid && !current.valid.nameValid) {
+  //   //       log("${'✅' * 10} valid nameValid -> ${res.firstName} ${res.lastName}");
+  //   //
+  //   //       current.firstName = res.firstName;
+  //   //       current.lastName = res.lastName;
+  //   //       current.valid.nameValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.linesLengthValid && !current.valid.linesLengthValid) {
+  //   //       log("${'✅' * 10} valid linesLengthValid -> ");
+  //   //
+  //   //       current.line1 = res.line1;
+  //   //       current.line2 = res.line2;
+  //   //       current.line3 = res.line3;
+  //   //       current.valid.linesLengthValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.finalCheckValid && !current.valid.finalCheckValid) {
+  //   //       log("${'✅' * 10} valid finalCheckValid -> ");
+  //   //
+  //   //       current.valid.finalCheckValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.expiryDateValid && !current.valid.expiryDateValid) {
+  //   //       log("${'✅' * 10} valid expiryDateValid -> ${res.expiryDate}");
+  //   //       current.expiryDate = res.expiryDate;
+  //   //       current.valid.expiryDateValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.docNumberValid && !current.valid.docNumberValid) {
+  //   //       log("${'✅' * 10} valid docNumberValid -> ${res.documentNumber}");
+  //   //
+  //   //       current.documentNumber = res.documentNumber;
+  //   //       current.valid.docNumberValid = true;
+  //   //
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.countryValid && !current.valid.countryValid) {
+  //   //       log("${'✅' * 10} valid countryValid -> ${res.countryCode}");
+  //   //
+  //   //       current.countryCode = res.countryCode;
+  //   //       current.valid.countryValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     if (res.valid.birthDateValid && !current.valid.birthDateValid) {
+  //   //       log("${'✅' * 10} valid birthDateValid -> ${res.birthDate}");
+  //   //
+  //   //       current.birthDate = res.birthDate;
+  //   //       current.valid.birthDateValid = true;
+  //   //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
+  //   //     }
+  //   //     ref.read(improvingMrzResultProvider.notifier).update((s) => OcrMrzResult.fromJson(current.toJson()));
+  //   //     if (current.matchSetting(setting)) {
+  //   //       onDocScan(current);
+  //   //     }
+  //   //   }
+  //   // }catch(e){
+  //   //   if(e is Error){
+  //   //     log("${e.stackTrace}");
+  //   //   }
+  //   // }
+  // }
 
-    if (!scanning) {
-      return;
-    }
-
-    // if(scanned.valid.docCodeValid) {
-    //   log(jsonEncode(scanned.valid.toString()));
-    //   log(jsonEncode(scanned.toJson()));
-    //   log("scanned.toString()");
-    // }
-
+  void onReceivedConsensus(OcrMrzConsensus consensus){
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
     // if(scanned.line2.isEmpty){
     //   return;
     // }
 
     if (setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
-      agg.add(scanned); // only validated fields contribute
-      final consensus = agg.build();
       final res = consensus.toResult();
-      res.ocrData = scanned.ocrData;
+      // res.ocrData = scanned.ocrData;
 
       ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
       if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
@@ -89,132 +235,13 @@ class MrzReaderController extends ControllerInterface {
       }
     } else if (setting.algorithm == ParseAlgorithm.method2) {
       if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
-        if (scanned.matchSetting(setting)) {
-          onDocScan(scanned);
+        if (consensus.toResult().matchSetting(setting)) {
+          onDocScan(consensus.toResult());
         }
       }
     }
 
     return;
-    //
-    // // log('Doc No -> ${consensus.documentNumber} (count: ${consensus.documentNumberStat.consensusCount})');
-    // // log('Country -> ${consensus.countryCode} (hist: ${consensus.countryCodeStat.histogram})');
-    // // log('Birth   -> ${consensus.birthDate} (hist: ${consensus.birthDateStat.histogram})');
-    //
-    // // return;
-    // try {
-    //   log(res.valid.toString());
-    //   // return;
-    //   OcrMrzResult? current = ref.read(improvingMrzResultProvider);
-    //
-    //   // log("docImproving ${current == null}");
-    //   if (current == null) {
-    //     ref.read(improvingMrzResultProvider.notifier).update((s) => res);
-    //     // log("setting improvingMrzResultProvider");
-    //   } else {
-    //     // log("not setting improvingMrzResultProvider current not null");
-    //   }
-    //   if (res.matchSetting(setting)) {
-    //     // onDocScan(res);
-    //     // return;
-    //   }
-    //   if (current != null && current.matchSetting(setting)) {
-    //     // onDocScan(current);
-    //     // return;
-    //   }
-    //   if (current == null) {
-    //     ref.read(improvingMrzResultProvider.notifier).update((s) => res);
-    //     log(res.valid.toString());
-    //     if (res.valid.nationalityValid) {
-    //       log("valid nationalityValid -> ${res.nationality}");
-    //     }
-    //     if (res.valid.countryValid) {
-    //       log("valid countryValid -> ${res.countryCode}");
-    //     }
-    //     if (res.valid.expiryDateValid) {
-    //       log("valid expiryDate -> ${res.expiryDate}");
-    //     }
-    //     if (res.valid.birthDateValid) {
-    //       log("valid birthDateValid -> ${res.birthDate}");
-    //     }
-    //     if (res.valid.docNumberValid) {
-    //       log("valid docNumberValid -> ${res.documentNumber}");
-    //     }
-    //   } else {
-    //     if (res.valid.personalNumberValid && !current.valid.personalNumberValid) {
-    //       log("${'✅' * 10} valid persionality -> ${res.passportNumber} ");
-    //       current.personalNumber = res.personalNumber;
-    //       current.valid.personalNumberValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.nationalityValid && !current.valid.nationalityValid) {
-    //       log("${'✅' * 10} valid nationalityValid -> ${res.nationality}");
-    //       current.nationality = res.nationality;
-    //       current.valid.nationalityValid = true;
-    //
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.nameValid && !current.valid.nameValid) {
-    //       log("${'✅' * 10} valid nameValid -> ${res.firstName} ${res.lastName}");
-    //
-    //       current.firstName = res.firstName;
-    //       current.lastName = res.lastName;
-    //       current.valid.nameValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.linesLengthValid && !current.valid.linesLengthValid) {
-    //       log("${'✅' * 10} valid linesLengthValid -> ");
-    //
-    //       current.line1 = res.line1;
-    //       current.line2 = res.line2;
-    //       current.line3 = res.line3;
-    //       current.valid.linesLengthValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.finalCheckValid && !current.valid.finalCheckValid) {
-    //       log("${'✅' * 10} valid finalCheckValid -> ");
-    //
-    //       current.valid.finalCheckValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.expiryDateValid && !current.valid.expiryDateValid) {
-    //       log("${'✅' * 10} valid expiryDateValid -> ${res.expiryDate}");
-    //       current.expiryDate = res.expiryDate;
-    //       current.valid.expiryDateValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.docNumberValid && !current.valid.docNumberValid) {
-    //       log("${'✅' * 10} valid docNumberValid -> ${res.documentNumber}");
-    //
-    //       current.documentNumber = res.documentNumber;
-    //       current.valid.docNumberValid = true;
-    //
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.countryValid && !current.valid.countryValid) {
-    //       log("${'✅' * 10} valid countryValid -> ${res.countryCode}");
-    //
-    //       current.countryCode = res.countryCode;
-    //       current.valid.countryValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     if (res.valid.birthDateValid && !current.valid.birthDateValid) {
-    //       log("${'✅' * 10} valid birthDateValid -> ${res.birthDate}");
-    //
-    //       current.birthDate = res.birthDate;
-    //       current.valid.birthDateValid = true;
-    //       // ref.read(improvingMrzResultProvider.notifier).update((s)=>current);
-    //     }
-    //     ref.read(improvingMrzResultProvider.notifier).update((s) => OcrMrzResult.fromJson(current.toJson()));
-    //     if (current.matchSetting(setting)) {
-    //       onDocScan(current);
-    //     }
-    //   }
-    // }catch(e){
-    //   if(e is Error){
-    //     log("${e.stackTrace}");
-    //   }
-    // }
   }
 
   void onDocScan(OcrMrzResult res) {
@@ -234,8 +261,8 @@ class MrzReaderController extends ControllerInterface {
 
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
-      if (BasicClass.constData.documentTypeMappers.isNotEmpty && res.countryCode.length>1) {
-        final match = BasicClass.constData.documentTypeMappers.lastOrNullWhere(
+      if (BasicClass.constData.documentTypeDetailsMappers.isNotEmpty && res.countryCode.length>1) {
+        final match = BasicClass.constData.documentTypeDetailsMappers.lastOrNullWhere(
           (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
         );
         if (match != null) {
@@ -396,7 +423,7 @@ class MrzReaderController extends ControllerInterface {
     void msg;
     String? base64;
     SendLogsUseCase sendLogsUseCase = SendLogsUseCase();
-    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: agg.build(), base64: base64, setting: ref.read(ocrMrzSettingProvider));
+    SendLogsRequest sendLogsRequest = SendLogsRequest(current: current, consensus: ref.read(improvingMrzResultProvider), base64: base64, setting: ref.read(ocrMrzSettingProvider));
     if (ref.read(supportModeProvider)) {
       final imgPath = await ocrMrzController.takePicture();
       if (imgPath != null) {
@@ -435,7 +462,7 @@ class MrzReaderController extends ControllerInterface {
           // final r = fOrR.value;
           // log("logs sent");
           // log("${r.result?.toJson()}");
-          if (confirm && r.result != null) {
+          if (confirm && r.result != null && ref.read(ocrMrzSettingProvider).algorithm == ParseAlgorithm.method3) {
             askForServerResult(r.result!);
           }
         // final r = result.value;

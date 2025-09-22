@@ -7,6 +7,7 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:artemis_utils/artemis_utils.dart';
+import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -32,6 +33,7 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
             case null:
               return SizedBox();
             case "askSupervisor":
+              return SizedBox();
               return AskSupervisorWidget(his: l);
             case "managerApproval":
               return ManagerApprovalWidget(his: l);
@@ -60,6 +62,31 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
   }
 }
 
+class HeaderAskSupervisorWidget extends ConsumerWidget {
+  const HeaderAskSupervisorWidget({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final logs = ref.watch(showingLogsProvider);
+
+    return Column(
+      children: [
+        ...logs.map((l) {
+          switch (l.payload?.action) {
+            case null:
+              return SizedBox();
+            case "askSupervisor":
+              return AskSupervisorWidget(his: l);
+            default:
+              return SizedBox();
+          }
+        })
+      ],
+    );
+    return Container();
+  }
+}
+
 class AskSupervisorWidget extends StatefulWidget {
   final RefHistoryLog his;
 
@@ -70,6 +97,186 @@ class AskSupervisorWidget extends StatefulWidget {
 }
 
 class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
+  TextEditingController commentC = TextEditingController();
+  String? msg;
+  int? status;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectionColor = Color(0xff2A5CFF);
+    final greenColor = Color(0xff08AB7D);
+    final redColor = Color(0xffFF3F42);
+    final blackColor = Color(0xff2D2D2D);
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        // color: Color(0xff2A5CFF).withOpacity(.08)
+        color: Colors.white,
+      ),
+      padding: EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Text("Supervisor", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          // const SizedBox(height: 12),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: MyTextFieldNew(headerBgColor: selectionColor.withOpacity(0.2),
+          //           bodyBgColor: Color(0xffF0F2F8),
+          //           radius: BorderRadius.circular(12),
+          //           label: "Comment",
+          //           controller: commentC,
+          //           placeholder: "Enter Comment"),
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(height: 12),
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyButton(
+                  color: greenColor,
+                  fontSize: 12,
+                  radius: 12,
+                  label: "Approve",
+                  onPressed: () {
+                    if(status ==1 ){
+                      status =null;
+                    }else {
+                      status = 1;
+                    }
+                    setState(() {});
+                  },
+                  icon: ArtemisIcons.tick_square,
+                  reverse: status != 1,
+                  borderSide: BorderSide(color: greenColor),
+                ),
+              ),
+              Expanded(
+                child: MyButton(
+                  color: redColor,
+                  radius: 12,
+                  fontSize: 12,
+                  label: "Deny",
+                  onPressed: () {
+                    if(status ==2 ){
+                      status =null;
+                    }else {
+                      status = 2;
+                    }
+                    setState(() {});
+                  },
+                  icon: ArtemisIcons.close_square,
+                  reverse: status != 2,
+                  borderSide: BorderSide(color: redColor),
+                ),
+              ),
+              Expanded(
+                child: MyButton(
+                  color: blackColor,
+                  radius: 12,
+                  fontSize: 12,
+                  label: "Wait",
+                  onPressed: () {
+                    if(status ==3 ){
+                      status =null;
+                    }else {
+                      status = 3;
+                    }
+                    setState(() {});
+                  },
+                  icon: ArtemisIcons.timer,
+                  reverse: status != 3,
+                  borderSide: BorderSide(color: blackColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          AnimatedContainer(
+              height: status==3?(BasicClass.constData.textMessage.length*50):status==1?40:status==2?40:0,
+              duration: Duration(milliseconds: 200),child: status==3? Column(
+            spacing: 8,
+            children: [
+              ...BasicClass.constData.textMessage.map((a) {
+                bool selected = msg == a;
+                return MyButton(
+                  radius: 20,
+                  label: a,
+                  // reverse: true,
+                  color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
+                  borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
+                  onPressed: () {
+                    if (selected) {
+                      msg = null;
+                    } else {
+                      msg = a;
+                    }
+                    setState(() {});
+                  },
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
+                      ),
+                      Expanded(
+                        child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ):status == 1?Container(
+            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+            decoration: BoxDecoration(
+              color: greenColor.withOpacity(0.08),
+              borderRadius: BorderRadiusGeometry.circular(10)
+            ),
+            child: Row(
+              children: [
+                Text("Passenger is OK to travel",style: TextStyle(color: greenColor),),
+              ],
+            ),):status==2?Container(
+            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+            decoration: BoxDecoration(
+                color: redColor.withOpacity(0.08),
+                borderRadius: BorderRadiusGeometry.circular(10)
+            ),
+            child: Row(
+              children: [
+                Text("Passenger is Rejected to travel",style: TextStyle(color: redColor),),
+              ],
+            ),):SizedBox()),
+          const SizedBox(height: 12),
+          MyButton(label: "Send",
+              onPressed:status==null?null: () async {
+                await getIt<HomeController>().attachToResult(logId: getIt<HomeController>().ref
+                    .read(timaticResultProvider)
+                    ?.refCode ?? '-', data: {"action": "supervisorApproval", 'status': status,"message":msg});
+              },
+              radius: 12,
+              icon: ArtemisIcons.send,
+              iconInRight: true),
+        ],
+      ),
+    );
+  }
+}
+
+class AskSupervisorWidgetNew extends StatefulWidget {
+  final RefHistoryLog his;
+
+  const AskSupervisorWidgetNew({super.key, required this.his});
+
+  @override
+  State<AskSupervisorWidgetNew> createState() => _AskSupervisorWidgetNewState();
+}
+
+class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
   TextEditingController commentC = TextEditingController();
   String? msg;
   int? status;
@@ -116,7 +323,11 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                   radius: 12,
                   label: "Approved",
                   onPressed: () {
-                    status = 1;
+                    if(status ==1 ){
+                      status =null;
+                    }else {
+                      status = 1;
+                    }
                     setState(() {});
                   },
                   icon: ArtemisIcons.tick_square,
@@ -131,7 +342,11 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                   fontSize: 12,
                   label: "Deny",
                   onPressed: () {
-                    status = 2;
+                    if(status ==2 ){
+                      status =null;
+                    }else {
+                      status = 2;
+                    }
                     setState(() {});
                   },
                   icon: ArtemisIcons.close_square,
@@ -146,7 +361,11 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                   fontSize: 12,
                   label: "Wait",
                   onPressed: () {
-                    status = 3;
+                    if(status ==3 ){
+                      status =null;
+                    }else {
+                      status = 3;
+                    }
                     setState(() {});
                   },
                   icon: ArtemisIcons.timer,
@@ -157,7 +376,9 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
             ],
           ),
           const SizedBox(height: 12),
-          Column(
+          AnimatedContainer(
+              height: status==3?(BasicClass.constData.textMessage.length*50):0,
+              duration: Duration(milliseconds: 200),child: status==3? Column(
             spacing: 8,
             children: [
               ...BasicClass.constData.textMessage.map((a) {
@@ -190,7 +411,7 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                 );
               }),
             ],
-          ),
+          ):SizedBox()),
           const SizedBox(height: 12),
           MyButton(label: "Send",
               onPressed: () async {

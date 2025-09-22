@@ -253,15 +253,15 @@ class HomeController extends ControllerInterface {
           ),
         ),
       );
-      final passes = allDocs;
-      // final passes = allDocs.where((a) => (a.documentCode?.code ?? '').contains("PASS")).toList();
-      // final visas = allDocs.where((a) => (a.documentCode?.code ?? '').contains("V")).toList();
-      // final residents = allDocs.where((a) => !(a.documentCode?.code ?? '').contains("PASS") && !(a.documentCode?.code ?? '').contains("V")).toList();
+      // final passes = allDocs;
+      final passes = allDocs.where((a) => (a.documentCode?.code ?? '').contains("PASS")).toList();
+      final visas = allDocs.where((a) => (a.documentCode?.code ?? '').contains("V")).toList();
+      final residents = allDocs.where((a) => !(a.documentCode?.code ?? '').contains("PASS") && !(a.documentCode?.code ?? '').contains("V")).toList();
       final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]))));
 
       ref.read(passportsProvider.notifier).setAll(passes);
-      // ref.read(visasProvider.notifier).setAll(visas);
-      // ref.read(residentsProvider.notifier).setAll(residents);
+      ref.read(visasProvider.notifier).setAll(visas);
+      ref.read(residentsProvider.notifier).setAll(residents);
       ref.read(segmentsProvider.notifier).setAll(allSegs);
       ref.read(passengerProvider.notifier).update((s) => pd);
 

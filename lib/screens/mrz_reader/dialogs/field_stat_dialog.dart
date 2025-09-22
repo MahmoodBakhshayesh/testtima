@@ -2,6 +2,7 @@ import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ocr_mrz/aggregator.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
 import '../../../core/classes/mrz_agg_class.dart';

@@ -298,6 +298,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
           // const SizedBox(height: 12),
           MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
+          d.getMrzWidget,
           // MyDatePicker(
           //   label: "Issue Date",
           //   placeholder: "Issue Date",
@@ -351,7 +352,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
   }
 
   String docCodeToString(ParameterValue p1) {
-    final match = BasicClass.constData.documentTypeMappers.firstWhereOrNull((a)=>a.code == p1.code);
+    final match = BasicClass.constData.documentTypeDetailsMappers.firstWhereOrNull((a)=>a.code == p1.code);
     if(match != null){
       return match.title??p1.toString();
     }

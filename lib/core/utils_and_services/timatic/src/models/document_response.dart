@@ -106,8 +106,8 @@ class DocumentResponse {
       refCode: json['refCode'],
       passengerId: json['passengerId'],
       evaluationResult: EvalResultX.fromJson(json['evaluationResult']),
-      submittedDocuments: (json['submittedDocuments'] as List?)?.map((e) => SubmittedDocument.fromJson(e)).toList(),
-      segmentResults: (json['segmentResults'] as List).map((e) => SegmentResult.fromJson(e)).toList(),
+      submittedDocuments: ((json['submittedDocuments']??[]) as List?)?.map((e) => SubmittedDocument.fromJson(e)).toList(),
+      segmentResults: ((json['segmentResults']??[]) as List).map((e) => SegmentResult.fromJson(e)).toList(),
       traces: json['traces'] as List?,
     );
   }
@@ -199,6 +199,8 @@ class SegmentResult {
       ruleSetEvaluations: ((json['ruleSetEvaluations'] ?? []) as List).map((e) => RuleSetEvaluation.fromJson(e)).toList(),
     );
   }
+
+  String get route => "${departure.point}-${arrival.point}";
 
   Map<String, dynamic> toJson() => {
     'arrivingCountry': arrivingCountry.toJson(),

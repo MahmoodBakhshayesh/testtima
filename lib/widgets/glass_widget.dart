@@ -18,8 +18,8 @@ class FigmaGlass extends StatelessWidget {
     const radius = 28.0;
 
     return Container(
-      width: width,
-      height: height,
+      // width: width,
+      // height: height,
       decoration:  BoxDecoration(
         boxShadow: [
           // subtle lift; optional
@@ -29,11 +29,12 @@ class FigmaGlass extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: Stack(
+          fit: StackFit.passthrough,
           children: [
             // 1) Background blur (the key to glass)
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              child: const SizedBox.expand(),
+              child: const SizedBox(),
             ),
 
             // 2) Translucent inner fill gradient: #2A5CFF -> #535353
@@ -67,12 +68,9 @@ class FigmaGlass extends StatelessWidget {
                   ],
                 ),
               ),
-              child: Padding(
-                // Figma shows 15px top padding; add a nice base padding for sides
-                padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
-                child: child,
-              ),
+              child: child,
             ),
+
           ],
         ),
       ),

@@ -177,6 +177,14 @@ class DocumentDetail {
   bool get isVisa => shortType == "V";
   bool get isPassport => shortType == "P";
 
+  Widget get getMrzWidget => (mrz??"").isEmpty?SizedBox():Container(
+      padding: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.08),
+          borderRadius: BorderRadiusGeometry.circular(4)
+      ),
+      child: FittedBox(child: Text(mrz??'',style: TextStyle(fontFamily: "Ocr"),)));
+
   bool isSameAs(OcrMrzResult res) {
     // log("${res.documentCode} -- ${documentCode?.code}");
     // log("${res.documentNumber} -- ${documentNumber}");

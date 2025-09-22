@@ -1,6 +1,7 @@
 import 'package:abds/core/classes/mrz_agg_class.dart';
 import 'package:abds/core/classes/server_mrz_result_class.dart';
 import 'package:flutter/material.dart';
+import 'package:ocr_mrz/aggregator.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';

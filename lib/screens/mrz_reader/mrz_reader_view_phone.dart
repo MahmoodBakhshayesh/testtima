@@ -13,6 +13,7 @@ import 'package:dynamsoft_mrz_scanner_bundle_flutter/dynamsoft_mrz_scanner_bundl
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:ocr_mrz/aggregator.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
@@ -41,7 +42,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   @override
   void initState() {
     myMrzReaderController.popping = false;
-    myMrzReaderController.agg.reset();
+    // myMrzReaderController.agg.reset();
+    // myMrzReaderController.ocrMrzController.resetSession();
     myMrzReaderController.ocrMrzController.resetSession();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(seconds: 3), () {
@@ -171,7 +173,8 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                       // filterTypes: [DocumentType.passport, DocumentType.visa],
                       controller: myMrzReaderController.ocrMrzController,
                       mrzLogger: myMrzReaderController.mrzLogger,
-                      onFoundMrz: myMrzReaderController.docImproving,
+                      onConsensusChanged: myMrzReaderController.onReceivedConsensus,
+                      // onFoundMrz: myMrzReaderController.docImproving,
                       showZoom: Platform.isIOS,
                       showFrame: false,
                       setting: OcrMrzSetting(
@@ -187,7 +190,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                         rotation: ref.watch(ocrMrzSettingProvider).rotation,
                         macro: ref.watch(ocrMrzSettingProvider).macro,
                         algorithm: ref.watch(ocrMrzSettingProvider).algorithm,
-                      ),
+                      ), onFoundMrz: (OcrMrzResult res) {  },
                     ),
                     Positioned(top: 0, left: 0, right: 0, child: ImprovingResultWidget(_launchMrzScanner)),
                     Positioned(

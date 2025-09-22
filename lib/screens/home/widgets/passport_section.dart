@@ -94,6 +94,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     final bodyBg = Color(0xffF0F2Fa);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
+    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "P").map((a)=>a.code!).toList();
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -189,7 +190,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode),
+                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
                   // itemToString: docCodeToString,
                   // valueToString: docCodeToString,
                   value: d.documentCode,
@@ -241,6 +242,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
           const SizedBox(height: 12),
           MyTextFieldNew(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg),
           const SizedBox(height: 12),
+          d.getMrzWidget,
 
         ],
       ),

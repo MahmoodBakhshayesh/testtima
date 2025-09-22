@@ -2,6 +2,9 @@
 
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ui';
+
+import 'package:abds/core/constants/ui.dart';
 
 import '../../../../classes/people_class.dart';
 
@@ -191,41 +194,47 @@ class Profile {
 
 class ConstData {
   AllPermissions userPermissionAttributes;
-  List<DocumentTypeMapper> documentTypeMappers;
+  List<DocumentTypeDetailsMapper> documentTypeDetailsMappers;
+  List<DocumentTypeMapper> documentTypes;
   List<String> logNoteTypes;
   List<String> textMessage;
 
   ConstData({
     required this.userPermissionAttributes,
-    required this.documentTypeMappers,
+    required this.documentTypeDetailsMappers,
     required this.logNoteTypes,
+    required this.documentTypes,
     required this.textMessage,
   });
 
   ConstData copyWith({
     AllPermissions? userPermissionAttributes,
-    List<DocumentTypeMapper>? documentTypeMappers,
+    List<DocumentTypeDetailsMapper>? documentTypeDetailsMappers,
+    List<DocumentTypeMapper>? documentTypes,
     List<String>? logNoteTypes,
     List<String>? textMessage,
 
   }) =>
       ConstData(
         userPermissionAttributes: userPermissionAttributes ?? this.userPermissionAttributes,
-        documentTypeMappers: documentTypeMappers ?? this.documentTypeMappers,
+        documentTypeDetailsMappers: documentTypeDetailsMappers ?? this.documentTypeDetailsMappers,
+        documentTypes: documentTypes ?? this.documentTypes,
         logNoteTypes: logNoteTypes ?? this.logNoteTypes,
         textMessage: textMessage ?? this.textMessage,
       );
 
   factory ConstData.fromJson(Map<String, dynamic> json) => ConstData(
     userPermissionAttributes: AllPermissions.fromJson(json["permission"]),
-    documentTypeMappers:List<DocumentTypeMapper>.from((json["documentDetailType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
+    documentTypeDetailsMappers:List<DocumentTypeDetailsMapper>.from((json["documentDetailType"]??[]).map((a)=>DocumentTypeDetailsMapper.fromJson(a))),
+    documentTypes:List<DocumentTypeMapper>.from((json["documentType"]??[]).map((a)=>DocumentTypeMapper.fromJson(a))),
     logNoteTypes:List<String>.from((json["logNoteType"]??[])),
     textMessage:List<String>.from((json["textMessage"]??[])),
   );
 
   Map<String, dynamic> toJson() => {
     "permission": userPermissionAttributes.toJson(),
-    "documentDetailType": documentTypeMappers.map((a)=>a.toJson()).toList(),
+    "documentDetailType": documentTypeDetailsMappers.map((a)=>a.toJson()).toList(),
+    "documentType": documentTypes.map((a)=>a.toJson()).toList(),
     "logNoteTypes": logNoteTypes,
     "textMessage": textMessage,
   };
@@ -264,14 +273,14 @@ class PermissionEntry {
   };
 }
 
-class DocumentTypeMapper {
+class DocumentTypeDetailsMapper {
   final String? type;
   final String? subType;
   final String? country;
   final String? code;
   final String? title;
 
-  DocumentTypeMapper({
+  DocumentTypeDetailsMapper({
     this.type,
     this.subType,
     this.country,
@@ -279,14 +288,14 @@ class DocumentTypeMapper {
     this.title,
   });
 
-  DocumentTypeMapper copyWith({
+  DocumentTypeDetailsMapper copyWith({
     String? type,
     String? subType,
     String? country,
     String? code,
     String? title,
   }) =>
-      DocumentTypeMapper(
+      DocumentTypeDetailsMapper(
         type: type ?? this.type,
         subType: subType ?? this.subType,
         country: country ?? this.country,
@@ -294,7 +303,7 @@ class DocumentTypeMapper {
         title: title ?? this.title,
       );
 
-  factory DocumentTypeMapper.fromJson(Map<String, dynamic> json) => DocumentTypeMapper(
+  factory DocumentTypeDetailsMapper.fromJson(Map<String, dynamic> json) => DocumentTypeDetailsMapper(
     type: json["type"],
     subType: json["subType"],
     country: json["country"],
@@ -306,6 +315,49 @@ class DocumentTypeMapper {
     "type": type,
     "subType": subType,
     "country": country,
+    "code": code,
+    "title": title,
+  };
+}
+
+class DocumentTypeMapper {
+  final String? type;
+  final String? color;
+  final String? code;
+  final String? title;
+
+  DocumentTypeMapper({
+    this.type,
+    this.color,
+    this.code,
+    this.title,
+  });
+
+  DocumentTypeMapper copyWith({
+    String? type,
+    String? color,
+    String? code,
+    String? title,
+  }) =>
+      DocumentTypeMapper(
+        type: type ?? this.type,
+        color: color ?? this.color,
+        code: code ?? this.code,
+        title: title ?? this.title,
+      );
+
+  factory DocumentTypeMapper.fromJson(Map<String, dynamic> json) => DocumentTypeMapper(
+    type: json["type"],
+    color: json["color"],
+    code: json["code"],
+    title: json["title"],
+  );
+
+  Color get getColor => HexColor(color!);
+
+  Map<String, dynamic> toJson() => {
+    "type": type,
+    "color": color,
     "code": code,
     "title": title,
   };

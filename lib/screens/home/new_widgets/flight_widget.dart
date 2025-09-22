@@ -42,15 +42,30 @@ class FlightWidget extends ConsumerWidget {
               Expanded(
                 child: Text("Flight", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               ),
-              MyButton(label: "Scan", onPressed: () {
-               getIt<HomeController>().goNamed(Routes.barcodeReader);
-              }, radius: 8),
+              MyButton(
+                label: "Scan",
+                onPressed: () {
+                  getIt<HomeController>().goNamed(Routes.barcodeReader);
+                },
+                radius: 8,
+              ),
               DotButton(
                 icon: ArtemisIcons.eraser_1,
-                onPressed: () {},
+                onPressed: () async {
+                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                  if (!confirm) return;
+                  if(segments.length==1) {
+                    ref.read(segmentsProvider.notifier).updateAt(ref
+                        .read(segmentsProvider)
+                        .length - 1, ItinerarySegment.emptyNoAirport());
+                  }else{
+                    ref.read(segmentsProvider.notifier).removeAt(ref
+                        .read(segmentsProvider)
+                        .length - 1);
+                  }
+                },
                 size: 40,
                 iconSize: 20,
-
 
                 radius: 8,
                 flat: true,
@@ -157,7 +172,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
-        tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 0),
+        tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         footerExtra: IndexedStack(
           index: isLast ? 0 : 1,
           children: [
@@ -389,10 +404,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           Row(
             children: [
               Expanded(
-                child: MyTextFieldNew(
-                    headerBgColor: Color(0xffECECEC),
-                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                    controller: controller, label: "FLNB", placeholder: "Number", rowLabelRatio: [3, 5], labelInRow: true),
+                child: MyTextFieldNew(headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48), controller: controller, label: "FLNB", placeholder: "Number", rowLabelRatio: [3, 5], labelInRow: true),
               ),
               const SizedBox(width: 12),
               Expanded(

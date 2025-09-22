@@ -94,6 +94,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     final tim = BasicClass.timData;
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF4F8F7);
+    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "I").map((a)=>a.code!).toList();
+
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
@@ -184,7 +186,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   // valueToString: docCodeToString,
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode),
+                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -241,6 +243,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           const SizedBox(height: 12),
           MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
+          d.getMrzWidget,
         ],
       ),
     );

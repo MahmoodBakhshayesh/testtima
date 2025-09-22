@@ -98,6 +98,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     final tim = BasicClass.timData;
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
+    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "V").map((a)=>a.code!).toList();
+
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (d.ocrText??'').contains('N97191'));
     // log(d.ocrText??'-');
     final headerBg = Color(0xffFFFFFF);
@@ -194,7 +196,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
                   // valueToString: docCodeToString,
-                  items: tim.params.of(ParameterType.documentCode),
+                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -257,6 +259,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
               bodyBgColor: bodyBg,
               controller: controller, label: "Document # ${foundPassInVisa ? '✅' : ''}", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
+          d.getMrzWidget,
 
         ],
       ),
