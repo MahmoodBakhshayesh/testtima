@@ -49,7 +49,11 @@ class VisaWidget extends ConsumerWidget {
               ),
               DotButton(
                 icon: ArtemisIcons.eraser_1,
-                onPressed: () {},
+                onPressed: () async {
+                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                  if (!confirm) return;
+                  ref.read(visasProvider.notifier).removeAt(ref.read(visasProvider).length - 1);
+                },
                 size: 40,
                 radius: 8,
                 flat: true,

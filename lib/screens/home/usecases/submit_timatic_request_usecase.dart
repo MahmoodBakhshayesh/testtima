@@ -1,0 +1,50 @@
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:flutter/material.dart';
+import '../../../core/interfaces/failures_int.dart';
+import '../../../core/interfaces/request_int.dart';
+import '../../../core/interfaces/response_int.dart';
+import '../../../core/interfaces/result_int.dart';
+import '../../../core/interfaces/usecase_int.dart';
+import '../home_repository.dart';
+
+class SubmitTimaticRequestUseCase extends UseCase<SubmitTimaticRequestResponse,SubmitTimaticRequestRequest> {
+  SubmitTimaticRequestUseCase();
+
+  @override
+  Future<Result<SubmitTimaticRequestResponse>> call({required SubmitTimaticRequestRequest request}) {
+  if(request.validate()!=null) return Future(() =>Result.error(request.validate()!));
+    HomeRepository repository = HomeRepository();
+    return repository.submitTimaticRequest(request);
+  }
+
+}
+
+class SubmitTimaticRequestRequest extends RequestInterface {
+  final DocumentRequest documentRequest;
+
+  SubmitTimaticRequestRequest({required this.documentRequest});
+
+  @override
+  Map<String, dynamic> toJson() =>documentRequest.toJson();
+
+  Failure? validate(){
+    return null;
+  }
+}
+
+
+class SubmitTimaticRequestResponse extends ResponseInterface {
+  final DocumentResponse response;
+  SubmitTimaticRequestResponse({required super.status, required super.message, required this.response})
+      : super(
+          body: response.toJson(),
+        );
+
+    factory SubmitTimaticRequestResponse.fromResponse(ResponseInterface res) => SubmitTimaticRequestResponse(
+        status: res.status,
+        message: res.message,
+        response:DocumentResponse.fromJson(res.body),
+      );
+
+}
+

@@ -36,7 +36,7 @@ import 'usecases/set_first_password_usecase.dart';
 
 class LoginController extends ControllerInterface {
   late LoginState loginState = ref.read(loginProvider);
-  late TimaticApi timaticApi = getIt<TimaticApi>();
+  // late TimaticApi timaticApi = getIt<TimaticApi>();
   final _log = Logger('LoginController');
 
   @override
@@ -60,14 +60,17 @@ class LoginController extends ControllerInterface {
     switch (fOrR) {
       case Ok<LoginResponse>():
         user = fOrR.value.user;
-        timaticApi.setToken(user!.token);
-        log("${user.profile.username}");
-        final tData = await timaticApi.preloadAll();
-        BasicClass.initialize(user, tData);
+        // timaticApi.setToken(user!.token);
+        // log("${user.profile.username}");
+
+
+        ///todo preload basic data tData
         saveLoginData(username: username, password: password);
         ref.read(userProvider.notifier).update((s) => user);
         ref.read(profileProvider.notifier).update((s) => user!.profile);
         initData(user);
+        final tData = await getIt<HomeController>().preloadAll();
+        BasicClass.initialize(user, tData);
         checkNotifCount();
         getIt<HomeController>().clear();
         if (user.setPassword) {
@@ -215,12 +218,12 @@ class LoginController extends ControllerInterface {
     ref.read(selectedServerProvider.notifier).update((s) => current);
     sharedPref.setVariable(key: "ServerNew", value: jsonEncode(current.toJson()));
 
-    final client = TimaticClient(TimaticClientOptions(baseUrl: current.apiAddress));
-    final api = TimaticApi(client);
-    getIt.registerLazySingleton(() => api);
-
-    TimaticApi timaticApi = getIt<TimaticApi>();
-    timaticApi.setUrl(current.apiAddress);
+    // final client = TimaticClient(TimaticClientOptions(baseUrl: current.apiAddress));
+    // final api = TimaticApi(client);
+    // getIt.registerLazySingleton(() => api);
+    //
+    // TimaticApi timaticApi = getIt<TimaticApi>();
+    // timaticApi.setUrl(current.apiAddress);
 
     initNetworkManager(current.apiAddress);
   }

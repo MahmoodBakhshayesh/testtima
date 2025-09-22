@@ -81,7 +81,7 @@ initNetworkManager([String? baseUrl]) {
 
     successCheck: (NetworkRequest req, NetworkResponse res) {
       if (res.responseCode < 200 || res.responseCode > 300) return false;
-      if (res.responseBody["Successful"] == true) {
+      if ((res.responseBody["Successful"]??true) == true) {
         return true;
       }
       if (res.responseBody?["response"] is Map) {
@@ -144,7 +144,7 @@ initNetworkManager([String? baseUrl]) {
       return (data["message"] ?? data["Message"] ?? data["ResultText"] ?? "Done").toString();
     },
     tokenExpireCheck: (NetworkRequest req, NetworkResponse res) {
-      if(res.responseCode == 401){
+      if (res.responseCode == 401) {
         return true;
       }
       if (res.responseBody is Map && res.responseBody["Body"] != null) {
@@ -242,7 +242,13 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(inboxController);
   getIt.registerSingleton(messageDetailsController);
 
-  TreeNavigation.navigator.registerAllControllers({Routes.login: loginController, Routes.home: homeController, Routes.mrzReader: mrzReaderController, Routes.barcodeReader: barcodeReaderController,Routes.performance:performanceController});
+  TreeNavigation.navigator.registerAllControllers({
+    Routes.login: loginController,
+    Routes.home: homeController,
+    Routes.mrzReader: mrzReaderController,
+    Routes.barcodeReader: barcodeReaderController,
+    Routes.performance: performanceController,
+  });
 
   // print("registerAllControllers");
 }
@@ -271,10 +277,9 @@ Future<void> _initPackages() async {
   AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
   getIt.registerSingleton(adnd);
 
-  final client = TimaticClient(const TimaticClientOptions(baseUrl: 'https://timatic.multidcs.com/api/v1'));
-  final api = TimaticApi(client);
-  getIt.registerLazySingleton(() => api);
+  // final client = TimaticClient(const TimaticClientOptions(baseUrl: 'https://timatic.multidcs.com/api/v1'));
+  // final api = TimaticApi(client);
+  // getIt.registerLazySingleton(() => api);
 
   await FastCachedImageConfig.init();
-
 }

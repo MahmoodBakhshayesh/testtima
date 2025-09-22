@@ -35,11 +35,10 @@ class ResidentWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<DocumentDetail> residents = ref.watch(residentsProvider);
-    if(residents.isEmpty){
+    if (residents.isEmpty) {
       return SizedBox();
     }
     return MyExpansionTile(
-
       title: Column(
         children: [
           Row(
@@ -50,7 +49,11 @@ class ResidentWidget extends ConsumerWidget {
               ),
               DotButton(
                 icon: ArtemisIcons.eraser_1,
-                onPressed: () {},
+                onPressed: () async {
+                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                  if (!confirm) return;
+                  ref.read(residentsProvider.notifier).removeAt(ref.read(residentsProvider).length - 1);
+                },
                 size: 40,
                 radius: 8,
                 iconSize: 20,
@@ -67,12 +70,12 @@ class ResidentWidget extends ConsumerWidget {
               bool isFirst = index == 0;
               return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
             }).toList(),
-          )
+          ),
         ],
       ),
       showFooter: false,
       backgroundColor: Color(0xffE9F2EF),
-      collapsedBackgroundColor:Color(0xffE9F2EF),
+      collapsedBackgroundColor: Color(0xffE9F2EF),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );

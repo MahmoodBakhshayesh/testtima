@@ -2,6 +2,9 @@ import 'dart:developer';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
+import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
+import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
+import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
 
 import '../../../core/interfaces/local_data_base_int.dart';
 
@@ -33,6 +36,24 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<GetNotifCountResponse> getNotifCount({required GetNotifCountRequest request}) {
     // TODO: implement getNotifCount
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SubmitTimaticRequestResponse> submitTimaticRequest({required SubmitTimaticRequestRequest request}) {
+    // TODO: implement submitTimaticRequest
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TimaticGetParametersResponse> timaticGetParameters({required TimaticGetParametersRequest request}) {
+    // TODO: implement timaticGetParameters
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request}) {
+    // TODO: implement timaticGetLocations
     throw UnimplementedError();
   }
 

@@ -77,19 +77,20 @@ class NetworkManagerImp implements NetworkManagerInterface {
     log(getIt<WidgetRef>().read(userProvider)?.token.toString() ?? '');
 
     if (token != null) {
-      log("no null token");
       networkRequest.options.headers?.addAll({"Authorization": "Bearer $token"});
       log(networkRequest.options.headers.toString());
     }
 
     if (headers != null) {
-      log("no null header");
       networkRequest.options.headers?.addAll(headers);
     }
 
-    log(jsonEncode(networkRequest.options.headers));
+    // log(jsonEncode(networkRequest.options.headers));
     NetworkResponse networkResponse = await networkRequest.get();
+    if(networkResponse.responseDetails is dio.Response){
+      log("${(networkResponse.responseDetails as dio.Response).data}-- ${networkResponse.status}");
 
+    }
     if (networkResponse.status) {
       try {
         ResponseImplementation res = ResponseImplementation.fromJson(networkResponse.responseBody);
@@ -107,7 +108,7 @@ class NetworkManagerImp implements NetworkManagerInterface {
         // errorMsg =networkResponse.responseBody["message"];
       }
       // log(jsonEncode(networkResponse.responseDetails));
-
+      log(jsonEncode(networkResponse.responseBody));
       throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
     }
     // return res;

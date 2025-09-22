@@ -11,6 +11,9 @@ import 'data_sources/home_remote_ds.dart';
 import 'usecases/get_notif_count_usecase.dart';
 import 'usecases/get_ref_code_log_usecase.dart';
 import 'usecases/get_supervisors_usecase.dart';
+import 'usecases/submit_timatic_request_usecase.dart';
+import 'usecases/timatic_get_locations_usecase.dart';
+import 'usecases/timatic_get_parameters_usecase.dart';
 
 class HomeRepository implements HomeRepositoryInterface {
   final HomeRemoteDataSource homeRemoteDataSource = HomeRemoteDataSource();
@@ -59,6 +62,51 @@ class HomeRepository implements HomeRepositoryInterface {
         getNotifCountResponse = await homeLocalDataSource.getNotifCount(request: request);
       }
       return Result.ok(getNotifCountResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<SubmitTimaticRequestResponse>> submitTimaticRequest(SubmitTimaticRequestRequest request) async {
+    try {
+      SubmitTimaticRequestResponse submitTimaticRequestResponse;
+      if (await networkInfo.isConnected) {
+        submitTimaticRequestResponse = await homeRemoteDataSource.submitTimaticRequest(request: request);
+      } else {
+        submitTimaticRequestResponse = await homeLocalDataSource.submitTimaticRequest(request: request);
+      }
+      return Result.ok(submitTimaticRequestResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<TimaticGetParametersResponse>> timaticGetParameters(TimaticGetParametersRequest request) async {
+    try {
+      TimaticGetParametersResponse timaticGetParametersResponse;
+      if (await networkInfo.isConnected) {
+        timaticGetParametersResponse = await homeRemoteDataSource.timaticGetParameters(request: request);
+      } else {
+        timaticGetParametersResponse = await homeLocalDataSource.timaticGetParameters(request: request);
+      }
+      return Result.ok(timaticGetParametersResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<TimaticGetLocationsResponse>> timaticGetLocations(TimaticGetLocationsRequest request) async {
+    try {
+      TimaticGetLocationsResponse timaticGetLocationsResponse;
+      if (await networkInfo.isConnected) {
+        timaticGetLocationsResponse = await homeRemoteDataSource.timaticGetLocations(request: request);
+      } else {
+        timaticGetLocationsResponse = await homeLocalDataSource.timaticGetLocations(request: request);
+      }
+      return Result.ok(timaticGetLocationsResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

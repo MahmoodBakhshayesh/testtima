@@ -14,6 +14,9 @@ import 'package:abds/screens/home/dialogs/confirm_scanned_doc_dialog.dart';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
+import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
+import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
+import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:dio/dio.dart';
@@ -33,6 +36,7 @@ import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 import '../../core/utils_and_services/timatic/artemis_timatic.dart';
+import '../../core/utils_and_services/timatic/src/defaults.dart';
 import '../../initialize.dart';
 import '../../widgets/MyFieldPicker.dart';
 import '../mrz_reader/mrz_reader_state.dart';
@@ -42,7 +46,8 @@ import 'home_state.dart';
 
 class HomeController extends ControllerInterface {
   final _log = Logger('HomeController');
-  late TimaticApi timaticApi = getIt<TimaticApi>();
+
+  // late TimaticApi timaticApi = getIt<TimaticApi>();
 
   void clear() {
     ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
@@ -156,7 +161,10 @@ class HomeController extends ControllerInterface {
     );
 
     if ((doc.docCode ?? '').startsWith("C") || (doc.docCode ?? '').startsWith("I")) {
-      passengerDetails = passengerDetails.copyWith(residentCountryCode: doc.documentIssueCountry?.code3);
+      log("we should set resident ${doc.docCode}");
+      passengerDetails = passengerDetails.copyWith(residentCountryCode: doc.documentIssueCountry);
+    }else{
+      log("we should not set resident ${doc.docCode}");
     }
     ref.read(passengerProvider.notifier).update((s) => passengerDetails);
     ref.read(confirmingDocumentProvider.notifier).update((s) => null);
@@ -406,6 +414,91 @@ class HomeController extends ControllerInterface {
     }
 
     return count;
+  }
+
+  Future<DocumentResponse?> checkTimatic(DocumentRequest req) async {
+    DocumentResponse? response;
+    SubmitTimaticRequestUseCase checkTimaticUseCase = SubmitTimaticRequestUseCase();
+    SubmitTimaticRequestRequest submitTimaticRequestRequestRequest = SubmitTimaticRequestRequest(documentRequest: req);
+    final result = await checkTimaticUseCase(request: submitTimaticRequestRequestRequest);
+
+    switch (result) {
+      case Err<SubmitTimaticRequestResponse>():
+        FailureHandler.handle(result.error);
+      case Ok<SubmitTimaticRequestResponse>():
+        final r = result.value;
+        response = r.response;
+    }
+
+    return response;
+  }
+
+  Future<ParametersEnvelope?> getParameters({required List<String> codes, String? name}) async {
+    ParametersEnvelope? parameterEnvelope;
+    TimaticGetParametersUseCase getParameterUseCase = TimaticGetParametersUseCase();
+    TimaticGetParametersRequest timaticGetParametersRequest = TimaticGetParametersRequest(codes: codes, name: name);
+    final result = await getParameterUseCase(request: timaticGetParametersRequest);
+
+    switch (result) {
+      case Err<TimaticGetParametersResponse>():
+        // FailureHandler.handle(result.error);
+        return null;
+      case Ok<TimaticGetParametersResponse>():
+        final r = result.value;
+        parameterEnvelope = r.parametersEnvelope;
+    }
+
+    return parameterEnvelope;
+  }
+
+  Future<TimaticParams> getAllParameters({List<ParameterType> types = kDefaultParameterTypes, String? nameFilter, required bool forceRefresh}) async {
+    final envelopes = await Future.wait(types.map((t) => getParameters(codes: [t.code], name: nameFilter)));
+
+    final map = <ParameterType, List<ParameterValue>>{};
+    for (final env in envelopes) {
+      for (final item in (env?.parameters??[])) {
+        final t = ParameterType.fromCode(item.code);
+        if (t == null) continue; // ignore unknown codes
+        map[t] = item.parameterValues ?? [];
+      }
+    }
+    // _cachedParams = TimaticParams(byType: map);
+    return TimaticParams(byType: map);
+  }
+
+  Future<List<Location>> getLocations(LocationType type, {String? code, String? name}) async {
+    LocationsEnvelope? locationsEnvelope;
+    TimaticGetLocationsUseCase getLocationsUseCase = TimaticGetLocationsUseCase();
+    TimaticGetLocationsRequest timaticGetLocationsRequest = TimaticGetLocationsRequest(type: type, code: '', name: '');
+    final result = await getLocationsUseCase(request: timaticGetLocationsRequest);
+
+    switch (result) {
+      case Err<TimaticGetLocationsResponse>():
+        // FailureHandler.handle(result.error);
+        log(result.error.msg);
+
+      case Ok<TimaticGetLocationsResponse>():
+        final r = result.value;
+        locationsEnvelope = r.locationsEnvelope;
+    }
+
+    return locationsEnvelope?.locations ?? [];
+  }
+
+  Future<TimaticLocations> getAllLocations({required List<LocationType> types, bool forceRefresh = false, String? code, String? name}) async {
+    final map = <LocationType, List<Location>>{};
+    await Future.wait(
+      types.map((t) async {
+        map[t] = await getLocations(t, code: code, name: name);
+      }),
+    );
+
+    return TimaticLocations(byType: map);
+  }
+
+  Future<TimaticData> preloadAll({List<ParameterType> paramTypes = kDefaultParameterTypes, List<LocationType> locationTypes = kDefaultLocationTypes, bool forceRefresh = false}) async {
+    final results = await Future.wait([getAllParameters(types: paramTypes, forceRefresh: forceRefresh), getAllLocations(types: locationTypes, forceRefresh: forceRefresh)]);
+    return TimaticData(params: results[0] as TimaticParams, locations: results[1] as TimaticLocations);
   }
 
   // UseCase UseCase = UseCase(repository: Repository());

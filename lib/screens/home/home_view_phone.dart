@@ -474,17 +474,19 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                 onPressed: !canCheck
                                     ? null
                                     : () async {
-                                        List<DocumentDetail> ddl = [...ref.read(passportsProvider)].where((a) => a.documentCode != null).toList();
-                                        final timResult = await HomeViewPhone.myHomeController.timaticApi.submitDocumentRequest(
+                                        List<DocumentDetail> ddl = [...ref.read(passportsProvider),...ref.read(visasProvider),...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
+                                        final timResult = await HomeViewPhone.myHomeController.checkTimatic(
                                           DocumentRequest(
                                             documentDetails: ddl,
                                             itineraryDetails: ItineraryDetails(segments: segments),
                                             passengerDetails: passengerDetails,
                                           ),
                                         );
-                                        ref.read(timaticResultProvider.notifier).update((s) => timResult);
-                                        flightPaxController.collapse();
-                                        timaticController.expand();
+                                        if(timResult!=null) {
+                                          ref.read(timaticResultProvider.notifier).update((s) => timResult);
+                                          flightPaxController.collapse();
+                                          timaticController.expand();
+                                        }
                                       },
                                 radius: 12,
                               ),

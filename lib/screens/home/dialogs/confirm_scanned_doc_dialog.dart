@@ -76,6 +76,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                       reverse: true,
                       borderSide: BorderSide(color: context.mainColor),
                       onPressed: () {
+                        // log(documentDetail.docCode??'');
                         Navigator.of(context).pop(true);
                       },
                     ),

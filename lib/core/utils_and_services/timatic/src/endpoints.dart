@@ -140,28 +140,28 @@ class TimaticApi {
   }
 
   /// GET /accepted-values/:countryCode/:parameter?ruleSetTypes=REQDOC&ruleSetTypes=...
-  Future<AcceptedValuesEnvelope> getAcceptedValues({
-    required String countryCode,
-    required String parameter, // e.g., "docIssueCountry"
-    List<String>? ruleSetTypes, // e.g., ["REQTIX","INFTST","REQDOC"]
-  }) async {
-    try {
-      final qp = <String, dynamic>{
-        if (ruleSetTypes != null && ruleSetTypes.isNotEmpty) 'ruleSetTypes': ruleSetTypes, // Dio repeats for lists
-      };
-
-      final res = await _client.dio.get('/accepted-values/$countryCode/$parameter', queryParameters: qp);
-
-      if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
-        return AcceptedValuesEnvelope.fromJson(Map<String, dynamic>.from(res.data));
-      }
-      throw TimaticParsingError('Unexpected response for /accepted-values');
-    } on DioException catch (e) {
-      throw TimaticNetworkError(e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
-    } catch (e) {
-      throw TimaticError('Unknown error fetching accepted values', cause: e);
-    }
-  }
+  // Future<AcceptedValuesEnvelope> getAcceptedValues({
+  //   required String countryCode,
+  //   required String parameter, // e.g., "docIssueCountry"
+  //   List<String>? ruleSetTypes, // e.g., ["REQTIX","INFTST","REQDOC"]
+  // }) async {
+  //   try {
+  //     final qp = <String, dynamic>{
+  //       if (ruleSetTypes != null && ruleSetTypes.isNotEmpty) 'ruleSetTypes': ruleSetTypes, // Dio repeats for lists
+  //     };
+  //
+  //     final res = await _client.dio.get('/accepted-values/$countryCode/$parameter', queryParameters: qp);
+  //
+  //     if (res.statusCode == 200 && res.data is Map<String, dynamic>) {
+  //       return AcceptedValuesEnvelope.fromJson(Map<String, dynamic>.from(res.data));
+  //     }
+  //     throw TimaticParsingError('Unexpected response for /accepted-values');
+  //   } on DioException catch (e) {
+  //     throw TimaticNetworkError(e.message ?? 'Network error', statusCode: e.response?.statusCode, cause: e);
+  //   } catch (e) {
+  //     throw TimaticError('Unknown error fetching accepted values', cause: e);
+  //   }
+  // }
 
   /// POST /documentRequest
   Future<DocumentResponse> submitDocumentRequest(DocumentRequest body) async {
@@ -247,7 +247,9 @@ class TimaticApi {
   }
 
   Future<TimaticData> preloadAll({List<ParameterType> paramTypes = kDefaultParameterTypes, List<LocationType> locationTypes = kDefaultLocationTypes, bool forceRefresh = false}) async {
-    final results = await Future.wait([getAllParameters(types: paramTypes, forceRefresh: forceRefresh), getAllLocations(types: locationTypes, forceRefresh: forceRefresh)]);
+    final results = await Future.wait([
+      getAllParameters(types: paramTypes, forceRefresh: forceRefresh),
+      getAllLocations(types: locationTypes, forceRefresh: forceRefresh)]);
 
     return TimaticData(params: results[0] as TimaticParams, locations: results[1] as TimaticLocations);
   }
