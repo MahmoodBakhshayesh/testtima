@@ -68,7 +68,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.itemToWidget,
     this.prefix,
     this.prefixIcon,
-    this.rowLabelRatio = const [3, 7],
+    this.rowLabelRatio = const [12, 33],
   });
 
   @override
@@ -171,7 +171,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             label: widget.label,
             fontSize: 12,
             placeholder: widget.placeholder,
-            suffixIcon: Icon(Icons.arrow_drop_down),
+            suffixIcon: SizedBox(height:25,child: Icon(Icons.arrow_drop_down,size: 20,)),
           ),
         );
       },

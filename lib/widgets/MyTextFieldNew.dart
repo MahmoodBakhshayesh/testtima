@@ -65,7 +65,7 @@ class MyTextFieldNew extends StatefulWidget {
     this.headerBgColor,
     this.bodyBgColor,
     this.nextFn,
-    this.rowLabelRatio = const [3, 7],
+    this.rowLabelRatio = const [12,33],
     this.validationColor,
     this.backgroundColor,
     this.prevFn,

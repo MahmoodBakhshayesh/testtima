@@ -8,6 +8,7 @@ import 'package:abds/core/utils_and_services/stateControllers/visas_state_contro
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/widgets/MyButton.dart';
+import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
@@ -34,31 +35,30 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
       insetPadding: EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         width: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  // color: MyColors.scaffoldHeader,
-                  color: Color(0xff324073).withOpacity(0.4),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(documentDetail.isPassport?"Passport":documentDetail.isVisa?"VISA":"RESIDENT CARD", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                // color: MyColors.scaffoldHeader,
+                color: Color(0xff324073).withOpacity(0.4),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
-              ConfirmingItemRow(item: documentDetail,index: 0,isFirst: true,isLast: true,),
-              const SizedBox(height: 12),
-              Row(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(documentDetail.isPassport?"Passport":documentDetail.isVisa?"VISA":"RESIDENT CARD", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
+            ),
+            ConfirmingItemRow(item: documentDetail,index: 0,isFirst: true,isLast: true,),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
                 spacing: 12,
                 children: [
                   MyButton(
@@ -83,8 +83,8 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -161,7 +161,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     bool isFirst = widget.isFirst;
     int index = widget.index;
     DocumentDetail d = ref.watch(confirmingDocumentProvider)??DocumentDetail();
-
+    final headerBg = Color(0xffFFFFFF);
+    final bodyBg = Color(0xffF0F2Fa);
 
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
@@ -203,8 +204,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         label: "Issued In",
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         searchAutoFocus: true,
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
@@ -221,7 +224,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                       child: MyFieldPicker<Location>(
                         hasSearch: true,
                         searchAutoFocus: true,
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
                         label: "Nationality",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
                         required: true,
@@ -243,6 +248,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                 MyFieldPicker<ParameterValue>(
                   label: "Code",
                   placeholder: "Code",
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
                   items: tim.params.of(ParameterType.documentCode),
                   // itemToString: docCodeToString,
                   valueToString: docCodeToString,
@@ -254,13 +261,14 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                 ),
 
                 MyDatePicker(
-                  rowLabelRatio: [3, 7],
                   label: "Expiry Date",
                   required: true,
                   validator: (a) => expiryValidator(a, d.documentExpiryDate),
                   validationColor: expiryValidationColor(d.documentExpiryDate),
                   validationIcon: expiryValidationIcon(d.documentExpiryDate),
                   placeholder: "Date",
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
                   value: d.documentExpiryDate,
                   onChanged: (a) {
                     d = d.copyWith(documentExpiryDate: a);
@@ -276,9 +284,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         children: [
           MyDatePicker(
             required: true,
-            rowLabelRatio: [3, 7],
             label: "Birth Date",
             placeholder: "Birth Date",
+            headerBgColor: headerBg,
+            bodyBgColor: bodyBg,
             validator: (a) => birthDateValidator(a, d.birthDate),
             validationColor: birthDateValidationColor(d.birthDate),
             max: DateTime.now(),
@@ -296,7 +305,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
           const SizedBox(height: 12),
 
           // const SizedBox(height: 12),
-          MyTextField(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           d.getMrzWidget,
           // MyDatePicker(
@@ -349,6 +361,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         ],
       ),
     );
+
   }
 
   String docCodeToString(ParameterValue p1) {

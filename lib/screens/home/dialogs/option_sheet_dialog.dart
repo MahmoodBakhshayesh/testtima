@@ -3,6 +3,8 @@ import 'package:abds/core/classes/supervisor_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/initialize.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/attach_evisa_sheet.dart';
@@ -12,27 +14,57 @@ import 'package:abds/screens/home/dialogs/manager_approval_sheet.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
+import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
+import 'package:abds/widgets/MyFieldPicker.dart';
+import 'package:abds/widgets/MyTextFieldNew.dart';
+import 'package:abds/widgets/drawer_action.dart';
+import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
+import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import 'ask_supervisor_sheet.dart';
 import 'attach_comment_sheet.dart';
 
-class OptionSheetDialog extends StatefulWidget {
+class OptionSheetDialog extends ConsumerStatefulWidget {
   const OptionSheetDialog({super.key});
 
   @override
-  State<OptionSheetDialog> createState() => _MyOcrSettingDialogState();
+  ConsumerState<OptionSheetDialog> createState() => _MyOcrSettingDialogState();
 }
 
-class _MyOcrSettingDialogState extends State<OptionSheetDialog> {
-  final  myHomeController = getIt<HomeController>();
+class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
+  final myHomeController = getIt<HomeController>();
+  ParameterValue? airline;
+  TextEditingController flnbC = TextEditingController();
+  TextEditingController userC = TextEditingController();
+  final tim = BasicClass.timData;
+  int index = 0;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((a) {
+      ItinerarySegment seg = myHomeController.ref.read(segmentsProvider).first;
+      airline = seg.operatingCarrier;
+      flnbC.text = seg.flnb ?? '';
+      if (airline != null && flnbC.text.isNotEmpty) {
+        index = 1;
+      }
+      setState(() {});
+    });
+    flnbC.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isLocked = ref.watch(timaticResultProvider)!.status == 1;
     return SafeArea(
       bottom: true,
       child: SizedBox(
@@ -44,139 +76,221 @@ class _MyOcrSettingDialogState extends State<OptionSheetDialog> {
             Row(
               children: [
                 const SizedBox(width: 12),
-                Expanded(child: Text("Option")),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(isLocked ? ArtemisIcons.more : ArtemisIcons.lock),
+                      const SizedBox(width: 8),
+                      Text(isLocked ? "Option" : "Lock", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    AirlineLogo(airline?.code ?? '', size: 40),
+                    Text("${airline?.code ?? ''} ${flnbC.text}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ],
+                ),
                 CloseButton(),
               ],
             ),
             Divider(),
             Container(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.white,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    onTap: () async {
-                      List<Supervisor>? supervisors =await  myHomeController.getSupervisors();
-                      if(supervisors==null) return;
+                  EasyAnimatedIndexedStack(
+                    index: isLocked ? 1 : 0,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 12.0, right: 12, bottom: MediaQuery.of(context).viewInsets.bottom),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 12,
+                          children: [
+                            const SizedBox(height: 0),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text("Flight: ${ref.watch(segmentsProvider)!.first.route}", style: TextStyle(fontWeight: FontWeight.w600)),
+                                ),
+                                MyButton(label: "Scan Boarding Pass", onPressed: () {}, icon: ArtemisIcons.scan_barcode),
+                              ],
+                            ),
+                            Row(
+                              spacing: 12,
+                              children: [
+                                Expanded(
+                                  child: MyTextFieldNew(
+                                    maxLength: 5,
+                                    label: "Flight #",
+                                    controller: flnbC,
+                                    placeholder: "Flight Number",
+                                    rowLabelRatio: [3, 5],
+                                    headerBgColor: Color(0xffECECEC),
+                                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: MyFieldPicker<ParameterValue>(
+                                    label: "Airline",
+                                    placeholder: "Airline",
+                                    searchAutoFocus: true,
+                                    rowLabelRatio: [3, 5],
+                                    headerBgColor: Color(0xffECECEC),
+                                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                                    items: tim.params.of(ParameterType.carrier),
+                                    value: airline,
+                                    onChange: (a) {
+                                      airline = a;
+                                      setState(() {});
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: MyTextFieldNew(maxLength: 5, label: "User", controller: userC, placeholder: "Enter full name", headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48)),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                              padding: EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  Icon(ArtemisIcons.lock, color: Color(0xff2A5Cff)),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text("To access options, lock passenger information first. Once locked, no changes can be made.", style: TextStyle(fontSize: 12))),
+                                ],
+                              ),
+                            ),
+                            Row(
+                              spacing: 12,
+                              children: [
+                                Expanded(
+                                  child: MyButton(
+                                    color: Colors.grey,
+                                    label: "Cancel",
+                                    reverse: true,
+                                    borderSide: BorderSide(color: Colors.grey),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  child: MyButton(
+                                    label: "Confirm",
+                                    onPressed: airline == null || flnbC.text.isEmpty
+                                        ? null
+                                        : () {
+                                            ref.read(timaticResultProvider.notifier).update((s) => s?.setStatus(1));
+                                            index = 1;
+                                            setState(() {});
+                                          },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          spacing: 8,
+                          children: [
+                            DrawerAction(
+                              title: "Ask Supervisor",
+                              onTap: () async {
+                                List<Supervisor>? supervisors = await myHomeController.getSupervisors();
+                                if (supervisors == null) return;
 
-                      String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
-                      if (logId != null) {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AskSupervisorSheet(logId: logId,supervisors: supervisors,);
-                          },
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                        );
-                      }
-                    },
-                    dense: true,
-                    leading: Icon(Icons.question_mark),
-                    title: Text("Ask Supervisor"),
+                                String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
+                                if (logId != null) {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+                                    },
+                                    isScrollControlled: true,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                  );
+                                }
+                              },
+                              leadingIcon: ArtemisIcons.message_question,
+                            ),
+                            DrawerAction(
+                              title: "Station Manager Approval",
+                              onTap: () async {
+                                String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
+                                if (logId != null) {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    enableDrag: false,
+                                    builder: (BuildContext context) {
+                                      return ManagerApprovalSheet(logId: logId);
+                                    },
+                                    isScrollControlled: true,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                  );
+                                }
+                              },
+                              leadingIcon: ArtemisIcons.airplane_square,
+                            ),
+                            DrawerAction(
+                              title: "Translation for Passenger",
+                              onTap: () async {
+
+                              },
+                              leadingIcon: ArtemisIcons.translate,
+                            ),
+                            DrawerAction(
+                              title: "Add Attachment",
+                              onTap: () async {
+                                String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
+                                if (logId != null) {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    enableDrag: false,
+                                    builder: (BuildContext context) {
+                                      return AttachPhotoSheet(logId: logId);
+                                    },
+                                    isScrollControlled: true,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                  );
+                                }
+                              },
+                              leadingIcon: ArtemisIcons.attach_circle,
+                            ),
+                            DrawerAction(
+                              title: "Re-check TIMATIC",
+                              onTap: () async {
+                               ref.read(timaticResultProvider.notifier).update((s)=>s?.setStatus(null));
+                              },
+                              leadingIcon: ArtemisIcons.refresh,
+                            ),
+                            DrawerAction(
+                              title: "Final Decision",
+                              onTap: () async {
+                               ref.read(timaticResultProvider.notifier).update((s)=>s?.setStatus(null));
+                              },
+                              leadingIcon: ArtemisIcons.shield_tick,
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  ListTile(onTap: () {
-                    String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
-                    if (logId != null) {
-                      showModalBottomSheet(
-                        context: context,
-                        enableDrag: false,
-                        builder: (BuildContext context) {
-                          return ManagerApprovalSheet(logId: logId);
-                        },
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                      );
-                    }
-                  }, dense: true, leading: Icon(Icons.queue_play_next), title: Text("Airline Station Manager Approval")),
-                  ListTile(onTap: () {
-                    String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
-                    if (logId != null) {
-                      showModalBottomSheet(
-                        context: context,
-                        enableDrag: false,
-                        builder: (BuildContext context) {
-                          return AttachEvisaSheet(logId: logId);
-                        },
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                      );
-                    }
-                  }, dense: true, leading: Icon(Icons.queue_play_next), title: Text("Add e-Visa")),
-                  ListTile(onTap: () {
-                    String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
-                    if (logId != null) {
-                      showModalBottomSheet(
-                        context: context,
-                        enableDrag: false,
-                        builder: (BuildContext context) {
-                          return AttachPhotoSheet(logId: logId);
-                        },
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                      );
-                    }
-                  }, dense: true, leading: Icon(Icons.attach_email), title: Text("Attach Photo")),
-                  ListTile(onTap: () {
-                    String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
-                    if (logId != null) {
-                      showModalBottomSheet(
-                        context: context,
-                        enableDrag: false,
-                        builder: (BuildContext context) {
-                          return AttachVoiceSheet(logId: logId);
-                        },
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                      );
-                    }
-                  }, dense: true, leading: Icon(Icons.attach_email), title: Text("Attach Voice")),
-                  ListTile(onTap: () {
-                    String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
-                    if (logId != null) {
-                      showModalBottomSheet(
-                        context: context,
-                        enableDrag: false,
-                        builder: (BuildContext context) {
-                          return AttachCommentSheet(logId: logId);
-                        },
-                        isScrollControlled: true,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                      );
-                    }
-                  }, dense: true, leading: Icon(Icons.comment), title: Text("Add Comment")),
                 ],
               ),
             ),
-            // Divider(),
-            // Padding(
-            //   padding: const EdgeInsets.all(12.0),
-            //   child: Row(
-            //     children: [
-            //       Expanded(
-            //         child: MyButton(
-            //           color: Colors.grey,
-            //           borderSide: BorderSide(color: MyColors.lineColor),
-            //           reverse: true,
-            //           label: "Cancel",
-            //           onPressed: () {
-            //             Navigator.of(context).pop();
-            //           },
-            //         ),
-            //       ),
-            //       const SizedBox(width: 12),
-            //       Expanded(
-            //         child: MyButton(
-            //           label: "Submit",
-            //           onPressed: () {
-            //             Navigator.of(context).pop(true);
-            //           },
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),

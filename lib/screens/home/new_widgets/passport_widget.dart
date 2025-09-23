@@ -24,6 +24,7 @@ import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
 import '../home_state.dart';
+import '../widgets/locked_document_widget.dart';
 import '../widgets/passport_section.dart';
 
 class PassportWidget extends ConsumerWidget {
@@ -32,9 +33,18 @@ class PassportWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
+    final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    if(locked){
+      return Column(
+        children: passports.map((d) {
+          return LockedDocumentItemRow(d: d, tileColor:  Color(0xffE2E7F5),);
+        }).toList(),
+      );
+    }
     if(passports.isEmpty){
       return SizedBox();
     }
+
     return MyExpansionTile(
 
       title: Column(
@@ -65,6 +75,7 @@ class PassportWidget extends ConsumerWidget {
               int index = passports.indexOf(d);
               bool isLast = passports.length == index + 1;
               bool isFirst = index == 0;
+              bool isLocked = true;
               return PassportItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
             }).toList(),
           )

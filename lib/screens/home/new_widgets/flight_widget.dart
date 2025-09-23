@@ -118,6 +118,7 @@ class SegmentItemRow extends ConsumerStatefulWidget {
 
 class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
   late final TextEditingController controller;
+  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -162,7 +163,6 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     int index = widget.index;
     ItinerarySegment seg = widget.item;
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final tim = BasicClass.timData;
 
     return Container(
       decoration: BoxDecoration(

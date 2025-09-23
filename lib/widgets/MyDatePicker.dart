@@ -65,7 +65,7 @@ class MyDatePicker extends StatefulWidget {
     this.value,
     this.bodyBgColor,
     this.headerBgColor,
-    this.rowLabelRatio = const [3, 5],
+    this.rowLabelRatio = const [12, 33],
     this.controller,
     this.focusNode,
     this.maxLength,

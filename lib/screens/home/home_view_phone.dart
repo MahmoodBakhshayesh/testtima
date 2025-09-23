@@ -15,6 +15,7 @@ import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:abds/screens/home/dialogs/manul_add_doc_sheet.dart';
+import 'package:abds/screens/home/dialogs/option_sheet_dialog.dart';
 import 'package:abds/screens/home/dialogs/photo_preview_dialog.dart';
 import 'package:abds/screens/home/dialogs/requested_data_dialog.dart';
 import 'package:abds/screens/home/dialogs/voice_preview_dialog.dart';
@@ -418,81 +419,82 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                     elevation: 2,
                     child: Container(
                       height: 60,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(18),
                         boxShadow: [BoxShadow(spreadRadius: 0, blurRadius: 34, color: Colors.black.withOpacity(0.16))],
                       ),
                       child: Row(
+                        spacing: 8,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          DotButton(
-                            radius: 10,
-                            icon: ArtemisIcons.more,
-                            size: 40,
-                            onPressed: !resultMode
-                                ? null
-                                : () {
-                                    getIt<HomeController>().showOptionSheet();
-                                  },
+                          Expanded(
+                            child: MyButton(
+                              label: "Options",
+                              fontSize: 12,
+                              iconSize: 15,
+                              onPressed:!resultMode?null: (){
+                                getIt<HomeController>().showOptionSheet();
+                              },
+                              radius: 10,
+                              reverse: true,
+                              borderSide: BorderSide(color: context.mainColor),
+                            ),
                           ),
-                          MyButton(
-                            label: "Manual",
-                            onPressed: (){
-                              showModalBottomSheet(context: context, builder: (BuildContext context) {
-                                return ManualAddDocumentSheet();
-                              });
-                            },
-                            // onPressed: ref.watch(passportsProvider).isNotEmpty && ref.watch(visasProvider).isNotEmpty && ref.watch(residentsProvider).isNotEmpty
-                            //     ? null
-                            //     : () {
-                            //         if (ref.read(passportsProvider).isEmpty) {
-                            //           ref.read(passportsProvider.notifier).add(DocumentDetail());
-                            //         }
-                            //         if (ref.read(visasProvider).isEmpty) {
-                            //           ref.read(visasProvider.notifier).add(DocumentDetail());
-                            //         }
-                            //         if (ref.read(residentsProvider).isEmpty) {
-                            //           ref.read(residentsProvider.notifier).add(DocumentDetail());
-                            //         }
-                            //       },
-                            radius: 10,
-                            reverse: true,
-                            borderSide: BorderSide(color: context.mainColor),
-                          ),
-                          MyButton(
-                            label: "Scan",
-                            onPressed: () {
-                              // getIt<MrzReaderController>().askActiveSupport(context);
-                              HomeViewPhone.myHomeController.goMrzReadr();
-                            },
-                            radius: 10,
-                            icon: ArtemisIcons.scan,
-                          ),
+                          Expanded(
+                            child: MyButton(
+                              label: "Manual",
+                              fontSize: 12,
+                              onPressed: (){
+                                showModalBottomSheet(context: context, builder: (BuildContext context) {
+                                  return ManualAddDocumentSheet();
+                                });
+                              },
 
-                          MyButton(
-                            label: "TIMATIC",
-                            icon: Icons.perm_identity,
-                            iconInRight: true,
-                            onPressed: !canCheck
-                                ? null
-                                : () async {
-                                    List<DocumentDetail> ddl = [...ref.read(passportsProvider),...ref.read(visasProvider),...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
-                                    final timResult = await HomeViewPhone.myHomeController.checkTimatic(
-                                      DocumentRequest(
-                                        documentDetails: ddl,
-                                        itineraryDetails: ItineraryDetails(segments: segments),
-                                        passengerDetails: passengerDetails,
-                                      ),
-                                    );
-                                    if(timResult!=null) {
-                                      ref.read(timaticResultProvider.notifier).update((s) => timResult);
-                                      flightPaxController.collapse();
-                                      timaticController.expand();
-                                    }
-                                  },
-                            radius: 12,
+                              radius: 10,
+                              reverse: true,
+                              borderSide: BorderSide(color: context.mainColor),
+                            ),
+                          ),
+                          Expanded(
+                            child: MyButton(
+                              label: "Scan",
+                              fontSize: 12,
+                              iconSize: 15,
+                              onPressed: () {
+                                // getIt<MrzReaderController>().askActiveSupport(context);
+                                HomeViewPhone.myHomeController.goMrzReadr();
+                              },
+                              radius: 10,
+                              icon: ArtemisIcons.scan,
+                            ),
+                          ),
+                          Expanded(
+                            child: MyButton(
+                              label: "TIMATIC",
+                              iconInRight: true,
+                              iconSize: 12,
+                              fontSize: 12,
+                              onPressed: !canCheck
+                                  ? null
+                                  : () async {
+                                      List<DocumentDetail> ddl = [...ref.read(passportsProvider),...ref.read(visasProvider),...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
+                                      final timResult = await HomeViewPhone.myHomeController.checkTimatic(
+                                        DocumentRequest(
+                                          documentDetails: ddl,
+                                          itineraryDetails: ItineraryDetails(segments: segments),
+                                          passengerDetails: passengerDetails,
+                                        ),
+                                      );
+                                      if(timResult!=null) {
+                                        ref.read(timaticResultProvider.notifier).update((s) => timResult);
+                                        flightPaxController.collapse();
+                                        timaticController.expand();
+                                      }
+                                    },
+                              radius: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -504,195 +506,207 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                   right: 0,
                   left: 0,
                   child: Material(
-                    child: FigmaGlass(
-                      // height: 124 + (resultMode ? additionalHeight : 0),
-                      child: Container(
-                        padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
-                        width: context.width,
-                        decoration: BoxDecoration(
-                          color: resultMode?timaticRes!.evaluationResult.getColor.withOpacity(0.28):null
-                          // color: Colors.red
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 36,width: double.infinity,),
-                            Row(
-                              children: [
-                                Consumer(
-                                  builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                    return Badge(
-                                      isLabelVisible: ref.watch(notifCountProvider) > 0,
-                                      label: Text("${ref.watch(notifCountProvider)}"),
-                                      child: MyButton(
-                                        label: "Menu",
-                                        radius: 12,
-                                        icon: Icons.menu,
-                                        onPressed: () {
-                                          flightsScaffoldKey.currentState!.openDrawer();
-                                        },
-                                        borderSide: BorderSide(color: MyColors.black8),
-                                        color: Colors.white,
-                                        textColor: Colors.black,
-                                      ),
-                                    );
-                                  },
-                                ),
-                                Spacer(),
-                                MyButton(
-                                  label: "Restart",
-                                  onPressed: () {
-                                    getIt<HomeController>().clear();
-                                    flightPaxController.expand();
-                                  },
-                                  reverse: true,
-                                  borderSide: BorderSide(color: context.mainColor),
-                                  icon: ArtemisIcons.eraser_1,
-                                ),
-                              ],
+                    child: Column(
+                      children: [
+                        FigmaGlass(
+                          // height: 124 + (resultMode ? additionalHeight : 0),
+                          child: Container(
+                            padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
+                            width: context.width,
+                            decoration: BoxDecoration(
+                              color: resultMode?timaticRes!.evaluationResult.getColor.withOpacity(0.28):null,
+                              border: Border(bottom: BorderSide(color: resultMode?timaticRes!.evaluationResult.getColor:Colors.white,width: 2)),
+
+                              // color: Colors.red
                             ),
-                            resultMode
-                                ? Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Column(
-                                      spacing: 8,
-                                      children: [
-
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 36,width: double.infinity,),
+                                Row(
+                                  spacing: 12,
+                                  children: [
+                                    Consumer(
+                                      builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                        return Badge(
+                                          isLabelVisible: ref.watch(notifCountProvider) > 0,
+                                          label: Text("${ref.watch(notifCountProvider)}"),
+                                          child: MyButton(
+                                            label: "Menu",
+                                            radius: 12,
+                                            icon: Icons.menu,
+                                            onPressed: () {
+                                              flightsScaffoldKey.currentState!.openDrawer();
+                                            },
+                                            borderSide: BorderSide(color: MyColors.black8),
+                                            color: Colors.white,
+                                            textColor: Colors.black,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    Spacer(),
+                                    // resultMode? MyButton(
+                                    //   label: "Option",
+                                    //   onPressed: () {
+                                    //     getIt<HomeController>().showOptionSheet();
+                                    //     // showModalBottomSheet(context: context, builder: (BuildContext context) {
+                                    //     //   return OptionSheetDialog();
+                                    //     // });
+                                    //   },
+                                    //   reverse: true,
+                                    //   borderSide: BorderSide(color: context.mainColor),
+                                    //   icon: ArtemisIcons.more_square,
+                                    // ):SizedBox(),
+                                    MyButton(
+                                      label: "Restart",
+                                      onPressed: () {
+                                        getIt<HomeController>().clear();
+                                        flightPaxController.expand();
+                                      },
+                                      reverse: true,
+                                      borderSide: BorderSide(color: context.mainColor),
+                                      icon: ArtemisIcons.eraser_1,
+                                    ),
+                                  ],
+                                ),
+                                resultMode
+                                    ? Padding(
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: Column(
+                                          spacing: 8,
                                           children: [
-                                            Row(
-                                              children: [
-                                                Text("Flight: ", style: TextStyle(color: Colors.grey)),
-                                                Text("${segments.first.operatingCarrier?.code ?? ''} ${segments.first.flnb ?? ''}"),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text("Date: ", style: TextStyle(color: Colors.grey)),
-                                                Text("${segments.first.departure.dateTime.format_ddMMM ?? ''}"),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text("Route: ", style: TextStyle(color: Colors.grey)),
-                                                Text("${segments.first.departure.point ?? ''}-${segments.first.arrival.point ?? ''}"),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          spacing: 12,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text("Passport: ", style: TextStyle(color: Colors.grey)),
-                                                Text("${passports.firstOrNull?.documentNumber ?? ''}"),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text("Tracking: ", style: TextStyle(color: Colors.grey)),
-                                                Text("${timaticRes?.refCode ?? ''}"),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                                countryBuilderHeader(passengerDetails.nationality),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text("Resident: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                                countryBuilderHeader(passengerDetails.residentCountryCode),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text("VISA: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                                countryBuilderHeader(visas.firstOrNull?.documentIssueCountry),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        Builder(
-                                          builder: (BuildContext context) {
-                                            final res = ref.watch(timaticResultProvider)!;
-                                            return Container(
-                                              decoration: BoxDecoration( borderRadius: BorderRadius.circular(8)),
-                                              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                                              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
-                                              child: Column(
-                                                children: [
-                                                  Row(
-                                                    spacing:8,
+                                            Builder(
+                                              builder: (BuildContext context) {
+                                                final res = ref.watch(timaticResultProvider)!;
+                                                return Container(
+                                                  decoration: BoxDecoration( borderRadius: BorderRadius.circular(8)),
+                                                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                                                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
+                                                  child: Column(
                                                     children: [
-                                                      ...res.segmentResults.map((seg)=>Expanded(
-                                                        child: Container(
-                                                          decoration:BoxDecoration(
-                                                            borderRadius: BorderRadiusGeometry.circular(8),
-                                                            border: Border.all(color: seg.segmentEvaluationResult.getColor)
-                                                          ),
-                                                          padding:EdgeInsets.symmetric(horizontal: 2,vertical: 2),
-                                                          child: Row(
-                                                            children: [
-                                                              const SizedBox(width: 2),
-                                                              Expanded(child: Text("${seg.route}",style: TextStyle(fontSize: 12),)),
-                                                              const SizedBox(width: 2),
-                                                              Container(
-                                                                  padding:EdgeInsets.symmetric(horizontal: 4,vertical: 2),
+                                                      Row(
+                                                        spacing:12,
+                                                        children: [
+                                                          ...res.segmentResults.map((seg)=>Container(
+                                                            decoration:BoxDecoration(
+                                                                borderRadius: BorderRadiusGeometry.circular(4),
+                                                                color: seg.segmentEvaluationResult.getColor,
+                                                                border: Border.all(color: seg.segmentEvaluationResult.getColor)
+                                                            ),
+                                                            padding:EdgeInsets.symmetric(horizontal: 4,vertical: 2),
+                                                            child: Row(
+                                                              children: [
+                                                                Icon(seg.segmentEvaluationResult.getIconCircle,color: Colors.white,size: 15,),
+                                                                const SizedBox(width: 4),
+                                                                Text("${seg.route}",style: TextStyle(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w500),),
+                                                              ],
+                                                            ),))
 
-                                                                  decoration:BoxDecoration(
-                                                                      color: seg.segmentEvaluationResult.getColor.withOpacity(0.5),
-                                                                      borderRadius: BorderRadiusGeometry.circular(5)
-                                                                  ),
-                                                                  child: Text("${seg.segmentEvaluationResult.name.padRight(3," ").substring(0,3)}",style: TextStyle(fontSize: 12),)),
-                                                            ],
-                                                          ),),
-                                                      ))
-                                                      // Expanded(
-                                                      //   child: Text(
-                                                      //     "Travel",
-                                                      //     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: res.evaluationResult.getColor),
-                                                      //   ),
-                                                      // ),
-                                                      // Container(
-                                                      //   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                                      //   decoration: BoxDecoration(color: res.evaluationResult.getColor, borderRadius: BorderRadius.circular(8)),
-                                                      //   child: Center(
-                                                      //     child: Row(
-                                                      //       mainAxisAlignment: MainAxisAlignment.center,
-                                                      //       children: [
-                                                      //         Icon(res.evaluationResult.getIcon, color: Colors.white, size: 20),
-                                                      //         const SizedBox(width: 4),
-                                                      //         Text(
-                                                      //           res.evaluationResult.name,
-                                                      //           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
-                                                      //         ),
-                                                      //       ],
-                                                      //     ),
-                                                      //   ),
-                                                      // ),
+                                                        ],
+                                                      ),
                                                     ],
                                                   ),
-                                                ],
-                                              ),
-                                            );
-                                          },
+                                                );
+                                              },
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text("Flight: ", style: TextStyle(color: Colors.grey)),
+                                                    Text("${segments.first.operatingCarrier?.code ?? ''} ${segments.first.flnb ?? ''}"),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("Date: ", style: TextStyle(color: Colors.grey)),
+                                                    Text("${segments.first.departure.dateTime.format_ddMMM ?? ''}"),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("Route: ", style: TextStyle(color: Colors.grey)),
+                                                    Text("${segments.first.departure.point ?? ''}-${segments.first.arrival.point ?? ''}"),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              spacing: 12,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text("Passport: ", style: TextStyle(color: Colors.grey)),
+                                                    Text("${passports.firstOrNull?.documentNumber ?? ''}"),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("Tracking: ", style: TextStyle(color: Colors.grey)),
+                                                    Container(
+                                                        decoration:BoxDecoration(
+                                                            borderRadius: BorderRadiusGeometry.circular(5),
+                                                            color: timaticRes.evaluationResult.getColor.withOpacity(0.3),
+                                                            border: Border.all(color: timaticRes.evaluationResult.getColor,)
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            const SizedBox(width: 8),
+                                                            Text("${timaticRes?.refCode ?? ''}",style: TextStyle(color: Colors.black),),
+                                                            const SizedBox(width: 8),
+                                                            Container(
+                                                                decoration:BoxDecoration(
+                                                                    borderRadius: BorderRadiusGeometry.circular(5),
+                                                                    color: timaticRes.evaluationResult.getColor,
+                                                                    border: Border.all(color: timaticRes.evaluationResult.getColor,)
+                                                                ),
+                                                                padding: EdgeInsets.symmetric(horizontal: 4),
+                                                                child: Text("${timaticRes.evaluationResult.name}",style: TextStyle(color: Colors.white),)),
+                                                          ],
+                                                        )),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                                    countryBuilderHeader(passengerDetails.nationality),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("Resident: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                                    countryBuilderHeader(passengerDetails.residentCountryCode),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("VISA: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                                    countryBuilderHeader(visas.firstOrNull?.documentIssueCountry),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+
+
+                                          ],
                                         ),
-                                        HeaderAskSupervisorWidget()
-                                      ],
-                                    ),
-                                  )
-                                : SizedBox(),
-                          ],
+                                      )
+                                    : SizedBox(),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: HeaderAskSupervisorWidget(),
+                        )
+                      ],
                     ),
                   ),
                 ),

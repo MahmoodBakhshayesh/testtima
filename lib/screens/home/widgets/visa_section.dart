@@ -36,6 +36,7 @@ class VisaItemRow extends ConsumerStatefulWidget {
 
 class _VisaItemRowState extends ConsumerState<VisaItemRow> {
   late final TextEditingController controller;
+  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -95,7 +96,6 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     int index = widget.index;
     DocumentDetail d = widget.item;
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final tim = BasicClass.timData;
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
     List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "V").map((a)=>a.code!).toList();
@@ -149,7 +149,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     Expanded(
                       child: MyFieldPicker<Location>(
                         label: "Issued In",
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         placeholder: "Country",
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
@@ -171,7 +171,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         hasSearch: true,
                         searchAutoFocus: true,
                         label: "Nationality",
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         placeholder: "Country",
@@ -209,7 +209,6 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     Expanded(
                       child: MyDatePicker(
                         label: "Expiry",
-                        rowLabelRatio: [3, 7],
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         // required: true,
@@ -235,7 +234,6 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
         children: [
           MyDatePicker(
             // required: true,
-            rowLabelRatio: [3, 7],
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             label: "Birth Date",

@@ -34,6 +34,18 @@ extension EvalResultX on EvalResult {
         return ArtemisIcons.warning_2;
     }
   }
+  IconData get getIconCircle {
+    switch(this){
+      case EvalResult.YES:
+        return ArtemisIcons.tick_circle;
+      case EvalResult.NO:
+        return ArtemisIcons.close_circle;
+      case EvalResult.CONDITIONAL:
+        return ArtemisIcons.danger;
+      case EvalResult.UNKNOWN:
+        return ArtemisIcons.warning_2;
+    }
+  }
 
   Color get getColor {
     switch(this){
@@ -92,18 +104,22 @@ extension EvalResultX on EvalResult {
 class DocumentResponse {
   final String? transactionId;
   String? refCode;
+  int? status;
   final String? passengerId;
   final EvalResult evaluationResult;
   final List<SubmittedDocument>? submittedDocuments;
   final List<SegmentResult> segmentResults;
   final List<dynamic>? traces;
 
-  DocumentResponse({required this.transactionId,required this.refCode, this.passengerId, this.evaluationResult = EvalResult.UNKNOWN, this.submittedDocuments, required this.segmentResults, this.traces});
+  DocumentResponse({
+    this.status,
+    required this.transactionId,required this.refCode, this.passengerId, this.evaluationResult = EvalResult.UNKNOWN, this.submittedDocuments, required this.segmentResults, this.traces});
 
   factory DocumentResponse.fromJson(Map<String, dynamic> json) {
     return DocumentResponse(
       transactionId: json['transactionId'],
       refCode: json['refCode'],
+      status: json['status'],
       passengerId: json['passengerId'],
       evaluationResult: EvalResultX.fromJson(json['evaluationResult']),
       submittedDocuments: ((json['submittedDocuments']??[]) as List?)?.map((e) => SubmittedDocument.fromJson(e)).toList(),
@@ -115,13 +131,20 @@ class DocumentResponse {
   Map<String, dynamic> toJson() => {
     'transactionId': transactionId,
     'passengerId': passengerId,
-
+    'status':status,
     'refCode': refCode,
     'evaluationResult': evaluationResult.toJson(),
     'submittedDocuments': submittedDocuments?.map((e) => e.toJson()).toList(),
     'segmentResults': segmentResults.map((e) => e.toJson()).toList(),
     'traces': traces,
   };
+
+  DocumentResponse setStatus(int? status){
+    var res = this;
+    res.status = status;
+    return DocumentResponse.fromJson(res.toJson());
+  }
+
 }
 
 class SubmittedDocument {

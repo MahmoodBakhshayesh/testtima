@@ -183,7 +183,7 @@ class DocumentDetail {
           color: Colors.black.withOpacity(0.08),
           borderRadius: BorderRadiusGeometry.circular(4)
       ),
-      child: FittedBox(child: Text(mrz??'',style: TextStyle(fontFamily: "Ocr"),)));
+      child: FittedBox(child: Text(censorText(mrz??'',(fullName??"").split(" ")),style: TextStyle(fontFamily: "Ocr"),)));
 
   bool isSameAs(OcrMrzResult res) {
     // log("${res.documentCode} -- ${documentCode?.code}");
@@ -191,6 +191,13 @@ class DocumentDetail {
 
     return (shortType == res.getShortType)&& (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
+}
+
+String censorText(String input, List<String> forbidden) {
+  for (final word in forbidden) {
+    input = input.replaceAll(word, '*'*word.length);
+  }
+  return input;
 }
 
 // ---------------- ItineraryDetails ----------------
@@ -300,6 +307,7 @@ class ItinerarySegment {
   }
 
   bool get isEmpty => departure.point.isEmpty || arrival.point.isEmpty;
+  String get route => "${departure.point} - ${arrival.point}";
 
   Map<String, dynamic> toJson() => {
     'arrival': arrival.toJson(),

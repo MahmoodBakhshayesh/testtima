@@ -106,13 +106,15 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     }
   }
 
+  final tim = BasicClass.timData;
+
+
   @override
   Widget build(BuildContext context) {
     bool isLast = widget.isLast;
     bool isFirst = widget.isFirst;
     int index = widget.index;
     PassengerDetails details = ref.watch(passengerProvider);
-    final tim = BasicClass.timData;
     final headerBgColor = Color(0xffECECEC);
     final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
     return Container(
@@ -142,7 +144,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     placeholder: "Country",
                     prefixIcon: countryPrefixBuilder(details.nationality?.code3),
 
-                    rowLabelRatio: [4, 4],
+                    rowLabelRatio: [5, 4],
                     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                     itemToWidget: countryBuilder,
                     items: tim.locations.of(LocationType.country),
@@ -161,7 +163,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     required: true,
                     headerBgColor: headerBgColor,
                     bodyBgColor: bodyBgColor,
-                    rowLabelRatio: [4, 4],
+                    rowLabelRatio: [5, 4],
                     placeholder: "Country",
                     prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
 

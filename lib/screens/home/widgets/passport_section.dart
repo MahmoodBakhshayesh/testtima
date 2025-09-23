@@ -1,8 +1,10 @@
 // Row (with its own controller)
 import 'package:country_flags/country_flags.dart';
+import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
@@ -31,6 +33,7 @@ class PassportItemRow extends ConsumerStatefulWidget {
 
 class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   late final TextEditingController controller;
+  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -75,7 +78,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
           SizedBox(
             width: 15,
             height: 10,
-            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode(a, width: 22, height: 16)),
           ),
           const SizedBox(width: 4),
           Text(a, style: TextStyle(fontSize: 12)),
@@ -93,8 +96,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF0F2Fa);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final tim = BasicClass.timData;
-    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "P").map((a)=>a.code!).toList();
+    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a) => a.type == "P").map((a) => a.code!).toList();
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -139,6 +141,19 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             Column(
               spacing: 12,
               children: [
+                MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  rowLabelRatio: [12, 33],
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
+                  items: tim.params.of(ParameterType.documentCode).where((a) => validCodes.contains(a.code)).toList(),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
                 Row(
                   spacing: 12,
                   children: [
@@ -148,7 +163,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         searchAutoFocus: true,
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
@@ -165,7 +180,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                       child: MyFieldPicker<Location>(
                         hasSearch: true,
                         searchAutoFocus: true,
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         label: "Nationality",
@@ -185,27 +200,11 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                     ),
                   ],
                 ),
-                MyFieldPicker<ParameterValue>(
-                  label: "Code",
-                  placeholder: "Code",
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
-                  // itemToString: docCodeToString,
-                  // valueToString: docCodeToString,
-                  value: d.documentCode,
-                  onChange: (a) {
-                    d = d.copyWith(documentCode: a);
-                    ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                  },
-                ),
 
                 MyDatePicker(
-                  rowLabelRatio: [3, 7],
                   label: "Expiry Date",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  // required: true,
                   validator: (a) => expiryValidator(a, d.documentExpiryDate),
                   validationColor: expiryValidationColor(d.documentExpiryDate),
                   validationIcon: expiryValidationIcon(d.documentExpiryDate),
@@ -224,7 +223,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
         children: [
           MyDatePicker(
             // required: true,
-            rowLabelRatio: [3, 7],
+            // rowLabelRatio: [3, 7],
             label: "Birth Date",
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
@@ -243,9 +242,10 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
           MyTextFieldNew(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg),
           const SizedBox(height: 12),
           d.getMrzWidget,
-
         ],
       ),
     );
   }
 }
+
+

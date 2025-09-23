@@ -40,35 +40,46 @@ class _DrawerActionState extends State<DrawerAction> {
   Widget build(BuildContext context) {
     Color c = widget.color ?? const Color(0xff0A1A3A);
     return Container(
-      // decoration: BoxDecoration(border: Border(bottom: BorderSide(color: MyColors.lineColor))),
+
+
       width: double.infinity,
-      child: ListTile(
-        onTap: _onTap,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: context.isMyTablet ? 16 : 12,
-          vertical: widget.dense
-              ? context.isMyTablet
-                    ? 4
-                    : 0
-              : context.isMyTablet
-              ? 12
-              : 0,
-        ),
-        dense: true,
-        leading: Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
-        title: Text(
-          widget.title,
-          style: TextStyle(
-            fontWeight: FontWeight.w400,
-            color: c,
-            fontSize: context.isMyTablet
-                ? 16
-                : widget.dense
-                ? 13
-                : 16,
+      child:Material(
+        borderRadius: BorderRadius.circular(12),
+        color:  Color(0xffABABAB).withOpacity(0.08),
+        child: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Color(0xffF0F0F0),)
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+          child: InkWell(
+            // tileColor: Colors.transparent,
+            // focusColor: Colors.red,
+            onTap: _onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      color: c,
+                      fontSize: context.isMyTablet
+                          ? 16
+                          : widget.dense
+                          ? 13
+                          : 16,
+                    ),
+                  ),
+                ),
+                _loading ? SizedBox(width: 40, child: SpinKitThreeBounce(color: c, size: 22)) : const SizedBox(),
+              ],
+            ),
           ),
         ),
-        trailing: _loading ? SizedBox(width: 40, child: SpinKitThreeBounce(color: c, size: 22)) : const SizedBox(),
       ),
     );
   }

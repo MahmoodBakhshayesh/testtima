@@ -32,6 +32,7 @@ class ResidentItemRow extends ConsumerStatefulWidget {
 
 class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
   late final TextEditingController controller;
+  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -91,7 +92,6 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     int index = widget.index;
     DocumentDetail d = widget.item;
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final tim = BasicClass.timData;
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF4F8F7);
     List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "I").map((a)=>a.code!).toList();
@@ -143,7 +143,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         label: "Issued In",
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
@@ -166,7 +166,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
 
-                        rowLabelRatio: [4, 4],
+                        rowLabelRatio: [5, 4],
                         searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
                         itemToWidget: countryBuilder,
                         items: tim.locations.of(LocationType.country),
@@ -198,7 +198,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     Expanded(
                       child: MyDatePicker(
                         label: "Expiry",
-                        rowLabelRatio: [3, 7],
+                        // rowLabelRatio: [3, 7],
                         // required: true,
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
@@ -224,7 +224,6 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
         children: [
           MyDatePicker(
             // required: true,
-            rowLabelRatio: [3, 7],
             label: "Birth Date",
             placeholder: "Birth Date",
             headerBgColor: headerBg,
