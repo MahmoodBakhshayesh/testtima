@@ -1,7 +1,10 @@
 
+import 'dart:developer';
+
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/extenstions/mrz_res_ext.dart';
 import 'package:artemis_utils/artemis_utils.dart';
+import 'package:dartx/dartx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
@@ -191,6 +194,17 @@ class DocumentDetail {
 
     return (shortType == res.getShortType)&& (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
+
+  DocumentTypeDetailsMapper? getMatch(){
+    String? dc = docCode;
+    DocumentTypeDetailsMapper? match;
+    if (dc != null && dc.length>1) {
+      match = BasicClass.constData.documentTypeDetailsMappers.lastOrNullWhere(
+            (a) => a.type == dc.characters.first && (a.subType == "*" || a.subType == dc.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
+      );
+    }
+    return match;
+  }
 }
 
 String censorText(String input, List<String> forbidden) {
@@ -287,9 +301,10 @@ class ItinerarySegment {
   }
 
   factory ItinerarySegment.empty() {
+    log("Default Airport ----> ${BasicClass.user?.attributes.defaultAirport}");
     return ItinerarySegment(
       arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
-      departure: ItinPoint(point: BasicClass.user?.profile.attributes?.defaultAirport ?? '', type: LocationType.airport, dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '', type: LocationType.airport, dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,

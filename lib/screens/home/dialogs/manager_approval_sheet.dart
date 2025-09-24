@@ -98,20 +98,22 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                       child: Stack(
                         alignment: Alignment.topCenter,
                         children: [
-                          Container(
-                            width: context.width * 0.9,
-                            height: context.width * 0.9,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadiusGeometry.circular(10),
-                              border: Border.all(color: Colors.white),
-                              color: Colors.white,
-                            ),
-                            child: HandSignature(
-                              control: control,
-                              onPointerDown: (){
-                                FocusScope.of(context).requestFocus(FocusNode());
-                              },
-                              drawer: ShapeSignatureDrawer(color: Colors.black, width: 3.0, maxWidth: 5.0),
+                          Center(
+                            child: Container(
+                              width: context.width * 0.7,
+                              height: context.width * 0.7,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadiusGeometry.circular(10),
+                                border: Border.all(color: Colors.white),
+                                color: Colors.white,
+                              ),
+                              child: HandSignature(
+                                control: control,
+                                onPointerDown: (){
+                                  FocusScope.of(context).requestFocus(FocusNode());
+                                },
+                                drawer: ShapeSignatureDrawer(color: Colors.black, width: 3.0, maxWidth: 5.0),
+                              ),
                             ),
                           ),
                           Positioned(
@@ -157,7 +159,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                       color: Color(0xffFF3F42),
                       onPressed: () async {
                         final size = (context.width*0.9).abs().floor();
-                        final byteData = await control.toImage(width:size ,height: size);
+                        final byteData = await control.toImage(width:size ,height: size,background: Colors.transparent);
                         if(byteData == null){
                           return ;
                         }

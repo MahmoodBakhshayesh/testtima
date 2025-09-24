@@ -57,6 +57,7 @@ class LoginEnvelope {
 class LoginData {
   final dynamic versionCheck; // can be null or any type
   final Profile profile;
+  final Attributes attributes;
   final bool setPassword;
   final String token;
   final ConstData constData;
@@ -66,6 +67,7 @@ class LoginData {
   const LoginData({
     this.versionCheck,
     required this.profile,
+    required this.attributes,
     required this.setPassword,
     required this.token,
     required this.permission,
@@ -75,6 +77,7 @@ class LoginData {
   LoginData copyWith({
     dynamic versionCheck,
     Profile? profile,
+    Attributes? attributes,
     bool? setPassword,
     String? token,
     ConstData? constData,
@@ -84,6 +87,7 @@ class LoginData {
     return LoginData(
       versionCheck: versionCheck ?? this.versionCheck,
       profile: profile ?? this.profile,
+      attributes: attributes ?? this.attributes,
       setPassword: setPassword ?? this.setPassword,
       token: token ?? this.token,
       permission: permission ?? this.permission,
@@ -100,6 +104,7 @@ class LoginData {
     return LoginData(
       versionCheck: json['versionCheck'],
       profile: Profile.fromJson(json['profile'] ?? {}),
+      attributes: Attributes.fromJson(json['attribute'] ?? {}),
       setPassword: json['setPassword'] ?? false,
       token: json['token'] ?? '',
       permission: UserPermission.fromJson(fixedPermission),
@@ -110,6 +115,7 @@ class LoginData {
   Map<String, dynamic> toJson() => {
     'versionCheck': versionCheck,
     'profile': profile.toJson(),
+    'attribute': attributes.toJson(),
     'setPassword': setPassword,
     'token': token,
     'constData': constData.toJson(),
@@ -125,7 +131,6 @@ class Profile {
   final String? middlename;
   final String? lastname;
   final String? defaultAirport;
-  final Attributes? attributes;
   final bool hasImage;
   final int? gender;
 
@@ -137,7 +142,6 @@ class Profile {
     this.lastname,
     this.hasImage = false,
     this.gender,
-    this.attributes,
     this.defaultAirport,
   });
 
@@ -148,7 +152,6 @@ class Profile {
     String? middlename,
     String? lastname,
     String? defaultAirport,
-    Attributes? attributes,
     bool? hasImage,
     int? gender,
   }) {
@@ -161,7 +164,6 @@ class Profile {
       lastname: lastname ?? this.lastname,
       hasImage: hasImage ?? this.hasImage,
       gender: gender ?? this.gender,
-      attributes: attributes ?? this.attributes,
     );
   }
 
@@ -175,7 +177,6 @@ class Profile {
       defaultAirport: json['defaultAirport'],
       hasImage: json['hasImage']??false,
       gender: json['gender'],
-      attributes: json['attributes']==null?null:Attributes.fromJson(json["attributes"]),
     );
   }
 
@@ -188,7 +189,6 @@ class Profile {
     'lastname': lastname,
     'hasImage': hasImage,
     'gender': gender,
-    'attributes': attributes?.toJson(),
   };
 }
 
@@ -279,6 +279,7 @@ class DocumentTypeDetailsMapper {
   final String? country;
   final String? code;
   final String? title;
+  final String? note;
 
   DocumentTypeDetailsMapper({
     this.type,
@@ -286,6 +287,7 @@ class DocumentTypeDetailsMapper {
     this.country,
     this.code,
     this.title,
+    this.note,
   });
 
   DocumentTypeDetailsMapper copyWith({
@@ -294,6 +296,7 @@ class DocumentTypeDetailsMapper {
     String? country,
     String? code,
     String? title,
+    String? note,
   }) =>
       DocumentTypeDetailsMapper(
         type: type ?? this.type,
@@ -301,6 +304,7 @@ class DocumentTypeDetailsMapper {
         country: country ?? this.country,
         code: code ?? this.code,
         title: title ?? this.title,
+        note: note ?? this.note,
       );
 
   factory DocumentTypeDetailsMapper.fromJson(Map<String, dynamic> json) => DocumentTypeDetailsMapper(
@@ -309,6 +313,7 @@ class DocumentTypeDetailsMapper {
     country: json["country"],
     code: json["code"],
     title: json["title"],
+    note: json["note"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -317,6 +322,7 @@ class DocumentTypeDetailsMapper {
     "country": country,
     "code": code,
     "title": title,
+    "note": note,
   };
 }
 

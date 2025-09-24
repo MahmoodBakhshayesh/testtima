@@ -11,9 +11,12 @@ import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:dartx/dartx_io.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
@@ -21,15 +24,17 @@ import '../../../widgets/MyDatePicker.dart';
 import '../../../widgets/MyExpansionTile.dart';
 import '../../../widgets/MyFieldPicker.dart';
 import '../../../widgets/MyTextField.dart';
+import '../../../widgets/auto_link_text.dart';
 import '../home_view_phone.dart';
 
 class ConfirmScannedDocDialog extends ConsumerWidget {
   final DocumentDetail documentDetail;
-  const ConfirmScannedDocDialog({super.key,required this.documentDetail});
+
+  const ConfirmScannedDocDialog({super.key, required this.documentDetail});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log(documentDetail.documentCode?.code??'');
+    log(documentDetail.documentCode?.code ?? '');
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
       insetPadding: EdgeInsets.symmetric(horizontal: 12),
@@ -49,13 +54,20 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(documentDetail.isPassport?"Passport":documentDetail.isVisa?"VISA":"RESIDENT CARD", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                    child: Text(
+                      documentDetail.isPassport
+                          ? "Passport"
+                          : documentDetail.isVisa
+                          ? "VISA"
+                          : "RESIDENT CARD",
+                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
+                    ),
                   ),
                   const SizedBox(width: 8),
                 ],
               ),
             ),
-            ConfirmingItemRow(item: documentDetail,index: 0,isFirst: true,isLast: true,),
+            ConfirmingItemRow(item: documentDetail, index: 0, isFirst: true, isLast: true),
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Row(
@@ -112,7 +124,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     controller = TextEditingController(text: widget.item.documentNumber);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.addListener(() {
-        ref.read(confirmingDocumentProvider.notifier).update((s)=>widget.item.copyWith(documentNumber: controller.text));
+        ref.read(confirmingDocumentProvider.notifier).update((s) => widget.item.copyWith(documentNumber: controller.text));
       });
     });
   }
@@ -140,16 +152,19 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
       Text("$a (${(a as Location).name})"),
     ],
   );
+
   Widget? countryPrefixBuilder(String? a) {
-    if(a != null) {
+    if (a != null) {
       return Row(
         children: [
           const SizedBox(width: 4),
           SizedBox(
-              width: 15,height: 10,
-              child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16))),
+            width: 15,
+            height: 10,
+            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+          ),
           const SizedBox(width: 4),
-          Text(a,style: TextStyle(fontSize: 12),)
+          Text(a, style: TextStyle(fontSize: 12)),
         ],
       );
     }
@@ -160,12 +175,15 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     bool isLast = widget.isLast;
     bool isFirst = widget.isFirst;
     int index = widget.index;
-    DocumentDetail d = ref.watch(confirmingDocumentProvider)??DocumentDetail();
+    DocumentDetail d = ref.watch(confirmingDocumentProvider) ?? DocumentDetail();
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF0F2Fa);
 
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final tim = BasicClass.timData;
+    String? docCode = d.docCode;
+    DocumentTypeDetailsMapper? match = d.getMatch();
+
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -184,12 +202,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
         tilePadding: EdgeInsets.symmetric(horizontal: 14),
-        footerExtra: IndexedStack(
-          index: isLast ? 0 : 1,
-          children: [
-            SizedBox(),
-          ],
-        ),
+        footerExtra: IndexedStack(index: isLast ? 0 : 1, children: [SizedBox()]),
 
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +229,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         value: d.documentIssueCountry,
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
-                          ref.read(confirmingDocumentProvider.notifier).update((s)=> d);
+                          ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                         },
                       ),
                     ),
@@ -236,10 +249,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         items: tim.locations.of(LocationType.country),
                         value: d.nationality,
                         onChange: (a) {
-
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                           d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
-                          ref.read(confirmingDocumentProvider.notifier).update((s)=> d);
+                          ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                         },
                       ),
                     ),
@@ -256,9 +268,25 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
-                    ref.read(confirmingDocumentProvider.notifier).update((s)=> d);
+                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                   },
                 ),
+
+                ?(match?.note != null)
+                    ? Container(
+                        decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                        padding: EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      )
+                    : null,
 
                 MyDatePicker(
                   label: "Expiry Date",
@@ -272,7 +300,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   value: d.documentExpiryDate,
                   onChanged: (a) {
                     d = d.copyWith(documentExpiryDate: a);
-                    ref.read(confirmingDocumentProvider.notifier).update((s)=> d);
+                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                   },
                 ),
               ],
@@ -294,21 +322,17 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
             validationIcon: ArtemisIcons.user_square,
             value: d.birthDate,
 
-
             onChanged: (a) {
               // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
               d = d.copyWith(birthDate: a);
-              ref.read(confirmingDocumentProvider.notifier).update((s)=> d);
+              ref.read(confirmingDocumentProvider.notifier).update((s) => d);
             },
           ),
 
           const SizedBox(height: 12),
 
           // const SizedBox(height: 12),
-          MyTextFieldNew(
-              headerBgColor: headerBg,
-              bodyBgColor: bodyBg,
-              controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           d.getMrzWidget,
           // MyDatePicker(
@@ -361,13 +385,12 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         ],
       ),
     );
-
   }
 
   String docCodeToString(ParameterValue p1) {
-    final match = BasicClass.constData.documentTypeDetailsMappers.firstWhereOrNull((a)=>a.code == p1.code);
-    if(match != null){
-      return match.title??p1.toString();
+    final match = BasicClass.constData.documentTypeDetailsMappers.firstWhereOrNull((a) => a.code == p1.code);
+    if (match != null) {
+      return match.title ?? p1.toString();
     }
     return p1.toString();
   }

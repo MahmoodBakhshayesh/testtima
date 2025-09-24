@@ -135,6 +135,19 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
             Column(
               spacing: 12,
               children: [
+                MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  // valueToString: docCodeToString,
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
+                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
                 Row(
                   spacing: 12,
                   children: [
@@ -180,19 +193,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     ),
                   ],
                 ),
-                MyFieldPicker<ParameterValue>(
-                  label: "Code",
-                  placeholder: "Code",
-                  // valueToString: docCodeToString,
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
-                  value: d.documentCode,
-                  onChange: (a) {
-                    d = d.copyWith(documentCode: a);
-                    ref.read(residentsProvider.notifier).updateAt(widget.index, d);
-                  },
-                ),
+
                 Row(
                   children: [
                     Expanded(

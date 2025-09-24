@@ -1,7 +1,11 @@
+import 'dart:developer';
+
+import 'package:abds/core/classes/boarding_pass_class.dart';
 import 'package:abds/core/classes/server_mrz_result_class.dart';
 import 'package:abds/core/classes/supervisor_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
@@ -27,6 +31,7 @@ import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
+import '../../../core/navigation/routes.dart';
 import 'ask_supervisor_sheet.dart';
 import 'attach_comment_sheet.dart';
 
@@ -116,7 +121,22 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 Expanded(
                                   child: Text("Flight: ${ref.watch(segmentsProvider)!.first.route}", style: TextStyle(fontWeight: FontWeight.w600)),
                                 ),
-                                MyButton(label: "Scan Boarding Pass", onPressed: () {}, icon: ArtemisIcons.scan_barcode),
+                                MyButton(
+                                  label: "Scan Boarding Pass",
+                                  onPressed: () async {
+                                    final scanRes = await getIt<HomeController>().goNamed(Routes.barcodeReader);
+                                    log(scanRes.runtimeType.toString());
+                                    if(scanRes is List<BoardingPass>){
+                                      if(scanRes.isNotEmpty){
+                                        BoardingPass bp = scanRes.first;
+                                        airline = BasicClass.timData.params.of(ParameterType.carrier).firstWhereOrNull((a)=>a.code == bp.al);
+                                        flnbC.text = bp.flnb;
+                                        setState((){});
+                                      }
+                                    }
+                                  },
+                                  icon: ArtemisIcons.scan_barcode,
+                                ),
                               ],
                             ),
                             Row(
@@ -188,9 +208,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                     label: "Confirm",
                                     onPressed: airline == null || flnbC.text.isEmpty
                                         ? null
-                                        : () {
-                                            ref.read(timaticResultProvider.notifier).update((s) => s?.setStatus(1));
-                                            index = 1;
+                                        : () async {
+                                            FocusScope.of(context).requestFocus(FocusNode());
+                                            await getIt<HomeController>().lockUnlockResponse(true);
                                             setState(() {});
                                           },
                                   ),
@@ -246,7 +266,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                             DrawerAction(
                               title: "Translation for Passenger",
                               onTap: () async {
-
+                                await myHomeController.translateForPassenger();
                               },
                               leadingIcon: ArtemisIcons.translate,
                             ),
@@ -261,6 +281,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                     builder: (BuildContext context) {
                                       return AttachPhotoSheet(logId: logId);
                                     },
+                                    isDismissible: false,
                                     isScrollControlled: true,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
                                   );
@@ -271,18 +292,21 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                             DrawerAction(
                               title: "Re-check TIMATIC",
                               onTap: () async {
-                               ref.read(timaticResultProvider.notifier).update((s)=>s?.setStatus(null));
+                                final res = await getIt<HomeController>().lockUnlockResponse(false);
+                                setState(() {});
+                                if (res) {
+                                  Navigator.pop(context);
+                                }
                               },
                               leadingIcon: ArtemisIcons.refresh,
                             ),
                             DrawerAction(
                               title: "Final Decision",
                               onTap: () async {
-                               ref.read(timaticResultProvider.notifier).update((s)=>s?.setStatus(null));
+                                ref.read(timaticResultProvider.notifier).update((s) => s?.setStatus(null));
                               },
                               leadingIcon: ArtemisIcons.shield_tick,
                             ),
-
                           ],
                         ),
                       ),

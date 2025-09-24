@@ -25,6 +25,7 @@ import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
 import '../home_state.dart';
+import '../widgets/locked_segment_widget.dart';
 
 class FlightWidget extends ConsumerWidget {
   const FlightWidget({super.key});
@@ -32,7 +33,14 @@ class FlightWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-
+    final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    if(locked){
+      return Column(
+        children: segments.map((d) {
+          return LockedSegmentRow(seg: d, tileColor:  Colors.black.withOpacity(0.08), index: segments.indexOf(d),);
+        }).toList(),
+      );
+    }
     return MyExpansionTile(
       title: Column(
         children: [
@@ -43,7 +51,7 @@ class FlightWidget extends ConsumerWidget {
                 child: Text("Flight", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               ),
               MyButton(
-                label: "Scan",
+                label: "Scan Boarding Pass",
                 onPressed: () {
                   getIt<HomeController>().goNamed(Routes.barcodeReader);
                 },

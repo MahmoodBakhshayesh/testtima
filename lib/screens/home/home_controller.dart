@@ -11,14 +11,20 @@ import 'package:abds/core/utils_and_services/timatic/src/models/converters.dart'
 import 'package:abds/screens/home/dialogs/ask_ref_code_dialog.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/confirm_scanned_doc_dialog.dart';
+import 'package:abds/screens/home/dialogs/translate_language_select_sheet.dart';
+import 'package:abds/screens/home/dialogs/translated_response_dialog.dart';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
+import 'package:abds/screens/home/usecases/get_supported_language_usecased.dart';
+import 'package:abds/screens/home/usecases/lock_unlock_response_usecase.dart';
 import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
+import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
+import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,6 +33,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/ref_history_log_class.dart';
 import '../../core/classes/supervisor_class.dart';
+import '../../core/classes/supported_language_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import 'package:logging/logging.dart';
 
@@ -163,7 +170,7 @@ class HomeController extends ControllerInterface {
     if ((doc.docCode ?? '').startsWith("C") || (doc.docCode ?? '').startsWith("I")) {
       log("we should set resident ${doc.docCode}");
       passengerDetails = passengerDetails.copyWith(residentCountryCode: doc.documentIssueCountry);
-    }else{
+    } else {
       log("we should not set resident ${doc.docCode}");
     }
     ref.read(passengerProvider.notifier).update((s) => passengerDetails);
@@ -173,6 +180,7 @@ class HomeController extends ControllerInterface {
   Future<String?> selectPhotoToAttach(ImageSource source) async {
     ImagePicker picker = ImagePicker();
     final XFile? pic = await picker.pickImage(source: source, imageQuality: 30);
+    log("returned");
     return pic?.path;
     // if (pic != null) {
     //   // Uint8List fileBytes = await pic.readAsBytes();
@@ -229,9 +237,10 @@ class HomeController extends ControllerInterface {
     ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
     if (timaticReqLog != null) {
       final tim = BasicClass.timData;
+      bool locked = timaticReqLog.payload?.locked ?? false;
       Map<String, dynamic> input = jsonDecode(timaticReqLog.payload?.input ?? "{}");
       Map<String, dynamic> output = jsonDecode(timaticReqLog.payload?.output ?? "{}");
-
+      log("is Locked ==>${locked}");
       PassengerDetails pd = PassengerDetails(
         birthDate: DateTime.tryParse(input["passengerDetails"]["birthDate"] ?? ''),
         nationality: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["nationality"]),
@@ -239,10 +248,17 @@ class HomeController extends ControllerInterface {
         residentCountryCode: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["residentCountryCode"]),
         gender: GenderDetails.fromValue(input["passengerDetails"]['gender']?.toString()),
       );
+
+      List<DocumentTypeDetailsMapper> detailsMapperList = BasicClass.constData.documentTypeDetailsMappers;
       final allDocs = List<DocumentDetail>.from(
-        (input["documentDetails"] ?? []).map(
-          (d) => DocumentDetail(
+        (input["documentDetails"] ?? []).map((d) {
+          DocumentTypeDetailsMapper? detailsMapper = detailsMapperList.lastOrNullWhere((a) => a.code == d["documentCode"]);
+          log("setting docCode =    ${d["documentCode"]}${detailsMapper?.code} ${"${detailsMapper?.type ?? ''}${detailsMapper?.subType}"} ");
+          return DocumentDetail(
             documentCode: tim.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code == d["documentCode"]),
+            docCode: "${detailsMapper?.type ?? ''}${detailsMapper?.subType}",
+
+            // documentCode: tim.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code == detailsMapper.firstWhereOrNull((a)=>a.code ==  d["documentCode"])?.code),
             documentNumber: d["documentNumber"],
             fullName: d["fullName"],
             documentExpiryDate: DateTime.tryParse(d["documentExpiryDate"] ?? ''),
@@ -250,13 +266,23 @@ class HomeController extends ControllerInterface {
             documentIssueDate: DateTime.tryParse(d["documentIssueDate"] ?? ''),
             documentIssueCountry: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == d["documentIssueCountry"]),
             nationality: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == d["nationality"]),
-          ),
-        ),
+          );
+        }),
       );
       // final passes = allDocs;
-      final passes = allDocs.where((a) => (a.documentCode?.code ?? '').contains("PASS")).toList();
-      final visas = allDocs.where((a) => (a.documentCode?.code ?? '').contains("V")).toList();
-      final residents = allDocs.where((a) => !(a.documentCode?.code ?? '').contains("PASS") && !(a.documentCode?.code ?? '').contains("V")).toList();
+
+      // final passes = allDocs.where((a) {
+      //   log("*" * 20);
+      //   log("${a.getMatch()?.type} ${a.docCode}");
+      //   return a.getMatch()?.type == "P";
+      // }).toList();
+      final passes = allDocs.where((a) => a.getMatch()?.type == "P").toList();
+      final visas = allDocs.where((a) => a.getMatch()?.type == "V").toList();
+      final residents = allDocs.where((a) => a.getMatch()?.type == "I").toList();
+
+      log("AllDoces ${allDocs.map((a) => a.getMatch()?.type)}");
+      log("Passes ${passes.length} -- Visas${visas.length} -- Residents${residents.length}");
+      final others = allDocs.where((a) => !["V", "I", "P"].contains(a.getMatch()?.type)).toList();
       final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]))));
 
       ref.read(passportsProvider.notifier).setAll(passes);
@@ -266,6 +292,7 @@ class HomeController extends ControllerInterface {
       ref.read(passengerProvider.notifier).update((s) => pd);
 
       output["refCode"] = code;
+      output["status"] = locked ? 1 : 0;
       DocumentResponse result = DocumentResponse.fromJson(output);
 
       ref.read(timaticResultProvider.notifier).update((s) => result);
@@ -456,7 +483,7 @@ class HomeController extends ControllerInterface {
 
     final map = <ParameterType, List<ParameterValue>>{};
     for (final env in envelopes) {
-      for (final item in (env?.parameters??[])) {
+      for (final item in (env?.parameters ?? [])) {
         final t = ParameterType.fromCode(item.code);
         if (t == null) continue; // ignore unknown codes
         map[t] = item.parameterValues ?? [];
@@ -499,6 +526,79 @@ class HomeController extends ControllerInterface {
   Future<TimaticData> preloadAll({List<ParameterType> paramTypes = kDefaultParameterTypes, List<LocationType> locationTypes = kDefaultLocationTypes, bool forceRefresh = false}) async {
     final results = await Future.wait([getAllParameters(types: paramTypes, forceRefresh: forceRefresh), getAllLocations(types: locationTypes, forceRefresh: forceRefresh)]);
     return TimaticData(params: results[0] as TimaticParams, locations: results[1] as TimaticLocations);
+  }
+
+  Future<List<SupportedLanguage>?> getSupportLanguage() async {
+    List<SupportedLanguage>? languages;
+    GetSupportedLanguageUseCase getSupportLanguageUseCase = GetSupportedLanguageUseCase();
+    GetSupportedLanguageRequest getSupportedLanguageRequest = GetSupportedLanguageRequest(logId: ref.read(timaticResultProvider)!.refCode ?? '');
+    final result = await getSupportLanguageUseCase(request: getSupportedLanguageRequest);
+
+    switch (result) {
+      case Err<GetSupportedLanguageResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<GetSupportedLanguageResponse>():
+        final r = result.value;
+        languages = r.languages;
+    }
+
+    return languages;
+  }
+
+  Future<void> translateForPassenger() async {
+    List<SupportedLanguage>? langs = await getSupportLanguage();
+    if (langs != null) {
+      navigation.pop();
+      Future(() {
+        navigation.openBottomSheet(bottomSheet: TranslateLanguageSelectSheet(languages: langs));
+      });
+    }
+  }
+
+  Future<DocumentResponse?> translateTimaticResponse({required String language, required String logId}) async {
+    DocumentResponse? translated;
+
+    TranslateTimaticResponseUseCase translateTimaticResponseUseCase = TranslateTimaticResponseUseCase();
+    TranslateTimaticResponseRequest timaticResponseRequest = TranslateTimaticResponseRequest(language: language, logId: logId);
+    final result = await translateTimaticResponseUseCase(request: timaticResponseRequest);
+
+    switch (result) {
+      case Err<TranslateTimaticResponseResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<TranslateTimaticResponseResponse>():
+        final r = result.value;
+        translated = r.translated;
+        translated.refCode = logId;
+        translated.status = ref.read(timaticResultProvider)?.status;
+
+        log("translated status ${translated.status}");
+        ref.read(timaticResultProvider.notifier).update((s) => translated);
+        navigation.pop();
+      // navigation.openDialog(dialog: TranslatedResponseDialog(translated: r.translated));
+    }
+
+    return translated;
+  }
+
+  Future<bool> lockUnlockResponse(bool lock) async {
+    bool res = false;
+    LockUnlockResponseUseCase lockUnlockResponseUseCase = LockUnlockResponseUseCase();
+    LockUnlockResponseRequest lockUnlockResponseRequest = LockUnlockResponseRequest(logId: ref.read(timaticResultProvider)!.refCode!, lock: lock);
+    final result = await lockUnlockResponseUseCase(request: lockUnlockResponseRequest);
+
+    switch (result) {
+      case Err<LockUnlockResponseResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<LockUnlockResponseResponse>():
+        final r = result.value;
+        res = r.isSuccess;
+        ref.read(timaticResultProvider.notifier).update((s) => s?.setStatus(lock ? 1 : 0));
+    }
+
+    return res;
   }
 
   // UseCase UseCase = UseCase(repository: Repository());

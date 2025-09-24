@@ -299,6 +299,7 @@ class LoginController extends ControllerInterface {
   }
 
   checkNotifCount() {
+    return;
     if (ref.read(userProvider) == null) {
       return;
     }

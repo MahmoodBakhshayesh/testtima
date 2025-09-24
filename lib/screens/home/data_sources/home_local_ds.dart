@@ -2,9 +2,12 @@ import 'dart:developer';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
+import 'package:abds/screens/home/usecases/get_supported_language_usecased.dart';
+import 'package:abds/screens/home/usecases/lock_unlock_response_usecase.dart';
 import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
+import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
 
 import '../../../core/interfaces/local_data_base_int.dart';
 
@@ -12,6 +15,7 @@ import '../../../core/classes/user_class.dart';
 import '../../../core/data_base/classes/db_user_class.dart';
 import '../../../core/data_base/local_data_base.dart';
 import '../../../core/data_base/table_names.dart';
+import '../../../core/interfaces/response_int.dart';
 import '../../../initialize.dart';
 import '../interfaces/home_data_source_interface.dart';
 
@@ -56,6 +60,25 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
     // TODO: implement timaticGetLocations
     throw UnimplementedError();
   }
+
+  @override
+  Future<GetSupportedLanguageResponse> getSupportedLanguage({required GetSupportedLanguageRequest request}) {
+    // TODO: implement getSupportedLanguage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TranslateTimaticResponseResponse> translateTimaticResponse({required TranslateTimaticResponseRequest request}) {
+    // TODO: implement translateTimaticResponse
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request}) {
+    // TODO: implement lockUnlockResponse
+    throw UnimplementedError();
+  }
+
 
 
 

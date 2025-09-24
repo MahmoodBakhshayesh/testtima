@@ -1,5 +1,6 @@
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
+import 'package:abds/screens/home/widgets/locked_passenger_widget.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/export.dart';
@@ -30,7 +31,10 @@ class PassengerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-
+    final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    if(locked){
+      return LockedPassengerRow(passengerDetails: passengerDetails, tileColor: Colors.black.withOpacity(0.08));
+    }
     return MyExpansionTile(
       title: Column(
         children: [
@@ -117,6 +121,8 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     PassengerDetails details = ref.watch(passengerProvider);
     final headerBgColor = Color(0xffECECEC);
     final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
+    bool locked = ref.watch(timaticResultProvider)?.status == 1;
+
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
@@ -202,7 +208,6 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
               Expanded(
                 child: MyDatePicker(
                   required: true,
-                  rowLabelRatio: [3, 7],
                   label: "Birth Date",
                   placeholder: "Birth Date",
                   headerBgColor: headerBgColor,
@@ -265,3 +270,4 @@ Color? birthDateValidationColor(DateTime? bDate) {
   }
   return MyColors.green2;
 }
+

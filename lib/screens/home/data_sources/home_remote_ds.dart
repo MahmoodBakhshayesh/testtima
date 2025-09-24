@@ -5,9 +5,12 @@ import '../interfaces/home_data_source_interface.dart';
 import '../usecases/get_notif_count_usecase.dart';
 import '../usecases/get_ref_code_log_usecase.dart';
 import '../usecases/get_supervisors_usecase.dart';
+import '../usecases/get_supported_language_usecased.dart';
+import '../usecases/lock_unlock_response_usecase.dart';
 import '../usecases/submit_timatic_request_usecase.dart';
 import '../usecases/timatic_get_locations_usecase.dart';
 import '../usecases/timatic_get_parameters_usecase.dart';
+import '../usecases/translate_timatic_response_usecase.dart';
 import 'home_local_ds.dart';
 
 class HomeRemoteDataSource implements HomeDataSourceInterface {
@@ -43,7 +46,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
   @override
   Future<SubmitTimaticRequestResponse> submitTimaticRequest({required SubmitTimaticRequestRequest request}) async {
     String api = "/documentRequest";
-    ResponseInterface res = await networkManager.post(request,api:  api);
+    ResponseInterface res = await networkManager.post(request, api: api);
     SubmitTimaticRequestResponse response = await Parser().parse(SubmitTimaticRequestResponse.fromResponse, res, executionReq: request);
     return response;
   }
@@ -72,4 +75,29 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
     TimaticGetLocationsResponse response = await Parser().parse(TimaticGetLocationsResponse.fromResponse, res, executionReq: request);
     return response;
   }
+
+  @override
+  Future<GetSupportedLanguageResponse> getSupportedLanguage({required GetSupportedLanguageRequest request}) async {
+    String api = "/logs/${request.logId}/supportLanguage";
+    ResponseInterface res = await networkManager.get(api);
+    GetSupportedLanguageResponse response = await Parser().parse(GetSupportedLanguageResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
+
+  @override
+  Future<TranslateTimaticResponseResponse> translateTimaticResponse({required TranslateTimaticResponseRequest request}) async {
+    final String api = "/logs/${request.logId}/${request.language}/";
+    ResponseInterface res = await networkManager.get(api);
+    TranslateTimaticResponseResponse response = await Parser().parse(TranslateTimaticResponseResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
+
+    @override
+      Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request}) async {
+        String api = "/logs/${request.logId}/lock";
+        ResponseInterface res = await networkManager.put(request,api: api);
+        LockUnlockResponseResponse response = await Parser().parse(LockUnlockResponseResponse.fromResponse, res,executionReq:request);
+        return response;
+      }
+
 }

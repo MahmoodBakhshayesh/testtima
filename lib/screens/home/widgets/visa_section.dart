@@ -143,6 +143,19 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             Column(
               spacing: 12,
               children: [
+                MyFieldPicker<ParameterValue>(
+                  label: "Code",
+                  placeholder: "Code",
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
+                  // valueToString: docCodeToString,
+                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                  },
+                ),
                 Row(
                   spacing: 12,
                   children: [
@@ -190,19 +203,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     ),
                   ],
                 ),
-                MyFieldPicker<ParameterValue>(
-                  label: "Code",
-                  placeholder: "Code",
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  // valueToString: docCodeToString,
-                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
-                  value: d.documentCode,
-                  onChange: (a) {
-                    d = d.copyWith(documentCode: a);
-                    ref.read(visasProvider.notifier).updateAt(widget.index, d);
-                  },
-                ),
+
 
                 Row(
                   children: [

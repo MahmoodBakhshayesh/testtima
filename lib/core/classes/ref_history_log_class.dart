@@ -79,6 +79,7 @@ class Payload {
   final bool? result;
   final bool? cache;
   final bool? approved;
+  final bool? locked;
   final int? status;
   final String? title;
   final String? description;
@@ -98,6 +99,7 @@ class Payload {
     this.status,
     this.result,
     this.cache,
+    this.locked,
     this.title,
     this.approved,
     this.description,
@@ -117,6 +119,7 @@ class Payload {
     String? output,
     bool? result,
     bool? cache,
+    bool? locked,
     bool? approved,
     int? status,
     String? title,
@@ -136,6 +139,7 @@ class Payload {
         output: output ?? this.output,
         result: result ?? this.result,
         cache: cache ?? this.cache,
+        locked: locked ?? this.locked,
         status: status ?? this.status,
         approved: approved ?? this.approved,
         title: title ?? this.title,
@@ -156,6 +160,7 @@ class Payload {
     output: json["output"],
     result: json["result"],
     cache: json["cache"],
+    locked: json["lock"],
     status: json["status"],
     approved: json["approved"],
     title: json["title"],
@@ -177,6 +182,7 @@ class Payload {
     "result": result,
     "status": status,
     "cache": cache,
+    "lock": locked,
     "approved": approved,
     "title": title,
     "description": description,

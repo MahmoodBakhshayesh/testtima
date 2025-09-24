@@ -40,7 +40,7 @@ class _AirlineLogoState extends State<AirlineLogo> {
         fadeInDuration: const Duration(milliseconds: 300),
         errorBuilder: (context, exception, stacktrace) {
           // log("${exception}");
-          return Icon(Icons.error, color: Colors.red);
+          return Icon(Icons.error, color: Colors.transparent);
         },
         loadingBuilder: (context, progress) {
           return Container(
