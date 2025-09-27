@@ -30,6 +30,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
 import '../../../core/classes/basic_class.dart';
+import '../../../core/classes/constant_data_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/navigation/routes.dart';
 import 'ask_supervisor_sheet.dart';
@@ -47,7 +48,6 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
   ParameterValue? airline;
   TextEditingController flnbC = TextEditingController();
   TextEditingController userC = TextEditingController();
-  final tim = BasicClass.timData;
   int index = 0;
 
   @override
@@ -129,7 +129,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                     if(scanRes is List<BoardingPass>){
                                       if(scanRes.isNotEmpty){
                                         BoardingPass bp = scanRes.first;
-                                        airline = BasicClass.timData.params.of(ParameterType.carrier).firstWhereOrNull((a)=>a.code == bp.al);
+                                        airline = BasicClass.constData.data.carrier.firstWhereOrNull((a)=>a.code == bp.al);
                                         flnbC.text = bp.flnb;
                                         setState((){});
                                       }
@@ -161,7 +161,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                     rowLabelRatio: [3, 5],
                                     headerBgColor: Color(0xffECECEC),
                                     bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                                    items: tim.params.of(ParameterType.carrier),
+                                    items: BasicClass.constData.data.carrier,
                                     value: airline,
                                     onChange: (a) {
                                       airline = a;

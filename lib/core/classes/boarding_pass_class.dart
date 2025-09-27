@@ -289,8 +289,8 @@ class BoardingPass {
 
   ItinerarySegment get getFlightLeg => ItinerarySegment(
     operatingCarrier: BasicClass.getAirlineWithCode(al),
-    arrival: ItinPoint(point: getFlight.to, type: LocationType.airport, dateTime: flightDate),
-    departure: ItinPoint(point: getFlight.from, type: LocationType.airport, dateTime: flightDate),
+    arrival: ItinPoint(point: getFlight.to, dateTime: flightDate),
+    departure: ItinPoint(point: getFlight.from, dateTime: flightDate),
     processingEntity: "ABOMIS DOC CHECK",
     flnb: flnb
   );

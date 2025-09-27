@@ -28,6 +28,7 @@ import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:ocr_mrz/orc_mrz_log_class.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../core/classes/basic_class.dart';
+import '../../core/classes/constant_data_class.dart';
 import '../../core/classes/mrz_agg_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
@@ -254,19 +255,19 @@ class MrzReaderController extends ControllerInterface {
       //   return;
       // }
       popping = true;
-      ParameterValue? docType;
+      DocumentCode? docType;
       // log("*"*100);
       // log(jsonEncode(res.toJson()));
       // log("*"*100);
 
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
-      if (BasicClass.constData.documentTypeDetailsMappers.isNotEmpty && res.countryCode.length>1) {
-        final match = BasicClass.constData.documentTypeDetailsMappers.lastOrNullWhere(
+      if (BasicClass.constData.data.documentDetailType.isNotEmpty && res.countryCode.length>1) {
+        final match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
           (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
         );
         if (match != null) {
-          docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
+          docType = BasicClass.constData.data.documentCode.firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
         } else {
           log("no mapper match for ${res.documentCode}");
         }

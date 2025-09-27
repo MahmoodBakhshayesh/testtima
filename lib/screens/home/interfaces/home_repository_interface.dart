@@ -16,7 +16,7 @@ abstract class HomeRepositoryInterface {
   Future<Result<GetNotifCountResponse>> getNotifCount(GetNotifCountRequest request);
   Future<Result<SubmitTimaticRequestResponse>> submitTimaticRequest(SubmitTimaticRequestRequest request);
   Future<Result<TimaticGetParametersResponse>> timaticGetParameters(TimaticGetParametersRequest request);
-  Future<Result<TimaticGetLocationsResponse>> timaticGetLocations(TimaticGetLocationsRequest request);
+  // Future<Result<TimaticGetLocationsResponse>> timaticGetLocations(TimaticGetLocationsRequest request);
   Future<Result<GetSupportedLanguageResponse>> getSupportedLanguage(GetSupportedLanguageRequest request);
   Future<Result<TranslateTimaticResponseResponse>> translateTimaticResponse(TranslateTimaticResponseRequest request);
   Future<Result<LockUnlockResponseResponse>>lockUnlockResponse(LockUnlockResponseRequest request);

@@ -8,6 +8,7 @@ import '../../initialize.dart';
 import 'interfaces/login_repository_interface.dart';
 import 'data_sources/login_local_ds.dart';
 import 'data_sources/login_remote_ds.dart';
+import 'usecases/get_cons_data_usecase.dart';
 import 'usecases/login_usecase.dart';
 import 'usecases/reset_password_usecase.dart';
 import 'usecases/send_forget_password_code_usecase.dart';
@@ -91,6 +92,21 @@ class LoginRepository implements LoginRepositoryInterface {
         resetPasswordResponse = await loginLocalDataSource.resetPassword(request: request);
       }
       return Result.ok(resetPasswordResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<GetConsDataResponse>> getConsData(GetConsDataRequest request) async {
+    try {
+      GetConsDataResponse getConsDataResponse;
+      if (await networkInfo.isConnected) {
+        getConsDataResponse = await loginRemoteDataSource.getConsData(request: request);
+      } else {
+        getConsDataResponse = await loginLocalDataSource.getConsData(request: request);
+      }
+      return Result.ok(getConsDataResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

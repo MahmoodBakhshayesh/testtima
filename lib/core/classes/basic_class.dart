@@ -10,6 +10,7 @@ import '../constants/ui.dart';
 import '../utils_and_services/settings_class.dart';
 import '../utils_and_services/timatic/artemis_timatic.dart';
 import '../utils_and_services/timatic/src/models/aggregates.dart';
+import 'constant_data_class.dart';
 import 'people_class.dart';
 import 'user_class.dart';
 
@@ -23,31 +24,37 @@ class BasicClass {
   static final BasicClass instance = BasicClass._();
   static late bool initialized;
   String? _username;
-  TimaticData? _timaticData;
+  // TimaticData? _timaticData;
   LoginData? _loginData;
-  ConstData? _constData;
+  // ConstData? _constData;
+  VersionedConstantData? _versionedConstantData;
   PackageInfo? _packageInfo;
   UserPermission? _userPermission;
   Config? _appConfig;
 
-  static void initialize(LoginData user, TimaticData timaticData) {
-    instance._timaticData = timaticData;
+  static void initialize(LoginData user) {
+    // instance._timaticData = timaticData;
     instance._loginData = user;
-    instance._constData = user.constData;
+    // instance._constData = user.constData;
     instance._userPermission = user.permission;
+  }
+
+  static void setVersionedConstData(VersionedConstantData data) {
+    instance._versionedConstantData = data;
+    // instance._timaticData = TimaticData(params: params, locations: locations);
   }
 
   static void setConfig(Config config) {
     instance._appConfig = config;
   }
 
-  static ConstData get constData => instance._constData!;
+  static VersionedConstantData get constData => instance._versionedConstantData!;
 
   static LoginData? get user => instance._loginData;
 
   static Config get config => instance._appConfig ?? Config.def();
 
-  static TimaticData get timData => instance._timaticData!;
+  // static TimaticData get timData => instance._timaticData!;
 
   static Color getColorForEvaluationResult(String evaluationResult) {
     switch (evaluationResult.toUpperCase()) {
@@ -61,12 +68,15 @@ class BasicClass {
     return Colors.grey;
   }
 
-  static Location? getLocationWithCode(String code) {
-    return timData.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == code);
+  static Country? getLocationWithCode(String code) {
+    return constData.data.country.firstWhereOrNull((a) => a.code3 == code);
+    // return timData.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == code);
   }
 
   static ParameterValue? getAirlineWithCode(String code) {
-    return timData.params.of(ParameterType.carrier).firstWhereOrNull((a) => a.code == code);
+    return constData.data.carrier.firstWhereOrNull((a) => a.code == code);
+
+    // return timData.params.of(ParameterType.carrier).firstWhereOrNull((a) => a.code == code);
   }
 
   static bool validatePermission(UiPermission? permission) {

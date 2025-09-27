@@ -26,6 +26,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:voice_note_kit/recorder/voice_enums/voice_enums.dart';
 import 'package:voice_note_kit/voice_note_kit.dart';
 
+import '../../../core/classes/constant_data_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/interfaces/success_int.dart';
 import '../../../core/utils_and_services/handlers/success_handler.dart';
@@ -88,7 +89,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                           airline = a;
                           setState((){});
                         },
-                        label: 'Airline Code', items: BasicClass.timData.params.of(ParameterType.carrier), backgroundColor: Colors.white, placeholder: "Select"),
+                        label: 'Airline Code', items: BasicClass.constData.data.carrier, backgroundColor: Colors.white, placeholder: "Select"),
                     MyTextField(
                         labelInRow: true, label: "Flight Number", backgroundColor: Colors.white, placeholder: "Flight Number", controller: flnbC, keyboardType: TextInputType.numberWithOptions(signed: true)),
                     GestureDetector(

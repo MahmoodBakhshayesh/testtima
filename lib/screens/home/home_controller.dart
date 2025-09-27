@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
@@ -77,7 +78,7 @@ class HomeController extends ControllerInterface {
   }
 
   Future<void> setAirportDialog(BuildContext context) async {
-    final current = BasicClass.timData.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == ref.read(userProvider)?.profile.defaultAirport);
+    final current = BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == ref.read(userProvider)?.profile.defaultAirport);
     final newVal = await showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -85,14 +86,14 @@ class HomeController extends ControllerInterface {
         return Padding(
           // This moves content above the keyboard
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: PickerSheetWidget(value: current, hasClear: false, searchAutoFocus: false, searchBuilder: null, items: BasicClass.timData.locations.of(LocationType.airport), label: "Airport", itemToWidget: null, hasSearch: true),
+          child: PickerSheetWidget(value: current, hasClear: false, searchAutoFocus: false, searchBuilder: null, items: BasicClass.constData.data.airport, label: "Airport", itemToWidget: null, hasSearch: true),
         );
         // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
       },
       elevation: 2,
     );
 
-    if (newVal is Location) {
+    if (newVal is Country) {
       log("set new to $newVal");
       await getIt<UsersController>().updateUserStation(newVal.code3);
     }
@@ -236,26 +237,25 @@ class HomeController extends ControllerInterface {
     final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') == ("note")).toList();
     ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
     if (timaticReqLog != null) {
-      final tim = BasicClass.timData;
       bool locked = timaticReqLog.payload?.locked ?? false;
       Map<String, dynamic> input = jsonDecode(timaticReqLog.payload?.input ?? "{}");
       Map<String, dynamic> output = jsonDecode(timaticReqLog.payload?.output ?? "{}");
       log("is Locked ==>${locked}");
       PassengerDetails pd = PassengerDetails(
         birthDate: DateTime.tryParse(input["passengerDetails"]["birthDate"] ?? ''),
-        nationality: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["nationality"]),
-        birthCountry: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["birthCountry"]),
-        residentCountryCode: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["residentCountryCode"]),
+        nationality:  BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["nationality"]),
+        birthCountry:  BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["birthCountry"]),
+        residentCountryCode:  BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["residentCountryCode"]),
         gender: GenderDetails.fromValue(input["passengerDetails"]['gender']?.toString()),
       );
 
-      List<DocumentTypeDetailsMapper> detailsMapperList = BasicClass.constData.documentTypeDetailsMappers;
+      List<DocumentDetailType> detailsMapperList = BasicClass.constData.data.documentDetailType;
       final allDocs = List<DocumentDetail>.from(
         (input["documentDetails"] ?? []).map((d) {
-          DocumentTypeDetailsMapper? detailsMapper = detailsMapperList.lastOrNullWhere((a) => a.code == d["documentCode"]);
+          DocumentDetailType? detailsMapper = detailsMapperList.lastOrNullWhere((a) => a.code == d["documentCode"]);
           log("setting docCode =    ${d["documentCode"]}${detailsMapper?.code} ${"${detailsMapper?.type ?? ''}${detailsMapper?.subType}"} ");
           return DocumentDetail(
-            documentCode: tim.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code == d["documentCode"]),
+            documentCode: BasicClass.constData.data.documentCode.firstWhereOrNull((a) => a.code == d["documentCode"]),
             docCode: "${detailsMapper?.type ?? ''}${detailsMapper?.subType}",
 
             // documentCode: tim.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code == detailsMapper.firstWhereOrNull((a)=>a.code ==  d["documentCode"])?.code),
@@ -264,8 +264,8 @@ class HomeController extends ControllerInterface {
             documentExpiryDate: DateTime.tryParse(d["documentExpiryDate"] ?? ''),
             birthDate: DateTime.tryParse(d["birthDate"] ?? ''),
             documentIssueDate: DateTime.tryParse(d["documentIssueDate"] ?? ''),
-            documentIssueCountry: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == d["documentIssueCountry"]),
-            nationality: tim.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == d["nationality"]),
+            documentIssueCountry: BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == d["documentIssueCountry"]),
+            nationality: BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == d["nationality"]),
           );
         }),
       );
@@ -458,74 +458,6 @@ class HomeController extends ControllerInterface {
     }
 
     return response;
-  }
-
-  Future<ParametersEnvelope?> getParameters({required List<String> codes, String? name}) async {
-    ParametersEnvelope? parameterEnvelope;
-    TimaticGetParametersUseCase getParameterUseCase = TimaticGetParametersUseCase();
-    TimaticGetParametersRequest timaticGetParametersRequest = TimaticGetParametersRequest(codes: codes, name: name);
-    final result = await getParameterUseCase(request: timaticGetParametersRequest);
-
-    switch (result) {
-      case Err<TimaticGetParametersResponse>():
-        // FailureHandler.handle(result.error);
-        return null;
-      case Ok<TimaticGetParametersResponse>():
-        final r = result.value;
-        parameterEnvelope = r.parametersEnvelope;
-    }
-
-    return parameterEnvelope;
-  }
-
-  Future<TimaticParams> getAllParameters({List<ParameterType> types = kDefaultParameterTypes, String? nameFilter, required bool forceRefresh}) async {
-    final envelopes = await Future.wait(types.map((t) => getParameters(codes: [t.code], name: nameFilter)));
-
-    final map = <ParameterType, List<ParameterValue>>{};
-    for (final env in envelopes) {
-      for (final item in (env?.parameters ?? [])) {
-        final t = ParameterType.fromCode(item.code);
-        if (t == null) continue; // ignore unknown codes
-        map[t] = item.parameterValues ?? [];
-      }
-    }
-    // _cachedParams = TimaticParams(byType: map);
-    return TimaticParams(byType: map);
-  }
-
-  Future<List<Location>> getLocations(LocationType type, {String? code, String? name}) async {
-    LocationsEnvelope? locationsEnvelope;
-    TimaticGetLocationsUseCase getLocationsUseCase = TimaticGetLocationsUseCase();
-    TimaticGetLocationsRequest timaticGetLocationsRequest = TimaticGetLocationsRequest(type: type, code: '', name: '');
-    final result = await getLocationsUseCase(request: timaticGetLocationsRequest);
-
-    switch (result) {
-      case Err<TimaticGetLocationsResponse>():
-        // FailureHandler.handle(result.error);
-        log(result.error.msg);
-
-      case Ok<TimaticGetLocationsResponse>():
-        final r = result.value;
-        locationsEnvelope = r.locationsEnvelope;
-    }
-
-    return locationsEnvelope?.locations ?? [];
-  }
-
-  Future<TimaticLocations> getAllLocations({required List<LocationType> types, bool forceRefresh = false, String? code, String? name}) async {
-    final map = <LocationType, List<Location>>{};
-    await Future.wait(
-      types.map((t) async {
-        map[t] = await getLocations(t, code: code, name: name);
-      }),
-    );
-
-    return TimaticLocations(byType: map);
-  }
-
-  Future<TimaticData> preloadAll({List<ParameterType> paramTypes = kDefaultParameterTypes, List<LocationType> locationTypes = kDefaultLocationTypes, bool forceRefresh = false}) async {
-    final results = await Future.wait([getAllParameters(types: paramTypes, forceRefresh: forceRefresh), getAllLocations(types: locationTypes, forceRefresh: forceRefresh)]);
-    return TimaticData(params: results[0] as TimaticParams, locations: results[1] as TimaticLocations);
   }
 
   Future<List<SupportedLanguage>?> getSupportLanguage() async {

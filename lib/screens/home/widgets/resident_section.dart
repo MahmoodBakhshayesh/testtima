@@ -5,6 +5,7 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/classes/basic_class.dart';
+import '../../../core/classes/constant_data_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/stateControllers/residents_state_controller.dart';
@@ -32,7 +33,6 @@ class ResidentItemRow extends ConsumerStatefulWidget {
 
 class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
   late final TextEditingController controller;
-  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Location).name})"),
+      Text("$a (${(a as Country).name})"),
     ],
   );
 
@@ -94,7 +94,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF4F8F7);
-    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "I").map((a)=>a.code!).toList();
+    List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a)=>a.type == "I").map((a)=>a.code!).toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -135,13 +135,13 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
             Column(
               spacing: 12,
               children: [
-                MyFieldPicker<ParameterValue>(
+                MyFieldPicker<DocumentCode>(
                   label: "Code",
                   placeholder: "Code",
                   // valueToString: docCodeToString,
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
+                  items: BasicClass.constData.data.documentCode.where((a)=>validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -152,7 +152,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   spacing: 12,
                   children: [
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         label: "Issued In",
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
@@ -161,8 +161,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
 
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                        items: tim.locations.of(LocationType.country),
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                        items:BasicClass.constData.data.country,
                         value: d.documentIssueCountry,
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
@@ -171,7 +171,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                       ),
                     ),
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         hasSearch: true,
                         label: "Nationality",
                         headerBgColor: headerBg,
@@ -180,9 +180,9 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
 
                         rowLabelRatio: [5, 4],
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
-                        items: tim.locations.of(LocationType.country),
+                        items: BasicClass.constData.data.country,
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));

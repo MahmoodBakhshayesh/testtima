@@ -65,16 +65,16 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
     return response;
   }
 
-  @override
-  Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request}) async {
-    final qp = <String, dynamic>{if (request.code != null && request.code!.isNotEmpty) 'code': request.code, if (request.name != null && request.name!.isNotEmpty) 'name': request.name};
-
-    final api = Uri.parse("/locations/${request.type.name}").replace(queryParameters: qp).toString();
-
-    ResponseInterface res = await networkManager.get(api);
-    TimaticGetLocationsResponse response = await Parser().parse(TimaticGetLocationsResponse.fromResponse, res, executionReq: request);
-    return response;
-  }
+  // @override
+  // Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request}) async {
+  //   final qp = <String, dynamic>{if (request.code != null && request.code!.isNotEmpty) 'code': request.code, if (request.name != null && request.name!.isNotEmpty) 'name': request.name};
+  //
+  //   final api = Uri.parse("/locations/").replace(queryParameters: qp).toString();
+  //
+  //   ResponseInterface res = await networkManager.get(api);
+  //   TimaticGetLocationsResponse response = await Parser().parse(TimaticGetLocationsResponse.fromResponse, res, executionReq: request);
+  //   return response;
+  // }
 
   @override
   Future<GetSupportedLanguageResponse> getSupportedLanguage({required GetSupportedLanguageRequest request}) async {

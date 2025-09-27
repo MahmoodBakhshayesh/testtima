@@ -1,51 +1,53 @@
 // parameters.dart
 // Pure Dart models (no json_serializable)
 
-class ParameterValue {
-  final String name;
-  final String code;
+// class ParameterValue {
+//   final String name;
+//   final String code;
+//
+//   const ParameterValue({
+//     required this.name,
+//     required this.code,
+//   });
+//
+//   ParameterValue copyWith({
+//     String? name,
+//     String? code,
+//   }) {
+//     return ParameterValue(
+//       name: name ?? this.name,
+//       code: code ?? this.code,
+//     );
+//   }
+//
+//   factory ParameterValue.fromJson(Map<String, dynamic> json) {
+//     return ParameterValue(
+//       name: (json['name'] ?? '').toString(),
+//       code: (json['code'] ?? '').toString(),
+//     );
+//   }
+//
+//   Map<String, dynamic> toJson() => {
+//     'name': name,
+//     'code': code,
+//   };
+//
+//   @override
+//   String toString() => "$code ($name)";
+//
+//   @override
+//   bool operator ==(Object other) =>
+//       identical(this, other) ||
+//           other is ParameterValue &&
+//               runtimeType == other.runtimeType &&
+//               name == other.name &&
+//               code == other.code;
+//
+//   @override
+//   int get hashCode => Object.hash(name, code);
+// }
 
-  const ParameterValue({
-    required this.name,
-    required this.code,
-  });
-
-  ParameterValue copyWith({
-    String? name,
-    String? code,
-  }) {
-    return ParameterValue(
-      name: name ?? this.name,
-      code: code ?? this.code,
-    );
-  }
-
-  factory ParameterValue.fromJson(Map<String, dynamic> json) {
-    return ParameterValue(
-      name: (json['name'] ?? '').toString(),
-      code: (json['code'] ?? '').toString(),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    'code': code,
-  };
-
-  @override
-  String toString() => "$code ($name)";
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is ParameterValue &&
-              runtimeType == other.runtimeType &&
-              name == other.name &&
-              code == other.code;
-
-  @override
-  int get hashCode => Object.hash(name, code);
-}
+import '../../../../classes/constant_data_class.dart';
 
 class ParameterItem {
   final String name;

@@ -3,6 +3,9 @@
 //     final constantData = constantDataFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:ui';
+
+import 'package:abds/core/constants/ui.dart';
 
 VersionedConstantData constantDataFromJson(String str) => VersionedConstantData.fromJson(json.decode(str));
 
@@ -44,17 +47,17 @@ class VersionedData {
   final List<DocumentDetailType> documentDetailType;
   final Permission permission;
   final List<Attribute> attribute;
-  final List<Parameter> documentModel;
-  final List<Parameter> product;
+  final List<ParameterValue> documentModel;
+  final List<ParameterValue> product;
   final List<DocumentCode> documentCode;
-  final List<Parameter> queryType;
-  final List<Parameter> stayType;
+  final List<ParameterValue> queryType;
+  final List<ParameterValue> stayType;
   final List<dynamic> documentSeries;
-  final List<Parameter> ruleSetType;
-  final List<Parameter> carrier;
-  final List<Parameter> passengerType;
-  final List<Parameter> channel;
-  final List<Parameter> pets;
+  final List<ParameterValue> ruleSetType;
+  final List<ParameterValue> carrier;
+  final List<ParameterValue> passengerType;
+  final List<ParameterValue> channel;
+  final List<ParameterValue> pets;
   final List<Airport> city;
   final List<Country> country;
   final List<Airport> airport;
@@ -89,17 +92,17 @@ class VersionedData {
     List<DocumentDetailType>? documentDetailType,
     Permission? permission,
     List<Attribute>? attribute,
-    List<Parameter>? documentModel,
-    List<Parameter>? product,
+    List<ParameterValue>? documentModel,
+    List<ParameterValue>? product,
     List<DocumentCode>? documentCode,
-    List<Parameter>? queryType,
-    List<Parameter>? stayType,
+    List<ParameterValue>? queryType,
+    List<ParameterValue>? stayType,
     List<dynamic>? documentSeries,
-    List<Parameter>? ruleSetType,
-    List<Parameter>? carrier,
-    List<Parameter>? passengerType,
-    List<Parameter>? channel,
-    List<Parameter>? pets,
+    List<ParameterValue>? ruleSetType,
+    List<ParameterValue>? carrier,
+    List<ParameterValue>? passengerType,
+    List<ParameterValue>? channel,
+    List<ParameterValue>? pets,
     List<Airport>? city,
     List<Country>? country,
     List<Airport>? airport,
@@ -134,17 +137,17 @@ class VersionedData {
     documentDetailType: List<DocumentDetailType>.from(json["documentDetailType"].map((x) => DocumentDetailType.fromJson(x))),
     permission: Permission.fromJson(json["permission"]),
     attribute: List<Attribute>.from(json["attribute"].map((x) => Attribute.fromJson(x))),
-    documentModel: List<Parameter>.from(json["documentModel"].map((x) => Parameter.fromJson(x))),
-    product: List<Parameter>.from(json["product"].map((x) => Parameter.fromJson(x))),
+    documentModel: List<ParameterValue>.from(json["documentModel"].map((x) => ParameterValue.fromJson(x))),
+    product: List<ParameterValue>.from(json["product"].map((x) => ParameterValue.fromJson(x))),
     documentCode: List<DocumentCode>.from(json["documentCode"].map((x) => DocumentCode.fromJson(x))),
-    queryType: List<Parameter>.from(json["queryType"].map((x) => Parameter.fromJson(x))),
-    stayType: List<Parameter>.from(json["stayType"].map((x) => Parameter.fromJson(x))),
+    queryType: List<ParameterValue>.from(json["queryType"].map((x) => ParameterValue.fromJson(x))),
+    stayType: List<ParameterValue>.from(json["stayType"].map((x) => ParameterValue.fromJson(x))),
     documentSeries: List<dynamic>.from(json["documentSeries"].map((x) => x)),
-    ruleSetType: List<Parameter>.from(json["ruleSetType"].map((x) => Parameter.fromJson(x))),
-    carrier: List<Parameter>.from(json["carrier"].map((x) => Parameter.fromJson(x))),
-    passengerType: List<Parameter>.from(json["passengerType"].map((x) => Parameter.fromJson(x))),
-    channel: List<Parameter>.from(json["channel"].map((x) => Parameter.fromJson(x))),
-    pets: List<Parameter>.from(json["pets"].map((x) => Parameter.fromJson(x))),
+    ruleSetType: List<ParameterValue>.from(json["ruleSetType"].map((x) => ParameterValue.fromJson(x))),
+    carrier: List<ParameterValue>.from(json["carrier"].map((x) => ParameterValue.fromJson(x))),
+    passengerType: List<ParameterValue>.from(json["passengerType"].map((x) => ParameterValue.fromJson(x))),
+    channel: List<ParameterValue>.from(json["channel"].map((x) => ParameterValue.fromJson(x))),
+    pets: List<ParameterValue>.from(json["pets"].map((x) => ParameterValue.fromJson(x))),
     city: List<Airport>.from(json["city"].map((x) => Airport.fromJson(x))),
     country: List<Country>.from(json["country"].map((x) => Country.fromJson(x))),
     airport: List<Airport>.from(json["airport"].map((x) => Airport.fromJson(x))),
@@ -207,6 +210,9 @@ class Airport {
     "code3": code3,
     "name": name,
   };
+
+  @override
+  String toString() => "$code3";
 }
 
 class Attribute {
@@ -256,25 +262,25 @@ class Attribute {
   };
 }
 
-class Parameter {
+class ParameterValue {
   final String name;
   final String code;
 
-  Parameter({
+  ParameterValue({
     required this.name,
     required this.code,
   });
 
-  Parameter copyWith({
+  ParameterValue copyWith({
     String? name,
     String? code,
   }) =>
-      Parameter(
+      ParameterValue(
         name: name ?? this.name,
         code: code ?? this.code,
       );
 
-  factory Parameter.fromJson(Map<String, dynamic> json) => Parameter(
+  factory ParameterValue.fromJson(Map<String, dynamic> json) => ParameterValue(
     name: json["name"],
     code: json["code"],
   );
@@ -283,6 +289,9 @@ class Parameter {
     "name": name,
     "code": code,
   };
+
+  @override
+  String toString() => "$code ($name)";
 }
 
 
@@ -315,7 +324,8 @@ class Country {
   factory Country.fromJson(Map<String, dynamic> json) => Country(
     type: json["type"],
     code2: json["code2"],
-    code3: json["code3"],
+    code3: json["code3"]??'',
+
     name: json["name"],
   );
 
@@ -325,6 +335,9 @@ class Country {
     "code3": code3,
     "name": name,
   };
+
+  @override
+  String toString() => "$code3";
 }
 
 class DocumentCode {
@@ -360,6 +373,9 @@ class DocumentCode {
     "code": code,
     "type": type,
   };
+
+  @override
+  String toString() => "$code ($name)";
 }
 
 class DocumentDetailType {
@@ -447,6 +463,8 @@ class DocumentType {
     title: json["title"],
     code: json["code"],
   );
+
+  Color get getColor => HexColor(color);
 
   Map<String, dynamic> toJson() => {
     "type": type,

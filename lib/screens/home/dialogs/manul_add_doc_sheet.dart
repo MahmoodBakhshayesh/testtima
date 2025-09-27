@@ -60,7 +60,7 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: BasicClass.constData.documentTypes.map((dt) {
+                children: BasicClass.constData.data.documentType.map((dt) {
                   return ListTile(
                     tileColor: dt.getColor.withOpacity(0.2),
                     onTap: () async {

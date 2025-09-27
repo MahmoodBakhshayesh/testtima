@@ -60,6 +60,7 @@ class UserPermission {
   String id;
   AllPermissions allPermissions;
 
+
   UserPermission({required this.allPermissions, required this.permission, required this.id, required this.name});
 
   factory UserPermission.fromJson(Map<String, dynamic> json) {

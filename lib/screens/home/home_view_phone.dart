@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/controller_int.dart';
@@ -259,7 +260,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
           children: [
             ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
             const SizedBox(width: 8),
-            Text("$a (${(a as Location).name})"),
+            Text("$a (${(a as Country).name})"),
           ],
         );
 
@@ -277,7 +278,6 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
   Widget build(BuildContext context) {
     final timaticRes = ref.watch(timaticResultProvider);
 
-    final tim = BasicClass.timData;
     // log(tim.params.of(ParameterType.documentCode).map((a)=>"${a.code} -> ${a.name}").join("\n"));
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
@@ -292,6 +292,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty);
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
     double additionalHeight = 120;
+
+    log(jsonEncode(BasicClass.user!.attributes.toJson()));
     return PopScope(
       canPop: false,
       child: Container(

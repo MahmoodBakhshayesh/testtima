@@ -239,20 +239,22 @@ class SegmentResult {
 
 class ItinPointLite {
   final String point;
-  final LocationType type;
+  // final LocationType type;
   final String? dateTime;
 
-  ItinPointLite({required this.point, required this.type, this.dateTime});
+  ItinPointLite({required this.point, this.dateTime});
 
   factory ItinPointLite.fromJson(Map<String, dynamic> json) {
     return ItinPointLite(
       point: json['point'],
-      type: LocationType.values.firstWhere((e) => e.name.toLowerCase() == json['type'].toString().toLowerCase(), orElse: () => LocationType.city),
+      // type: LocationType.values.firstWhere((e) => e.name.toLowerCase() == json['type'].toString().toLowerCase(), orElse: () => LocationType.city),
       dateTime: json['dateTime'],
     );
   }
 
-  Map<String, dynamic> toJson() => {'point': point, 'type': type.name, 'dateTime': dateTime};
+  Map<String, dynamic> toJson() => {'point': point,
+    // 'type': type.name,
+    'dateTime': dateTime};
 }
 
 class RuleSetEvaluation {

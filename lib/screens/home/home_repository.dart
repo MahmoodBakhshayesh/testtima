@@ -100,20 +100,20 @@ class HomeRepository implements HomeRepositoryInterface {
     }
   }
 
-  @override
-  Future<Result<TimaticGetLocationsResponse>> timaticGetLocations(TimaticGetLocationsRequest request) async {
-    try {
-      TimaticGetLocationsResponse timaticGetLocationsResponse;
-      if (await networkInfo.isConnected) {
-        timaticGetLocationsResponse = await homeRemoteDataSource.timaticGetLocations(request: request);
-      } else {
-        timaticGetLocationsResponse = await homeLocalDataSource.timaticGetLocations(request: request);
-      }
-      return Result.ok(timaticGetLocationsResponse);
-    } on AppException catch (e) {
-      return Result.error(ServerFailure.fromAppException(e));
-    }
-  }
+  // @override
+  // Future<Result<TimaticGetLocationsResponse>> timaticGetLocations(TimaticGetLocationsRequest request) async {
+  //   try {
+  //     TimaticGetLocationsResponse timaticGetLocationsResponse;
+  //     if (await networkInfo.isConnected) {
+  //       timaticGetLocationsResponse = await homeRemoteDataSource.timaticGetLocations(request: request);
+  //     } else {
+  //       timaticGetLocationsResponse = await homeLocalDataSource.timaticGetLocations(request: request);
+  //     }
+  //     return Result.ok(timaticGetLocationsResponse);
+  //   } on AppException catch (e) {
+  //     return Result.error(ServerFailure.fromAppException(e));
+  //   }
+  // }
 
   @override
   Future<Result<GetSupportedLanguageResponse>> getSupportedLanguage(GetSupportedLanguageRequest request) async {

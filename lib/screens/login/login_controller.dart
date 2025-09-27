@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/interfaces/result_int.dart';
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
+import 'package:abds/screens/login/usecases/get_cons_data_usecase.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,6 +38,7 @@ import 'usecases/set_first_password_usecase.dart';
 
 class LoginController extends ControllerInterface {
   late LoginState loginState = ref.read(loginProvider);
+
   // late TimaticApi timaticApi = getIt<TimaticApi>();
   final _log = Logger('LoginController');
 
@@ -60,17 +63,23 @@ class LoginController extends ControllerInterface {
     switch (fOrR) {
       case Ok<LoginResponse>():
         user = fOrR.value.user;
+        ref.read(userProvider.notifier).update((s) => user);
         // timaticApi.setToken(user!.token);
         // log("${user.profile.username}");
+        final constData = await loadConstantData(user.constDataVersion);
+        if(constData == null){
+          return null;
+        }
+        // return null;
 
-
+        BasicClass.initialize(user);
+        BasicClass.setVersionedConstData(constData);
         ///todo preload basic data tData
         saveLoginData(username: username, password: password);
         ref.read(userProvider.notifier).update((s) => user);
         ref.read(profileProvider.notifier).update((s) => user!.profile);
         initData(user);
-        final tData = await getIt<HomeController>().preloadAll();
-        BasicClass.initialize(user, tData);
+        // final tData = await getIt<HomeController>().preloadAll();
         checkNotifCount();
         getIt<HomeController>().clear();
         if (user.setPassword) {
@@ -309,5 +318,48 @@ class LoginController extends ControllerInterface {
         checkNotifCount();
       });
     });
+  }
+
+  Future<VersionedConstantData?> loadConstantData(String constantVersion) async {
+    final String? constJson = await sharedPref.getVariable(key: "constantData");
+    if(constJson == null){
+      final newConst = await getConstantData(constantVersion);
+      if(newConst != null){
+        return newConst;
+      }else{
+        return null;
+      }
+    }else{
+      VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
+      BasicClass.setVersionedConstData(constantData);
+      log("new const version is ${constantVersion} and saved version is ${constantData.version} --> ${constantVersion.compareTo("20250924150831")}");
+      if(constantVersion.compareTo(constantData.version)>0){
+        getConstantData(constantVersion);
+      }else{
+        log("no need to get const data");
+      }
+      return constantData;
+    }
+  }
+
+  Future<VersionedConstantData?> getConstantData(String? consVersion) async {
+    VersionedConstantData? constData;
+    GetConsDataUseCase getConstantDataUseCase = GetConsDataUseCase();
+    GetConsDataRequest getConsDataRequest = GetConsDataRequest(constVersion: consVersion??'');
+    final result = await getConstantDataUseCase(request: getConsDataRequest);
+
+    switch (result) {
+      case Err<GetConsDataResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<GetConsDataResponse>():
+        final r = result.value;
+        constData = r.constantData;
+        BasicClass.setVersionedConstData(r.constantData);
+        await sharedPref.setVariable(key: "constantData", value: jsonEncode(r.constantData.toJson()));
+        log("got and saved constant data version ${constData!.version}");
+    }
+
+    return constData;
   }
 }

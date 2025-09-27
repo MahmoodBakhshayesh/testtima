@@ -252,7 +252,7 @@ class UsersController extends ControllerInterface {
         final r = result.value;
         SuccessHandler.handle(r.getSuccess);
         ref.read(userProvider.notifier).update((s) => s?.copyWith(profile: s.profile.copyWith(defaultAirport: station)));
-        BasicClass.initialize(ref.read(userProvider)!, BasicClass.timData);
+        BasicClass.initialize(ref.read(userProvider)!);
     }
   }
 }

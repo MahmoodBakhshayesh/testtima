@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
@@ -149,7 +150,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Location).name})"),
+      Text("$a (${(a as Country).name})"),
     ],
   );
 
@@ -180,9 +181,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     final bodyBg = Color(0xffF0F2Fa);
 
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final tim = BasicClass.timData;
+    // final tim = BasicClass.timData;
     String? docCode = d.docCode;
-    DocumentTypeDetailsMapper? match = d.getMatch();
+    DocumentDetailType? match = d.getMatch();
 
     return Container(
       decoration: BoxDecoration(
@@ -215,7 +216,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   spacing: 12,
                   children: [
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         label: "Issued In",
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
@@ -224,8 +225,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                        items: tim.locations.of(LocationType.country),
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                        items: BasicClass.constData.data.country,
                         value: d.documentIssueCountry,
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
@@ -234,7 +235,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                       ),
                     ),
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         hasSearch: true,
                         searchAutoFocus: true,
                         rowLabelRatio: [5, 4],
@@ -244,9 +245,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
                         required: true,
                         placeholder: "Country",
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
-                        items: tim.locations.of(LocationType.country),
+                        items: BasicClass.constData.data.country,
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
@@ -257,12 +258,12 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                     ),
                   ],
                 ),
-                MyFieldPicker<ParameterValue>(
+                MyFieldPicker<DocumentCode>(
                   label: "Code",
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode),
+                  items: BasicClass.constData.data.documentCode,
                   // itemToString: docCodeToString,
                   valueToString: docCodeToString,
                   value: d.documentCode,
@@ -387,8 +388,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     );
   }
 
-  String docCodeToString(ParameterValue p1) {
-    final match = BasicClass.constData.documentTypeDetailsMappers.firstWhereOrNull((a) => a.code == p1.code);
+  String docCodeToString(DocumentCode p1) {
+    final match = BasicClass.constData.data.documentDetailType.firstWhereOrNull((a) => a.code == p1.code);
     if (match != null) {
       return match.title ?? p1.toString();
     }

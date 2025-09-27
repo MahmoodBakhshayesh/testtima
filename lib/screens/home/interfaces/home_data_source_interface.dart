@@ -14,7 +14,7 @@ abstract class HomeDataSourceInterface {
   Future<GetNotifCountResponse> getNotifCount({required GetNotifCountRequest request});
   Future<SubmitTimaticRequestResponse> submitTimaticRequest({required SubmitTimaticRequestRequest request});
   Future<TimaticGetParametersResponse> timaticGetParameters({required TimaticGetParametersRequest request});
-  Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request});
+  // Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request});
   Future<GetSupportedLanguageResponse> getSupportedLanguage({required GetSupportedLanguageRequest request});
   Future<TranslateTimaticResponseResponse> translateTimaticResponse({required TranslateTimaticResponseRequest request});
   Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request});

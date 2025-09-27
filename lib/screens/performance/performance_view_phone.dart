@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/widgets/DotButton.dart';
@@ -25,7 +26,6 @@ class PerformanceViewPhone extends StatefulWidget {
 }
 
 class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
-  final tim = BasicClass.timData;
   String? from;
   String? to;
   DateTime? fromDate;
@@ -65,17 +65,17 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
               children: [
                 Expanded(
                   flex: 3,
-                  child: MyFieldPicker<Location>(
+                  child: MyFieldPicker<Airport>(
                     searchAutoFocus: true,
                     backgroundColor: textFieldBG,
 
                     label: "Route",
                     placeholder: "City",
                     rowLabelRatio: [2, 4],
-                    itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                    items: tim.locations.of(LocationType.airport),
-                    value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == from),
+                    itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+                    searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                    items:  BasicClass.constData.data.airport,
+                    value:  BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == from),
                     onChange: (a) {
                       from = a?.code3;
                       setState(() {});
@@ -85,17 +85,17 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
                 const SizedBox(width: 12),
                 Expanded(
                   flex: 2,
-                  child: MyFieldPicker<Location>(
+                  child: MyFieldPicker<Airport>(
                     label: "",
                     backgroundColor: textFieldBG,
 
                     placeholder: "To",
                     searchAutoFocus: true,
                     rowLabelRatio: [1, 100],
-                    itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                    items: tim.locations.of(LocationType.airport),
-                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                    value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == to),
+                    itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+                    items:  BasicClass.constData.data.airport,
+                    searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                    value:  BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == to),
                     onChange: (a) {
                       to = a?.code3;
                       setState(() {});

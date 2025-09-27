@@ -29,6 +29,7 @@ import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:voice_note_kit/recorder/voice_enums/voice_enums.dart';
 import 'package:voice_note_kit/voice_note_kit.dart';
 
+import '../../../core/classes/constant_data_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 
 class AskSupervisorSheet extends StatefulWidget {

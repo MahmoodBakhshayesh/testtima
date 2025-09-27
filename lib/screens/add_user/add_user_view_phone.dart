@@ -63,13 +63,13 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
     passwordC.addListener(() => setState(() {}));
     passwordConfirmC.addListener(() => setState(() {}));
 
-    UserPermission addingP = UserPermission(
-      allPermissions: BasicClass.constData.userPermissionAttributes,
-      permission: ActivePermissions.fromBitmask(BasicClass.constData.userPermissionAttributes, BasicClass.user!.permission.permission.toJson()),
-      id: BasicClass.user!.permission.id,
-      name: BasicClass.user!.permission!.name,
-    );
-    aup = addingP;
+    // UserPermission addingP = UserPermission(
+    //   allPermissions: BasicClass.constData.userPermissionAttributes,
+    //   permission: ActivePermissions.fromBitmask(BasicClass.constData.userPermissionAttributes, BasicClass.user!.permission.permission.toJson()),
+    //   id: BasicClass.user!.permission.id,
+    //   name: BasicClass.user!.permission!.name,
+    // );
+    // aup = addingP;
     super.initState();
   }
 

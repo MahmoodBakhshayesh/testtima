@@ -9,6 +9,7 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/classes/basic_class.dart';
+import '../../../core/classes/constant_data_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/stateControllers/visas_state_controller.dart';
@@ -36,7 +37,6 @@ class VisaItemRow extends ConsumerStatefulWidget {
 
 class _VisaItemRowState extends ConsumerState<VisaItemRow> {
   late final TextEditingController controller;
-  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -68,7 +68,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Location).name})"),
+      Text("$a (${(a as Country).name})"),
     ],
   );
 
@@ -98,7 +98,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
-    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a)=>a.type == "V").map((a)=>a.code!).toList();
+    List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a)=>a.type == "V").map((a)=>a.code!).toList();
 
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (d.ocrText??'').contains('N97191'));
     // log(d.ocrText??'-');
@@ -143,13 +143,13 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             Column(
               spacing: 12,
               children: [
-                MyFieldPicker<ParameterValue>(
+                MyFieldPicker<DocumentCode>(
                   label: "Code",
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
                   // valueToString: docCodeToString,
-                  items: tim.params.of(ParameterType.documentCode).where((a)=>validCodes.contains(a.code)).toList(),
+                  items: BasicClass.constData.data.documentCode.where((a)=>validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -160,7 +160,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                   spacing: 12,
                   children: [
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         label: "Issued In",
                         rowLabelRatio: [5, 4],
                         placeholder: "Country",
@@ -170,8 +170,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
 
                         itemToWidget: countryBuilder,
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                        items: tim.locations.of(LocationType.country),
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                        items:BasicClass.constData.data.country,
                         value: d.documentIssueCountry,
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
@@ -180,7 +180,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                       ),
                     ),
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         hasSearch: true,
                         searchAutoFocus: true,
                         label: "Nationality",
@@ -190,9 +190,9 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
 
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
-                        items: tim.locations.of(LocationType.country),
+                        items: BasicClass.constData.data.country,
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));

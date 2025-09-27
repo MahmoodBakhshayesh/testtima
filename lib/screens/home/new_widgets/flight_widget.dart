@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
 import 'package:abds/initialize.dart';
@@ -126,8 +127,6 @@ class SegmentItemRow extends ConsumerStatefulWidget {
 
 class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
   late final TextEditingController controller;
-  final tim = BasicClass.timData;
-
   @override
   void initState() {
     super.initState();
@@ -160,7 +159,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Location).name})"),
+      Text("$a (${(a as Country).name})"),
     ],
   );
 
@@ -209,7 +208,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               spacing: 12,
               children: [
                 Expanded(
-                  child: MyFieldPicker<Location>(
+                  child: MyFieldPicker<Airport>(
                     required: true,
                     searchAutoFocus: true,
                     label: "From",
@@ -218,10 +217,10 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     headerBgColor: Color(0xffECECEC),
                     bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                     // labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
-                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                    items: tim.locations.of(LocationType.airport),
-                    value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.departure.point),
+                    itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+                    searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                    items: BasicClass.constData.data.airport,
+                    value:  BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.departure.point),
                     onChange: (a) {
                       final update = seg.departure.copyWith(point: a?.code3 ?? '');
                       seg = seg.copyWith(departure: update);
@@ -241,7 +240,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   ),
                 ),
                 Expanded(
-                  child: MyFieldPicker<Location>(
+                  child: MyFieldPicker<Airport>(
                     label: "To",
                     placeholder: "City",
                     searchAutoFocus: true,
@@ -249,11 +248,11 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                     rowLabelRatio: [3, 5],
                     // labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    itemToWidget: (dynamic a) => Text("$a (${(a as Location).name})"),
+                    itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
                     required: true,
-                    items: tim.locations.of(LocationType.airport),
-                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                    value: tim.locations.of(LocationType.airport).firstWhereOrNull((a) => a.code3 == seg.arrival.point),
+                    items: BasicClass.constData.data.airport,
+                    searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                    value:  BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.arrival.point),
                     onChange: (a) {
                       final update = seg.arrival.copyWith(point: a?.code3 ?? '');
                       seg = seg.copyWith(arrival: update);
@@ -376,7 +375,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  items: tim.params.of(ParameterType.carrier),
+                  items: BasicClass.constData.data.carrier,
                   value: seg.operatingCarrier,
                   onChange: (a) {
                     seg = seg.copyWith(operatingCarrier: a);

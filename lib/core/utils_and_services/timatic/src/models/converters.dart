@@ -82,12 +82,12 @@ T? parseEnum<T>(List<T> values, String? input) {
 }
 
 /// Case-insensitive parser for LocationType
-extension LocationTypeX on LocationType {
-  static LocationType fromJson(String value) {
-    final lower = value.toLowerCase();
-    return LocationType.values.firstWhere(
-          (e) => e.name.toLowerCase() == lower,
-      orElse: () => LocationType.city, // default fallback
-    );
-  }
-}
+// extension LocationTypeX on LocationType {
+//   static LocationType fromJson(String value) {
+//     final lower = value.toLowerCase();
+//     return LocationType.values.firstWhere(
+//           (e) => e.name.toLowerCase() == lower,
+//       orElse: () => LocationType.city, // default fallback
+//     );
+//   }
+// }

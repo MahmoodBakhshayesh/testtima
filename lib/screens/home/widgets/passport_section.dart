@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/classes/basic_class.dart';
+import '../../../core/classes/constant_data_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/timatic/artemis_timatic.dart';
@@ -33,7 +34,6 @@ class PassportItemRow extends ConsumerStatefulWidget {
 
 class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   late final TextEditingController controller;
-  final tim = BasicClass.timData;
 
   @override
   void initState() {
@@ -66,7 +66,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Location).name})"),
+      Text("$a (${(a as Country).name})"),
     ],
   );
 
@@ -96,7 +96,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF0F2Fa);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    List<String> validCodes = BasicClass.constData.documentTypeDetailsMappers.where((a) => a.type == "P").map((a) => a.code!).toList();
+    List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a) => a.type == "P").map((a) => a.code!).toList();
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -141,13 +141,13 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             Column(
               spacing: 12,
               children: [
-                MyFieldPicker<ParameterValue>(
+                MyFieldPicker<DocumentCode>(
                   label: "Code",
                   placeholder: "Code",
                   rowLabelRatio: [12, 33],
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  items: tim.params.of(ParameterType.documentCode).where((a) => validCodes.contains(a.code)).toList(),
+                  items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -158,7 +158,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   spacing: 12,
                   children: [
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         label: "Issued In",
                         searchAutoFocus: true,
                         headerBgColor: headerBg,
@@ -167,8 +167,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-                        items: tim.locations.of(LocationType.country),
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                        items: BasicClass.constData.data.country,
                         value: d.documentIssueCountry,
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
@@ -178,7 +178,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                       ),
                     ),
                     Expanded(
-                      child: MyFieldPicker<Location>(
+                      child: MyFieldPicker<Country>(
                         hasSearch: true,
                         searchAutoFocus: true,
                         rowLabelRatio: [5, 4],
@@ -188,9 +188,9 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
                         // required: true,
                         placeholder: "Country",
-                        searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                        searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
-                        items: tim.locations.of(LocationType.country),
+                        items: BasicClass.constData.data.country,
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));

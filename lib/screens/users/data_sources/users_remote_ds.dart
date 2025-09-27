@@ -30,7 +30,7 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
         final List<dynamic> fixedPermissions = p["permissions"]??[];
         Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(p["permission"]??{});
         Map<String,dynamic> ppp = Map<String,dynamic>.from({});
-        fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+        // fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
 
         fixedPermission["permission"] = p["permission"]??ppp;
         // fixedPermission.forEach((k,v){
@@ -45,10 +45,6 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
          // log(jsonEncode(fixedPermission));
          // p["permission"] = p["permission"]??{};
          p["permission"] =fixedPermission;
-         log("//"*100);
-         log(jsonEncode(BasicClass.constData.userPermissionAttributes.toJson()));
-        log("//"*100);
-        log(jsonEncode(p));
 
         // for (var ap in (p["permission"]["airlines"] as List<dynamic>)) {
         //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();

@@ -196,11 +196,11 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
           ),
           const SizedBox(height: 12),
           AnimatedContainer(
-              height: status==3?(BasicClass.constData.textMessage.length*50):status==1?40:status==2?40:0,
+              height: status==3?(BasicClass.constData.data.textMessage.length*50):status==1?40:status==2?40:0,
               duration: Duration(milliseconds: 200),child: status==3? Column(
             spacing: 8,
             children: [
-              ...BasicClass.constData.textMessage.map((a) {
+              ...BasicClass.constData.data.textMessage.map((a) {
                 bool selected = msg == a;
                 return MyButton(
                   radius: 20,
@@ -377,11 +377,11 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
           ),
           const SizedBox(height: 12),
           AnimatedContainer(
-              height: status==3?(BasicClass.constData.textMessage.length*50):0,
+              height: status==3?(BasicClass.constData.data.textMessage.length*50):0,
               duration: Duration(milliseconds: 200),child: status==3? Column(
             spacing: 8,
             children: [
-              ...BasicClass.constData.textMessage.map((a) {
+              ...BasicClass.constData.data.textMessage.map((a) {
                 bool selected = msg == a;
                 return MyButton(
                   radius: 20,

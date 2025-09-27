@@ -55,11 +55,11 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
     throw UnimplementedError();
   }
 
-  @override
-  Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request}) {
-    // TODO: implement timaticGetLocations
-    throw UnimplementedError();
-  }
+  // @override
+  // Future<TimaticGetLocationsResponse> timaticGetLocations({required TimaticGetLocationsRequest request}) {
+  //   // TODO: implement timaticGetLocations
+  //   throw UnimplementedError();
+  // }
 
   @override
   Future<GetSupportedLanguageResponse> getSupportedLanguage({required GetSupportedLanguageRequest request}) {

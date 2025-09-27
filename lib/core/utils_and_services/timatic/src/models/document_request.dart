@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 
+import '../../../../classes/constant_data_class.dart';
 import '../../artemis_timatic.dart';
 import 'enums.dart';
 import 'location.dart'; // Location & LocationType
@@ -45,12 +46,12 @@ class DocumentRequest {
 class DocumentDetail {
   final String? documentNumber;
   final String? fullName;
-  final ParameterValue? documentCode;
+  final DocumentCode? documentCode;
   final DateTime? documentExpiryDate;
-  final Location? documentIssueCountry;
+  final Country? documentIssueCountry;
   final DateTime? documentIssueDate;
   final DateTime? birthDate;
-  final Location? nationality;
+  final Country? nationality;
   final ParameterValue? documentMRZType;
   final ParameterValue? documentSeries;
   final DocumentFeature? documentFeature;
@@ -105,12 +106,12 @@ class DocumentDetail {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
       fullName: identical(fullName, _unset) ? this.fullName : fullName as String?,
-      documentCode: identical(documentCode, _unset) ? this.documentCode : documentCode as ParameterValue?,
+      documentCode: identical(documentCode, _unset) ? this.documentCode : documentCode as DocumentCode?,
       documentExpiryDate: identical(documentExpiryDate, _unset) ? this.documentExpiryDate : documentExpiryDate as DateTime?,
       birthDate: identical(birthDate, _unset) ? this.birthDate : birthDate as DateTime?,
-      documentIssueCountry: identical(documentIssueCountry, _unset) ? this.documentIssueCountry : documentIssueCountry as Location?,
+      documentIssueCountry: identical(documentIssueCountry, _unset) ? this.documentIssueCountry : documentIssueCountry as Country?,
       documentIssueDate: identical(documentIssueDate, _unset) ? this.documentIssueDate : documentIssueDate as DateTime?,
-      nationality: identical(nationality, _unset) ? this.nationality : nationality as Location?,
+      nationality: identical(nationality, _unset) ? this.nationality : nationality as Country?,
       documentMRZType: identical(documentMRZType, _unset) ? this.documentMRZType : documentMRZType as ParameterValue?,
       documentSeries: identical(documentSeries, _unset) ? this.documentSeries : documentSeries as ParameterValue?,
       documentFeature: identical(documentFeature, _unset) ? this.documentFeature : documentFeature as DocumentFeature?,
@@ -127,12 +128,12 @@ class DocumentDetail {
     return DocumentDetail(
       documentNumber: json['documentNumber']?.toString(),
       fullName: json['fullName']?.toString(),
-      documentCode: json['documentCode'] is Map<String, dynamic> ? ParameterValue.fromJson(json['documentCode']) : null,
+      documentCode: json['documentCode'] is Map<String, dynamic> ? DocumentCode.fromJson(json['documentCode']) : null,
       documentExpiryDate: parseDate(json['documentExpiryDate']),
       birthDate: parseDate(json['birthDate']),
-      documentIssueCountry: json['documentIssueCountry'] is Map<String, dynamic> ? Location.fromJson(json['documentIssueCountry']) : null,
+      documentIssueCountry: json['documentIssueCountry'] is Map<String, dynamic> ? Country.fromJson(json['documentIssueCountry']) : null,
       documentIssueDate: parseDate(json['documentIssueDate']),
-      nationality: json['nationality'] is Map<String, dynamic> ? Location.fromJson(json['nationality']) : null,
+      nationality: json['nationality'] is Map<String, dynamic> ? Country.fromJson(json['nationality']) : null,
       documentMRZType: json['documentMRZType'] is Map<String, dynamic> ? ParameterValue.fromJson(json['documentMRZType']) : null,
       documentSeries: json['documentSeries'] is Map<String, dynamic> ? ParameterValue.fromJson(json['documentSeries']) : null,
       documentFeature: json['documentFeature'] != null ? DocumentFeatureDetails.fromValue(json['documentFeature']?.toString()) : null,
@@ -195,11 +196,11 @@ class DocumentDetail {
     return (shortType == res.getShortType)&& (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 
-  DocumentTypeDetailsMapper? getMatch(){
+  DocumentDetailType? getMatch(){
     String? dc = docCode;
-    DocumentTypeDetailsMapper? match;
+    DocumentDetailType? match;
     if (dc != null && dc.length>1) {
-      match = BasicClass.constData.documentTypeDetailsMappers.lastOrNullWhere(
+      match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
             (a) => a.type == dc.characters.first && (a.subType == "*" || a.subType == dc.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
       );
     }
@@ -301,10 +302,10 @@ class ItinerarySegment {
   }
 
   factory ItinerarySegment.empty() {
-    log("Default Airport ----> ${BasicClass.user?.attributes.defaultAirport}");
+    log("BasicClass.user?.attributes.defaultAirport ${BasicClass.user?.attributes.defaultAirport}");
     return ItinerarySegment(
-      arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
-      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '', type: LocationType.airport, dateTime: DateTime.now()),
+      arrival: ItinPoint(point: '',  dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '',  dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,
@@ -313,8 +314,8 @@ class ItinerarySegment {
 
   factory ItinerarySegment.emptyNoAirport() {
     return ItinerarySegment(
-      arrival: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
-      departure: ItinPoint(point: '', type: LocationType.airport, dateTime: DateTime.now()),
+      arrival: ItinPoint(point: '', dateTime: DateTime.now()),
+      departure: ItinPoint(point: '',  dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,
@@ -344,37 +345,35 @@ class ItinPoint {
   final TimeOfDay? time;
   final DateTime? dateTime;
   final String point;
-  final LocationType type;
 
-  const ItinPoint({this.date, this.time, this.dateTime, required this.point, required this.type});
+  const ItinPoint({this.date, this.time, this.dateTime, required this.point});
 
   static const _unset = Object();
 
-  ItinPoint copyWith({Object? date = _unset, Object? time = _unset, Object? dateTime = _unset, String? point, LocationType? type}) {
+  ItinPoint copyWith({Object? date = _unset, Object? time = _unset, Object? dateTime = _unset, String? point}) {
     return ItinPoint(
       date: identical(date, _unset) ? this.date : date as DateTime?,
       time: identical(time, _unset) ? this.time : time as TimeOfDay?,
       dateTime: identical(dateTime, _unset) ? this.dateTime : dateTime as DateTime?,
       point: point ?? this.point,
-      type: type ?? this.type,
     );
   }
 
   factory ItinPoint.fromJson(Map<String, dynamic> json) {
-    return ItinPoint(date: parseDate(json['date']), time: parseTime(json['time']), dateTime: parseDateTime(json['dateTime']), point: (json['point'] ?? '').toString(), type: LocationTypeX.fromJson(json['type']?.toString() ?? ''));
+    return ItinPoint(date: parseDate(json['date']), time: parseTime(json['time']), dateTime: parseDateTime(json['dateTime']), point: (json['point'] ?? '').toString());
   }
 
-  Map<String, dynamic> toJson() => {'date': formatDate(dateTime), 'time': time.format_HHmm, 'dateTime': formatDateTime(dateTime), 'point': point, 'type': type.name.toUpperCase()};
+  Map<String, dynamic> toJson() => {'date': formatDate(dateTime), 'time': time.format_HHmm, 'dateTime': formatDateTime(dateTime), 'point': point, 'type': "AIRPORT"};
 }
 
 // ---------------- PassengerDetails ----------------
 
 class PassengerDetails {
   final DateTime? birthDate;
-  final Location? nationality;
-  final Location? birthCountry;
+  final Country? nationality;
+  final Country? birthCountry;
   final Gender? gender;
-  final Location? residentCountryCode;
+  final Country? residentCountryCode;
 
   const PassengerDetails({this.birthDate, this.nationality, this.birthCountry, this.gender, this.residentCountryCode});
 
@@ -383,20 +382,20 @@ class PassengerDetails {
   PassengerDetails copyWith({Object? birthDate = _unset, Object? nationality = _unset, Object? birthCountry = _unset, Object? gender = _unset, Object? residentCountryCode = _unset}) {
     return PassengerDetails(
       birthDate: identical(birthDate, _unset) ? this.birthDate : birthDate as DateTime?,
-      nationality: identical(nationality, _unset) ? this.nationality : nationality as Location?,
-      birthCountry: identical(birthCountry, _unset) ? this.birthCountry : birthCountry as Location?,
+      nationality: identical(nationality, _unset) ? this.nationality : nationality as Country?,
+      birthCountry: identical(birthCountry, _unset) ? this.birthCountry : birthCountry as Country?,
       gender: identical(gender, _unset) ? this.gender : gender as Gender?,
-      residentCountryCode: identical(residentCountryCode, _unset) ? this.residentCountryCode : residentCountryCode as Location?,
+      residentCountryCode: identical(residentCountryCode, _unset) ? this.residentCountryCode : residentCountryCode as Country?,
     );
   }
 
   factory PassengerDetails.fromJson(Map<String, dynamic> json) {
     return PassengerDetails(
       birthDate: parseDate(json['birthDate']),
-      nationality: json['nationality'] is Map<String, dynamic> ? Location.fromJson(json['nationality']) : null,
-      birthCountry: json['birthCountry'] is Map<String, dynamic> ? Location.fromJson(json['birthCountry']) : null,
+      nationality: json['nationality'] is Map<String, dynamic> ? Country.fromJson(json['nationality']) : null,
+      birthCountry: json['birthCountry'] is Map<String, dynamic> ? Country.fromJson(json['birthCountry']) : null,
       gender: json['gender'] != null ? GenderDetails.fromValue(json['gender']?.toString()) : null,
-      residentCountryCode: json['residentCountryCode'] is Map<String, dynamic> ? Location.fromJson(json['residentCountryCode']) : null,
+      residentCountryCode: json['residentCountryCode'] is Map<String, dynamic> ? Country.fromJson(json['residentCountryCode']) : null,
     );
   }
 

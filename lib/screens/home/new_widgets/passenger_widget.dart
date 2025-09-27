@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
 import 'package:abds/screens/home/widgets/locked_passenger_widget.dart';
@@ -89,7 +90,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Location).name})"),
+      Text("$a (${(a as Country).name})"),
     ],
   );
 
@@ -110,7 +111,6 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     }
   }
 
-  final tim = BasicClass.timData;
 
 
   @override
@@ -140,7 +140,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
               spacing: 12,
               children: [
                 Expanded(
-                  child: MyFieldPicker<Location>(
+                  child: MyFieldPicker<Country>(
                     hasSearch: true,
                     searchAutoFocus: true,
                     label: "Nationality",
@@ -151,9 +151,9 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     prefixIcon: countryPrefixBuilder(details.nationality?.code3),
 
                     rowLabelRatio: [5, 4],
-                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                    searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                     itemToWidget: countryBuilder,
-                    items: tim.locations.of(LocationType.country),
+                    items: BasicClass.constData.data.country,
                     value: details.nationality,
                     onChange: (a) {
                       details = details.copyWith(nationality: a);
@@ -162,7 +162,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                   ),
                 ),
                 Expanded(
-                  child: MyFieldPicker<Location>(
+                  child: MyFieldPicker<Country>(
                     hasSearch: true,
                     searchAutoFocus: true,
                     label: "Resident",
@@ -173,9 +173,9 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                     placeholder: "Country",
                     prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
 
-                    searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+                    searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                     itemToWidget: countryBuilder,
-                    items: tim.locations.of(LocationType.country),
+                    items: BasicClass.constData.data.country,
                     value: details.residentCountryCode,
                     onChange: (a) {
                       details = details.copyWith(residentCountryCode: a);
@@ -226,7 +226,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
           ),
 
           const SizedBox(height: 12),
-          MyFieldPicker<Location>(
+          MyFieldPicker<Country>(
             label: "Birth Place",
             hasSearch: true,
             searchAutoFocus: true,
@@ -235,8 +235,8 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
             bodyBgColor: bodyBgColor,
             prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
 
-            searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-            items: tim.locations.of(LocationType.country),
+            searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+            items: BasicClass.constData.data.country,
             itemToWidget: countryBuilder,
             value: details.birthCountry,
             onChange: (a) {
