@@ -63,7 +63,7 @@ class HomeController extends ControllerInterface {
     ref.read(passportsProvider.notifier).removeAll();
     ref.read(visasProvider.notifier).removeAll();
     ref.read(residentsProvider.notifier).removeAll();
-    ref.read(segmentsProvider.notifier).removeAll();
+    // ref.read(segmentsProvider.notifier).removeAll();
 
     ref.read(showWarningsProvider.notifier).update((s) => true);
     ref.read(passNumberInVisaProvider.notifier).update((s) => false);
@@ -283,7 +283,7 @@ class HomeController extends ControllerInterface {
       log("AllDoces ${allDocs.map((a) => a.getMatch()?.type)}");
       log("Passes ${passes.length} -- Visas${visas.length} -- Residents${residents.length}");
       final others = allDocs.where((a) => !["V", "I", "P"].contains(a.getMatch()?.type)).toList();
-      final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]))));
+      final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]),processingEntity: "ABOMIS DOC CHECK")));
 
       ref.read(passportsProvider.notifier).setAll(passes);
       ref.read(visasProvider.notifier).setAll(visas);

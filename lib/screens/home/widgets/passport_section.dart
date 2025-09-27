@@ -173,6 +173,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                          ref.read(passengerProvider.notifier).update((s)=>s.copyWith(residentCountryCode: s.residentCountryCode??a));
                         },
                       ),
                     ),
@@ -195,6 +196,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                           d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+                          ref.read(passengerProvider.notifier).update((s)=>s.copyWith(nationality: s.nationality??a));
+
                         },
                       ),
                     ),

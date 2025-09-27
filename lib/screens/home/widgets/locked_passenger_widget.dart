@@ -64,7 +64,7 @@ class LockedPassengerRow extends StatelessWidget {
             label: "Birth Date",
             value: Row(
               children: [
-                Expanded(child: Text(DateFormat("dd MMM yyyy").format(passengerDetails.birthDate!))),
+                Expanded(child: Text(passengerDetails.birthDate==null?"":DateFormat("dd MMM yyyy").format(passengerDetails.birthDate!))),
                 Icon(Icons.date_range, size: 10, color: birthDateValidationColor(passengerDetails.birthDate)),
                 Text(birthDateValidator("", passengerDetails.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(passengerDetails.birthDate))),
               ],

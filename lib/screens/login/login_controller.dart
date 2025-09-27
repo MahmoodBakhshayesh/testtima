@@ -295,7 +295,8 @@ class LoginController extends ControllerInterface {
     log("${BasicClass.user?.profile.toJson()}");
     log("${ref.read(userProvider)?.profile.toJson()}");
     log("${seg.departure.point} seg dep point");
-    ref.read(segmentsProvider.notifier).updateAt(0, ItinerarySegment.empty());
+    // ref.read(segmentsProvider.notifier).updateAt(0, ItinerarySegment.empty());
+    ref.read(segmentsProvider.notifier).removeAll();
   }
 
   checkNotifCount() {

@@ -20,9 +20,13 @@ class ItemsController extends StateNotifier<List<ItinerarySegment>> {
   }
 
   void updateAt(int index, ItinerarySegment item) {
-    final next = [...state];
-    next[index] = item;
-    state = next;
+    if(state.isEmpty){
+      state = [item];
+    }else {
+      final next = [...state];
+      next[index] = item;
+      state = next;
+    }
   }
 
   void removeAll() {
