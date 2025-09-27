@@ -285,6 +285,7 @@ class HomeController extends ControllerInterface {
       final others = allDocs.where((a) => !["V", "I", "P"].contains(a.getMatch()?.type)).toList();
       final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]),processingEntity: "ABOMIS DOC CHECK")));
 
+
       ref.read(passportsProvider.notifier).setAll(passes);
       ref.read(visasProvider.notifier).setAll(visas);
       ref.read(residentsProvider.notifier).setAll(residents);

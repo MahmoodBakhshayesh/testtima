@@ -183,7 +183,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     // final tim = BasicClass.timData;
     String? docCode = d.docCode;
-    DocumentDetailType? match = d.getMatch();
+    DocumentType? match = d.getMatch();
 
     return Container(
       decoration: BoxDecoration(
@@ -273,21 +273,21 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   },
                 ),
 
-                ?(match?.note != null)
-                    ? Container(
-                        decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
-                        padding: EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
-                            ),
-                          ],
-                        ),
-                      )
-                    : null,
+                // ?(match?.note != null)
+                //     ? Container(
+                //         decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                //         padding: EdgeInsets.all(12),
+                //         child: Row(
+                //           children: [
+                //             Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
+                //             const SizedBox(width: 8),
+                //             Expanded(
+                //               child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
+                //             ),
+                //           ],
+                //         ),
+                //       )
+                //     : null,
 
                 MyDatePicker(
                   label: "Expiry Date",

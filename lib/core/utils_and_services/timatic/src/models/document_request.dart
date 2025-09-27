@@ -7,7 +7,7 @@ import 'package:artemis_utils/artemis_utils.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ocr_mrz/mrz_result_class_fix.dart';
+import 'package:ocr_mrz/mrz_result_class_fix.dart' hide DocumentType;
 
 import '../../../../classes/constant_data_class.dart';
 import '../../artemis_timatic.dart';
@@ -196,12 +196,12 @@ class DocumentDetail {
     return (shortType == res.getShortType)&& (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 
-  DocumentDetailType? getMatch(){
+  DocumentType? getMatch(){
     String? dc = docCode;
-    DocumentDetailType? match;
+    DocumentType? match;
     if (dc != null && dc.length>1) {
-      match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
-            (a) => a.type == dc.characters.first && (a.subType == "*" || a.subType == dc.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
+      match = BasicClass.constData.data.documentType.lastOrNullWhere(
+            (a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a)=>a.code == documentCode?.code).type,
       );
     }
     return match;
