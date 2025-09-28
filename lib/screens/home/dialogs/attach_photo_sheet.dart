@@ -15,6 +15,7 @@ import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
+import 'package:abds/widgets/drawer_action.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,11 +57,11 @@ class _MyOcrSettingDialogState extends State<AttachPhotoSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Row(
               children: [
                 const SizedBox(width: 12),
-                Expanded(child: Text("Attach Photo")),
+                Expanded(child: Text("Add Attachment")),
                 CloseButton(),
               ],
             ),
@@ -107,57 +108,79 @@ class _MyOcrSettingDialogState extends State<AttachPhotoSheet> {
                         )
                         .toList(),
                   ),
-                  Row(
+                  Column(
                     spacing: 12,
                     children: [
-                      Expanded(
-                        child: MyButton(
-                          height: (context.width - 36) / 2,
-                          radius: 25,
-                          // fade: true,
-                          reverse: true,
-                          borderSide: BorderSide(color: context.mainColor),
-                          label: "",
-                          onPressed: () async {
-                            final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.camera);
-                            if (path != null) {
-                              attachingPhoto.add(path);
-                              setState(() {});
-                            }
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(ArtemisIcons.camera, color: context.mainColor, size: 50),
-                              Text("Camera", style: TextStyle(color: context.mainColor, fontSize: 14)),
-                            ],
-                          ),
-                        ),
+                      DrawerAction(
+                        title: "Camera",
+                        onTap: () async {
+                          final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.camera);
+                          if (path != null) {
+                            attachingPhoto.add(path);
+                            setState(() {});
+                          }
+                        },
+                        leadingIcon: ArtemisIcons.camera,
                       ),
-                      Expanded(
-                        child: MyButton(
-                          height: (context.width - 36) / 2,
-                          radius: 25,
-                          fade: true,
-                          // reverse: true,
-                          borderSide: BorderSide(color: context.mainColor),
-                          label: "",
-                          onPressed: () async {
-                            final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
-                            if (path != null) {
-                              attachingPhoto.add(path);
-                              setState(() {});
-                            }
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(ArtemisIcons.attach_circle, color: context.mainColor, size: 50),
-                              Text("Gallery", style: TextStyle(color: context.mainColor, fontSize: 14)),
-                            ],
-                          ),
-                        ),
+                      DrawerAction(
+                        title: "File",
+                        onTap: () async {
+                          final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
+                          if (path != null) {
+                            attachingPhoto.add(path);
+                            setState(() {});
+                          }
+                        },
+                        leadingIcon: ArtemisIcons.attach_circle,
                       ),
+                      // Expanded(
+                      //   child: MyButton(
+                      //     height: (context.width - 36) / 2,
+                      //     radius: 25,
+                      //     // fade: true,
+                      //     reverse: true,
+                      //     borderSide: BorderSide(color: context.mainColor),
+                      //     label: "",
+                      //     onPressed: () async {
+                      //       final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.camera);
+                      //       if (path != null) {
+                      //         attachingPhoto.add(path);
+                      //         setState(() {});
+                      //       }
+                      //     },
+                      //     child: Column(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         Icon(ArtemisIcons.camera, color: context.mainColor, size: 50),
+                      //         Text("Camera", style: TextStyle(color: context.mainColor, fontSize: 14)),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+                      // Expanded(
+                      //   child: MyButton(
+                      //     height: (context.width - 36) / 2,
+                      //     radius: 25,
+                      //     fade: true,
+                      //     // reverse: true,
+                      //     borderSide: BorderSide(color: context.mainColor),
+                      //     label: "",
+                      //     onPressed: () async {
+                      //       final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
+                      //       if (path != null) {
+                      //         attachingPhoto.add(path);
+                      //         setState(() {});
+                      //       }
+                      //     },
+                      //     child: Column(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         Icon(ArtemisIcons.attach_circle, color: context.mainColor, size: 50),
+                      //         Text("Gallery", style: TextStyle(color: context.mainColor, fontSize: 14)),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                   // Expanded(
@@ -261,8 +284,8 @@ class _MyOcrSettingDialogState extends State<AttachPhotoSheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: MyButton(
-                      label: "Send",
-                      icon: ArtemisIcons.send_2,
+                      label: "Attach",
+                      icon: ArtemisIcons.attach_circle,
                       iconInRight: true,
                       radius: 12,
                       onPressed: attachingPhoto.isEmpty

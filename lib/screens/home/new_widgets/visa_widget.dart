@@ -35,7 +35,7 @@ class VisaWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<DocumentDetail> visas = ref.watch(visasProvider);
-    final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked??false;
     if(locked){
       return Column(
 

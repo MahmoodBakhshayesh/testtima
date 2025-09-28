@@ -34,7 +34,7 @@ class FlightWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-    final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked??false;
     if(locked){
       return Column(
         children: segments.map((d) {
@@ -204,6 +204,41 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            Row(
+              children: [
+                Expanded(
+                  child: MyTextFieldNew(headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48), controller: controller, label: "Flight#",
+                      required: true,
+                      keyboardType: TextInputType.numberWithOptions(signed: true),
+                      placeholder: "Number", rowLabelRatio: [3, 5], labelInRow: true),
+                ),
+
+                const SizedBox(width: 12),
+                Expanded(
+                  child: MyFieldPicker<ParameterValue>(
+                    label: "Airline",
+                    required: true,
+                    placeholder: "Airline",
+                    searchAutoFocus: true,
+                    rowLabelRatio: [3, 5],
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    items: BasicClass.constData.data.carrier,
+                    value: seg.operatingCarrier,
+                    valueToString: (a)=> a.code,
+                    onChange: (a) {
+                      seg = seg.copyWith(operatingCarrier: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // log(jsonEncode(seg.toJson()));
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             Row(
               spacing: 12,
               children: [
@@ -365,28 +400,9 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
             ],
           ),
           const SizedBox(height: 12),
+
           Row(
             children: [
-              Expanded(
-                child: MyFieldPicker<ParameterValue>(
-                  label: "Airline",
-                  placeholder: "Airline",
-                  searchAutoFocus: true,
-                  rowLabelRatio: [3, 5],
-                  headerBgColor: Color(0xffECECEC),
-                  bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  items: BasicClass.constData.data.carrier,
-                  value: seg.operatingCarrier,
-                  onChange: (a) {
-                    seg = seg.copyWith(operatingCarrier: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
-
-                    // log(jsonEncode(seg.toJson()));
-                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
               Expanded(
                 child: MyFieldPicker<PurposeOfStayType>(
                   label: "POS",
@@ -405,14 +421,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   },
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: MyTextFieldNew(headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48), controller: controller, label: "FLNB", placeholder: "Number", rowLabelRatio: [3, 5], labelInRow: true),
-              ),
+
               const SizedBox(width: 12),
               Expanded(
                 child: MyDurationOfStayPicker(

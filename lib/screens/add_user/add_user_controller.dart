@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:abds/core/classes/people_class.dart';
 import 'package:logging/logging.dart';
+import '../../core/classes/user_permission_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
 import '../../core/interfaces/success_int.dart';

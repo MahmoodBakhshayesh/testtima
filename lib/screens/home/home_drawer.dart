@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
@@ -45,6 +48,8 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+    final user = ref.watch(userProvider);
+
     return SafeArea(
       child: Padding(
         padding: context.getDrawerPadding,

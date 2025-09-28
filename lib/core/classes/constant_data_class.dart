@@ -6,6 +6,10 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:abds/core/constants/ui.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+import '../utils_and_services/icomoon_layered_presets_from_css.dart';
 
 VersionedConstantData constantDataFromJson(String str) => VersionedConstantData.fromJson(json.decode(str));
 
@@ -45,7 +49,7 @@ class VersionedData {
   final List<String> textMessage;
   final List<DocumentType> documentType;
   final List<DocumentDetailType> documentDetailType;
-  final Permission permission;
+  final PermissionCatalog permission;
   final List<Attribute> attribute;
   final List<ParameterValue> documentModel;
   final List<ParameterValue> product;
@@ -90,7 +94,7 @@ class VersionedData {
     List<String>? textMessage,
     List<DocumentType>? documentType,
     List<DocumentDetailType>? documentDetailType,
-    Permission? permission,
+    PermissionCatalog? permission,
     List<Attribute>? attribute,
     List<ParameterValue>? documentModel,
     List<ParameterValue>? product,
@@ -135,7 +139,7 @@ class VersionedData {
     textMessage: List<String>.from(json["textMessage"].map((x) => x)),
     documentType: List<DocumentType>.from(json["documentType"].map((x) => DocumentType.fromJson(x))),
     documentDetailType: List<DocumentDetailType>.from(json["documentDetailType"].map((x) => DocumentDetailType.fromJson(x))),
-    permission: Permission.fromJson(json["permission"]),
+    permission: PermissionCatalog.fromJson(json["permission"]),
     attribute: List<Attribute>.from(json["attribute"].map((x) => Attribute.fromJson(x))),
     documentModel: List<ParameterValue>.from(json["documentModel"].map((x) => ParameterValue.fromJson(x))),
     product: List<ParameterValue>.from(json["product"].map((x) => ParameterValue.fromJson(x))),
@@ -466,6 +470,18 @@ class DocumentType {
 
   Color get getColor => HexColor(color);
 
+  Widget get getIcon {
+    if(type == "P"){
+      return IcomoonLayeredCss.global(baseColor: MyColors.mainBlue);
+    }else if(type == "V"){
+      return IcomoonLayeredCss.document_text(colors: [MyColors.mainOrange.withOpacity(0.4),MyColors.mainOrange,MyColors.mainOrange,MyColors.mainOrange,MyColors.mainOrange]);
+    }else if(type == "I"){
+      return IcomoonLayeredCss.user_square(colors: [MyColors.mainGreen.withOpacity(0.48),MyColors.mainGreen,MyColors.mainGreen]);
+    }else{
+      return IcomoonLayeredCss.document(colors: [Colors.black.withOpacity(0.2)]);
+    }
+  }
+
   Map<String, dynamic> toJson() => {
     "type": type,
     "color": color,
@@ -474,78 +490,139 @@ class DocumentType {
   };
 }
 
-class Permission {
-  final List<Conversation> conversation;
-  final List<Conversation> log;
-  final List<Conversation> scanner;
-  final List<Conversation> translate;
-  final List<Conversation> user;
 
-  Permission({
-    required this.conversation,
-    required this.log,
-    required this.scanner,
-    required this.translate,
-    required this.user,
-  });
-
-  Permission copyWith({
-    List<Conversation>? conversation,
-    List<Conversation>? log,
-    List<Conversation>? scanner,
-    List<Conversation>? translate,
-    List<Conversation>? user,
-  }) =>
-      Permission(
-        conversation: conversation ?? this.conversation,
-        log: log ?? this.log,
-        scanner: scanner ?? this.scanner,
-        translate: translate ?? this.translate,
-        user: user ?? this.user,
-      );
-
-  factory Permission.fromJson(Map<String, dynamic> json) => Permission(
-    conversation: List<Conversation>.from(json["conversation"].map((x) => Conversation.fromJson(x))),
-    log: List<Conversation>.from(json["log"].map((x) => Conversation.fromJson(x))),
-    scanner: List<Conversation>.from(json["scanner"].map((x) => Conversation.fromJson(x))),
-    translate: List<Conversation>.from(json["translate"].map((x) => Conversation.fromJson(x))),
-    user: List<Conversation>.from(json["user"].map((x) => Conversation.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "conversation": List<dynamic>.from(conversation.map((x) => x.toJson())),
-    "log": List<dynamic>.from(log.map((x) => x.toJson())),
-    "scanner": List<dynamic>.from(scanner.map((x) => x.toJson())),
-    "translate": List<dynamic>.from(translate.map((x) => x.toJson())),
-    "user": List<dynamic>.from(user.map((x) => x.toJson())),
-  };
-}
-
-class Conversation {
+/// One available permission definition
+class PermissionDefinition {
   final String value;
   final int flag;
 
-  Conversation({
+  const PermissionDefinition({
     required this.value,
     required this.flag,
   });
 
-  Conversation copyWith({
-    String? value,
-    int? flag,
-  }) =>
-      Conversation(
-        value: value ?? this.value,
-        flag: flag ?? this.flag,
-      );
-
-  factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
-    value: json["value"],
-    flag: json["flag"],
-  );
+  factory PermissionDefinition.fromJson(Map<String, dynamic> json) {
+    return PermissionDefinition(
+      value: json['value'] as String,
+      flag: json['flag'] as int,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-    "value": value,
-    "flag": flag,
+    'value': value,
+    'flag': flag,
   };
+
+  @override
+  String toString() => 'PermissionDefinition(value: $value, flag: $flag)';
 }
+
+/// The catalog of all available permissions, grouped by area.
+/// Example keys: "conversation", "log", "scanner", "translate", "user"
+class PermissionCatalog {
+  final Map<String, List<PermissionDefinition>> areas;
+
+  const PermissionCatalog({required this.areas});
+
+  factory PermissionCatalog.fromJson(Map<String, dynamic> json) {
+    final areas = <String, List<PermissionDefinition>>{};
+    json.forEach((key, value) {
+      final list = (value as List<dynamic>)
+          .map((e) => PermissionDefinition.fromJson(e))
+          .toList();
+      areas[key] = list;
+    });
+    return PermissionCatalog(areas: areas);
+  }
+
+  Map<String, dynamic> toJson() => areas.map(
+        (key, list) => MapEntry(key, list.map((e) => e.toJson()).toList()),
+  );
+
+  /// Get available definitions for a specific area
+  List<PermissionDefinition> operator [](String area) =>
+      areas[area] ?? const [];
+
+  /// Flatten all definitions across all areas
+  List<PermissionDefinition> get all =>
+      areas.values.expand((e) => e).toList();
+
+  @override
+  String toString() => 'PermissionCatalog($areas)';
+}
+
+// class Permission {
+//   final List<Conversation> conversation;
+//   final List<Conversation> log;
+//   final List<Conversation> scanner;
+//   final List<Conversation> translate;
+//   final List<Conversation> user;
+//
+//   Permission({
+//     required this.conversation,
+//     required this.log,
+//     required this.scanner,
+//     required this.translate,
+//     required this.user,
+//   });
+//
+//   Permission copyWith({
+//     List<Conversation>? conversation,
+//     List<Conversation>? log,
+//     List<Conversation>? scanner,
+//     List<Conversation>? translate,
+//     List<Conversation>? user,
+//   }) =>
+//       Permission(
+//         conversation: conversation ?? this.conversation,
+//         log: log ?? this.log,
+//         scanner: scanner ?? this.scanner,
+//         translate: translate ?? this.translate,
+//         user: user ?? this.user,
+//       );
+//
+//   factory Permission.fromJson(Map<String, dynamic> json) => Permission(
+//     conversation: List<Conversation>.from(json["conversation"].map((x) => Conversation.fromJson(x))),
+//     log: List<Conversation>.from(json["log"].map((x) => Conversation.fromJson(x))),
+//     scanner: List<Conversation>.from(json["scanner"].map((x) => Conversation.fromJson(x))),
+//     translate: List<Conversation>.from(json["translate"].map((x) => Conversation.fromJson(x))),
+//     user: List<Conversation>.from(json["user"].map((x) => Conversation.fromJson(x))),
+//   );
+//
+//   Map<String, dynamic> toJson() => {
+//     "conversation": List<dynamic>.from(conversation.map((x) => x.toJson())),
+//     "log": List<dynamic>.from(log.map((x) => x.toJson())),
+//     "scanner": List<dynamic>.from(scanner.map((x) => x.toJson())),
+//     "translate": List<dynamic>.from(translate.map((x) => x.toJson())),
+//     "user": List<dynamic>.from(user.map((x) => x.toJson())),
+//   };
+// }
+//
+// class Conversation {
+//   final String value;
+//   final int flag;
+//
+//   Conversation({
+//     required this.value,
+//     required this.flag,
+//   });
+//
+//   Conversation copyWith({
+//     String? value,
+//     int? flag,
+//   }) =>
+//       Conversation(
+//         value: value ?? this.value,
+//         flag: flag ?? this.flag,
+//       );
+//
+//   factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
+//     value: json["value"],
+//     flag: json["flag"],
+//   );
+//
+//   Map<String, dynamic> toJson() => {
+//     "value": value,
+//     "flag": flag,
+//   };
+// }

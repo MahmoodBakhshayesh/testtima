@@ -80,10 +80,15 @@ class MyColors {
   static const red = Color(0xffff3f42);
   static const shinyRed = Color(0xfffa3030);
   static const lineColor = Color(0xffE1E1E1);
+  static const mainGrey = Color(0xffABABAB);
   static const lineBorderColor = Color.fromRGBO(0, 0, 0, 0.12);
   static const liveBG = Color(0xffF0F1f3);
   static const fadedBlue = Color(0xff7c8ac9);
   static const duskBlue = Color(0xff293a84);
+  static const mainBlue = Color(0xff2A5CFF);
+  static const mainOrange = Color(0xFFFFa32c);
+  static const mainRed = Color(0xFFFF3f42);
+  static const mainGreen = Color(0xFF08AB7D);
   static const lightPeriwinkle = Color(0xffbdcaff);
   static const ice = Color.fromRGBO(218, 250, 246, 1);
   static const iceBlue = Color.fromRGBO(248, 255, 253, 1);

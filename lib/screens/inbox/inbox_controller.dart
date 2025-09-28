@@ -1,5 +1,6 @@
 import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/screens/home/home_controller.dart';
+import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/inbox/usecases/get_messages_usecase.dart';
 import 'package:json_view/json_view.dart';
@@ -37,6 +38,7 @@ class InboxController extends ControllerInterface {
   goMessageDetails(String messageCode) async {
     final refHistory = await getIt<HomeController>().getRefHistoryLog(messageCode);
     if(refHistory!=null){
+      ref.read(refCodeProvider.notifier).update((s)=>messageCode);
       // ref.read(inboxMessageDetailsProvider.notifier).update((s)=>refHistory.logs??[]);
       // goNamed(Routes.messageDetails);
       navigation.pop();

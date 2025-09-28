@@ -7,6 +7,7 @@ import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/initialize.dart';
@@ -69,7 +70,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = ref.watch(timaticResultProvider)!.status == 1;
+    bool isLocked = ref.watch(timaticResultNewProvider)!.isLocked;
     return SafeArea(
       bottom: true,
       child: SizedBox(
@@ -220,18 +221,196 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                           ],
                         ),
                       ),
+                      // Padding(
+                      //   padding: const EdgeInsets.all(8.0),
+                      //   child: Wrap(
+                      //     direction: Axis.horizontal,
+                      //     runSpacing: 8,
+                      //     spacing: 8,
+                      //     children: [
+                      //       MyButton(
+                      //         // title: "Ask Supervisor",
+                      //         onPressed: () async {
+                      //           List<Supervisor>? supervisors = await myHomeController.getSupervisors();
+                      //           if (supervisors == null) return;
+                      //
+                      //           String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                      //           if (logId != null) {
+                      //             showModalBottomSheet(
+                      //               context: context,
+                      //               builder: (BuildContext context) {
+                      //                 return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+                      //               },
+                      //               isScrollControlled: true,
+                      //               shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                      //             );
+                      //           }
+                      //         },
+                      //         color: MyColors.mainGrey.withOpacity(0.08),
+                      //         label: '',
+                      //         padding: EdgeInsets.zero,
+                      //         width: (context.width-32)/3,
+                      //         height: (context.width-32)/3,
+                      //         radius: 20,
+                      //         borderSide: BorderSide(color: MyColors.lineColor),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //           IcomoonLayeredCss.message_question(size: 30),
+                      //           const SizedBox(height: 8),
+                      //           Text("Ask Supervisor",style: TextStyle(color: Colors.black,fontSize: 12),),
+                      //         ],),
+                      //         // leadingIcon: ArtemisIcons.message_question,
+                      //       ),
+                      //       MyButton(
+                      //         // title: "Ask Supervisor",
+                      //         onPressed: () async {
+                      //           String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                      //           if (logId != null) {
+                      //             showModalBottomSheet(
+                      //               context: context,
+                      //               enableDrag: false,
+                      //               builder: (BuildContext context) {
+                      //                 return ManagerApprovalSheet(logId: logId);
+                      //               },
+                      //               isScrollControlled: true,
+                      //               shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                      //             );
+                      //           }
+                      //         },
+                      //         color: MyColors.mainGrey.withOpacity(0.08),
+                      //         label: '',
+                      //         padding: EdgeInsets.zero,
+                      //         width: (context.width-32)/3,
+                      //         height: (context.width-32)/3,
+                      //         radius: 20,
+                      //         borderSide: BorderSide(color: MyColors.lineColor),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             IcomoonLayeredCss.airplane_square(size: 30),
+                      //             const SizedBox(height: 8),
+                      //             Text("Station Manager Approval",style: TextStyle(color: Colors.black,fontSize: 12),textAlign: TextAlign.center,),
+                      //           ],),
+                      //         // leadingIcon: ArtemisIcons.message_question,
+                      //       ),
+                      //       MyButton(
+                      //         // title: "Ask Supervisor",
+                      //         onPressed: () async {
+                      //           await myHomeController.translateForPassenger();
+                      //         },
+                      //         color: MyColors.mainGrey.withOpacity(0.08),
+                      //         label: '',
+                      //         padding: EdgeInsets.zero,
+                      //         width: (context.width-32)/3,
+                      //         height: (context.width-32)/3,
+                      //         radius: 20,
+                      //         borderSide: BorderSide(color: MyColors.lineColor),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             IcomoonLayeredCss.translate(size: 30),
+                      //             const SizedBox(height: 8),
+                      //             Text("Translation for Passenger",style: TextStyle(color: Colors.black,fontSize: 12),textAlign: TextAlign.center,),
+                      //           ],),
+                      //         // leadingIcon: ArtemisIcons.message_question,
+                      //       ),
+                      //       MyButton(
+                      //         onPressed: () async {
+                      //           String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                      //           if (logId != null) {
+                      //             showModalBottomSheet(
+                      //               context: context,
+                      //               enableDrag: false,
+                      //               builder: (BuildContext context) {
+                      //                 return AttachPhotoSheet(logId: logId);
+                      //               },
+                      //               isDismissible: false,
+                      //               isScrollControlled: true,
+                      //               shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                      //             );
+                      //           }
+                      //         },
+                      //         color: MyColors.mainGrey.withOpacity(0.08),
+                      //         label: '',
+                      //         padding: EdgeInsets.zero,
+                      //         width: (context.width-32)/3,
+                      //         height: (context.width-32)/3,
+                      //         radius: 20,
+                      //         borderSide: BorderSide(color: MyColors.lineColor),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             IcomoonLayeredCss.attach_circle(size: 30),
+                      //             const SizedBox(height: 8),
+                      //             Text("Add Attachment",style: TextStyle(color: Colors.black,fontSize: 12),textAlign: TextAlign.center,),
+                      //           ],),
+                      //         // leadingIcon: ArtemisIcons.message_question,
+                      //       ),
+                      //       MyButton(
+                      //         onPressed: () async {
+                      //           final res = await getIt<HomeController>().lockUnlockResponse(false);
+                      //           setState(() {});
+                      //           if (res) {
+                      //             Navigator.pop(context);
+                      //           }
+                      //         },
+                      //         color: MyColors.mainGrey.withOpacity(0.08),
+                      //         label: '',
+                      //         padding: EdgeInsets.zero,
+                      //         width: (context.width-32)/3,
+                      //         height: (context.width-32)/3,
+                      //         radius: 20,
+                      //         borderSide: BorderSide(color: MyColors.lineColor),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             IcomoonLayeredCss.refresh(size: 30),
+                      //             const SizedBox(height: 8),
+                      //             Text("Re-check TIMATIC",style: TextStyle(color: Colors.black,fontSize: 12),textAlign: TextAlign.center,),
+                      //           ],),
+                      //         // leadingIcon: ArtemisIcons.message_question,
+                      //       ),
+                      //       MyButton(
+                      //         onPressed: () async {
+                      //           final res = await getIt<HomeController>().lockUnlockResponse(false);
+                      //           setState(() {});
+                      //           if (res) {
+                      //             Navigator.pop(context);
+                      //           }
+                      //         },
+                      //         color: MyColors.mainGrey.withOpacity(0.08),
+                      //         label: '',
+                      //         padding: EdgeInsets.zero,
+                      //         width: (context.width-32)/3,
+                      //         height: (context.width-32)/3,
+                      //         radius: 20,
+                      //         borderSide: BorderSide(color: MyColors.lineColor),
+                      //         child: Column(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             IcomoonLayeredCss.shield_tick(size: 30),
+                      //             const SizedBox(height: 8),
+                      //             Text("Final Decision",style: TextStyle(color: Colors.black,fontSize: 12),textAlign: TextAlign.center,),
+                      //           ],),
+                      //         // leadingIcon: ArtemisIcons.message_question,
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           spacing: 8,
                           children: [
                             DrawerAction(
+                              tileColor: MyColors.mainBlue,
                               title: "Ask Supervisor",
                               onTap: () async {
                                 List<Supervisor>? supervisors = await myHomeController.getSupervisors();
                                 if (supervisors == null) return;
 
-                                String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
+                                String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                 if (logId != null) {
                                   showModalBottomSheet(
                                     context: context,
@@ -246,9 +425,10 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               leadingIcon: ArtemisIcons.message_question,
                             ),
                             DrawerAction(
+                              tileColor: MyColors.mainBlue,
                               title: "Station Manager Approval",
                               onTap: () async {
-                                String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
+                                String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                 if (logId != null) {
                                   showModalBottomSheet(
                                     context: context,
@@ -257,6 +437,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                       return ManagerApprovalSheet(logId: logId);
                                     },
                                     isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
                                   );
                                 }
@@ -264,6 +445,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               leadingIcon: ArtemisIcons.airplane_square,
                             ),
                             DrawerAction(
+                              tileColor: MyColors.mainBlue,
                               title: "Translation for Passenger",
                               onTap: () async {
                                 await myHomeController.translateForPassenger();
@@ -271,13 +453,15 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               leadingIcon: ArtemisIcons.translate,
                             ),
                             DrawerAction(
+                              tileColor: MyColors.mainBlue,
                               title: "Add Attachment",
                               onTap: () async {
-                                String? logId = getIt<HomeController>().ref.read(timaticResultProvider)?.refCode;
+                                String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                 if (logId != null) {
                                   showModalBottomSheet(
                                     context: context,
                                     enableDrag: false,
+
                                     builder: (BuildContext context) {
                                       return AttachPhotoSheet(logId: logId);
                                     },
@@ -289,24 +473,23 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               },
                               leadingIcon: ArtemisIcons.attach_circle,
                             ),
-                            DrawerAction(
-                              title: "Re-check TIMATIC",
-                              onTap: () async {
-                                final res = await getIt<HomeController>().lockUnlockResponse(false);
-                                setState(() {});
-                                if (res) {
-                                  Navigator.pop(context);
-                                }
-                              },
-                              leadingIcon: ArtemisIcons.refresh,
-                            ),
-                            DrawerAction(
-                              title: "Final Decision",
-                              onTap: () async {
-                                ref.read(timaticResultProvider.notifier).update((s) => s?.setStatus(null));
-                              },
-                              leadingIcon: ArtemisIcons.shield_tick,
-                            ),
+                            // DrawerAction(
+                            //   title: "Re-check TIMATIC",
+                            //   onTap: () async {
+                            //     final res = await getIt<HomeController>().lockUnlockResponse(false);
+                            //     setState(() {});
+                            //     if (res) {
+                            //       Navigator.pop(context);
+                            //     }
+                            //   },
+                            //   leadingIcon: ArtemisIcons.refresh,
+                            // ),
+                            // DrawerAction(
+                            //   title: "Final Decision",
+                            //   onTap: () async {
+                            //   },
+                            //   leadingIcon: ArtemisIcons.shield_tick,
+                            // ),
                           ],
                         ),
                       ),

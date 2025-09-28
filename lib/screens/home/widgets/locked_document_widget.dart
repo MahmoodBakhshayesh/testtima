@@ -1,3 +1,5 @@
+import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -46,7 +48,7 @@ class LockedDocumentItemRow extends StatelessWidget {
       child: Column(
         spacing: 12,
         children: [
-          LockedFieldWidget(label: null, value: Text(d.documentCode!.code)),
+          LockedFieldWidget(label: null, value: Text(BasicClass.constData.data.documentCode.firstWhereOrNull((a)=>a.code == d.documentCode?.code)?.toString()??'',style: TextStyle(fontSize: 12,height: 1),)),
           Row(
             spacing: 12,
             children: [

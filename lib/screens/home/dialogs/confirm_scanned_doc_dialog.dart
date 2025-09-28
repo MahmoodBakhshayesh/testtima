@@ -49,18 +49,14 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 // color: MyColors.scaffoldHeader,
-                color: Color(0xff324073).withOpacity(0.4),
+                color: documentDetail.getMatch()?.getColor.withOpacity(0.4),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      documentDetail.isPassport
-                          ? "Passport"
-                          : documentDetail.isVisa
-                          ? "VISA"
-                          : "RESIDENT CARD",
+                      documentDetail.getMatch()?.title??'',
                       style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
                     ),
                   ),
@@ -183,7 +179,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     // final tim = BasicClass.timData;
     String? docCode = d.docCode;
-    DocumentType? match = d.getMatch();
+    DocumentDetailType? match = d.getTypeDetailsMatch();
+    DocumentType? typeMatch = d.getMatch();
 
     return Container(
       decoration: BoxDecoration(
@@ -197,11 +194,12 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         showFooter: false,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: Color(0xff324073).withOpacity(0.2),
-        collapsedBackgroundColor: Color(0xff324073).withOpacity(0.2),
+        backgroundColor: typeMatch?.getColor.withOpacity(0.2),
+        collapsedBackgroundColor: typeMatch?.getColor.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
+
         tilePadding: EdgeInsets.symmetric(horizontal: 14),
         footerExtra: IndexedStack(index: isLast ? 0 : 1, children: [SizedBox()]),
 
@@ -273,21 +271,21 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   },
                 ),
 
-                // ?(match?.note != null)
-                //     ? Container(
-                //         decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
-                //         padding: EdgeInsets.all(12),
-                //         child: Row(
-                //           children: [
-                //             Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
-                //             const SizedBox(width: 8),
-                //             Expanded(
-                //               child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
-                //             ),
-                //           ],
-                //         ),
-                //       )
-                //     : null,
+                ?(match?.note != null)
+                    ? Container(
+                        decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                        padding: EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      )
+                    : null,
 
                 MyDatePicker(
                   label: "Expiry Date",

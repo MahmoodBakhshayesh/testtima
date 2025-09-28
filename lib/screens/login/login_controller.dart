@@ -51,7 +51,7 @@ class LoginController extends ControllerInterface {
   Future<LoginData?> login(String username, String password) async {
     _log.warning("Logging in");
     getIt<HomeController>().clear();
-    ref.read(timaticResultProvider.notifier).update((s) => null);
+    ref.read(timaticResultNewProvider.notifier).update((s) => null);
     // DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     // DeviceInfo deviceInfo = deviceInfoService.getInfo();
     AppDeviceNetworkData adnd = getIt<AppDeviceNetworkData>();
@@ -99,7 +99,7 @@ class LoginController extends ControllerInterface {
   }
 
   askUpdate(LoginData user) async {
-    log(jsonEncode(user.permission.toJson()));
+    log(jsonEncode(user.permission.toRootJson()));
     // return;
     if (user.versionCheck == null) {
       proceedToApp(user);

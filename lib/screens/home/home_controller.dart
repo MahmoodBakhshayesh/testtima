@@ -4,11 +4,13 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:abds/core/classes/constant_data_class.dart';
+import 'package:abds/core/classes/timatic_response_new_class.dart';
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/src/models/converters.dart';
+import 'package:abds/screens/home/dialogs/ask_emploee_id_sheet.dart';
 import 'package:abds/screens/home/dialogs/ask_ref_code_dialog.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/confirm_scanned_doc_dialog.dart';
@@ -70,7 +72,8 @@ class HomeController extends ControllerInterface {
     ref.read(passNumberInVisaProvider.notifier).update((s) => false);
     ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
     ref.read(showingLogsProvider.notifier).update((s) => []);
-    ref.read(timaticResultProvider.notifier).update((s) => null);
+    ref.read(timaticResultNewProvider.notifier).update((s) => null);
+    // ref.read(timaticResultProvider.notifier).update((s) => null);
     // ref.read(lastVisaOcrProvider.notifier).update((s)=>null);
     // ref.read(lastPassportOcrProvider.notifier).update((s)=>null);
 
@@ -294,9 +297,10 @@ class HomeController extends ControllerInterface {
 
       output["refCode"] = code;
       output["status"] = locked ? 1 : 0;
-      DocumentResponse result = DocumentResponse.fromJson(output);
+      // DocumentResponse result = DocumentResponse.fromJson(output);
+      TimaticResponseNew result = TimaticResponseNew.fromJson(output);
 
-      ref.read(timaticResultProvider.notifier).update((s) => result);
+      ref.read(timaticResultNewProvider.notifier).update((s) => result);
     }
   }
 
@@ -444,8 +448,8 @@ class HomeController extends ControllerInterface {
     return count;
   }
 
-  Future<DocumentResponse?> checkTimatic(DocumentRequest req) async {
-    DocumentResponse? response;
+  Future<TimaticResponseNew?> checkTimatic(DocumentRequest req) async {
+    TimaticResponseNew? response;
     SubmitTimaticRequestUseCase checkTimaticUseCase = SubmitTimaticRequestUseCase();
     SubmitTimaticRequestRequest submitTimaticRequestRequestRequest = SubmitTimaticRequestRequest(documentRequest: req);
     final result = await checkTimaticUseCase(request: submitTimaticRequestRequestRequest);
@@ -456,6 +460,7 @@ class HomeController extends ControllerInterface {
       case Ok<SubmitTimaticRequestResponse>():
         final r = result.value;
         response = r.response;
+        ref.read(refCodeProvider.notifier).update((s)=>r.refCode);
     }
 
     return response;
@@ -464,7 +469,7 @@ class HomeController extends ControllerInterface {
   Future<List<SupportedLanguage>?> getSupportLanguage() async {
     List<SupportedLanguage>? languages;
     GetSupportedLanguageUseCase getSupportLanguageUseCase = GetSupportedLanguageUseCase();
-    GetSupportedLanguageRequest getSupportedLanguageRequest = GetSupportedLanguageRequest(logId: ref.read(timaticResultProvider)!.refCode ?? '');
+    GetSupportedLanguageRequest getSupportedLanguageRequest = GetSupportedLanguageRequest(logId: ref.read(refCodeProvider) ?? '');
     final result = await getSupportLanguageUseCase(request: getSupportedLanguageRequest);
 
     switch (result) {
@@ -484,13 +489,13 @@ class HomeController extends ControllerInterface {
     if (langs != null) {
       navigation.pop();
       Future(() {
-        navigation.openBottomSheet(bottomSheet: TranslateLanguageSelectSheet(languages: langs));
+        navigation.openBottomSheet(bottomSheet: TranslateLanguageSelectSheet(languages: langs),shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)));
       });
     }
   }
 
-  Future<DocumentResponse?> translateTimaticResponse({required String language, required String logId}) async {
-    DocumentResponse? translated;
+  Future<TimaticResponseNew?> translateTimaticResponse({required String language, required String logId}) async {
+    TimaticResponseNew? translated;
 
     TranslateTimaticResponseUseCase translateTimaticResponseUseCase = TranslateTimaticResponseUseCase();
     TranslateTimaticResponseRequest timaticResponseRequest = TranslateTimaticResponseRequest(language: language, logId: logId);
@@ -502,12 +507,10 @@ class HomeController extends ControllerInterface {
 
       case Ok<TranslateTimaticResponseResponse>():
         final r = result.value;
-        translated = r.translated;
-        translated.refCode = logId;
-        translated.status = ref.read(timaticResultProvider)?.status;
-
-        log("translated status ${translated.status}");
-        ref.read(timaticResultProvider.notifier).update((s) => translated);
+        // translated = r.translated;
+        // translated.refCode = logId;
+        // translated.status = ref.read(timaticResultProvider)?.status;
+        ref.read(timaticResultNewProvider.notifier).update((s) => translated);
         navigation.pop();
       // navigation.openDialog(dialog: TranslatedResponseDialog(translated: r.translated));
     }
@@ -518,7 +521,7 @@ class HomeController extends ControllerInterface {
   Future<bool> lockUnlockResponse(bool lock) async {
     bool res = false;
     LockUnlockResponseUseCase lockUnlockResponseUseCase = LockUnlockResponseUseCase();
-    LockUnlockResponseRequest lockUnlockResponseRequest = LockUnlockResponseRequest(logId: ref.read(timaticResultProvider)!.refCode!, lock: lock);
+    LockUnlockResponseRequest lockUnlockResponseRequest = LockUnlockResponseRequest(logId: ref.read(refCodeProvider)!, lock: lock);
     final result = await lockUnlockResponseUseCase(request: lockUnlockResponseRequest);
 
     switch (result) {
@@ -528,10 +531,28 @@ class HomeController extends ControllerInterface {
       case Ok<LockUnlockResponseResponse>():
         final r = result.value;
         res = r.isSuccess;
-        ref.read(timaticResultProvider.notifier).update((s) => s?.setStatus(lock ? 1 : 0));
+        ref.read(timaticResultNewProvider.notifier).update((s) => s?.setStatus(lock ? 1 : 0));
     }
 
     return res;
+  }
+
+  Future<TimaticResponseNew?> timatic() async {
+    final id = await navigation.openBottomSheet(bottomSheet: AskEmployeeIDSheet(),isScrollControlled: true);
+    if(id != null){
+      List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
+      final timResult = await checkTimatic(
+        DocumentRequest(
+          documentDetails: ddl,
+          itineraryDetails: ItineraryDetails(segments: ref.read(segmentsProvider)),
+          passengerDetails: ref.read(passengerProvider),
+        ),
+      );
+      return timResult;
+
+    }else{
+      return null;
+    }
   }
 
   // UseCase UseCase = UseCase(repository: Repository());

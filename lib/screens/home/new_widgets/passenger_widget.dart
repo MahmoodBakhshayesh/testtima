@@ -32,10 +32,46 @@ class PassengerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    // final bool locked = ref.watch(timaticResultProvider)?.status == 1;
+    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked??false;
     if(locked){
       return LockedPassengerRow(passengerDetails: passengerDetails, tileColor: Colors.black.withOpacity(0.08));
     }
+
+    return Container(
+      decoration: BoxDecoration(
+        color:Colors.white,
+        borderRadius: BorderRadius.circular(20)
+      ),
+      padding: EdgeInsets.all(12),
+      child: Column(
+        children: [
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: Text("Passenger", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              ),
+              DotButton(
+                icon: ArtemisIcons.eraser_1,
+                iconSize: 20,
+
+                onPressed: () async {
+                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                  if (!confirm) return;
+                  ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
+                },
+                size: 40,
+                radius: 8,
+                flat: true,
+                border: BorderSide(width: 1, color: context.mainColor),
+              ),
+            ],
+          ),
+          PassengerDetailsRow(index: 0, isLast: true, isFirst: false, details: passengerDetails),
+        ],
+      ),
+    );
     return MyExpansionTile(
       title: Column(
         children: [
@@ -121,130 +157,256 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     PassengerDetails details = ref.watch(passengerProvider);
     final headerBgColor = Color(0xffECECEC);
     final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
-    bool locked = ref.watch(timaticResultProvider)?.status == 1;
 
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 6),
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: MyFieldPicker<Country>(
+                hasSearch: true,
+                searchAutoFocus: true,
+                label: "Nationality",
+                required: true,
+                headerBgColor: headerBgColor,
+                bodyBgColor: bodyBgColor,
+                placeholder: "Country",
+                prefixIcon: countryPrefixBuilder(details.nationality?.code3),
+
+                rowLabelRatio: [5, 4],
+                searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                itemToWidget: countryBuilder,
+                items: BasicClass.constData.data.country,
+                value: details.nationality,
+                onChange: (a) {
+                  details = details.copyWith(nationality: a);
+                  ref.read(passengerProvider.notifier).update((s) => details);
+                },
+              ),
+            ),
+            Expanded(
+              child: MyFieldPicker<Country>(
+                hasSearch: true,
+                searchAutoFocus: true,
+                label: "Resident",
+                required: true,
+                headerBgColor: headerBgColor,
+                bodyBgColor: bodyBgColor,
+                rowLabelRatio: [5, 4],
+                placeholder: "Country",
+                prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
+
+                searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                itemToWidget: countryBuilder,
+                items: BasicClass.constData.data.country,
+                value: details.residentCountryCode,
+                onChange: (a) {
+                  details = details.copyWith(residentCountryCode: a);
+                  ref.read(passengerProvider.notifier).update((s) => details);
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: MyFieldPicker<Gender>(
+                label: "Gender",
+                headerBgColor: headerBgColor,
+                bodyBgColor: bodyBgColor,
+                placeholder: "Gender",
+                valueToString: (a)=>a.title,
+                rowLabelRatio: [5, 4],
+                items: Gender.values,
+                hasSearch: false,
+                value: details.gender,
+                onChange: (a) {
+                  details = details.copyWith(gender: a);
+                  ref.read(passengerProvider.notifier).update((s) => details);
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child:   MyFieldPicker<Country>(
+              label: "Birth Place",
+              hasSearch: true,
+              rowLabelRatio: [5, 4],
+
+              searchAutoFocus: true,
+              placeholder: "Country",
+              headerBgColor: headerBgColor,
+              bodyBgColor: bodyBgColor,
+              prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
+
+              searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+              items: BasicClass.constData.data.country,
+              itemToWidget: countryBuilder,
+              value: details.birthCountry,
+              onChange: (a) {
+                ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+              },
+            ),)
+          ],
+        ),
+        const SizedBox(height: 12),
+        MyDatePicker(
+          required: true,
+
+
+          label: "Birth Date",
+          placeholder: "Birth Date",
+          headerBgColor: headerBgColor,
+          bodyBgColor: bodyBgColor,
+          validator: (a) => birthDateValidator(a, details.birthDate),
+          validationColor: birthDateValidationColor(details.birthDate),
+          max: DateTime.now(),
+          validationIcon: ArtemisIcons.user_square,
+          value: details.birthDate,
+          onChanged: (a) {
+            ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+          },
+        ),
+
+      ],
+    );
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
       ),
       child: MyExpansionTile(
+        showFooter: false,
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
         tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 6),
-            Row(
-              spacing: 12,
-              children: [
-                Expanded(
-                  child: MyFieldPicker<Country>(
-                    hasSearch: true,
-                    searchAutoFocus: true,
-                    label: "Nationality",
-                    required: true,
-                    headerBgColor: headerBgColor,
-                    bodyBgColor: bodyBgColor,
-                    placeholder: "Country",
-                    prefixIcon: countryPrefixBuilder(details.nationality?.code3),
-
-                    rowLabelRatio: [5, 4],
-                    searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                    itemToWidget: countryBuilder,
-                    items: BasicClass.constData.data.country,
-                    value: details.nationality,
-                    onChange: (a) {
-                      details = details.copyWith(nationality: a);
-                      ref.read(passengerProvider.notifier).update((s) => details);
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: MyFieldPicker<Country>(
-                    hasSearch: true,
-                    searchAutoFocus: true,
-                    label: "Resident",
-                    required: true,
-                    headerBgColor: headerBgColor,
-                    bodyBgColor: bodyBgColor,
-                    rowLabelRatio: [5, 4],
-                    placeholder: "Country",
-                    prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
-
-                    searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                    itemToWidget: countryBuilder,
-                    items: BasicClass.constData.data.country,
-                    value: details.residentCountryCode,
-                    onChange: (a) {
-                      details = details.copyWith(residentCountryCode: a);
-                      ref.read(passengerProvider.notifier).update((s) => details);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            MyFieldPicker<Gender>(
-              label: "Gender",
-              headerBgColor: headerBgColor,
-              bodyBgColor: bodyBgColor,
-              placeholder: "Gender",
-              items: Gender.values,
-              hasSearch: false,
-              value: details.gender,
-              onChange: (a) {
-                details = details.copyWith(gender: a);
-                ref.read(passengerProvider.notifier).update((s) => details);
-              },
-            ),
-          ],
-        ),
-        childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
-        children: [
-          Row(
+        title: AbsorbPointer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: MyDatePicker(
-                  required: true,
-                  label: "Birth Date",
-                  placeholder: "Birth Date",
-                  headerBgColor: headerBgColor,
-                  bodyBgColor: bodyBgColor,
-                  validator: (a) => birthDateValidator(a, details.birthDate),
-                  validationColor: birthDateValidationColor(details.birthDate),
-                  max: DateTime.now(),
-                  validationIcon: ArtemisIcons.user_square,
-                  value: details.birthDate,
-                  onChanged: (a) {
-                    ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-                  },
-                ),
+              const SizedBox(height: 6),
+              Row(
+                spacing: 12,
+                children: [
+                  Expanded(
+                    child: MyFieldPicker<Country>(
+                      hasSearch: true,
+                      searchAutoFocus: true,
+                      label: "Nationality",
+                      required: true,
+                      headerBgColor: headerBgColor,
+                      bodyBgColor: bodyBgColor,
+                      placeholder: "Country",
+                      prefixIcon: countryPrefixBuilder(details.nationality?.code3),
+
+                      rowLabelRatio: [5, 4],
+                      searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                      itemToWidget: countryBuilder,
+                      items: BasicClass.constData.data.country,
+                      value: details.nationality,
+                      onChange: (a) {
+                        details = details.copyWith(nationality: a);
+                        ref.read(passengerProvider.notifier).update((s) => details);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<Country>(
+                      hasSearch: true,
+                      searchAutoFocus: true,
+                      label: "Resident",
+                      required: true,
+                      headerBgColor: headerBgColor,
+                      bodyBgColor: bodyBgColor,
+                      rowLabelRatio: [5, 4],
+                      placeholder: "Country",
+                      prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
+
+                      searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                      itemToWidget: countryBuilder,
+                      items: BasicClass.constData.data.country,
+                      value: details.residentCountryCode,
+                      onChange: (a) {
+                        details = details.copyWith(residentCountryCode: a);
+                        ref.read(passengerProvider.notifier).update((s) => details);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: MyDatePicker(
+                      required: true,
+                      rowLabelRatio: [5, 4],
+
+                      label: "Birth Date",
+                      placeholder: "Birth Date",
+                      headerBgColor: headerBgColor,
+                      bodyBgColor: bodyBgColor,
+                      validator: (a) => birthDateValidator(a, details.birthDate),
+                      validationColor: birthDateValidationColor(details.birthDate),
+                      max: DateTime.now(),
+                      validationIcon: ArtemisIcons.user_square,
+                      value: details.birthDate,
+                      onChanged: (a) {
+                        ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child:   MyFieldPicker<Country>(
+                    label: "Birth Place",
+                    hasSearch: true,
+                    rowLabelRatio: [5, 4],
+
+                    searchAutoFocus: true,
+                    placeholder: "Country",
+                    headerBgColor: headerBgColor,
+                    bodyBgColor: bodyBgColor,
+                    prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
+
+                    searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                    items: BasicClass.constData.data.country,
+                    itemToWidget: countryBuilder,
+                    value: details.birthCountry,
+                    onChange: (a) {
+                      ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                    },
+                  ),)
+                ],
+              ),
+              const SizedBox(height: 12),
+              MyFieldPicker<Gender>(
+                label: "Gender",
+                headerBgColor: headerBgColor,
+                bodyBgColor: bodyBgColor,
+                placeholder: "Gender",
+                items: Gender.values,
+                hasSearch: false,
+                value: details.gender,
+                onChange: (a) {
+                  details = details.copyWith(gender: a);
+                  ref.read(passengerProvider.notifier).update((s) => details);
+                },
               ),
             ],
           ),
-
-          const SizedBox(height: 12),
-          MyFieldPicker<Country>(
-            label: "Birth Place",
-            hasSearch: true,
-            searchAutoFocus: true,
-            placeholder: "Country",
-            headerBgColor: headerBgColor,
-            bodyBgColor: bodyBgColor,
-            prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
-
-            searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-            items: BasicClass.constData.data.country,
-            itemToWidget: countryBuilder,
-            value: details.birthCountry,
-            onChange: (a) {
-              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-            },
-          ),
-          const SizedBox(height: 12),
-        ],
+        ),
+        childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
+        // children: [
+        //
+        //
+        //   const SizedBox(height: 12),
+        //
+        //   const SizedBox(height: 12),
+        // ],
       ),
     );
   }

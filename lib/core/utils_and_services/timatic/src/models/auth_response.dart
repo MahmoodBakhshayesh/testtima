@@ -8,6 +8,7 @@ import 'package:abds/core/constants/ui.dart';
 
 import '../../../../classes/constant_data_class.dart';
 import '../../../../classes/people_class.dart';
+import '../../../../classes/user_permission_class.dart';
 
 class LoginEnvelope {
   final bool success;
@@ -85,7 +86,7 @@ class LoginData {
       setPassword: json['setPassword'] ?? false,
       token: json['token'] ?? '',
       constDataVersion: json['constDataVersion'] ?? '',
-      permission: UserPermission.fromJson(fixedPermission),
+      permission: UserPermission.fromRootJson(fixedPermission),
       // constData: ConstData.fromJson(json['constData'] ?? {}),
     );
   }

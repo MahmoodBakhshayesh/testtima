@@ -1,6 +1,7 @@
 import 'package:abds/core/extenstions/string_ext.dart';
 import 'package:flutter/material.dart';
 import '../../../core/classes/people_class.dart';
+import '../../../core/classes/user_permission_class.dart';
 import '../../../core/interfaces/failures_int.dart';
 import '../../../core/interfaces/request_int.dart';
 import '../../../core/interfaces/response_int.dart';
@@ -38,7 +39,7 @@ class AddUserRequest extends RequestInterface {
     "firstname": firstname.pureValue,
     "middlename": null,
     "lastname":lastname.pureValue,
-    "permission":permissions.toJson()["permission"],
+    "permission":permissions.toRootJson(),
   };
 
   Failure? validate(){

@@ -10,8 +10,9 @@ class DrawerAction extends StatefulWidget {
   final Callback? onTap;
   final bool dense;
   final Color? color;
+  final Color? tileColor;
 
-  const DrawerAction({super.key, required this.title, required this.onTap, required this.leadingIcon, this.dense = false, this.color});
+  const DrawerAction({super.key, required this.title, required this.onTap, required this.leadingIcon, this.dense = false, this.color, this.tileColor});
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -45,13 +46,13 @@ class _DrawerActionState extends State<DrawerAction> {
       width: double.infinity,
       child:Material(
         borderRadius: BorderRadius.circular(12),
-        color:  Color(0xffABABAB).withOpacity(0.08),
+        color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(0.08),
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Color(0xffF0F0F0),)
+            border: Border.all(color: (widget.tileColor?.withOpacity(0.35)??Color(0xffF0F0F0)),)
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 8),
           child: InkWell(
             // tileColor: Colors.transparent,
             // focusColor: Colors.red,
@@ -60,7 +61,7 @@ class _DrawerActionState extends State<DrawerAction> {
             child: Row(
               spacing: 8,
               children: [
-                Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
+                Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color:widget.tileColor?? c),
                 Expanded(
                   child: Text(
                     widget.title,

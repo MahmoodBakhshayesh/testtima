@@ -17,6 +17,7 @@ import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
+import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:abds/widgets/drawer_action.dart';
@@ -43,6 +44,7 @@ class TranslateLanguageSelectSheet extends ConsumerStatefulWidget {
 
 class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectSheet> {
   final myHomeController = getIt<HomeController>();
+  Language? selected;
 
   @override
   void initState() {
@@ -51,7 +53,6 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = ref.watch(timaticResultProvider)!.status == 1;
     return SafeArea(
       bottom: true,
       child: SizedBox(
@@ -76,68 +77,150 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
               ],
             ),
             Divider(),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                margin: EdgeInsets.only(left: 8, right: 8, top: 12),
+                decoration: BoxDecoration(color: MyColors.greyBG, borderRadius: BorderRadius.circular(12)),
+                child: RadioListTile(
+                  dense: true,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)
+                  ),
+                  selected: selected == null,
+                  selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
+                  title: Text("English (Default)", style: TextStyle(fontSize: 14, color: selected == null ? context.mainColor : Colors.black)),
+                  value: null,
+                  groupValue: selected?.language,
+                  onChanged: (a) {
+                    selected = null;
+                    setState(() {});
+                  },
+                ),
+              ),
+            ),
             Expanded(
               child: Container(
                 color: Colors.white,
                 child: ListView(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  children: widget.languages
-                      .map(
-                        (a) => Column(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(bottom: 8),
-                              // decoration: BoxDecoration(
-                              //   color: Colors.black.withOpacity(0.08),
-                              //   borderRadius: BorderRadius.circular(12),
-                              //   border: Border.all(color: MyColors.lineColor),
-                              // ),
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
+                  children: widget.languages.map((a) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: MyExpansionTile(
+                        showTrailingIcon: true,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
+                        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
+                        backgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
+                        collapsedBackgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
+                        title: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(children: [CountryFlag.fromCountryCode(a.country!, width: 30, height: 20), const SizedBox(width: 8), Text(a.country!)]),
+                        ),
+                        showFooter: false,
+                        children: a.languages!.map((l) {
+                          bool isSelected = l.language == selected?.language;
+                          return RadioListTile(
+                            dense: true,
+                            selected: isSelected,
+                            selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
+                            title: Text("${l.name} (${l.title!})", style: TextStyle(fontSize: 14, color: isSelected ? context.mainColor : Colors.black)),
+                            value: l.language!,
+                            groupValue: selected?.language,
+                            onChanged: (a) {
+                              selected = l;
+                              setState(() {});
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    );
+                    return Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(bottom: 8),
+                          // decoration: BoxDecoration(
+                          //   color: Colors.black.withOpacity(0.08),
+                          //   borderRadius: BorderRadius.circular(12),
+                          //   border: Border.all(color: MyColors.lineColor),
+                          // ),
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(2),
-                                        decoration: BoxDecoration(color: MyColors.lineColor, borderRadius: BorderRadius.circular(4)),
-                                        child: CountryFlag.fromCountryCode(a.country!, width: 40, height: 20),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(a.country ?? '-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                    ],
+                                  Container(
+                                    padding: EdgeInsets.all(2),
+                                    decoration: BoxDecoration(color: MyColors.lineColor, borderRadius: BorderRadius.circular(4)),
+                                    child: CountryFlag.fromCountryCode(a.country!, width: 40, height: 20),
                                   ),
-                                  Row(
-                                    children: [
-                                      const SizedBox(width: 20),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                          child: Column(
-                                            children: (a.languages ?? [])
-                                                .map(
-                                                  (l) => DrawerAction(
-                                                    title: l.name!,
-                                                    onTap: () async {
-                                                      await myHomeController.translateTimaticResponse(language: l.language!, logId: ref.read(timaticResultProvider)!.refCode!);
-
-                                                    },
-                                                    leadingIcon: Icons.circle,
-                                                  ),
-                                                )
-                                                .toList(),
-                                          ),
-                                        ),
+                                  const SizedBox(width: 8),
+                                  Text(a.country ?? '-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Column(
+                                        children: (a.languages ?? [])
+                                            .map(
+                                              (l) => DrawerAction(
+                                                title: l.name!,
+                                                onTap: () async {
+                                                  await myHomeController.translateTimaticResponse(language: l.language!, logId: ref.read(refCodeProvider)!);
+                                                },
+                                                leadingIcon: Icons.circle,
+                                              ),
+                                            )
+                                            .toList(),
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )
-                      .toList(),
+                      ],
+                    );
+                  }).toList(),
                 ),
+              ),
+            ),
+            Divider(),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: MyButton(
+                      color: Colors.grey,
+                      radius: 12,
+                      borderSide: BorderSide(color: MyColors.lineColor),
+                      reverse: true,
+                      label: "Cancel",
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MyButton(
+                      label: "Confirm",
+                      radius: 12,
+                      icon: ArtemisIcons.send_2,
+                      iconInRight: true,
+                      onPressed:() async {
+                              await myHomeController.translateTimaticResponse(language: selected!.language!, logId: ref.read(refCodeProvider)!);
+                              // Navigator.of(context).pop(true);
+                            },
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

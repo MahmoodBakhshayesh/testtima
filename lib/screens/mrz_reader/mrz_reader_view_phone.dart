@@ -45,6 +45,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
     // myMrzReaderController.agg.reset();
     // myMrzReaderController.ocrMrzController.resetSession();
     myMrzReaderController.ocrMrzController.resetSession();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(Duration(seconds: 3), () {
         myMrzReaderController.ref.read(showDynamsoftProvider.notifier).update((s) => true);
@@ -192,7 +193,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                         algorithm: ref.watch(ocrMrzSettingProvider).algorithm,
                       ), onFoundMrz: (OcrMrzResult res) {  },
                     ),
-                    Positioned(top: 0, left: 0, right: 0, child: ImprovingResultWidget(_launchMrzScanner)),
+                    // Positioned(top: 0, left: 0, right: 0, child: ImprovingResultWidget(_launchMrzScanner)),
                     Positioned(
                       bottom: 24,
                       left: 0,

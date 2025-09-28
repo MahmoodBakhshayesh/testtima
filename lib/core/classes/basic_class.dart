@@ -13,6 +13,7 @@ import '../utils_and_services/timatic/src/models/aggregates.dart';
 import 'constant_data_class.dart';
 import 'people_class.dart';
 import 'user_class.dart';
+import 'user_permission_class.dart';
 
 class BasicClass {
   BasicClass._();
@@ -85,11 +86,12 @@ class BasicClass {
     final up = instance._userPermission!;
 
     if (permission is UserUiPermission) {
-      return up.permission.getUserPermissions.isNotEmpty;
+      // return up.
+      // return up.user.isGreaterThan(0);
     }
 
     if (permission is LogUiPermission) {
-      return up.permission.getLogPermissions.isNotEmpty;
+      // return up.log.isGreaterThan(0);
     }
 
     return false;

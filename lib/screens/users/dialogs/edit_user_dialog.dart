@@ -50,7 +50,9 @@ class _EditUserDialogState extends State<EditUserDialog> {
   bool loading = false;
 
   late bool active = widget.user.enable;
-  late UserPermission tmp = UserPermission.fromJson(widget.user.permission.toJson());
+  // late UserPermission tmp = UserPermission.fromJson(widget.user.permission);
+  late Map<String,int> tmp = Map<String,int>.from(widget.user.permission);
+
 
   // List<UserPermission> includedPermissions = [];
 
@@ -140,8 +142,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         Divider(height: 24,),
                         Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         Column(
-                          children: permissions.permission.categories.map((cat) {
-                            final perList = permissions.permission.getPermissionsFor(cat);
+                          children:BasicClass.constData.data.permission.all.map((cat) {
+                            final perList = BasicClass.constData.data.permission[cat.value];
                             if(perList.isEmpty ){
                               return SizedBox();
                             }
@@ -153,13 +155,13 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                   child: Row(
                                     children: [
                                       Expanded(
-                                        child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                        child: Text("${cat.value!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                       ),
                                       DotButton(
                                         icon: Icons.select_all,
                                         onPressed: () {
                                           final all = [...perList];
-                                          tmp.permission.setPermissionsFor(cat, all);
+                                          // tmp.permission.setPermissionsFor(cat, all);
                                           setState(() {});
                                         },
                                         color: Colors.green,
@@ -168,7 +170,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                       DotButton(
                                         icon: Icons.deselect,
                                         onPressed: () {
-                                          tmp.permission.setPermissionsFor(cat, []);
+                                          // tmp.permission.setPermissionsFor(cat, []);
                                           setState(() {});
                                         },
                                         color: Colors.red,
@@ -184,21 +186,20 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                         child: SelectionChip(
                                           // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
                                           label: ap.value,
-                                          value: tmp.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
+                                          value: false,
+                                          // value: tmp.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
                                           onSelected: (bool value) {
-                                            // List<int> current = BitmaskHelper.extract(aup.permission.getFlightPermissions.map((a)=>a.flag).toList());
-                                            List<PermissionCategory> current = tmp.permission.getPermissionsFor(cat);
-                                            log(jsonEncode(current));
-                                            if (value) {
-                                              current.add(ap);
-                                            } else {
-                                              log("should remove where ${ap.flag}");
-                                              current.removeWhere((a) => a.flag == ap.flag);
-                                            }
-                                            log(jsonEncode(current));
-                                            tmp.permission.setPermissionsFor(cat, current);
-                                            log(jsonEncode(tmp));
-                                            setState(() {});
+
+                                            // List<PermissionCategory> current = tmp.permission.getPermissionsFor(cat);
+                                            // log(jsonEncode(current));
+                                            // if (value) {
+                                            //   current.add(ap);
+                                            // } else {
+                                            //   log("should remove where ${ap.flag}");
+                                            //   current.removeWhere((a) => a.flag == ap.flag);
+                                            // }
+                                            // tmp.permission.setPermissionsFor(cat, current);
+                                            // setState(() {});
                                           },
                                         ),
                                       );

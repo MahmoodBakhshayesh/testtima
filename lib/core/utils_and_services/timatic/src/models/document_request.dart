@@ -206,6 +206,20 @@ class DocumentDetail {
     }
     return match;
   }
+
+  DocumentDetailType? getTypeDetailsMatch(){
+    String? dc = docCode;
+    DocumentDetailType? match;
+    if(docCode == null){
+      return null;
+    }
+    if (dc != null && dc.length>1) {
+      match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
+            (a) => a.type == docCode?.characters.first && (a.subType == "*" || a.subType == docCode?.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
+      );
+    }
+    return match;
+  }
 }
 
 String censorText(String input, List<String> forbidden) {

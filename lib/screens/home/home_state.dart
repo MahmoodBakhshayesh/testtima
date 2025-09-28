@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:abds/core/classes/timatic_response_new_class.dart';
 import 'package:abds/core/utils_and_services/import_toggler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,7 +18,8 @@ class HomeState extends ChangeNotifier {
 }
 
 
-final timaticResultProvider = StateProvider<DocumentResponse?>((ref) => null);
+// final timaticResultProvider = StateProvider<DocumentResponse?>((ref) => null);
+final timaticResultNewProvider = StateProvider<TimaticResponseNew?>((ref) => null);
 // final documentProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
 // final passportsProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
 // final visasProvider = StateProvider<List<DocumentDetail>>((ref) => [DocumentDetail(documentCode: null)]);
@@ -32,3 +34,4 @@ final attachingPhotoPathProvider = StateProvider<List<String>>((ref) => []);
 final confirmingDocumentProvider = StateProvider<DocumentDetail?>((ref) => null);
 final showingLogsProvider =  StateProvider<List<RefHistoryLog>>((ref) => []);
 final notifCountProvider =  StateProvider<int>((ref) => 0);
+final refCodeProvider =  StateProvider<String?>((ref) => null);

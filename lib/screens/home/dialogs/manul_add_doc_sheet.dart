@@ -4,6 +4,7 @@ import 'package:abds/core/classes/supervisor_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
 import 'package:abds/initialize.dart';
@@ -75,7 +76,8 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
                       Navigator.of(context).pop();
                     },
                     dense: true,
-                    leading: Icon(ArtemisIcons.note_2, color: dt.getColor),
+                    // leading: IcomoonLayeredCss.global(baseColor: MyColors.mainBlue),
+                    leading: dt.getIcon,
                     title: Text(
                       "${dt.title} ${dt.type}",
                       style: TextStyle(color: dt.getColor, fontSize: 14, fontWeight: FontWeight.bold),

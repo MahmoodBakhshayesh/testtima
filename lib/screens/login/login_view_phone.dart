@@ -1,4 +1,6 @@
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'package:get/get_utils/src/extensions/string_extensions.dart';
 import 'package:pinput/pinput.dart';
 
@@ -49,11 +51,13 @@ class _LoginViewPhoneState extends State<LoginViewPhone> {
               size: 40,
               // fade: false,
               flat: true,
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
+              border: BorderSide(color: MyColors.mainBlue.withOpacity(0.3)),
               onPressed: () async {
                 await LoginViewPhone.myLoginController.serverSelect();
                 // myLoginController.showLoginSetting();
               },
+              child: IcomoonLayeredCss.cloud_connection(colors: [MyColors.mainBlue.withOpacity(0.3),MyColors.mainBlue]),
               icon: Icons.settings_remote_rounded,
             );
           },
@@ -152,9 +156,9 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
     return Container(
       width: context.width,
       decoration: BoxDecoration(
-        color: MyColors.black8,
+        color: Color(0xffF0F5F8),
         borderRadius: BorderRadius.circular(12),
-        image: const DecorationImage(alignment: Alignment.bottomCenter, image: AssetImage(AssetImages.loginBg), fit: BoxFit.cover),
+        // image: const DecorationImage(alignment: Alignment.bottomCenter, image: AssetImage(AssetImages.loginBg), fit: BoxFit.cover),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
       child: IndexedStack(
@@ -169,8 +173,15 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    Text("ABOMIS\nDOCUMENT\nCHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        Image.asset(AssetImages.logo,height: 50,),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text("TIMACHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 24),
+
                     MyTextField(
                       label: "Username or Email",
                       borderSide: BorderSide(color: Colors.white),
@@ -209,11 +220,16 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                         LoginState state = ref.watch(loginProvider);
                         return MyButton(
                           height: 45,
+                          radius: 12,
                           onPressed: () async {
                             await myLoginController.login(usernameC.text, passwordC.text);
                           },
                           fontSize: 16,
-                          label: 'Enter',
+                          label: 'Sign In',
+                          child: Row(children: [
+                            Expanded(child: Text("Sign In",style: TextStyle(color: Colors.white),)),
+                            IcomoonLayeredCss.user_octagon(colors: [Colors.white38,Colors.white,Colors.white]),
+                          ],),
                         );
                       },
                     ),

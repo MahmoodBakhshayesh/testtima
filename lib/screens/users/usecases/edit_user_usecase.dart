@@ -25,14 +25,14 @@ class EditUserUseCase extends UseCase<EditUserResponse,EditUserRequest> {
 class EditUserRequest extends RequestInterface {
   final People people;
   final bool active;
-  final UserPermission updatedPermission;
+  final Map<String,int> updatedPermission;
 
   EditUserRequest({required this.people, required this.active, required this.updatedPermission});
 
   @override
   Map<String, dynamic> toJson() =>{
     "enable":active,
-    "permission":updatedPermission.toJson()["permission"]
+    "permission":updatedPermission
   };
 
   Failure? validate(){

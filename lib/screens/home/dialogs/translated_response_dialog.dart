@@ -1,9 +1,11 @@
+import 'package:abds/core/classes/timatic_response_new_class.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_view_phone.dart';
+import 'package:abds/screens/home/widgets/timatic_response_widget.dart';
 import 'package:flutter/material.dart';
 
 class TranslatedResponseDialog extends StatelessWidget {
-  final DocumentResponse translated;
+  final TimaticResponseNew translated;
 
   const TranslatedResponseDialog({super.key, required this.translated});
   @override
@@ -24,7 +26,7 @@ class TranslatedResponseDialog extends StatelessWidget {
           Expanded(child: SingleChildScrollView(
             child: Column(
               children: [
-                TimaticTrueResultWidget(res: translated),
+                TimaticTrueResultWidgetNew(res: translated),
               ],
             ),
           )),

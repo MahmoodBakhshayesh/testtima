@@ -1,12 +1,16 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/classes/ref_history_log_class.dart';
+import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:artemis_utils/artemis_utils.dart';
+import 'package:dartx/dartx.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -43,7 +47,7 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
               return SizedBox();
           }
         }).toList(),
-        AttachmentsWidget(hisList: logs.where((a) => ["attachVoice", "attachPhoto"].contains(a.payload?.action)).toList(),),
+        AttachmentsWidget(hisList: logs.where((a) => ["attachVoice", "attachPhoto"].contains(a.payload?.action)).toList()),
         ...logs.map((l) {
           switch (l.payload?.action) {
             case null:
@@ -68,9 +72,14 @@ class HeaderAskSupervisorWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(showingLogsProvider);
-
+    final asks = logs.lastOrNullWhere((a)=>a.payload?.action == "askSupervisor");
+    if(asks == null){
+      return SizedBox();
+    }
+    return AskSupervisorWidget(his: asks);
     return Column(
       children: [
+
         ...logs.map((l) {
           switch (l.payload?.action) {
             case null:
@@ -80,7 +89,7 @@ class HeaderAskSupervisorWidget extends ConsumerWidget {
             default:
               return SizedBox();
           }
-        })
+        }),
       ],
     );
     return Container();
@@ -107,6 +116,7 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
     final greenColor = Color(0xff08AB7D);
     final redColor = Color(0xffFF3F42);
     final blackColor = Color(0xff2D2D2D);
+    log(jsonEncode(widget.his.toJson()));
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -117,8 +127,25 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Text("Supervisor", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          // const SizedBox(height: 12),
+          Text("Supervisor Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          widget.his.payload?.message == null
+              ? SizedBox()
+              : Container(
+                  margin: EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: MyColors.mainBlue.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(widget.his.user?.username??'-',style: TextStyle(fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                      Text(widget.his.payload!.message!),
+                    ],
+                  ),
+                ),
           // Row(
           //   children: [
           //     Expanded(
@@ -142,9 +169,9 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                   radius: 12,
                   label: "Approve",
                   onPressed: () {
-                    if(status ==1 ){
-                      status =null;
-                    }else {
+                    if (status == 1) {
+                      status = null;
+                    } else {
                       status = 1;
                     }
                     setState(() {});
@@ -161,9 +188,9 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                   fontSize: 12,
                   label: "Deny",
                   onPressed: () {
-                    if(status ==2 ){
-                      status =null;
-                    }else {
+                    if (status == 2) {
+                      status = null;
+                    } else {
                       status = 2;
                     }
                     setState(() {});
@@ -180,9 +207,9 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                   fontSize: 12,
                   label: "Wait",
                   onPressed: () {
-                    if(status ==3 ){
-                      status =null;
-                    }else {
+                    if (status == 3) {
+                      status = null;
+                    } else {
                       status = 3;
                     }
                     setState(() {});
@@ -196,71 +223,79 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
           ),
           const SizedBox(height: 12),
           AnimatedContainer(
-              height: status==3?(BasicClass.constData.data.textMessage.length*50):status==1?40:status==2?40:0,
-              duration: Duration(milliseconds: 200),child: status==3? Column(
-            spacing: 8,
-            children: [
-              ...BasicClass.constData.data.textMessage.map((a) {
-                bool selected = msg == a;
-                return MyButton(
-                  radius: 20,
-                  label: a,
-                  // reverse: true,
-                  color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
-                  borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
-                  onPressed: () {
-                    if (selected) {
-                      msg = null;
-                    } else {
-                      msg = a;
-                    }
-                    setState(() {});
-                  },
-                  child: Row(
+            height: status == 3
+                ? (BasicClass.constData.data.textMessage.length * 50)
+                : status == 1
+                ? 40
+                : status == 2
+                ? 40
+                : 0,
+            duration: Duration(milliseconds: 200),
+            child: status == 3
+                ? Column(
+                    spacing: 8,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
-                      ),
-                      Expanded(
-                        child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
-                      ),
+                      ...BasicClass.constData.data.textMessage.map((a) {
+                        bool selected = msg == a;
+                        return MyButton(
+                          radius: 20,
+                          label: a,
+                          // reverse: true,
+                          color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
+                          borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
+                          onPressed: () {
+                            if (selected) {
+                              msg = null;
+                            } else {
+                              msg = a;
+                            }
+                            setState(() {});
+                          },
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
+                              ),
+                              Expanded(
+                                child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
-                  ),
-                );
-              }),
-            ],
-          ):status == 1?Container(
-            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
-            decoration: BoxDecoration(
-              color: greenColor.withOpacity(0.08),
-              borderRadius: BorderRadiusGeometry.circular(10)
-            ),
-            child: Row(
-              children: [
-                Text("Passenger is OK to travel",style: TextStyle(color: greenColor),),
-              ],
-            ),):status==2?Container(
-            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
-            decoration: BoxDecoration(
-                color: redColor.withOpacity(0.08),
-                borderRadius: BorderRadiusGeometry.circular(10)
-            ),
-            child: Row(
-              children: [
-                Text("Passenger is Rejected to travel",style: TextStyle(color: redColor),),
-              ],
-            ),):SizedBox()),
+                  )
+                : status == 1
+                ? Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(color: greenColor.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(10)),
+                    child: Row(
+                      children: [Text("Passenger is OK to travel", style: TextStyle(color: greenColor))],
+                    ),
+                  )
+                : status == 2
+                ? Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(color: redColor.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(10)),
+                    child: Row(
+                      children: [Text("Passenger is Rejected to travel", style: TextStyle(color: redColor))],
+                    ),
+                  )
+                : SizedBox(),
+          ),
           const SizedBox(height: 12),
-          MyButton(label: "Send",
-              onPressed:status==null?null: () async {
-                await getIt<HomeController>().attachToResult(logId: getIt<HomeController>().ref
-                    .read(timaticResultProvider)
-                    ?.refCode ?? '-', data: {"action": "supervisorApproval", 'status': status,"message":msg});
-              },
-              radius: 12,
-              icon: ArtemisIcons.send,
-              iconInRight: true),
+          MyButton(
+            label: "Send",
+            onPressed: status == null
+                ? null
+                : () async {
+                    await getIt<HomeController>().attachToResult(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', data: {"action": "supervisorApproval", 'status': status, "message": msg});
+                  },
+            radius: 12,
+            icon: ArtemisIcons.send,
+            iconInRight: true,
+          ),
         ],
       ),
     );
@@ -303,12 +338,7 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
           Row(
             children: [
               Expanded(
-                child: MyTextFieldNew(headerBgColor: selectionColor.withOpacity(0.2),
-                    bodyBgColor: Color(0xffF0F2F8),
-                    radius: BorderRadius.circular(12),
-                    label: "Comment",
-                    controller: commentC,
-                    placeholder: "Enter Comment"),
+                child: MyTextFieldNew(headerBgColor: selectionColor.withOpacity(0.2), bodyBgColor: Color(0xffF0F2F8), radius: BorderRadius.circular(12), label: "Comment", controller: commentC, placeholder: "Enter Comment"),
               ),
             ],
           ),
@@ -323,9 +353,9 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
                   radius: 12,
                   label: "Approved",
                   onPressed: () {
-                    if(status ==1 ){
-                      status =null;
-                    }else {
+                    if (status == 1) {
+                      status = null;
+                    } else {
                       status = 1;
                     }
                     setState(() {});
@@ -342,9 +372,9 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
                   fontSize: 12,
                   label: "Deny",
                   onPressed: () {
-                    if(status ==2 ){
-                      status =null;
-                    }else {
+                    if (status == 2) {
+                      status = null;
+                    } else {
                       status = 2;
                     }
                     setState(() {});
@@ -361,9 +391,9 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
                   fontSize: 12,
                   label: "Wait",
                   onPressed: () {
-                    if(status ==3 ){
-                      status =null;
-                    }else {
+                    if (status == 3) {
+                      status = null;
+                    } else {
                       status = 3;
                     }
                     setState(() {});
@@ -377,51 +407,55 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
           ),
           const SizedBox(height: 12),
           AnimatedContainer(
-              height: status==3?(BasicClass.constData.data.textMessage.length*50):0,
-              duration: Duration(milliseconds: 200),child: status==3? Column(
-            spacing: 8,
-            children: [
-              ...BasicClass.constData.data.textMessage.map((a) {
-                bool selected = msg == a;
-                return MyButton(
-                  radius: 20,
-                  label: a,
-                  // reverse: true,
-                  color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
-                  borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
-                  onPressed: () {
-                    if (selected) {
-                      msg = null;
-                    } else {
-                      msg = a;
-                    }
-                    setState(() {});
-                  },
-                  child: Row(
+            height: status == 3 ? (BasicClass.constData.data.textMessage.length * 50) : 0,
+            duration: Duration(milliseconds: 200),
+            child: status == 3
+                ? Column(
+                    spacing: 8,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
-                      ),
-                      Expanded(
-                        child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
-                      ),
+                      ...BasicClass.constData.data.textMessage.map((a) {
+                        bool selected = msg == a;
+                        return MyButton(
+                          radius: 20,
+                          label: a,
+                          // reverse: true,
+                          color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
+                          borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
+                          onPressed: () {
+                            if (selected) {
+                              msg = null;
+                            } else {
+                              msg = a;
+                            }
+                            setState(() {});
+                          },
+                          child: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
+                              ),
+                              Expanded(
+                                child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
-                  ),
-                );
-              }),
-            ],
-          ):SizedBox()),
+                  )
+                : SizedBox(),
+          ),
           const SizedBox(height: 12),
-          MyButton(label: "Send",
-              onPressed: () async {
-                await getIt<HomeController>().attachToResult(logId: getIt<HomeController>().ref
-                    .read(timaticResultProvider)
-                    ?.refCode ?? '-', data: {"action": "supervisorApproval", 'status': status,"message":msg});
-              },
-              radius: 12,
-              icon: ArtemisIcons.send,
-              iconInRight: true),
+          MyButton(
+            label: "Send",
+            onPressed: () async {
+              await getIt<HomeController>().attachToResult(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', data: {"action": "supervisorApproval", 'status': status, "message": msg});
+            },
+            radius: 12,
+            icon: ArtemisIcons.send,
+            iconInRight: true,
+          ),
         ],
       ),
     );
@@ -454,9 +488,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at
-                    ?.toLocal()
-                    .format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12),)
+                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -500,58 +532,58 @@ class ManagerApprovalWidget extends StatelessWidget {
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
-                        children: [
-                          Expanded(
-                            child: Wrap(
                               children: [
-                                ...(his.payload?.attachFiles ?? []).map((img) {
-                                  String api = getIt<HomeController>().ref.read(selectedServerProvider)!.apiAddress;
-                                  String token = getIt<HomeController>().ref.read(userProvider)!.token;
-                                  bool isVoice = img.endsWith("m4a");
-                                  if (isVoice) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: DotButton(
-                                        size: 40,
-                                        icon: Icons.record_voice_over,
-                                        onPressed: () async {
-                                          String dlUrl = "${api}/logs/attach/${img}";
-                                          final f = await getIt<HomeController>().getFile(url: dlUrl);
-                                          log(f.path);
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return VoicePreviewDialog(address: f.path);
-                                            },
+                                Expanded(
+                                  child: Wrap(
+                                    children: [
+                                      ...(his.payload?.attachFiles ?? []).map((img) {
+                                        String api = getIt<HomeController>().ref.read(selectedServerProvider)!.apiAddress;
+                                        String token = getIt<HomeController>().ref.read(userProvider)!.token;
+                                        bool isVoice = img.endsWith("m4a");
+                                        if (isVoice) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(left: 8.0),
+                                            child: DotButton(
+                                              size: 40,
+                                              icon: Icons.record_voice_over,
+                                              onPressed: () async {
+                                                String dlUrl = "${api}/logs/attach/${img}";
+                                                final f = await getIt<HomeController>().getFile(url: dlUrl);
+                                                log(f.path);
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return VoicePreviewDialog(address: f.path);
+                                                  },
+                                                );
+                                              },
+                                            ),
                                           );
-                                        },
-                                      ),
-                                    );
-                                  }
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return PhotoPreviewDialog(address: img);
-                                        },
-                                      );
-                                    },
-                                    child: SizedBox(
-                                      width: 120,
-                                      height: 120,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadiusGeometry.circular(5),
-                                        child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                        }
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return PhotoPreviewDialog(address: img);
+                                              },
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            width: 120,
+                                            height: 120,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadiusGeometry.circular(5),
+                                              child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -569,13 +601,12 @@ class SupervisorApprovalWidget extends StatelessWidget {
 
   const SupervisorApprovalWidget({super.key, required this.his});
 
-
   @override
   Widget build(BuildContext context) {
     // bool approved = his.payload?.approved ?? false;
-    final int status =  his.payload?.status??3;
-    final color = [ Color(0xff00C68E) ,Color(0xffFF3F42),Colors.black][status-1];
-    final title = [ "Approved" ,"Denied","Wait"][status-1];
+    final int status = his.payload?.status ?? 3;
+    final color = [Color(0xff00C68E), Color(0xffFF3F42), Colors.black][status - 1];
+    final title = ["Approved", "Denied", "Wait"][status - 1];
     return Container(
       margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
       decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
@@ -585,7 +616,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
-                Icon(status ==1 ? ArtemisIcons.shield_tick : ArtemisIcons.user_octagon, color: color),
+                Icon(status == 1 ? ArtemisIcons.shield_tick : ArtemisIcons.user_octagon, color: color),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
@@ -593,9 +624,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at
-                    ?.toLocal()
-                    .format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12),)
+                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -611,7 +640,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(status==1 ? ArtemisIcons.tick_square : ArtemisIcons.close_square, color: color),
+                      Icon(status == 1 ? ArtemisIcons.tick_square : ArtemisIcons.close_square, color: color),
                       const SizedBox(width: 4),
                       Text(
                         title,
@@ -643,58 +672,58 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
-                        children: [
-                          Expanded(
-                            child: Wrap(
                               children: [
-                                ...(his.payload?.attachFiles ?? []).map((img) {
-                                  String api = getIt<HomeController>().ref.read(selectedServerProvider)!.apiAddress;
-                                  String token = getIt<HomeController>().ref.read(userProvider)!.token;
-                                  bool isVoice = img.endsWith("m4a");
-                                  if (isVoice) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(left: 8.0),
-                                      child: DotButton(
-                                        size: 40,
-                                        icon: Icons.record_voice_over,
-                                        onPressed: () async {
-                                          String dlUrl = "${api}/logs/attach/${img}";
-                                          final f = await getIt<HomeController>().getFile(url: dlUrl);
-                                          log(f.path);
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return VoicePreviewDialog(address: f.path);
-                                            },
+                                Expanded(
+                                  child: Wrap(
+                                    children: [
+                                      ...(his.payload?.attachFiles ?? []).map((img) {
+                                        String api = getIt<HomeController>().ref.read(selectedServerProvider)!.apiAddress;
+                                        String token = getIt<HomeController>().ref.read(userProvider)!.token;
+                                        bool isVoice = img.endsWith("m4a");
+                                        if (isVoice) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(left: 8.0),
+                                            child: DotButton(
+                                              size: 40,
+                                              icon: Icons.record_voice_over,
+                                              onPressed: () async {
+                                                String dlUrl = "${api}/logs/attach/${img}";
+                                                final f = await getIt<HomeController>().getFile(url: dlUrl);
+                                                log(f.path);
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return VoicePreviewDialog(address: f.path);
+                                                  },
+                                                );
+                                              },
+                                            ),
                                           );
-                                        },
-                                      ),
-                                    );
-                                  }
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return PhotoPreviewDialog(address: img);
-                                        },
-                                      );
-                                    },
-                                    child: SizedBox(
-                                      width: 120,
-                                      height: 120,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadiusGeometry.circular(5),
-                                        child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                        }
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return PhotoPreviewDialog(address: img);
+                                              },
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            width: 120,
+                                            height: 120,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadiusGeometry.circular(5),
+                                              child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -723,7 +752,7 @@ class AttachmentsWidget extends StatelessWidget {
     hisList.where((a) => a.payload?.action == "attachVoice").forEach((p) {
       voices.addAll(p.payload?.attachFiles ?? []);
     });
-    if(hisList.isEmpty){
+    if (hisList.isEmpty) {
       return SizedBox();
     }
     return Container(
@@ -743,11 +772,7 @@ class AttachmentsWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(hisList.last.at
-                    ?.toLocal()
-                    .format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey),)
-
-
+                Text(hisList.last.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),
@@ -854,9 +879,7 @@ class EVisaWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at
-                    ?.toLocal()
-                    .format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey),)
+                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),
@@ -900,7 +923,6 @@ class EVisaWidget extends StatelessWidget {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -935,9 +957,7 @@ class CommentWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at
-                    ?.toLocal()
-                    .format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey),)
+                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),
@@ -952,11 +972,7 @@ class CommentWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(his.payload?.comment ?? ''),
-                  ],
-                )
+                Row(children: [Text(his.payload?.comment ?? '')]),
               ],
             ),
           ),

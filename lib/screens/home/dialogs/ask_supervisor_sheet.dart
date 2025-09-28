@@ -10,6 +10,9 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
 import 'package:abds/core/utils_and_services/recorder/my_player.dart';
 import 'package:abds/core/utils_and_services/recorder/my_voice_recorder.dart';
+import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
+import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
+import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/initialize.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
@@ -20,6 +23,8 @@ import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
+import 'package:artemis_utils/artemis_utils.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +56,9 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
   ParameterValue? airline;
   Supervisor? supervisor;
 
+
+
+
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
@@ -76,23 +84,29 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
             Divider(),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.black.withOpacity(0.02),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.02),
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   spacing: 12,
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     MyFieldPicker<Supervisor?>(
                       label: 'Select Supervisor',
                       items: widget.supervisors,
-                      backgroundColor: Colors.white,
+                      rowLabelRatio: [3, 7],
+                      headerBgColor: Colors.white,
+                      bodyBgColor: Color(0xffF4F4f4),
                       placeholder: "Select",
                       onChange: (a) {
                         supervisor = a;
                         setState(() {});
                       },
                     ),
+
                     // MyFieldPicker<ParameterValue?>(
                     //   onChange: (a) {
                     //     airline = a;
@@ -105,7 +119,6 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                     //   placeholder: "Select",
                     // ),
                     // MyTextField(labelInRow: true, label: "Flight Number", backgroundColor: Colors.white, placeholder: "Flight Number", controller: flnbC, keyboardType: TextInputType.numberWithOptions(signed: true)),
-
                     SizedBox(
                       height: 100,
                       child: CupertinoTextField(
@@ -232,6 +245,7 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                   Expanded(
                     child: MyButton(
                       color: Colors.grey,
+                      radius: 12,
                       borderSide: BorderSide(color: MyColors.lineColor),
                       reverse: true,
                       label: "Cancel",
@@ -243,13 +257,16 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: MyButton(
-                      label: "Ask",
+                      label: "Send",
+                      radius: 12,
+                      icon: ArtemisIcons.send_2,
+                      iconInRight: true,
                       onPressed: () async {
                         final bool = await getIt<HomeController>().attachToResult(
                           logId: widget.logId,
                           images: attachingPhotos,
                           voices: attachingVoices,
-                          data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id,'action':'askSupervisor'},
+                          data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id, 'action': 'askSupervisor'},
                         );
                         if (bool) {
                           Navigator.of(context).pop(true);

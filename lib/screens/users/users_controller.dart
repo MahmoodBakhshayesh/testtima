@@ -62,7 +62,7 @@ class UsersController extends ControllerInterface {
     navigation.openDialog(dialog: EditUserDialog(user: people));
   }
 
-  Future<People?> updateUser({required People user, required bool enable, required UserPermission permission}) async {
+  Future<People?> updateUser({required People user, required bool enable, required Map<String,int> permission}) async {
     People? updated;
     EditUserUseCase updateUserUseCase = EditUserUseCase();
     EditUserRequest editUserRequest = EditUserRequest(people: user, active: enable, updatedPermission: permission);

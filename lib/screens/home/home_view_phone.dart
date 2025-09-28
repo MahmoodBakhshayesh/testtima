@@ -55,6 +55,7 @@ import 'package:icons_plus/icons_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/classes/timatic_response_new_class.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/residents_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
@@ -71,6 +72,7 @@ import 'home_state.dart';
 import 'home_view_phone_old.dart';
 import 'widgets/passport_section.dart';
 import 'widgets/resident_section.dart';
+import 'widgets/timatic_response_widget.dart';
 import 'widgets/visa_section.dart';
 
 String? expiryValidator(String v, DateTime? expiry) {
@@ -276,7 +278,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
 
   @override
   Widget build(BuildContext context) {
-    final timaticRes = ref.watch(timaticResultProvider);
+    final timaticRes = ref.watch(timaticResultNewProvider);
 
     // log(tim.params.of(ParameterType.documentCode).map((a)=>"${a.code} -> ${a.name}").join("\n"));
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
@@ -289,11 +291,10 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // log("passes ${passports.length}");
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
-    bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty);
+    bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb??"").isNotEmpty && a.operatingCarrier != null);
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
     double additionalHeight = 120;
 
-    log(jsonEncode(BasicClass.user!.attributes.toJson()));
     return PopScope(
       canPop: false,
       child: Container(
@@ -306,7 +307,6 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
             // appBar: HomeAppBar(scaffoldKey: flightsScaffoldKey),
             drawer: HomeDrawer(),
             body: Container(
-
               child: Stack(
                 children: [
                   Column(
@@ -377,10 +377,12 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                 children: [
                                                   Text(" ● ", style: TextStyle(color: Colors.grey, fontSize: 7)),
                                                   Text(
-                                                    "Tracking #: ",
-                                                    style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w500),
+                                                    "Eligibility #: ",
+                                                    style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600),
                                                   ),
-                                                  Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                                  timaticRes.evaluationResult.getIconWidget,
+                                                  Text(timaticRes!.evaluationResult.name,style: TextStyle(color: timaticRes.evaluationResult.getColor),),
+                                                  // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                                                 ],
                                               )
                                             : SizedBox(),
@@ -391,14 +393,14 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   children: [
                                     Consumer(
                                       builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                        final result = ref.watch(timaticResultProvider);
+                                        final result = ref.watch(timaticResultNewProvider);
                                         if (result == null) {
                                           return SizedBox();
                                         }
                                         // return SizedBox(height: 100);
                                         return Column(
                                           children: [
-                                            TimaticTrueResultWidget(res: result),
+                                            TimaticTrueResultWidgetNew(res: result),
                                             const SizedBox(height: 12),
                                           ],
                                         );
@@ -429,7 +431,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [BoxShadow(spreadRadius: 0, blurRadius: 34, color: Colors.black.withOpacity(0.16))],
                         ),
-                        child: timaticRes?.status == 1
+                        child: timaticRes?.isLocked??false
                             ? Row(
                                 children: [
                                   Expanded(
@@ -505,16 +507,9 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                       onPressed: !canCheck
                                           ? null
                                           : () async {
-                                              List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
-                                              final timResult = await HomeViewPhone.myHomeController.checkTimatic(
-                                                DocumentRequest(
-                                                  documentDetails: ddl,
-                                                  itineraryDetails: ItineraryDetails(segments: segments),
-                                                  passengerDetails: passengerDetails,
-                                                ),
-                                              );
+                                              final timResult = await getIt<HomeController>().timatic();
                                               if (timResult != null) {
-                                                ref.read(timaticResultProvider.notifier).update((s) => timResult);
+                                                ref.read(timaticResultNewProvider.notifier).update((s) => timResult);
                                                 flightPaxController.collapse();
                                                 timaticController.expand();
                                               }
@@ -603,7 +598,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                             children: [
                                               Builder(
                                                 builder: (BuildContext context) {
-                                                  final res = ref.watch(timaticResultProvider)!;
+                                                  final res = ref.watch(timaticResultNewProvider)!;
                                                   return Container(
                                                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                                                     padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -613,7 +608,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                         Row(
                                                           spacing: 12,
                                                           children: [
-                                                            ...res.segmentResults.map(
+                                                            ...res.segments.map(
                                                               (seg) => Container(
                                                                 decoration: BoxDecoration(
                                                                   borderRadius: BorderRadiusGeometry.circular(4),
@@ -684,7 +679,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                         child: Row(
                                                           children: [
                                                             const SizedBox(width: 8),
-                                                            Text("${timaticRes?.refCode ?? ''}", style: TextStyle(color: Colors.black)),
+                                                            Text(ref.watch(refCodeProvider) ?? '', style: TextStyle(color: Colors.black)),
                                                             const SizedBox(width: 8),
                                                             Container(
                                                               decoration: BoxDecoration(
@@ -826,506 +821,506 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class TimaticTrueResultWidget extends ConsumerStatefulWidget {
-  final DocumentResponse res;
-
-  const TimaticTrueResultWidget({super.key, required this.res});
-
-  @override
-  ConsumerState<TimaticTrueResultWidget> createState() => _TimaticTrueResultWidgetState();
-}
-
-class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidget> {
-  ExpansibleController expansibleController = ExpansibleController();
-
-  @override
-  Widget build(BuildContext context) {
-    final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    // final List<DocumentDetail> visas = ref.watch(visasProvider);
-    // final List<DocumentDetail> residents = ref.watch(residentsProvider);
-    final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-    final showingLogs = ref.watch(showingLogsProvider);
-    return Column(
-      // shrinkWrap: true,
-      children: [
-        // showingLogs.isEmpty
-        //     ? SizedBox()
-        //     : MyExpansionTile(
-        //         controller: expansibleController,
-        //         key: Key("showing logs exp"),
-        //         tilePadding: EdgeInsets.symmetric(horizontal: 0),
-        //         showFooter: false,
-        //         title: Container(
-        //           // margin: EdgeInsets.only(left: 16, right: 16, bottom: 0),
-        //           decoration: BoxDecoration(color: widget.res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
-        //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        //           child: Column(
-        //             children: [
-        //               Container(
-        //                 padding: EdgeInsets.symmetric(vertical: 4),
-        //                 decoration: BoxDecoration(
-        //                   borderRadius: BorderRadius.circular(5),
-        //                   border: Border.all(color: MyColors.black8),
-        //                 ),
-        //                 child: Text("Note And Attachments"),
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        //         childrenPadding: EdgeInsets.symmetric(horizontal: 16),
-        //         children: showingLogs.map((l) {
-        //           return Container(
-        //             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        //             decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
-        //             child: Row(
-        //               children: [
-        //                 Expanded(
-        //                   child: Column(
-        //                     crossAxisAlignment: CrossAxisAlignment.start,
-        //                     children: [
-        //                       Row(
-        //                         children: [
-        //                           Expanded(
-        //                             child: Text(("${l.payload?.title ?? ''} (${(l.type ?? '')})").toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-        //                           ),
-        //                           Text(l.user?.username ?? l.user?.email ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
-        //                         ],
-        //                       ),
-        //                       Padding(
-        //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
-        //                         child: Row(
-        //                           children: [
-        //                             Expanded(
-        //                               child: Text((l.payload?.description ?? '').toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal)),
-        //                             ),
-        //                           ],
-        //                         ),
-        //                       ),
-        //                       (l.payload?.attachFiles ?? []).isEmpty
-        //                           ? SizedBox()
-        //                           : Row(
-        //                               children: [
-        //                                 Expanded(
-        //                                   child: Wrap(
-        //                                     children: [
-        //                                       ...(l.payload?.attachFiles ?? []).map((img) {
-        //                                         bool isVoice = img.endsWith("m4a");
-        //                                         if (isVoice) {
-        //                                           return Padding(
-        //                                             padding: const EdgeInsets.only(left: 8.0),
-        //                                             child: DotButton(
-        //                                               size: 40,
-        //                                               icon: Icons.record_voice_over,
-        //                                               onPressed: () async {
-        //                                                 String dlUrl = "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${img}";
-        //                                                 final f = await getIt<HomeController>().getFile(url: dlUrl);
-        //                                                 log(f.path);
-        //                                                 showDialog(
-        //                                                   context: context,
-        //                                                   builder: (BuildContext context) {
-        //                                                     return VoicePreviewDialog(address: f.path);
-        //                                                   },
-        //                                                 );
-        //                                               },
-        //                                             ),
-        //                                           );
-        //                                         }
-        //                                         log(img);
-        //                                         return GestureDetector(
-        //                                           onTap: () {
-        //                                             showDialog(
-        //                                               context: context,
-        //                                               builder: (BuildContext context) {
-        //                                                 return PhotoPreviewDialog(address: img);
-        //                                               },
-        //                                             );
-        //                                           },
-        //                                           child: SizedBox(
-        //                                             width: 40,
-        //                                             height: 40,
-        //                                             child: ClipRRect(
-        //                                               borderRadius: BorderRadiusGeometry.circular(5),
-        //                                               child: Image.network(
-        //                                                 "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
-        //                                                 fit: BoxFit.fill,
-        //                                                 headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
-        //                                               ),
-        //                                             ),
-        //                                           ),
-        //                                         );
-        //                                       }).toList(),
-        //                                     ],
-        //                                   ),
-        //                                 ),
-        //                                 Column(
-        //                                   children: [
-        //                                     Text(l.at?.toLocal().format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
-        //                                     Text(l.at?.toLocal().format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
-        //                                   ],
-        //                                 ),
-        //                               ],
-        //                             ),
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           );
-        //         }).toList(),
-        //       ),
-        ...widget.res.segmentResults.map((segRes) {
-          int index = widget.res.segmentResults.indexOf(segRes);
-          segRes.ruleSetEvaluations.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
-          return MyExpansionTile(
-            initiallyExpanded: segRes.ruleSetEvaluations.any((a) => a.evaluationResult.index < 2),
-            tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
-            collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
-            backgroundColor: Colors.white,
-            collapsedBackgroundColor: Colors.white,
-            showFooter: false,
-            title: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.12)),
-                    color: segRes.segmentEvaluationResult.getColor.withOpacity(0.08),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        // decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
-                        padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                        child: Row(
-                          children: [
-                            Text(
-                              "Seg #${index + 1} ",
-                              style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.bold),
-                            ),
-                            Spacer(),
-                            Text(segRes.departure.point),
-                            Icon(Icons.arrow_right_alt),
-                            Text(segRes.arrival.point),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Text(segRes.segmentEvaluationResult.getTitle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      ),
-                      // Padding(
-                      //   padding: const EdgeInsets.only(bottom: 8.0),
-                      //   child: Text(
-                      //     segRes.segmentEvaluationResult.getSubtitle,
-                      //     style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.w400),
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 4),
-                      Container(
-                        height: 72,
-                        decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor, borderRadius: BorderRadius.circular(12)),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(segRes.segmentEvaluationResult.getIcon, color: Colors.white, size: 25),
-                              const SizedBox(width: 4),
-                              Text(
-                                segRes.segmentEvaluationResult.getSubtitle,
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            children: [
-              segRes.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: segRes.commonBorder!),
-              ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)),
-              const SizedBox(height: 12),
-            ],
-          );
-        }).toList(),
-      ],
-    );
-  }
-}
-
-class RuleSetWidget extends StatelessWidget {
-  final RuleSetEvaluation ruleSet;
-
-  const RuleSetWidget({super.key, required this.ruleSet});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
-      child: MyExpansionTile(
-        // initiallyExpanded: ruleSet.evaluationResult.index < 2,
-        showFooter: false,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
-        ),
-        collapsedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
-        ),
-        backgroundColor: ruleSet.getColor.withOpacity(0.08),
-        collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
-        tilePadding: EdgeInsets.symmetric(horizontal: 8),
-        childPreview: ruleSet.evaluationResult.index > 1
-            ? null
-            : Column(
-                children: [
-                  ...ruleSet.regulations.map(
-                    (a) => Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(a.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                              ),
-                              Text(a.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(a.evaluationResult.name.toString()))),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...ruleSet.documentResults.map(
-                    (a) => Column(
-                      children: a.regulations
-                          .map(
-                            (a) => Container(
-                              margin: EdgeInsets.only(top: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(a.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  ),
-                                  Text(a.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(a.evaluationResult.name.toString()))),
-                                ],
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ),
-        title: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(ruleSet.ruleSetType.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                ),
-                Container(
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: ruleSet.getColor.withOpacity(0.08), borderRadius: BorderRadius.circular(5)),
-                  child: Row(
-                    children: [
-                      Icon(ruleSet.getIcon, color: ruleSet.getColor, size: 20),
-                      const SizedBox(width: 4),
-                      Text(
-                        ruleSet.evaluationResult.name,
-                        style: TextStyle(color: ruleSet.getColor, fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            // Text("ada")
-          ],
-        ),
-        childrenPadding: EdgeInsets.zero,
-        children: [
-          ...ruleSet.regulations.map((r) => RegulationWidget(regulation: r)).toList(),
-          ...ruleSet.documentResults.map((r) => DocumentResultWidget(docRes: r)).toList(),
-        ],
-      ),
-    );
-  }
-}
-
-class RegulationWidget extends StatelessWidget {
-  late Regulation regulation;
-
-  RegulationWidget({super.key, required this.regulation});
-
-  //final TimaticController myTimaticController = getIt<TimaticController>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text('${regulation.name} (${regulation.code.toUpperCase()})', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-              ),
-              Text(regulation.evaluationResult.name, style: TextStyle(color: BasicClass.getColorForEvaluationResult(regulation.evaluationResult.name), fontSize: 12)),
-            ],
-          ),
-          const Divider(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: (regulation.texts ?? [])
-                .map(
-                  (e) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: Column(
-                            children:
-                                <Widget>[] +
-                                /*e.categories
-                                        .map(
-                                          (cat) => Text(cat.name),
-                                        )
-                                        .toList() +
-                                    e.categories.map((itf) {
-                                      return itf.hrefField == null
-                                          ? const SizedBox()
-                                          : TextButton(
-                                              style: TextButton.styleFrom(backgroundColor: Colors.transparent),
-                                              onPressed: () async {
-                                                await launch(itf.hrefField ?? "");
-                                              },
-                                              child: Text(
-                                                itf.hrefField ?? "",
-                                                style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blueAccent),
-                                              ));
-                                    }).toList() +*/
-                                [HtmlWidget(e.text, onTapUrl: (p0) => launch(p0))],
-                          ),
-                        ),
-                        /*const SizedBox(width: 4),
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                //color: e.color,
-                              ),
-                              child: Center(child: Text(e.verificationMethod, style: const TextStyle(color: Colors.white))),
-                            ),
-                          )*/
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class DocumentResultWidget extends StatelessWidget {
-  late DocumentResult docRes;
-
-  DocumentResultWidget({super.key, required this.docRes});
-
-  @override
-  Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      margin: const EdgeInsets.only(bottom: 12, left: 8, right: 8),
-      // decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.circular(4),
-      //   border: Border.all(color: MyColors.travelDocColor),
-      //   color: MyColors.travelDocColor.withOpacity(0.10),
-      // ),
-      child: SizedBox(
-        width: width,
-        child: Column(
-          children:
-              <Widget>[] +
-              [
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: docRes.evaluationResult.getColor.withOpacity(0.4)),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text('Evaluation Result for Document No. ${((docRes.documentIndex ?? 0) + 1)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                      ),
-                      Icon(docRes.evaluationResult.getIcon, size: 15, color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.name.toString())),
-                      Text(docRes.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.name.toString()))),
-                    ],
-                  ),
-                ),
-              ] +
-              (docRes.regulations.map((s2) => RegulationWidget(regulation: s2)).toList()),
-        ),
-      ),
-    );
-  }
-}
-
-class CommonBorderWidget extends StatelessWidget {
-  final CommonBorder commonBorder;
-
-  const CommonBorderWidget({super.key, required this.commonBorder});
-
-  @override
-  Widget build(BuildContext context) {
-    return MyExpansionTile(
-      showFooter: false,
-      title: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: MyColors.greenBg.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MyColors.greenBg.withOpacity(0.12)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(commonBorder.runtimeType.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600)),
-            ),
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: BasicClass.getColorForEvaluationResult(""), borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                children: [Text(commonBorder.value ?? '', style: TextStyle(color: Colors.white))],
-              ),
-            ),
-          ],
-        ),
-      ),
-      children: [Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20), child: Text(commonBorder!.text ?? ''))],
-    );
-  }
-}
+// class TimaticTrueResultWidget extends ConsumerStatefulWidget {
+//   final DocumentResponse res;
+//
+//   const TimaticTrueResultWidget({super.key, required this.res});
+//
+//   @override
+//   ConsumerState<TimaticTrueResultWidget> createState() => _TimaticTrueResultWidgetState();
+// }
+//
+// class _TimaticTrueResultWidgetState extends ConsumerState<TimaticTrueResultWidget> {
+//   ExpansibleController expansibleController = ExpansibleController();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final List<DocumentDetail> passports = ref.watch(passportsProvider);
+//     // final List<DocumentDetail> visas = ref.watch(visasProvider);
+//     // final List<DocumentDetail> residents = ref.watch(residentsProvider);
+//     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
+//     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
+//     final showingLogs = ref.watch(showingLogsProvider);
+//     return Column(
+//       // shrinkWrap: true,
+//       children: [
+//         // showingLogs.isEmpty
+//         //     ? SizedBox()
+//         //     : MyExpansionTile(
+//         //         controller: expansibleController,
+//         //         key: Key("showing logs exp"),
+//         //         tilePadding: EdgeInsets.symmetric(horizontal: 0),
+//         //         showFooter: false,
+//         //         title: Container(
+//         //           // margin: EdgeInsets.only(left: 16, right: 16, bottom: 0),
+//         //           decoration: BoxDecoration(color: widget.res.evaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+//         //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+//         //           child: Column(
+//         //             children: [
+//         //               Container(
+//         //                 padding: EdgeInsets.symmetric(vertical: 4),
+//         //                 decoration: BoxDecoration(
+//         //                   borderRadius: BorderRadius.circular(5),
+//         //                   border: Border.all(color: MyColors.black8),
+//         //                 ),
+//         //                 child: Text("Note And Attachments"),
+//         //               ),
+//         //             ],
+//         //           ),
+//         //         ),
+//         //         childrenPadding: EdgeInsets.symmetric(horizontal: 16),
+//         //         children: showingLogs.map((l) {
+//         //           return Container(
+//         //             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+//         //             decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
+//         //             child: Row(
+//         //               children: [
+//         //                 Expanded(
+//         //                   child: Column(
+//         //                     crossAxisAlignment: CrossAxisAlignment.start,
+//         //                     children: [
+//         //                       Row(
+//         //                         children: [
+//         //                           Expanded(
+//         //                             child: Text(("${l.payload?.title ?? ''} (${(l.type ?? '')})").toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+//         //                           ),
+//         //                           Text(l.user?.username ?? l.user?.email ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+//         //                         ],
+//         //                       ),
+//         //                       Padding(
+//         //                         padding: const EdgeInsets.symmetric(vertical: 4.0),
+//         //                         child: Row(
+//         //                           children: [
+//         //                             Expanded(
+//         //                               child: Text((l.payload?.description ?? '').toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal)),
+//         //                             ),
+//         //                           ],
+//         //                         ),
+//         //                       ),
+//         //                       (l.payload?.attachFiles ?? []).isEmpty
+//         //                           ? SizedBox()
+//         //                           : Row(
+//         //                               children: [
+//         //                                 Expanded(
+//         //                                   child: Wrap(
+//         //                                     children: [
+//         //                                       ...(l.payload?.attachFiles ?? []).map((img) {
+//         //                                         bool isVoice = img.endsWith("m4a");
+//         //                                         if (isVoice) {
+//         //                                           return Padding(
+//         //                                             padding: const EdgeInsets.only(left: 8.0),
+//         //                                             child: DotButton(
+//         //                                               size: 40,
+//         //                                               icon: Icons.record_voice_over,
+//         //                                               onPressed: () async {
+//         //                                                 String dlUrl = "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${img}";
+//         //                                                 final f = await getIt<HomeController>().getFile(url: dlUrl);
+//         //                                                 log(f.path);
+//         //                                                 showDialog(
+//         //                                                   context: context,
+//         //                                                   builder: (BuildContext context) {
+//         //                                                     return VoicePreviewDialog(address: f.path);
+//         //                                                   },
+//         //                                                 );
+//         //                                               },
+//         //                                             ),
+//         //                                           );
+//         //                                         }
+//         //                                         log(img);
+//         //                                         return GestureDetector(
+//         //                                           onTap: () {
+//         //                                             showDialog(
+//         //                                               context: context,
+//         //                                               builder: (BuildContext context) {
+//         //                                                 return PhotoPreviewDialog(address: img);
+//         //                                               },
+//         //                                             );
+//         //                                           },
+//         //                                           child: SizedBox(
+//         //                                             width: 40,
+//         //                                             height: 40,
+//         //                                             child: ClipRRect(
+//         //                                               borderRadius: BorderRadiusGeometry.circular(5),
+//         //                                               child: Image.network(
+//         //                                                 "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/$img",
+//         //                                                 fit: BoxFit.fill,
+//         //                                                 headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+//         //                                               ),
+//         //                                             ),
+//         //                                           ),
+//         //                                         );
+//         //                                       }).toList(),
+//         //                                     ],
+//         //                                   ),
+//         //                                 ),
+//         //                                 Column(
+//         //                                   children: [
+//         //                                     Text(l.at?.toLocal().format_ddMMMEEE ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+//         //                                     Text(l.at?.toLocal().format_HHmmss ?? '', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal)),
+//         //                                   ],
+//         //                                 ),
+//         //                               ],
+//         //                             ),
+//         //                     ],
+//         //                   ),
+//         //                 ),
+//         //               ],
+//         //             ),
+//         //           );
+//         //         }).toList(),
+//         //       ),
+//         ...widget.res.segmentResults.map((segRes) {
+//           int index = widget.res.segmentResults.indexOf(segRes);
+//           segRes.ruleSetEvaluations.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
+//           return MyExpansionTile(
+//             initiallyExpanded: segRes.ruleSetEvaluations.any((a) => a.evaluationResult.index < 2),
+//             tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+//             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
+//             collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
+//             backgroundColor: Colors.white,
+//             collapsedBackgroundColor: Colors.white,
+//             showFooter: false,
+//             title: Column(
+//               children: [
+//                 Container(
+//                   padding: EdgeInsets.all(12),
+//                   decoration: BoxDecoration(
+//                     borderRadius: BorderRadius.circular(12),
+//                     border: Border.all(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.12)),
+//                     color: segRes.segmentEvaluationResult.getColor.withOpacity(0.08),
+//                   ),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Container(
+//                         // decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.3), borderRadius: BorderRadius.circular(8)),
+//                         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+//                         child: Row(
+//                           children: [
+//                             Text(
+//                               "Seg #${index + 1} ",
+//                               style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.bold),
+//                             ),
+//                             Spacer(),
+//                             Text(segRes.departure.point),
+//                             Icon(Icons.arrow_right_alt),
+//                             Text(segRes.arrival.point),
+//                           ],
+//                         ),
+//                       ),
+//                       const SizedBox(height: 8),
+//                       FittedBox(
+//                         fit: BoxFit.fitWidth,
+//                         child: Text(segRes.segmentEvaluationResult.getTitle, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+//                       ),
+//                       // Padding(
+//                       //   padding: const EdgeInsets.only(bottom: 8.0),
+//                       //   child: Text(
+//                       //     segRes.segmentEvaluationResult.getSubtitle,
+//                       //     style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.w400),
+//                       //   ),
+//                       // ),
+//                       // const SizedBox(height: 4),
+//                       Container(
+//                         height: 72,
+//                         decoration: BoxDecoration(color: segRes.segmentEvaluationResult.getColor, borderRadius: BorderRadius.circular(12)),
+//                         child: Center(
+//                           child: Row(
+//                             mainAxisAlignment: MainAxisAlignment.center,
+//                             children: [
+//                               Icon(segRes.segmentEvaluationResult.getIcon, color: Colors.white, size: 25),
+//                               const SizedBox(width: 4),
+//                               Text(
+//                                 segRes.segmentEvaluationResult.getSubtitle,
+//                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15),
+//                               ),
+//                             ],
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             children: [
+//               segRes.commonBorder == null ? const SizedBox() : CommonBorderWidget(commonBorder: segRes.commonBorder!),
+//               ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidget(ruleSet: rs)),
+//               const SizedBox(height: 12),
+//             ],
+//           );
+//         }).toList(),
+//       ],
+//     );
+//   }
+// }
+//
+// class RuleSetWidget extends StatelessWidget {
+//   final RuleSetEvaluation ruleSet;
+//
+//   const RuleSetWidget({super.key, required this.ruleSet});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
+//       child: MyExpansionTile(
+//         // initiallyExpanded: ruleSet.evaluationResult.index < 2,
+//         showFooter: false,
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(8),
+//           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
+//         ),
+//         collapsedShape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(8),
+//           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
+//         ),
+//         backgroundColor: ruleSet.getColor.withOpacity(0.08),
+//         collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
+//         tilePadding: EdgeInsets.symmetric(horizontal: 8),
+//         childPreview: true?null:ruleSet.evaluationResult.index > 1
+//             ? null
+//             : Column(
+//                 children: [
+//                   ...ruleSet.regulations.map(
+//                     (a) => Column(
+//                       children: [
+//                         Container(
+//                           margin: EdgeInsets.only(top: 8),
+//                           child: Row(
+//                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                             children: [
+//                               Expanded(
+//                                 child: Text(a.regulationResult??'', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+//                               ),
+//                               Text(a.title??'', style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(a.regulationResult.toString()))),
+//                             ],
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                   ),
+//                   // ...ruleSet.documentResults.map(
+//                   //   (a) => Column(
+//                   //     children: a.regulations
+//                   //         .map(
+//                   //           (a) => Container(
+//                   //             margin: EdgeInsets.only(top: 8),
+//                   //             child: Row(
+//                   //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   //               children: [
+//                   //                 Expanded(
+//                   //                   child: Text(a.name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+//                   //                 ),
+//                   //                 Text(a.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(a.evaluationResult.name.toString()))),
+//                   //               ],
+//                   //             ),
+//                   //           ),
+//                   //         )
+//                   //         .toList(),
+//                   //   ),
+//                   // ),
+//                 ],
+//               ),
+//         title: Column(
+//           children: [
+//             Row(
+//               children: [
+//                 Expanded(
+//                   child: Text(ruleSet.title??'', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+//                 ),
+//                 Container(
+//                   padding: EdgeInsets.all(4),
+//                   decoration: BoxDecoration(color: ruleSet.getColor.withOpacity(0.08), borderRadius: BorderRadius.circular(5)),
+//                   child: Row(
+//                     children: [
+//                       Icon(ruleSet.getIcon, color: ruleSet.getColor, size: 20),
+//                       const SizedBox(width: 4),
+//                       Text(
+//                         ruleSet.title??'',
+//                         style: TextStyle(color: ruleSet.getColor, fontSize: 12, fontWeight: FontWeight.bold),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             // Text("ada")
+//           ],
+//         ),
+//         childrenPadding: EdgeInsets.zero,
+//         children: [
+//           ...ruleSet.regulations.map((r) => RegulationWidget(regulation: r)).toList(),
+//           // ...ruleSet.documentResults.map((r) => DocumentResultWidget(docRes: r)).toList(),
+//         ],
+//       ),
+//     );
+//   }
+// }
+//
+// class RegulationWidget extends StatelessWidget {
+//   late Regulation regulation;
+//
+//   RegulationWidget({super.key, required this.regulation});
+//
+//   //final TimaticController myTimaticController = getIt<TimaticController>();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Expanded(
+//                 child: Text('${regulation.regulationResult} ', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+//               ),
+//               Text(regulation.title??'', style: TextStyle(color: BasicClass.getColorForEvaluationResult(regulation.regulationResult??''), fontSize: 12)),
+//             ],
+//           ),
+//           const Divider(),
+//           Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: (regulation.texts ?? [])
+//                 .map(
+//                   (e) => Padding(
+//                     padding: const EdgeInsets.symmetric(vertical: 4),
+//                     child: Row(
+//                       crossAxisAlignment: CrossAxisAlignment.start,
+//                       children: [
+//                         Expanded(
+//                           flex: 5,
+//                           child: Column(
+//                             children:
+//                                 <Widget>[] +
+//                                 /*e.categories
+//                                         .map(
+//                                           (cat) => Text(cat.name),
+//                                         )
+//                                         .toList() +
+//                                     e.categories.map((itf) {
+//                                       return itf.hrefField == null
+//                                           ? const SizedBox()
+//                                           : TextButton(
+//                                               style: TextButton.styleFrom(backgroundColor: Colors.transparent),
+//                                               onPressed: () async {
+//                                                 await launch(itf.hrefField ?? "");
+//                                               },
+//                                               child: Text(
+//                                                 itf.hrefField ?? "",
+//                                                 style: const TextStyle(decoration: TextDecoration.underline, color: Colors.blueAccent),
+//                                               ));
+//                                     }).toList() +*/
+//                                 [HtmlWidget(e, onTapUrl: (p0) => launch(p0))],
+//                           ),
+//                         ),
+//                         /*const SizedBox(width: 4),
+//                           Expanded(
+//                             flex: 2,
+//                             child: Container(
+//                               padding: const EdgeInsets.all(4),
+//                               decoration: BoxDecoration(
+//                                 borderRadius: BorderRadius.circular(4),
+//                                 //color: e.color,
+//                               ),
+//                               child: Center(child: Text(e.verificationMethod, style: const TextStyle(color: Colors.white))),
+//                             ),
+//                           )*/
+//                       ],
+//                     ),
+//                   ),
+//                 )
+//                 .toList(),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+//
+// class DocumentResultWidget extends StatelessWidget {
+//   late DocumentResult docRes;
+//
+//   DocumentResultWidget({super.key, required this.docRes});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     double width = MediaQuery.of(context).size.width;
+//
+//     return Container(
+//       padding: const EdgeInsets.all(4),
+//       margin: const EdgeInsets.only(bottom: 12, left: 8, right: 8),
+//       // decoration: BoxDecoration(
+//       //   borderRadius: BorderRadius.circular(4),
+//       //   border: Border.all(color: MyColors.travelDocColor),
+//       //   color: MyColors.travelDocColor.withOpacity(0.10),
+//       // ),
+//       child: SizedBox(
+//         width: width,
+//         child: Column(
+//           children:
+//               <Widget>[] +
+//               [
+//                 Container(
+//                   decoration: BoxDecoration(
+//                     border: Border.all(color: docRes.evaluationResult.getColor.withOpacity(0.4)),
+//                     borderRadius: BorderRadius.circular(5),
+//                   ),
+//                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+//                   child: Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Expanded(
+//                         child: Text('Evaluation Result for Document No. ${((docRes.documentIndex ?? 0) + 1)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+//                       ),
+//                       Icon(docRes.evaluationResult.getIcon, size: 15, color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.name.toString())),
+//                       Text(docRes.evaluationResult.name, style: TextStyle(fontSize: 12, color: BasicClass.getColorForEvaluationResult(docRes.evaluationResult.name.toString()))),
+//                     ],
+//                   ),
+//                 ),
+//               ] +
+//               (docRes.regulations.map((s2) => RegulationWidget(regulation: s2)).toList()),
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
+// class CommonBorderWidget extends StatelessWidget {
+//   final CommonBorder commonBorder;
+//
+//   const CommonBorderWidget({super.key, required this.commonBorder});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return MyExpansionTile(
+//       showFooter: false,
+//       title: Container(
+//         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+//         decoration: BoxDecoration(
+//           color: MyColors.greenBg.withOpacity(0.08),
+//           borderRadius: BorderRadius.circular(12),
+//           border: Border.all(color: MyColors.greenBg.withOpacity(0.12)),
+//         ),
+//         child: Row(
+//           children: [
+//             Expanded(
+//               child: Text(commonBorder.runtimeType.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600)),
+//             ),
+//             Container(
+//               padding: EdgeInsets.all(12),
+//               decoration: BoxDecoration(color: BasicClass.getColorForEvaluationResult(""), borderRadius: BorderRadius.circular(12)),
+//               child: Row(
+//                 children: [Text(commonBorder.value ?? '', style: TextStyle(color: Colors.white))],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//       children: [Padding(padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20), child: Text(commonBorder!.text ?? ''))],
+//     );
+//   }
+// }

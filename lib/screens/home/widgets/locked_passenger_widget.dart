@@ -51,7 +51,6 @@ class LockedPassengerRow extends StatelessWidget {
           Row(
             spacing: 12,
             children: [
-
               Expanded(
                 child: LockedFieldWidget(half: true, label: "Nationality", value: countryPrefixBuilder(passengerDetails.nationality?.code3)),
               ),
@@ -60,6 +59,7 @@ class LockedPassengerRow extends StatelessWidget {
               ),
             ],
           ),
+          ?passengerDetails.birthDate!=null?
           LockedFieldWidget(
             label: "Birth Date",
             value: Row(
@@ -69,8 +69,8 @@ class LockedPassengerRow extends StatelessWidget {
                 Text(birthDateValidator("", passengerDetails.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(passengerDetails.birthDate))),
               ],
             ),
-          ),
-          LockedFieldWidget(label: "Gender", value: Text(passengerDetails.gender?.name.capitalizeFirst ?? '')),
+          ):null,
+          ?passengerDetails.gender!=null?LockedFieldWidget(label: "Gender", value: Text(passengerDetails.gender?.name.capitalizeFirst ?? '')):null,
           ?passengerDetails.birthCountry!=null? LockedFieldWidget(label: "Birth Place", value:  countryPrefixBuilder(passengerDetails.birthCountry?.code3)):null,
         ],
       ),
