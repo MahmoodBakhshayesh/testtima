@@ -6,13 +6,14 @@ import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 
 class DrawerAction extends StatefulWidget {
   final String title;
-  final IconData leadingIcon;
+  final IconData? leadingIcon;
+  final Widget? leadingWidget;
   final Callback? onTap;
   final bool dense;
   final Color? color;
   final Color? tileColor;
 
-  const DrawerAction({super.key, required this.title, required this.onTap, required this.leadingIcon, this.dense = false, this.color, this.tileColor});
+  const DrawerAction({super.key, required this.title, required this.onTap, this.leadingIcon,this.leadingWidget, this.dense = false, this.color, this.tileColor});
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -61,6 +62,7 @@ class _DrawerActionState extends State<DrawerAction> {
             child: Row(
               spacing: 8,
               children: [
+                widget.leadingWidget??
                 Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color:widget.tileColor?? c),
                 Expanded(
                   child: Text(

@@ -17,6 +17,7 @@ import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/widgets/MyButton.dart';
+import 'package:abds/widgets/drawer_action.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -62,25 +63,28 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: BasicClass.constData.data.documentType.map((dt) {
-                  return ListTile(
-                    tileColor: dt.getColor.withOpacity(0.2),
-                    onTap: () async {
-                      final ref = getIt<HomeController>().ref;
-                      if (dt.type == "P") {
-                        ref.read(passportsProvider.notifier).add(DocumentDetail());
-                      } else if (dt.type == "V") {
-                        ref.read(visasProvider.notifier).add(DocumentDetail());
-                      } else if (dt.type == "I") {
-                        ref.read(residentsProvider.notifier).add(DocumentDetail());
-                      }
-                      Navigator.of(context).pop();
-                    },
-                    dense: true,
-                    // leading: IcomoonLayeredCss.global(baseColor: MyColors.mainBlue),
-                    leading: dt.getIcon,
-                    title: Text(
-                      "${dt.title} ${dt.type}",
-                      style: TextStyle(color: dt.getColor, fontSize: 14, fontWeight: FontWeight.bold),
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8.0,right: 8,top: 8),
+                    child: DrawerAction(
+                      tileColor: dt.getColor.withOpacity(0.2),
+                      onTap: () async {
+                        final ref = getIt<HomeController>().ref;
+                        if (dt.type == "P") {
+                          ref.read(passportsProvider.notifier).add(DocumentDetail());
+                        } else if (dt.type == "V") {
+                          ref.read(visasProvider.notifier).add(DocumentDetail());
+                        } else if (dt.type == "I") {
+                          ref.read(residentsProvider.notifier).add(DocumentDetail());
+                        }
+                        Navigator.of(context).pop();
+                      },
+
+                      dense: true,
+                      // leading: IcomoonLayeredCss.global(baseColor: MyColors.mainBlue),
+                      // leading: dt.getIcon,
+
+                      title:"${dt.title} ${dt.type}",
+                      leadingWidget: dt.getIcon,
                     ),
                   );
                 }).toList(),
