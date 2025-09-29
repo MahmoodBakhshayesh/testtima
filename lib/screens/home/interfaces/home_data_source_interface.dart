@@ -5,6 +5,7 @@ import '../usecases/get_supervisors_usecase.dart';
 import '../usecases/get_supported_language_usecased.dart';
 import '../usecases/lock_unlock_response_usecase.dart';
 import '../usecases/submit_timatic_request_usecase.dart';
+import '../usecases/supervisor_response_usecase.dart';
 import '../usecases/timatic_get_locations_usecase.dart';
 import '../usecases/timatic_get_parameters_usecase.dart';
 import '../usecases/translate_timatic_response_usecase.dart';
@@ -20,4 +21,5 @@ abstract class HomeDataSourceInterface {
   Future<TranslateTimaticResponseResponse> translateTimaticResponse({required TranslateTimaticResponseRequest request});
   Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request});
   Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request});
+  Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request});
 }

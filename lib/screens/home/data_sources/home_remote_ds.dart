@@ -9,6 +9,7 @@ import '../usecases/get_supervisors_usecase.dart';
 import '../usecases/get_supported_language_usecased.dart';
 import '../usecases/lock_unlock_response_usecase.dart';
 import '../usecases/submit_timatic_request_usecase.dart';
+import '../usecases/supervisor_response_usecase.dart';
 import '../usecases/timatic_get_locations_usecase.dart';
 import '../usecases/timatic_get_parameters_usecase.dart';
 import '../usecases/translate_timatic_response_usecase.dart';
@@ -104,8 +105,16 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
   @override
   Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request}) async {
     String api = "/logs/${request.logId}/askSupervisor";
-    ResponseInterface res = await networkManager.post(request,api: api);
+    ResponseInterface res = await networkManager.post(request, api: api);
     AskSupervisorResponse response = await Parser().parse(AskSupervisorResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
+
+  @override
+  Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request}) async {
+    String api = "/logs/${request.logId}/supervisorResponse";
+    ResponseInterface res = await networkManager.post(request, api: api);
+    SupervisorResponseResponse response = await Parser().parse(SupervisorResponseResponse.fromResponse, res, executionReq: request);
     return response;
   }
 }

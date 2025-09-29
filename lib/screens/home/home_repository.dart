@@ -15,6 +15,7 @@ import 'usecases/get_supervisors_usecase.dart';
 import 'usecases/get_supported_language_usecased.dart';
 import 'usecases/lock_unlock_response_usecase.dart';
 import 'usecases/submit_timatic_request_usecase.dart';
+import 'usecases/supervisor_response_usecase.dart';
 import 'usecases/timatic_get_locations_usecase.dart';
 import 'usecases/timatic_get_parameters_usecase.dart';
 import 'usecases/translate_timatic_response_usecase.dart';
@@ -171,6 +172,21 @@ class HomeRepository implements HomeRepositoryInterface {
         askSupervisorResponse = await homeLocalDataSource.askSupervisor(request: request);
       }
       return Result.ok(askSupervisorResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<SupervisorResponseResponse>> supervisorResponse(SupervisorResponseRequest request) async {
+    try {
+      SupervisorResponseResponse supervisorResponseResponse;
+      if (await networkInfo.isConnected) {
+        supervisorResponseResponse = await homeRemoteDataSource.supervisorResponse(request: request);
+      } else {
+        supervisorResponseResponse = await homeLocalDataSource.supervisorResponse(request: request);
+      }
+      return Result.ok(supervisorResponseResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

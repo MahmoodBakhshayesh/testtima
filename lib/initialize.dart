@@ -81,7 +81,7 @@ initNetworkManager([String? baseUrl]) {
 
     successCheck: (NetworkRequest req, NetworkResponse res) {
       if (res.responseCode < 200 || res.responseCode > 300) return false;
-      if ((res.responseBody["Successful"]??true) == true) {
+      if ((res.responseBody["Successful"]??false) == true) {
         return true;
       }
       if (res.responseBody?["response"] is Map) {

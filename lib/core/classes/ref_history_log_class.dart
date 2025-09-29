@@ -81,6 +81,7 @@ class Payload {
   final bool? approved;
   final bool? locked;
   final int? status;
+  final int? actionId;
   final String? title;
   final String? description;
   final String? airline;
@@ -98,6 +99,7 @@ class Payload {
     this.output,
     this.status,
     this.result,
+    this.actionId,
     this.cache,
     this.locked,
     this.title,
@@ -122,6 +124,7 @@ class Payload {
     bool? locked,
     bool? approved,
     int? status,
+    int? actionId,
     String? title,
     String? description,
     String? airline,
@@ -141,6 +144,7 @@ class Payload {
         cache: cache ?? this.cache,
         locked: locked ?? this.locked,
         status: status ?? this.status,
+        actionId: actionId ?? this.actionId,
         approved: approved ?? this.approved,
         title: title ?? this.title,
         description: description ?? this.description,
@@ -162,6 +166,7 @@ class Payload {
     cache: json["cache"],
     locked: json["lock"],
     status: json["status"],
+    actionId: json["actionId"],
     approved: json["approved"],
     title: json["title"],
     description: json["description"],
@@ -172,7 +177,7 @@ class Payload {
     action: json["action"],
     comment: json["comment"],
     name: json["name"],
-    attachFiles: json["attachFiles"] == null ? [] : List<String>.from(json["attachFiles"]!.map((x) => x)),
+    attachFiles: json["attachFiles"] == null ? [] :(json["attachFiles"] is String)?[json["attachFiles"]]: List<String>.from(json["attachFiles"]!.map((x) => x)),
   );
 
   Map<String, dynamic> toJson() => {

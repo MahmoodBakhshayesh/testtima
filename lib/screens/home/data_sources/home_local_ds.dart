@@ -6,6 +6,7 @@ import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supported_language_usecased.dart';
 import 'package:abds/screens/home/usecases/lock_unlock_response_usecase.dart';
 import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
+import 'package:abds/screens/home/usecases/supervisor_response_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
@@ -83,6 +84,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request}) {
     // TODO: implement askSupervisor
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request}) {
+    // TODO: implement supervisorResponse
     throw UnimplementedError();
   }
 

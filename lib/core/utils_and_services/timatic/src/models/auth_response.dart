@@ -5,10 +5,12 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:abds/core/constants/ui.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../../../classes/constant_data_class.dart';
 import '../../../../classes/people_class.dart';
 import '../../../../classes/user_permission_class.dart';
+import '../../../artemis_icons_icons.dart';
 
 class LoginEnvelope {
   final bool success;
@@ -215,6 +217,9 @@ class SupervisorResponse {
   SupervisorResponse copyWith({int? actionId, String? name, List<String>? message}) => SupervisorResponse(actionId: actionId ?? this.actionId, name: name ?? this.name, message: message ?? this.message);
 
   factory SupervisorResponse.fromJson(Map<String, dynamic> json) => SupervisorResponse(actionId: json["actionId"], name: json["name"], message: json["message"] == null ? [] : List<String>.from(json["message"]!.map((x) => x)));
+
+  Color get getColor => [Color(0xff08AB7D),Color(0xffFF3F42),Color(0xff2D2D2D)][(actionId??1)-1];
+  IconData get getIcon=> [ArtemisIcons.tick_square,ArtemisIcons.close_square,ArtemisIcons.warning_2][(actionId??1)-1];
 
   Map<String, dynamic> toJson() => {"actionId": actionId, "name": name, "message": message == null ? [] : List<dynamic>.from(message!.map((x) => x))};
 }

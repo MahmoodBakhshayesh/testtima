@@ -1369,10 +1369,10 @@ packages:
     dependency: "direct main"
     description:
       name: network_manager
-      sha256: "9f1a1dd0888cce7dd8a6147f5cd68c84191d00cc29423d63208eb5b34acb4789"
+      sha256: a3fbb8bbfc896820f6cb2943e5d932a7399cfa03a4bff90d70df96d743afbbc4
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.39"
+    version: "0.1.41"
   nm:
     dependency: transitive
     description:

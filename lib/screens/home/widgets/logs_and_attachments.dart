@@ -15,6 +15,7 @@ import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../core/utils_and_services/timatic/src/models/auth_response.dart';
 import '../../../initialize.dart';
 import '../../../widgets/DotButton.dart';
 import '../../login/login_state.dart';
@@ -33,23 +34,23 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
     return Column(
       children: [
         ...logs.map((l) {
-          switch (l.payload?.action) {
+          switch (l.type) {
             case null:
               return SizedBox();
             case "askSupervisor":
               return SizedBox();
               return AskSupervisorWidget(his: l);
-            case "managerApproval":
+            case "airlineApproval":
               return ManagerApprovalWidget(his: l);
-            case "supervisorApproval":
+            case "supervisorResponse":
               return SupervisorApprovalWidget(his: l);
             default:
               return SizedBox();
           }
         }).toList(),
-        AttachmentsWidget(hisList: logs.where((a) => ["attachVoice", "attachPhoto"].contains(a.payload?.action)).toList()),
+        AttachmentsWidget(hisList: logs.where((a) => ["attachVoice", "attachPhoto","attach"].contains(a.type)).toList()),
         ...logs.map((l) {
-          switch (l.payload?.action) {
+          switch (l.type) {
             case null:
               return SizedBox();
             case "e-visa":
@@ -72,14 +73,17 @@ class HeaderAskSupervisorWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(showingLogsProvider);
-    final asks = logs.lastOrNullWhere((a)=>a.payload?.action == "askSupervisor");
-    if(asks == null){
+    log(logs.map((a) => a.type ?? '').join("--"));
+    final asks = logs.where((a) => a.type == "askSupervisor");
+    final resps = logs.where((a) => a.type == "supervisorResponse");
+    final ask = asks.lastOrNull;
+    final resp = resps.lastOrNull;
+    if (ask == null || resps.length >= asks.length) {
       return SizedBox();
     }
-    return AskSupervisorWidget(his: asks);
+    return AskSupervisorWidget(his: ask);
     return Column(
       children: [
-
         ...logs.map((l) {
           switch (l.payload?.action) {
             case null:
@@ -108,7 +112,9 @@ class AskSupervisorWidget extends StatefulWidget {
 class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
   TextEditingController commentC = TextEditingController();
   String? msg;
-  int? status;
+
+  // int? status;
+  SupervisorResponse? response;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +122,6 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
     final greenColor = Color(0xff08AB7D);
     final redColor = Color(0xffFF3F42);
     final blackColor = Color(0xff2D2D2D);
-    log(jsonEncode(widget.his.toJson()));
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -138,9 +143,7 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: [
-                          Text(widget.his.user?.username??'-',style: TextStyle(fontWeight: FontWeight.bold),),
-                        ],
+                        children: [Text(widget.his.user?.username ?? '-', style: TextStyle(fontWeight: FontWeight.bold))],
                       ),
                       Text(widget.his.payload!.message!),
                     ],
@@ -161,136 +164,191 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
           // const SizedBox(height: 12),
           Row(
             spacing: 12,
-            children: [
-              Expanded(
+            children: (BasicClass.user?.setting?.supervisorResponse ?? []).map((re) {
+              return Expanded(
                 child: MyButton(
-                  color: greenColor,
+                  color: re.getColor,
                   fontSize: 12,
                   radius: 12,
-                  label: "Approve",
+                  label: "${re.name}",
                   onPressed: () {
-                    if (status == 1) {
-                      status = null;
+                    if (response == re) {
+                      response = null;
                     } else {
-                      status = 1;
+                      response = re;
+                      if ((re.message ?? []).length == 1) {
+                        msg = re.message![0];
+                      }
                     }
                     setState(() {});
                   },
-                  icon: ArtemisIcons.tick_square,
-                  reverse: status != 1,
-                  borderSide: BorderSide(color: greenColor),
+                  icon: re.getIcon,
+                  reverse: response != re,
+                  borderSide: BorderSide(color: re.getColor),
                 ),
-              ),
-              Expanded(
-                child: MyButton(
-                  color: redColor,
-                  radius: 12,
-                  fontSize: 12,
-                  label: "Deny",
-                  onPressed: () {
-                    if (status == 2) {
-                      status = null;
-                    } else {
-                      status = 2;
-                    }
-                    setState(() {});
-                  },
-                  icon: ArtemisIcons.close_square,
-                  reverse: status != 2,
-                  borderSide: BorderSide(color: redColor),
-                ),
-              ),
-              Expanded(
-                child: MyButton(
-                  color: blackColor,
-                  radius: 12,
-                  fontSize: 12,
-                  label: "Wait",
-                  onPressed: () {
-                    if (status == 3) {
-                      status = null;
-                    } else {
-                      status = 3;
-                    }
-                    setState(() {});
-                  },
-                  icon: ArtemisIcons.timer,
-                  reverse: status != 3,
-                  borderSide: BorderSide(color: blackColor),
-                ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
+          // Row(
+          //   spacing: 12,
+          //   children: [
+          //     Expanded(
+          //       child: MyButton(
+          //         color: greenColor,
+          //         fontSize: 12,
+          //         radius: 12,
+          //         label: "Approve",
+          //         onPressed: () {
+          //           if (status == 1) {
+          //             status = null;
+          //           } else {
+          //             status = 1;
+          //           }
+          //           setState(() {});
+          //         },
+          //         icon: ArtemisIcons.tick_square,
+          //         reverse: status != 1,
+          //         borderSide: BorderSide(color: greenColor),
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: MyButton(
+          //         color: redColor,
+          //         radius: 12,
+          //         fontSize: 12,
+          //         label: "Deny",
+          //         onPressed: () {
+          //           if (status == 2) {
+          //             status = null;
+          //           } else {
+          //             status = 2;
+          //           }
+          //           setState(() {});
+          //         },
+          //         icon: ArtemisIcons.close_square,
+          //         reverse: status != 2,
+          //         borderSide: BorderSide(color: redColor),
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: MyButton(
+          //         color: blackColor,
+          //         radius: 12,
+          //         fontSize: 12,
+          //         label: "Wait",
+          //         onPressed: () {
+          //           if (status == 3) {
+          //             status = null;
+          //           } else {
+          //             status = 3;
+          //           }
+          //           setState(() {});
+          //         },
+          //         icon: ArtemisIcons.timer,
+          //         reverse: status != 3,
+          //         borderSide: BorderSide(color: blackColor),
+          //       ),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 12),
           AnimatedContainer(
-            height: status == 3
-                ? (BasicClass.constData.data.textMessage.length * 50)
-                : status == 1
-                ? 40
-                : status == 2
-                ? 40
-                : 0,
+            height: (response?.message ?? []).length * 48.0,
             duration: Duration(milliseconds: 200),
-            child: status == 3
-                ? Column(
-                    spacing: 8,
-                    children: [
-                      ...BasicClass.constData.data.textMessage.map((a) {
-                        bool selected = msg == a;
-                        return MyButton(
-                          radius: 20,
-                          label: a,
-                          // reverse: true,
-                          color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
-                          borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
-                          onPressed: () {
-                            if (selected) {
-                              msg = null;
-                            } else {
-                              msg = a;
-                            }
-                            setState(() {});
-                          },
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
-                              ),
-                              Expanded(
-                                child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
-                  )
-                : status == 1
-                ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: greenColor.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(10)),
+            child: Column(
+              spacing: 8,
+              children: [
+                ...(response?.message ?? []).map((a) {
+                  bool selected = msg == a;
+                  return MyButton(
+                    radius: 20,
+                    label: a,
+                    // reverse: true,
+                    color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
+                    borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
+                    onPressed: () {
+                      if (selected) {
+                        msg = null;
+                      } else {
+                        msg = a;
+                      }
+                      setState(() {});
+                    },
                     child: Row(
-                      children: [Text("Passenger is OK to travel", style: TextStyle(color: greenColor))],
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
+                        ),
+                        Expanded(
+                          child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
+                        ),
+                      ],
                     ),
-                  )
-                : status == 2
-                ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: redColor.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(10)),
-                    child: Row(
-                      children: [Text("Passenger is Rejected to travel", style: TextStyle(color: redColor))],
-                    ),
-                  )
-                : SizedBox(),
+                  );
+                }),
+              ],
+            ),
+            // status == 3
+            //     ? Column(
+            //         spacing: 8,
+            //         children: [
+            //           ...BasicClass.constData.data.textMessage.map((a) {
+            //             bool selected = msg == a;
+            //             return MyButton(
+            //               radius: 20,
+            //               label: a,
+            //               // reverse: true,
+            //               color: selected ? selectionColor.withOpacity(0.08) : Colors.transparent,
+            //               borderSide: BorderSide(color: selectionColor.withOpacity(0.08)),
+            //               onPressed: () {
+            //                 if (selected) {
+            //                   msg = null;
+            //                 } else {
+            //                   msg = a;
+            //                 }
+            //                 setState(() {});
+            //               },
+            //               child: Row(
+            //                 children: [
+            //                   Padding(
+            //                     padding: const EdgeInsets.only(right: 8.0),
+            //                     child: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off, color: selected ? selectionColor : Colors.black),
+            //                   ),
+            //                   Expanded(
+            //                     child: Text(a, style: TextStyle(color: selected ? selectionColor : Colors.black)),
+            //                   ),
+            //                 ],
+            //               ),
+            //             );
+            //           }),
+            //         ],
+            //       )
+            //     : status == 1
+            //     ? Container(
+            //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            //         decoration: BoxDecoration(color: greenColor.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(10)),
+            //         child: Row(
+            //           children: [Text("Passenger is OK to travel", style: TextStyle(color: greenColor))],
+            //         ),
+            //       )
+            //     : status == 2
+            //     ? Container(
+            //         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            //         decoration: BoxDecoration(color: redColor.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(10)),
+            //         child: Row(
+            //           children: [Text("Passenger is Rejected to travel", style: TextStyle(color: redColor))],
+            //         ),
+            //       )
+            //     : SizedBox(),
           ),
           const SizedBox(height: 12),
           MyButton(
             label: "Send",
-            onPressed: status == null
+            onPressed: response == null || msg == null
                 ? null
                 : () async {
-                    await getIt<HomeController>().attachToResult(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', data: {"action": "supervisorApproval", 'status': status, "message": msg});
+                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: msg!);
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -605,8 +663,13 @@ class SupervisorApprovalWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // bool approved = his.payload?.approved ?? false;
     final int status = his.payload?.status ?? 3;
-    final color = [Color(0xff00C68E), Color(0xffFF3F42), Colors.black][status - 1];
-    final title = ["Approved", "Denied", "Wait"][status - 1];
+    SupervisorResponse? res = (BasicClass.user?.setting?.supervisorResponse ?? []).firstWhereOrNull((a) => a.actionId == his.payload?.actionId);
+
+    if (res == null) {
+      return SizedBox();
+    }
+    final color = res.getColor;
+    final title = res.name!;
     return Container(
       margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
       decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
@@ -616,12 +679,12 @@ class SupervisorApprovalWidget extends StatelessWidget {
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
-                Icon(status == 1 ? ArtemisIcons.shield_tick : ArtemisIcons.user_octagon, color: color),
+                Icon(res.getIcon, color: color),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     "Supervisor",
-                    style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: res.getColor, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -640,7 +703,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(status == 1 ? ArtemisIcons.tick_square : ArtemisIcons.close_square, color: color),
+                      Icon(res.getIcon, color: color),
                       const SizedBox(width: 4),
                       Text(
                         title,
@@ -718,7 +781,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                                             ),
                                           ),
                                         );
-                                      }).toList(),
+                                      }),
                                     ],
                                   ),
                                 ),
@@ -746,12 +809,14 @@ class AttachmentsWidget extends StatelessWidget {
     final color = Colors.black;
     final List<String> photos = [];
     final List<String> voices = [];
-    hisList.where((a) => a.payload?.action == "attachPhoto").forEach((p) {
+    hisList.where((a) => a.type == "attach").forEach((p) {
       photos.addAll(p.payload?.attachFiles ?? []);
     });
     hisList.where((a) => a.payload?.action == "attachVoice").forEach((p) {
       voices.addAll(p.payload?.attachFiles ?? []);
     });
+    log("photo ${photos.length}");
+    log("photo ${photos.length}");
     if (hisList.isEmpty) {
       return SizedBox();
     }

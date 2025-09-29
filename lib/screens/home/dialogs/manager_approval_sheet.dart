@@ -484,7 +484,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
 
                               final String path = "${dir.path}/sign.png";
                               final f = await File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-                              final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, images: [f.path], voices: [], data: {'name': nameC.text, "action": "managerApproval", "approved": false});
+                              final bool = await getIt<HomeController>().airlineApproval(logId: widget.logId, sign: f.path, data: {'name': nameC.text, "action": "managerApproval", "approve": false});
                               if (bool) {
                                 Navigator.of(context).pop(true);
                                 Future.delayed(Duration(milliseconds: 300), () {
@@ -501,7 +501,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                             color: Color(0xff00C68E),
                             onPressed: () async {
                               final size = (context.width * 0.9).abs().floor();
-                              final byteData = await control.toImage(width: size, height: size);
+                              final byteData = await control.toImage(width: size, height: size, background: Colors.transparent);
                               if (byteData == null) {
                                 return;
                               }
@@ -510,7 +510,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
 
                               final String path = "${dir.path}/sign.png";
                               final f = await File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-                              final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, images: [f.path], voices: [], data: {'name': nameC.text, "action": "managerApproval", "approved": true});
+                              final bool = await getIt<HomeController>().airlineApproval(logId: widget.logId, sign: f.path, data: {'name': nameC.text, "action": "managerApproval", "approve": true});
                               if (bool) {
                                 Navigator.of(context).pop(true);
                                 Future.delayed(Duration(milliseconds: 300), () {
