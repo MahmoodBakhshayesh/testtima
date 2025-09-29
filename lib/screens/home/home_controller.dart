@@ -25,6 +25,7 @@ import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
+import 'package:abds/screens/home/widgets/logs_and_attachments.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:dartx/dartx.dart';
@@ -53,6 +54,7 @@ import '../mrz_reader/mrz_reader_state.dart';
 import 'dialogs/image_pick_method_select_sheet.dart';
 import 'dialogs/option_sheet_dialog.dart';
 import 'home_state.dart';
+import 'usecases/ask_supervisor_usecase.dart';
 
 class HomeController extends ControllerInterface {
   final _log = Logger('HomeController');
@@ -81,15 +83,29 @@ class HomeController extends ControllerInterface {
   }
 
   Future<void> setAirportDialog(BuildContext context) async {
-    final current = BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == ref.read(userProvider)?.profile.defaultAirport);
+    final current = BasicClass.constData.data.airport.firstWhereOrNull((a) =>
+    a.code3 == ref
+        .read(userProvider)
+        ?.profile
+        .defaultAirport);
     final newVal = await showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
         return Padding(
           // This moves content above the keyboard
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: PickerSheetWidget(value: current, hasClear: false, searchAutoFocus: false, searchBuilder: null, items: BasicClass.constData.data.airport, label: "Airport", itemToWidget: null, hasSearch: true),
+          padding: EdgeInsets.only(bottom: MediaQuery
+              .of(context)
+              .viewInsets
+              .bottom),
+          child: PickerSheetWidget(value: current,
+              hasClear: false,
+              searchAutoFocus: false,
+              searchBuilder: null,
+              items: BasicClass.constData.data.airport,
+              label: "Airport",
+              itemToWidget: null,
+              hasSearch: true),
         );
         // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
       },
@@ -136,10 +152,14 @@ class HomeController extends ControllerInterface {
     if (doc.isPassport) {
       int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
       if (emptyIndex == -1) {
-        if (ref.read(passportsProvider).isEmpty) {
+        if (ref
+            .read(passportsProvider)
+            .isEmpty) {
           ref.read(passportsProvider.notifier).add(doc);
         } else {
-          int lastIndex = ref.read(passportsProvider).length - 1;
+          int lastIndex = ref
+              .read(passportsProvider)
+              .length - 1;
           ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
         }
       } else {
@@ -246,9 +266,9 @@ class HomeController extends ControllerInterface {
       log("is Locked ==>${locked}");
       PassengerDetails pd = PassengerDetails(
         birthDate: DateTime.tryParse(input["passengerDetails"]["birthDate"] ?? ''),
-        nationality:  BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["nationality"]),
-        birthCountry:  BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["birthCountry"]),
-        residentCountryCode:  BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["residentCountryCode"]),
+        nationality: BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["nationality"]),
+        birthCountry: BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["birthCountry"]),
+        residentCountryCode: BasicClass.constData.data.country.firstWhereOrNull((a) => a.code3 == input["passengerDetails"]["residentCountryCode"]),
         gender: GenderDetails.fromValue(input["passengerDetails"]['gender']?.toString()),
       );
 
@@ -279,15 +299,34 @@ class HomeController extends ControllerInterface {
       //   log("${a.getMatch()?.type} ${a.docCode}");
       //   return a.getMatch()?.type == "P";
       // }).toList();
-      final passes = allDocs.where((a) => a.getMatch()?.type == "P").toList();
-      final visas = allDocs.where((a) => a.getMatch()?.type == "V").toList();
-      final residents = allDocs.where((a) => a.getMatch()?.type == "I").toList();
+      final passes = allDocs.where((a) =>
+      a
+          .getMatch()
+          ?.type == "P").toList();
+      final visas = allDocs.where((a) =>
+      a
+          .getMatch()
+          ?.type == "V").toList();
+      final residents = allDocs.where((a) =>
+      a
+          .getMatch()
+          ?.type == "I").toList();
 
-      log("AllDoces ${allDocs.map((a) => a.getMatch()?.type)}");
+      log("AllDoces ${allDocs.map((a) =>
+      a
+          .getMatch()
+          ?.type)}");
       log("Passes ${passes.length} -- Visas${visas.length} -- Residents${residents.length}");
-      final others = allDocs.where((a) => !["V", "I", "P"].contains(a.getMatch()?.type)).toList();
-      final allSegs = List<ItinerarySegment>.from((input["itineraryDetails"]['segments']).map((s) => ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]),processingEntity: "ABOMIS DOC CHECK")));
-
+      final others = allDocs.where((a) =>
+      !["V", "I", "P"].contains(a
+          .getMatch()
+          ?.type)).toList();
+      final allSegs = List<ItinerarySegment>.from(
+        (input["itineraryDetails"]['segments']).map((s) {
+          return ItinerarySegment.regenerateFromJson(s);
+          // return ItinerarySegment(departure: ItinPoint.fromJson(s["departure"]), arrival: ItinPoint.fromJson(s["arrival"]), processingEntity: "ABOMIS DOC CHECK", operatingCarrier: BasicClass.getAirlineWithCode(code));
+        }),
+      );
 
       ref.read(passportsProvider.notifier).setAll(passes);
       ref.read(visasProvider.notifier).setAll(visas);
@@ -318,12 +357,17 @@ class HomeController extends ControllerInterface {
     // Text data (can also be a JSON string)
     final textData = "your text or json here";
     List<String> images = ref.read(attachingPhotoPathProvider);
-    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final imageFiles = await Future.wait(images.map((path) async =>
+    await MultipartFile.fromFile(path, filename: path
+        .split('/')
+        .last)));
     final formData = FormData.fromMap({
       "images": imageFiles, // multiple images
       "data": jsonEncode({"logNoteType": noteType, "description": desc}),
     });
-    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
+    String api = "${ref
+        .read(selectedServerProvider)
+        .apiAddress}/logs/$logId";
 
     try {
       final response = await dio.post(
@@ -358,15 +402,23 @@ class HomeController extends ControllerInterface {
     bool result = false;
     final dio = Dio();
 
-    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final imageFiles = await Future.wait(images.map((path) async =>
+    await MultipartFile.fromFile(path, filename: path
+        .split('/')
+        .last)));
+    final voiceFiles = await Future.wait(voices.map((path) async =>
+    await MultipartFile.fromFile(path, filename: path
+        .split('/')
+        .last)));
     final attachings = [...imageFiles, ...voiceFiles];
     log("\n${[...images, ...voices].join("\n")}\n to $logId");
     final formData = FormData.fromMap({
       "attachFiles": attachings, // multiple images
       "data": jsonEncode(data),
     });
-    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
+    String api = "${ref
+        .read(selectedServerProvider)
+        .apiAddress}/logs/$logId";
     log(jsonEncode(data));
     try {
       final response = await dio.post(
@@ -400,7 +452,9 @@ class HomeController extends ControllerInterface {
     final Directory appDir = await getApplicationDocumentsDirectory();
 
     /// Generate Image Name
-    final String imageName = url.split('/').last;
+    final String imageName = url
+        .split('/')
+        .last;
 
     /// Create Empty File in app dir & fill with new image
     final File file = File(appDir.path + "/${imageName.replaceAll(".enc", ".m4a")}");
@@ -460,7 +514,7 @@ class HomeController extends ControllerInterface {
       case Ok<SubmitTimaticRequestResponse>():
         final r = result.value;
         response = r.response;
-        ref.read(refCodeProvider.notifier).update((s)=>r.refCode);
+        ref.read(refCodeProvider.notifier).update((s) => r.refCode);
     }
 
     return response;
@@ -489,7 +543,10 @@ class HomeController extends ControllerInterface {
     if (langs != null) {
       navigation.pop();
       Future(() {
-        navigation.openBottomSheet(bottomSheet: TranslateLanguageSelectSheet(languages: langs),shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)));
+        navigation.openBottomSheet(
+          bottomSheet: TranslateLanguageSelectSheet(languages: langs),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+        );
       });
     }
   }
@@ -512,7 +569,7 @@ class HomeController extends ControllerInterface {
         // translated.status = ref.read(timaticResultProvider)?.status;
         ref.read(timaticResultNewProvider.notifier).update((s) => translated);
         navigation.pop();
-      // navigation.openDialog(dialog: TranslatedResponseDialog(translated: r.translated));
+    // navigation.openDialog(dialog: TranslatedResponseDialog(translated: r.translated));
     }
 
     return translated;
@@ -538,8 +595,8 @@ class HomeController extends ControllerInterface {
   }
 
   Future<TimaticResponseNew?> timatic() async {
-    final id = await navigation.openBottomSheet(bottomSheet: AskEmployeeIDSheet(),isScrollControlled: true);
-    if(id != null){
+    final id = await navigation.openBottomSheet(bottomSheet: AskEmployeeIDSheet(), isScrollControlled: true);
+    if (id != null) {
       List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
       final timResult = await checkTimatic(
         DocumentRequest(
@@ -549,11 +606,26 @@ class HomeController extends ControllerInterface {
         ),
       );
       return timResult;
-
-    }else{
+    } else {
       return null;
     }
   }
 
-  // UseCase UseCase = UseCase(repository: Repository());
+  Future<bool> askSupervisor({required String logId,required String msg,required String supervisorId}) async {
+    AskSupervisorUseCase askSupervisorUseCase = AskSupervisorUseCase();
+    AskSupervisorRequest askSupervisorRequest = AskSupervisorRequest(logId:logId,supervisorId: supervisorId, message: msg);
+    final result = await askSupervisorUseCase(request:askSupervisorRequest);
+
+    switch (result) {
+      case Err<AskSupervisorResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<AskSupervisorResponse>():
+        final r = result.value;
+        return true;
+    }
+    return false;
+  }
+
+// UseCase UseCase = UseCase(repository: Repository());
 }

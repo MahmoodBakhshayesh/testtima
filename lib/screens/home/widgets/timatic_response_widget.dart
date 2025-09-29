@@ -106,7 +106,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
             children: [
               ...(segRes.result ?? []).map((sr) {
                 final sorted = sr.ruleSetEvaluations??[];
-                sorted.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
+                // sorted.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
 
                 return Column(children: [...(sorted).map((a) => RuleSetWidgetNew(ruleSet: a))]);
               }),

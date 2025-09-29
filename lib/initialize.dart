@@ -140,7 +140,7 @@ initNetworkManager([String? baseUrl]) {
     },
     onStartDefault: (_) {},
     msgExtractor: (data) {
-      log("msgExtractorv ${data}");
+      // log("msgExtractorv ${data}");
       return (data["message"] ?? data["Message"] ?? data["ResultText"] ?? "Done").toString();
     },
     tokenExpireCheck: (NetworkRequest req, NetworkResponse res) {

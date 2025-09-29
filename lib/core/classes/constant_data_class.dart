@@ -135,8 +135,8 @@ class VersionedData {
       );
 
   factory VersionedData.fromJson(Map<String, dynamic> json) => VersionedData(
-    logNoteType: List<String>.from(json["logNoteType"].map((x) => x)),
-    textMessage: List<String>.from(json["textMessage"].map((x) => x)),
+    logNoteType: List<String>.from((json["logNoteType"]??[]).map((x) => x)),
+    textMessage: List<String>.from((json["textMessage"]??[]).map((x) => x)),
     documentType: List<DocumentType>.from(json["documentType"].map((x) => DocumentType.fromJson(x))),
     documentDetailType: List<DocumentDetailType>.from(json["documentDetailType"].map((x) => DocumentDetailType.fromJson(x))),
     permission: PermissionCatalog.fromJson(json["permission"]),

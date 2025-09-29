@@ -1,8 +1,8 @@
-
 import 'dart:developer';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/extenstions/mrz_res_ext.dart';
+import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/cupertino.dart';
@@ -179,43 +179,44 @@ class DocumentDetail {
   bool get isScanned => mrz != null;
 
   bool get isVisa => shortType == "V";
+
   bool get isPassport => shortType == "P";
 
-  Widget get getMrzWidget => (mrz??"").isEmpty?SizedBox():Container(
-      padding: EdgeInsets.all(4),
-      decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.08),
-          borderRadius: BorderRadiusGeometry.circular(4)
-      ),
-      child: FittedBox(child: Text(censorText(mrz??'',(fullName??"").split(" ")),style: TextStyle(fontFamily: "Ocr"),)));
+  Widget get getMrzWidget => (mrz ?? "").isEmpty
+      ? SizedBox()
+      : Container(
+          padding: EdgeInsets.all(4),
+          decoration: BoxDecoration(color: Colors.black.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(4)),
+          child: FittedBox(
+            child: Text(censorText(mrz ?? '', (fullName ?? "").split(" ")), style: TextStyle(fontFamily: "Ocr")),
+          ),
+        );
 
   bool isSameAs(OcrMrzResult res) {
     // log("${res.documentCode} -- ${documentCode?.code}");
     // log("${res.documentNumber} -- ${documentNumber}");
 
-    return (shortType == res.getShortType)&& (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
+    return (shortType == res.getShortType) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 
-  DocumentType? getMatch(){
+  DocumentType? getMatch() {
     String? dc = docCode;
     DocumentType? match;
-    if (dc != null && dc.length>1) {
-      match = BasicClass.constData.data.documentType.lastOrNullWhere(
-            (a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a)=>a.code == documentCode?.code).type,
-      );
+    if (dc != null && dc.length > 1) {
+      match = BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a) => a.code == documentCode?.code).type);
     }
     return match;
   }
 
-  DocumentDetailType? getTypeDetailsMatch(){
+  DocumentDetailType? getTypeDetailsMatch() {
     String? dc = docCode;
     DocumentDetailType? match;
-    if(docCode == null){
+    if (docCode == null) {
       return null;
     }
-    if (dc != null && dc.length>1) {
+    if (dc != null && dc.length > 1) {
       match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
-            (a) => a.type == docCode?.characters.first && (a.subType == "*" || a.subType == docCode?.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
+        (a) => a.type == docCode?.characters.first && (a.subType == "*" || a.subType == docCode?.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
       );
     }
     return match;
@@ -224,7 +225,7 @@ class DocumentDetail {
 
 String censorText(String input, List<String> forbidden) {
   for (final word in forbidden) {
-    input = input.replaceAll(word, '*'*word.length);
+    input = input.replaceAll(word, '*' * word.length);
   }
   return input;
 }
@@ -312,24 +313,39 @@ class ItinerarySegment {
       returnOnwardTicket: json['returnOnwardTicket'] != null ? TicketStatusDetails.fromValue(json['returnOnwardTicket']?.toString()) : null,
       segmentType: json['segmentType'] != null ? SegmentType.values.firstWhere((a) => a.value.toUpperCase() == json['segmentType']?.toString()) : null,
       operatingCarrier: json['operatingCarrier'] is Map<String, dynamic> ? ParameterValue.fromJson(json['operatingCarrier']) : null,
+      flnb: json["flightNumber"],
     );
   }
 
   factory ItinerarySegment.empty() {
-    log("BasicClass.user?.attributes.defaultAirport ${BasicClass.user?.attributes.defaultAirport}");
     return ItinerarySegment(
-      arrival: ItinPoint(point: '',  dateTime: DateTime.now()),
-      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '',  dateTime: DateTime.now()),
+      arrival: ItinPoint(point: '', dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '', dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,
     );
   }
 
+  factory ItinerarySegment.regenerateFromJson(Map<String, dynamic> json) {
+    return ItinerarySegment(
+      arrival: ItinPoint.fromJson((json['arrival'] as Map<String, dynamic>? ?? const {})),
+      departure: ItinPoint.fromJson((json['departure'] as Map<String, dynamic>? ?? const {})),
+      processingEntity: "ABOMIS DOC CHECK",
+      segmentType: SegmentType.values.firstWhere((a) => a.toString() == json["segmentType"], orElse: () => SegmentType.entry),
+      luggageCollected: json["luggageCollected"],
+      flnb: json["flightNumber"],
+      returnOnwardTicket: TicketStatus.values.firstWhereOrNull((a) => a.value == json["returnOnwardTicket"]),
+      purposeOfStay: PurposeOfStayType.values.firstWhereOrNull((a) => a.value == json["purposeOfStay"]),
+      durationOfStay: json["durationOfStay"] == null ? null : DurationOfStay.fromJson(json["durationOfStay"]),
+      operatingCarrier: BasicClass.getAirlineWithCode(json["operatingCarrier"]??''),
+    );
+  }
+
   factory ItinerarySegment.emptyNoAirport() {
     return ItinerarySegment(
       arrival: ItinPoint(point: '', dateTime: DateTime.now()),
-      departure: ItinPoint(point: '',  dateTime: DateTime.now()),
+      departure: ItinPoint(point: '', dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,
@@ -337,6 +353,7 @@ class ItinerarySegment {
   }
 
   bool get isEmpty => departure.point.isEmpty || arrival.point.isEmpty;
+
   String get route => "${departure.point} - ${arrival.point}";
 
   Map<String, dynamic> toJson() => {
@@ -349,6 +366,7 @@ class ItinerarySegment {
     'returnOnwardTicket': returnOnwardTicket?.value,
     'operatingCarrier': operatingCarrier?.code,
     'segmentType': segmentType?.toString(),
+    "flightNumber":flnb
   };
 }
 

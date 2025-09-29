@@ -377,7 +377,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                 children: [
                                                   Text(" ● ", style: TextStyle(color: Colors.grey, fontSize: 7)),
                                                   Text(
-                                                    "Eligibility #: ",
+                                                    "Eligibility: ",
                                                     style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600),
                                                   ),
                                                   timaticRes.evaluationResult.getIconWidget,

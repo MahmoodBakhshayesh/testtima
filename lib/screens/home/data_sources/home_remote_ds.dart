@@ -2,6 +2,7 @@ import '../../../core/interface_implementations/network_manager_imp.dart';
 import '../../../core/interface_implementations/parser_imp.dart';
 import '../../../core/interfaces/response_int.dart';
 import '../interfaces/home_data_source_interface.dart';
+import '../usecases/ask_supervisor_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
 import '../usecases/get_ref_code_log_usecase.dart';
 import '../usecases/get_supervisors_usecase.dart';
@@ -92,12 +93,19 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
     return response;
   }
 
-    @override
-      Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request}) async {
-        String api = "/logs/${request.logId}/lock";
-        ResponseInterface res = await networkManager.put(request,api: api);
-        LockUnlockResponseResponse response = await Parser().parse(LockUnlockResponseResponse.fromResponse, res,executionReq:request);
-        return response;
-      }
+  @override
+  Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request}) async {
+    String api = "/logs/${request.logId}/lock";
+    ResponseInterface res = await networkManager.put(request, api: api);
+    LockUnlockResponseResponse response = await Parser().parse(LockUnlockResponseResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
 
+  @override
+  Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request}) async {
+    String api = "/logs/${request.logId}/askSupervisor";
+    ResponseInterface res = await networkManager.post(request,api: api);
+    AskSupervisorResponse response = await Parser().parse(AskSupervisorResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
 }

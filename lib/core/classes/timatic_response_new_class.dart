@@ -15,7 +15,7 @@ TimaticResponseNew timaticResponseNewFromJson(String str) => TimaticResponseNew.
 String timaticResponseNewToJson(TimaticResponseNew data) => json.encode(data.toJson());
 
 class TimaticResponseNew {
-  final bool? totalResult;
+  final String? totalResult;
   final int? status;
   final List<Segment> segments;
 
@@ -26,7 +26,7 @@ class TimaticResponseNew {
   });
 
   TimaticResponseNew copyWith({
-    bool? totalResult,
+    String? totalResult,
     int? status,
     List<Segment>? segments,
   }) =>
@@ -45,7 +45,7 @@ class TimaticResponseNew {
   bool get isLocked => status ==1;
 
   EvalResult get evaluationResult {
-    return (totalResult??false)?EvalResult.NO:EvalResult.YES;
+    return EvalResult.values.firstWhere((a)=>a.name.toUpperCase() == totalResult,orElse: ()=>EvalResult.UNKNOWN);
   }
 
   Map<String, dynamic> toJson() => {

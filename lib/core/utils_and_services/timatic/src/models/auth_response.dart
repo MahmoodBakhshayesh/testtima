@@ -36,7 +36,8 @@ class LoginData {
   final bool setPassword;
   final String token;
   final String constDataVersion;
-
+  final Device? device;
+  final Setting? setting;
   // final ConstData constData;
   final UserPermission permission;
 
@@ -48,6 +49,8 @@ class LoginData {
     required this.token,
     required this.constDataVersion,
     required this.permission,
+    this.device,
+    this.setting,
     // required this.constData,
   });
 
@@ -60,6 +63,8 @@ class LoginData {
     String? constDataVersion,
     // ConstData? constData,
     UserPermission? permission,
+    Device? device,
+    Setting? setting,
   }) {
     return LoginData(
       versionCheck: versionCheck ?? this.versionCheck,
@@ -69,6 +74,8 @@ class LoginData {
       token: token ?? this.token,
       constDataVersion: constDataVersion ?? this.constDataVersion,
       permission: permission ?? this.permission,
+      device: device ?? this.device,
+      setting: setting ?? this.setting,
 
       // constData: constData ?? this.constData,
     );
@@ -87,6 +94,8 @@ class LoginData {
       token: json['token'] ?? '',
       constDataVersion: json['constDataVersion'] ?? '',
       permission: UserPermission.fromRootJson(fixedPermission),
+      device: json["device"] == null ? null : Device.fromJson(json["device"]),
+      setting: json["setting"] == null ? null : Setting.fromJson(json["setting"]),
       // constData: ConstData.fromJson(json['constData'] ?? {}),
     );
   }
@@ -100,6 +109,8 @@ class LoginData {
     'constDataVersion': constDataVersion,
     // 'constData': constData.toJson(),
     "permissions": permission,
+    "device": device?.toJson(),
+    "setting": setting?.toJson(),
   };
 }
 
@@ -144,7 +155,6 @@ class Profile {
   Map<String, dynamic> toJson() => {'username': username, 'email': email, 'firstname': firstname, 'middlename': middlename, 'defaultAirport': defaultAirport, 'lastname': lastname, 'hasImage': hasImage, 'gender': gender};
 }
 
-
 class UserAttribute {
   final String? region;
   final String? defaultAirport;
@@ -152,47 +162,62 @@ class UserAttribute {
   final String? defaultLanguage;
   final bool? rtlLanguage;
 
-  UserAttribute({
-    this.region,
-    this.defaultAirport,
-    this.type,
-    this.defaultLanguage,
-    this.rtlLanguage,
-  });
+  UserAttribute({this.region, this.defaultAirport, this.type, this.defaultLanguage, this.rtlLanguage});
 
-  UserAttribute copyWith({
-    String? region,
-    String? defaultAirport,
-    String? type,
-    String? defaultLanguage,
-    bool? rtlLanguage,
-  }) =>
-      UserAttribute(
-        region: region ?? this.region,
-        defaultAirport: defaultAirport ?? this.defaultAirport,
-        type: type ?? this.type,
-        defaultLanguage: defaultLanguage ?? this.defaultLanguage,
-        rtlLanguage: rtlLanguage ?? this.rtlLanguage,
-      );
-
-  factory UserAttribute.fromJson(Map<String, dynamic> json) => UserAttribute(
-    region: json["region"],
-    defaultAirport: json["defaultAirport"],
-    type: json["type"],
-    defaultLanguage: json["defaultLanguage"],
-    rtlLanguage: json["rtlLanguage"],
+  UserAttribute copyWith({String? region, String? defaultAirport, String? type, String? defaultLanguage, bool? rtlLanguage}) => UserAttribute(
+    region: region ?? this.region,
+    defaultAirport: defaultAirport ?? this.defaultAirport,
+    type: type ?? this.type,
+    defaultLanguage: defaultLanguage ?? this.defaultLanguage,
+    rtlLanguage: rtlLanguage ?? this.rtlLanguage,
   );
 
-  Map<String, dynamic> toJson() => {
-    "region": region,
-    "defaultAirport": defaultAirport,
-    "type": type,
-    "defaultLanguage": defaultLanguage,
-    "rtlLanguage": rtlLanguage,
-  };
+  factory UserAttribute.fromJson(Map<String, dynamic> json) =>
+      UserAttribute(region: json["region"], defaultAirport: json["defaultAirport"], type: json["type"], defaultLanguage: json["defaultLanguage"], rtlLanguage: json["rtlLanguage"]);
+
+  Map<String, dynamic> toJson() => {"region": region, "defaultAirport": defaultAirport, "type": type, "defaultLanguage": defaultLanguage, "rtlLanguage": rtlLanguage};
 }
 
+class Device {
+  final bool? multiuser;
 
+  Device({this.multiuser});
+
+  Device copyWith({bool? multiuser}) => Device(multiuser: multiuser ?? this.multiuser);
+
+  factory Device.fromJson(Map<String, dynamic> json) => Device(multiuser: json["multiuser"]);
+
+  Map<String, dynamic> toJson() => {"multiuser": multiuser};
+}
+
+class Setting {
+  final int? refreshInboxTimer;
+  final List<SupervisorResponse>? supervisorResponse;
+
+  Setting({this.refreshInboxTimer, this.supervisorResponse});
+
+  Setting copyWith({int? refreshInboxTimer, List<SupervisorResponse>? supervisorResponse}) =>
+      Setting(refreshInboxTimer: refreshInboxTimer ?? this.refreshInboxTimer, supervisorResponse: supervisorResponse ?? this.supervisorResponse);
+
+  factory Setting.fromJson(Map<String, dynamic> json) =>
+      Setting(refreshInboxTimer: json["refreshInboxTimer"], supervisorResponse: json["supervisorResponse"] == null ? [] : List<SupervisorResponse>.from(json["supervisorResponse"]!.map((x) => SupervisorResponse.fromJson(x))));
+
+  Map<String, dynamic> toJson() => {"refreshInboxTimer": refreshInboxTimer, "supervisorResponse": supervisorResponse == null ? [] : List<dynamic>.from(supervisorResponse!.map((x) => x.toJson()))};
+}
+
+class SupervisorResponse {
+  final int? actionId;
+  final String? name;
+  final List<String>? message;
+
+  SupervisorResponse({this.actionId, this.name, this.message});
+
+  SupervisorResponse copyWith({int? actionId, String? name, List<String>? message}) => SupervisorResponse(actionId: actionId ?? this.actionId, name: name ?? this.name, message: message ?? this.message);
+
+  factory SupervisorResponse.fromJson(Map<String, dynamic> json) => SupervisorResponse(actionId: json["actionId"], name: json["name"], message: json["message"] == null ? [] : List<String>.from(json["message"]!.map((x) => x)));
+
+  Map<String, dynamic> toJson() => {"actionId": actionId, "name": name, "message": message == null ? [] : List<dynamic>.from(message!.map((x) => x))};
+}
 
 // class ConstData {
 //   AllPermissions userPermissionAttributes;

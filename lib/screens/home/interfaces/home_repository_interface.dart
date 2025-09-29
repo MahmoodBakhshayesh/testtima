@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/interfaces/result_int.dart';
+import '../usecases/ask_supervisor_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
 import '../usecases/get_ref_code_log_usecase.dart';
 import '../usecases/get_supervisors_usecase.dart';
@@ -20,4 +21,5 @@ abstract class HomeRepositoryInterface {
   Future<Result<GetSupportedLanguageResponse>> getSupportedLanguage(GetSupportedLanguageRequest request);
   Future<Result<TranslateTimaticResponseResponse>> translateTimaticResponse(TranslateTimaticResponseRequest request);
   Future<Result<LockUnlockResponseResponse>>lockUnlockResponse(LockUnlockResponseRequest request);
+  Future<Result<AskSupervisorResponse>> askSupervisor(AskSupervisorRequest request);
 }

@@ -33,9 +33,9 @@ import 'package:voice_note_kit/voice_note_kit.dart';
 
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
+import '../../../widgets/numeric_keyboard.dart';
 
 class AskEmployeeIDSheet extends StatefulWidget {
-
   const AskEmployeeIDSheet({super.key});
 
   @override
@@ -71,7 +71,6 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
             ),
             Divider(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               // color: Colors.black.withOpacity(0.02),
               child: SingleChildScrollView(
                 child: Column(
@@ -79,43 +78,56 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MyTextFieldNew(
-                      headerBgColor: Colors.black.withOpacity(0.08),
-                      bodyBgColor: Colors.black.withOpacity(0.04),
-                      placeholder: "Enter ID",
-                      label: "Employee ID",controller: idC,)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: IgnorePointer(
+                        child: MyTextFieldNew(
+                          headerBgColor: Colors.black.withOpacity(0.08),
+                          bodyBgColor: Colors.black.withOpacity(0.04),
+                          placeholder: "Enter ID",
+                          label: "Employee ID",
+                          controller: idC,
+                          onSubmit: (a) {
+
+                          },
+                        ),
+                      ),
+                    ),
+                    CupertinoNumericKeyboard(controller: idC,onDone: (){
+                      Navigator.of(context).pop(idC.text);
+                    },),
                   ],
                 ),
               ),
             ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: MyButton(
-                      color: Colors.grey,
-                      borderSide: BorderSide(color: MyColors.lineColor),
-                      reverse: true,
-                      label: "Cancel",
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: MyButton(
-                      label: "Confirm",
-                      onPressed: () async {
-                        Navigator.of(context).pop(idC);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Divider(),
+            // Padding(
+            //   padding: const EdgeInsets.all(12.0),
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: MyButton(
+            //           color: Colors.grey,
+            //           borderSide: BorderSide(color: MyColors.lineColor),
+            //           reverse: true,
+            //           label: "Cancel",
+            //           onPressed: () {
+            //             Navigator.of(context).pop();
+            //           },
+            //         ),
+            //       ),
+            //       const SizedBox(width: 12),
+            //       Expanded(
+            //         child: MyButton(
+            //           label: "Confirm",
+            //           onPressed: () async {
+            //             Navigator.of(context).pop(idC);
+            //           },
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

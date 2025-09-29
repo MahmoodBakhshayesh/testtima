@@ -60,7 +60,7 @@ class LockedDocumentItemRow extends StatelessWidget {
               ),
             ],
           ),
-          LockedFieldWidget(
+          ?d.documentExpiryDate!=null?LockedFieldWidget(
             label: "Expiry Date",
             value: Row(
               children: [
@@ -69,8 +69,8 @@ class LockedDocumentItemRow extends StatelessWidget {
                 Text(expiryValidator("", d.documentExpiryDate) ?? '', style: TextStyle(fontSize: 10, color: expiryValidationColor(d.documentExpiryDate))),
               ],
             ),
-          ),
-          LockedFieldWidget(
+          ):null,
+          ?d.birthDate!=null?LockedFieldWidget(
             label: "Birth Date",
             value: Row(
               children: [
@@ -79,8 +79,8 @@ class LockedDocumentItemRow extends StatelessWidget {
                 Text(birthDateValidator("", d.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(d.birthDate))),
               ],
             ),
-          ),
-          LockedFieldWidget(label: "Document #", value: Text(d.documentNumber ?? '')),
+          ):null,
+          ?(d.documentNumber??'').isNotEmpty?LockedFieldWidget(label: "Document #", value: Text(d.documentNumber ?? '')):null,
         ],
       ),
     );

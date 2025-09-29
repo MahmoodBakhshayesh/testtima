@@ -142,46 +142,80 @@ class BoardingPass {
 
   /// Multi-leg parser for M1/M2/M3... Returns one BoardingPass per leg.
   static List<BoardingPass> listFromBarcode(String barcode) {
-    if (barcode.isEmpty || barcode.length < 30 || barcode[0] != 'M') {
-      return [];
-    }
+    if (barcode.isEmpty || barcode.length < 30 || barcode[0] != 'M') return [];
 
-    // Leg count: e.g., "M2" → 2, "M3" → 3; fallback to 1 if not a digit
     final legCount = int.tryParse(barcode[1]) ?? 1;
 
-    // Header fields (common to all legs)
-    final rawName = _safeSub(barcode, 2, 22).trim();
-    final pnr = _safeSub(barcode, 22, 30).trim();
+    // Header fields
+    final rawName = _safeSub(barcode, 2, 22);      // 20 chars name
+    final pnr = _safeSub(barcode, 22, 29).trim();  // up to 7 (often 6)
 
-    final firstName = rawName.split(' ').first;
-    final lastName = rawName.replaceFirst(firstName, '').trim();
+    // Parse LAST/FIRST and strip titles
+    String cleanName = rawName.trim().replaceAll(RegExp(r'\s+'), ' ');
+    cleanName = cleanName.replaceAll(RegExp(r'\s+(MR|MRS|MS|MISS|DR)\b', caseSensitive: false), '');
+    String firstName = '', lastName = '';
+    final slashIdx = cleanName.indexOf('/');
+    if (slashIdx > 0) {
+      lastName = cleanName.substring(0, slashIdx).trim();
+      firstName = cleanName.substring(slashIdx + 1).trim();
+    } else {
+      final parts = cleanName.split(' ');
+      lastName = parts.isNotEmpty ? parts.first : '';
+      firstName = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+    }
 
-    // After index 30, legs are concatenated. We'll pattern-scan the whole string
-    // so we don't rely on exact block sizes (IATA variants/padding exist).
-    final tail = barcode.substring(30);
+    // Normalize the variable-length legs area:
+    // - replace commas and non-breaking spaces with spaces
+    // - collapse whitespace
+    var tail = barcode.substring(30);
+    tail = tail
+        .replaceAll(',', ' ')
+        .replaceAll('\u00A0', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
 
-    // Regex for one leg's core mandatory fields
-    // Groups:
-    // 1 from(3), 2 to(3), 3 al(2–3 with padding), 4 flight(3–4), 5 julian(3),
-    // 6 class(1), 7 seat(3), 8 optional seat letter, 9 seq(4)
+    // More tolerant leg regex.
+    //
+    // 1 from(3)
+    // 2 to(3)
+    // 3 airline (2–3 alnum)
+    // 4 flight (3–4 digits)
+    // 5 julian (1–3 digits; optional separators tolerated)
+    // 6 class (1 letter)
+    // 7 seat number (2–3 digits)
+    // 8 optional seat letter
+    // 9 sequence (3–5 digits)
+    //
+    // We allow optional spaces between all groups.
     final legRe = RegExp(
-      r'([A-Z]{3})([A-Z]{3})\s*([A-Z ]{2,3})\s*([0-9]{3,4})\s*([0-9]{3})([A-Z])([0-9]{3})([A-Z]?)([0-9]{4})',
+        r'([A-Z]{3})\s*'          // from
+        r'([A-Z]{3})\s*'          // to
+        r'([A-Z0-9]{2,3})\s*'     // airline (e.g., LH, 6E)
+        r'([0-9]{3,4})\s*'        // flight
+        r'([0-9]{1,3})\s*'        // julian (e.g., 053)
+        r'([A-Z])\s*'             // class
+        r'([0-9]{2,3})'           // seat number (e.g., 42 or 042)
+        r'([A-Z]?)\s*'            // seat letter (optional)
+        r'([0-9]{3,5})'           // sequence (e.g., 0155)
     );
 
     final matches = legRe.allMatches(tail).toList();
 
-    // If regex finds fewer than legCount, we'll still return what we could parse.
     final result = <BoardingPass>[];
     for (int i = 0; i < matches.length && i < legCount; i++) {
       final m = matches[i];
       final from = m.group(1)!.trim();
       final to = m.group(2)!.trim();
-      final al = m.group(3)!.trim(); // may be 2-letter with pad
-      final flt = m.group(4)!.trim().padLeft(4, '0'); // normalize to 4 digits
+      final al = m.group(3)!.trim();
+      final flt = m.group(4)!.trim().padLeft(4, '0');
+
       final julianStr = m.group(5)!.trim();
       final cls = m.group(6)!.trim();
+
       final seatNum = m.group(7)!.trim();
-      // final seatLetter = m.group(8) ?? ''; // available if you need it
+      final seatLetter = (m.group(8) ?? '').trim();
+      final seat = seatLetter.isNotEmpty ? '$seatNum$seatLetter' : seatNum;
+
       final seq = m.group(9)!.trim();
 
       final julian = int.tryParse(julianStr) ?? 0;
@@ -197,7 +231,7 @@ class BoardingPass {
           al: al,
           flnb: flt,
           classType: cls,
-          seat: seatNum,
+          seat: seat,
           seq: seq,
           julianDate: julian,
           flightDate: flightDate,
@@ -209,12 +243,15 @@ class BoardingPass {
     return result;
   }
 
+// Safe substring helper
   static String _safeSub(String s, int start, int end) {
-    if (start >= s.length) return '';
-    if (end > s.length) end = s.length;
-    if (end <= start) return '';
-    return s.substring(start, end);
+    final a = start.clamp(0, s.length);
+    final b = end.clamp(0, s.length);
+    if (a >= b) return '';
+    return s.substring(a, b);
   }
+
+
 
   Map<String, dynamic> toJson() => {
     "FistName": fistName,

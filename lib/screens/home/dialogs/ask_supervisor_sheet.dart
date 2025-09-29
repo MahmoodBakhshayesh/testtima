@@ -56,9 +56,6 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
   ParameterValue? airline;
   Supervisor? supervisor;
 
-
-
-
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
@@ -84,16 +81,13 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
             Divider(),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.02),
-              ),
+              decoration: BoxDecoration(color: Colors.black.withOpacity(0.02)),
               child: SingleChildScrollView(
                 child: Column(
                   spacing: 12,
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     MyFieldPicker<Supervisor?>(
                       label: 'Select Supervisor',
                       items: widget.supervisors,
@@ -261,13 +255,14 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                       radius: 12,
                       icon: ArtemisIcons.send_2,
                       iconInRight: true,
-                      onPressed: () async {
-                        final bool = await getIt<HomeController>().attachToResult(
-                          logId: widget.logId,
-                          images: attachingPhotos,
-                          voices: attachingVoices,
-                          data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id, 'action': 'askSupervisor'},
-                        );
+                      onPressed:supervisor==null?null: () async {
+                        // final bool = await getIt<HomeController>().attachToResult(
+                        //   logId: widget.logId,
+                        //   images: attachingPhotos,
+                        //   voices: attachingVoices,
+                        //   data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id, 'action': 'askSupervisor'},
+                        // );
+                        final bool = await getIt<HomeController>().askSupervisor(logId: widget.logId, supervisorId: supervisor!.id!, msg: messageC.text);
                         if (bool) {
                           Navigator.of(context).pop(true);
                           Future.delayed(Duration(milliseconds: 300), () {

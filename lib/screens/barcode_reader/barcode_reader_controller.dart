@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/screens/barcode_reader/barcode_reader_state.dart';
@@ -27,8 +28,10 @@ class BarcodeReaderController extends ControllerInterface {
       if (bpl.isNotEmpty) {
         for (var bp in bpl) {
           final segment = bp.getFlightLeg;
+          log(jsonEncode(segment.toJson()));
           int emptyIndex = ref.read(segmentsProvider).indexWhere((s) => s.isEmpty);
           bool isSamePerson = bp.fullname == ref.read(scannedBpProvider)?.fullname;
+
           log("empty index ${emptyIndex}");
           if (emptyIndex == -1 && isSamePerson) {
             ref.read(segmentsProvider.notifier).add(segment);

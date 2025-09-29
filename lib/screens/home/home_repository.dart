@@ -8,6 +8,7 @@ import '../../initialize.dart';
 import 'interfaces/home_repository_interface.dart';
 import 'data_sources/home_local_ds.dart';
 import 'data_sources/home_remote_ds.dart';
+import 'usecases/ask_supervisor_usecase.dart';
 import 'usecases/get_notif_count_usecase.dart';
 import 'usecases/get_ref_code_log_usecase.dart';
 import 'usecases/get_supervisors_usecase.dart';
@@ -145,18 +146,33 @@ class HomeRepository implements HomeRepositoryInterface {
     }
   }
 
-    @override
-      Future<Result<LockUnlockResponseResponse>> lockUnlockResponse(LockUnlockResponseRequest request) async {
-        try {
-          LockUnlockResponseResponse lockUnlockResponseResponse;
-          if (await networkInfo.isConnected) {
-            lockUnlockResponseResponse = await homeRemoteDataSource.lockUnlockResponse(request: request);
-          } else {
-            lockUnlockResponseResponse = await homeLocalDataSource.lockUnlockResponse(request: request);
-          }
-          return Result.ok(lockUnlockResponseResponse);
-        } on AppException catch (e) {
-          return Result.error(ServerFailure.fromAppException(e));
-        }
+  @override
+  Future<Result<LockUnlockResponseResponse>> lockUnlockResponse(LockUnlockResponseRequest request) async {
+    try {
+      LockUnlockResponseResponse lockUnlockResponseResponse;
+      if (await networkInfo.isConnected) {
+        lockUnlockResponseResponse = await homeRemoteDataSource.lockUnlockResponse(request: request);
+      } else {
+        lockUnlockResponseResponse = await homeLocalDataSource.lockUnlockResponse(request: request);
       }
+      return Result.ok(lockUnlockResponseResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<AskSupervisorResponse>> askSupervisor(AskSupervisorRequest request) async {
+    try {
+      AskSupervisorResponse askSupervisorResponse;
+      if (await networkInfo.isConnected) {
+        askSupervisorResponse = await homeRemoteDataSource.askSupervisor(request: request);
+      } else {
+        askSupervisorResponse = await homeLocalDataSource.askSupervisor(request: request);
+      }
+      return Result.ok(askSupervisorResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
 }
