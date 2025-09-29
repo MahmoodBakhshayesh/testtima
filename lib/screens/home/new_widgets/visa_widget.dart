@@ -47,6 +47,20 @@ class VisaWidget extends ConsumerWidget {
     if(visas.isEmpty){
       return SizedBox();
     }
+
+    return Column(
+      children: [
+
+        Column(
+          children: visas.map((d) {
+            int index = visas.indexOf(d);
+            bool isLast = visas.length == index + 1;
+            bool isFirst = index == 0;
+            return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+          }).toList(),
+        )
+      ],
+    );
     return MyExpansionTile(
 
       title: Column(

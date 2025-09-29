@@ -88,7 +88,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<TranslateTimaticResponseResponse> translateTimaticResponse({required TranslateTimaticResponseRequest request}) async {
-    final String api = "/logs/${request.logId}/${request.language}/";
+    final String api = "/logs/${request.logId}/translate/${request.language}/";
     ResponseInterface res = await networkManager.get(api);
     TranslateTimaticResponseResponse response = await Parser().parse(TranslateTimaticResponseResponse.fromResponse, res, executionReq: request);
     return response;

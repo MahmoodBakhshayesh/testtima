@@ -1393,10 +1393,10 @@ packages:
     dependency: "direct main"
     description:
       name: ocr_mrz
-      sha256: "9222181971648b45caa61764abc91d8333c5182901a9a845857ababfe6c21e30"
+      sha256: "2e791d7f78ba3bfd994bfe4040b8e6a724d79e79e9c79186ca790cb9a934bbf9"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.51"
+    version: "0.0.52"
   octo_image:
     dependency: transitive
     description:

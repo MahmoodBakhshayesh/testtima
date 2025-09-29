@@ -47,6 +47,14 @@ class ResidentWidget extends ConsumerWidget {
     if (residents.isEmpty) {
       return SizedBox();
     }
+    return Column(
+      children: residents.map((d) {
+        int index = residents.indexOf(d);
+        bool isLast = residents.length == index + 1;
+        bool isFirst = index == 0;
+        return ResidentItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
+      }).toList(),
+    );
     return MyExpansionTile(
       title: Column(
         children: [

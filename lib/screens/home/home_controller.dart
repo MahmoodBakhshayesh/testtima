@@ -303,7 +303,8 @@ class HomeController extends ControllerInterface {
       ref.read(passengerProvider.notifier).update((s) => pd);
 
       output["refCode"] = code;
-      output["status"] = locked ? 1 : 0;
+      // output["status"] = locked ? 1 : 0;
+      output["status"] = 1;
       // DocumentResponse result = DocumentResponse.fromJson(output);
       TimaticResponseNew result = TimaticResponseNew.fromJson(output);
 
@@ -488,10 +489,10 @@ class HomeController extends ControllerInterface {
     return count;
   }
 
-  Future<TimaticResponseNew?> checkTimatic(DocumentRequest req) async {
+  Future<TimaticResponseNew?> checkTimatic(DocumentRequest req,{required String? employeeId}) async {
     TimaticResponseNew? response;
     SubmitTimaticRequestUseCase checkTimaticUseCase = SubmitTimaticRequestUseCase();
-    SubmitTimaticRequestRequest submitTimaticRequestRequestRequest = SubmitTimaticRequestRequest(documentRequest: req);
+    SubmitTimaticRequestRequest submitTimaticRequestRequestRequest = SubmitTimaticRequestRequest(documentRequest: req, employeeId: employeeId);
     final result = await checkTimaticUseCase(request: submitTimaticRequestRequestRequest);
 
     switch (result) {
@@ -552,7 +553,7 @@ class HomeController extends ControllerInterface {
 
       case Ok<TranslateTimaticResponseResponse>():
         final r = result.value;
-        // translated = r.translated;
+        translated = r.translated;
         // translated.refCode = logId;
         // translated.status = ref.read(timaticResultProvider)?.status;
         ref.read(timaticResultNewProvider.notifier).update((s) => translated);
@@ -592,6 +593,7 @@ class HomeController extends ControllerInterface {
           itineraryDetails: ItineraryDetails(segments: ref.read(segmentsProvider)),
           passengerDetails: ref.read(passengerProvider),
         ),
+        employeeId: id
       );
       return timResult;
     } else {

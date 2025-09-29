@@ -19,44 +19,24 @@ class TimaticResponseNew {
   final int? status;
   final List<Segment> segments;
 
-  TimaticResponseNew({
-    this.totalResult,
-    this.status,
-    required this.segments,
-  });
+  TimaticResponseNew({this.totalResult, this.status, required this.segments});
 
-  TimaticResponseNew copyWith({
-    String? totalResult,
-    int? status,
-    List<Segment>? segments,
-  }) =>
-      TimaticResponseNew(
-        status: status ?? this.status,
-        totalResult: totalResult ?? this.totalResult,
-        segments: segments ?? this.segments,
-      );
+  TimaticResponseNew copyWith({String? totalResult, int? status, List<Segment>? segments}) => TimaticResponseNew(status: status ?? this.status, totalResult: totalResult ?? this.totalResult, segments: segments ?? this.segments);
 
-  factory TimaticResponseNew.fromJson(Map<String, dynamic> json) => TimaticResponseNew(
-    totalResult: json["totalResult"],
-    status: json["status"],
-    segments: json["segments"] == null ? [] : List<Segment>.from(json["segments"]!.map((x) => Segment.fromJson(x))),
-  );
+  factory TimaticResponseNew.fromJson(Map<String, dynamic> json) =>
+      TimaticResponseNew(totalResult: json["totalResult"], status: json["status"], segments: json["segments"] == null ? [] : List<Segment>.from(json["segments"]!.map((x) => Segment.fromJson(x))));
 
-  bool get isLocked => status ==1;
+  bool get isLocked => status == 1;
 
   EvalResult get evaluationResult {
-    return EvalResult.values.firstWhere((a)=>a.name.toUpperCase() == totalResult,orElse: ()=>EvalResult.UNKNOWN);
+    return EvalResult.values.firstWhere((a) => a.name.toUpperCase() == totalResult, orElse: () => EvalResult.UNKNOWN);
   }
 
-  Map<String, dynamic> toJson() => {
-    "totalResult": totalResult,
-    "status":status,
-    "segments": segments == null ? [] : List<dynamic>.from(segments!.map((x) => x.toJson())),
-  };
+  Map<String, dynamic> toJson() => {"totalResult": totalResult, "status": status, "segments": segments == null ? [] : List<dynamic>.from(segments!.map((x) => x.toJson()))};
 
   TimaticResponseNew setStatus(int? status) {
     var res = this;
-    res= res.copyWith(status: status);
+    res = res.copyWith(status: status);
     return TimaticResponseNew.fromJson(res.toJson());
   }
 }
@@ -68,25 +48,10 @@ class Segment {
   final From? to;
   final List<SegmentResult>? result;
 
-  Segment({
-    this.segmentResult,
-    this.from,
-    this.to,
-    this.result,
-  });
+  Segment({this.segmentResult, this.from, this.to, this.result});
 
-  Segment copyWith({
-    String? segmentResult,
-    From? from,
-    From? to,
-    List<SegmentResult>? result,
-  }) =>
-      Segment(
-        segmentResult: segmentResult ?? this.segmentResult,
-        from: from ?? this.from,
-        to: to ?? this.to,
-        result: result ?? this.result,
-      );
+  Segment copyWith({String? segmentResult, From? from, From? to, List<SegmentResult>? result}) =>
+      Segment(segmentResult: segmentResult ?? this.segmentResult, from: from ?? this.from, to: to ?? this.to, result: result ?? this.result);
 
   factory Segment.fromJson(Map<String, dynamic> json) => Segment(
     segmentResult: json["segmentResult"],
@@ -95,77 +60,42 @@ class Segment {
     result: json["result"] == null ? [] : List<SegmentResult>.from(json["result"]!.map((x) => SegmentResult.fromJson(x))),
   );
 
-  Map<String, dynamic> toJson() => {
-    "segmentResult": segmentResult,
-    "from": from?.toJson(),
-    "to": to?.toJson(),
-    "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toJson())),
-  };
+  Map<String, dynamic> toJson() => {"segmentResult": segmentResult, "from": from?.toJson(), "to": to?.toJson(), "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toJson()))};
 
   EvalResult get segmentEvaluationResult {
-    return EvalResult.values.firstWhere((a)=>a.name.toUpperCase() == segmentResult,orElse: ()=>EvalResult.UNKNOWN);
+    return EvalResult.values.firstWhere((a) => a.name.toUpperCase() == segmentResult, orElse: () => EvalResult.UNKNOWN);
   }
 
-  String get route => "${from?.airport??''} - ${to?.airport??''}";
-  String get routeWidget => "${from?.country??''} - ${to?.country??''}";
+  String get route => "${from?.airport ?? ''} - ${to?.airport ?? ''}";
+
+  String get routeWidget => "${from?.country ?? ''} - ${to?.country ?? ''}";
 }
 
 class From {
   final String? airport;
   final String? country;
 
-  From({
-    this.airport,
-    this.country,
-  });
+  From({this.airport, this.country});
 
-  From copyWith({
-    String? airport,
-    String? country,
-  }) =>
-      From(
-        airport: airport ?? this.airport,
-        country: country ?? this.country,
-      );
+  From copyWith({String? airport, String? country}) => From(airport: airport ?? this.airport, country: country ?? this.country);
 
-  factory From.fromJson(Map<String, dynamic> json) => From(
-    airport: json["airport"],
-    country: json["country"],
-  );
+  factory From.fromJson(Map<String, dynamic> json) => From(airport: json["airport"], country: json["country"]);
 
-  Map<String, dynamic> toJson() => {
-    "airport": airport,
-    "country": country,
-  };
+  Map<String, dynamic> toJson() => {"airport": airport, "country": country};
 }
 
 class SegmentResult {
   final String? language;
   final List<RuleSetEvaluation>? ruleSetEvaluations;
 
-  SegmentResult({
-    this.language,
-    this.ruleSetEvaluations,
-  });
+  SegmentResult({this.language, this.ruleSetEvaluations});
 
-  SegmentResult copyWith({
-    String? language,
-    List<RuleSetEvaluation>? ruleSetEvaluations,
-  }) =>
-      SegmentResult(
-        language: language ?? this.language,
-        ruleSetEvaluations: ruleSetEvaluations ?? this.ruleSetEvaluations,
-      );
+  SegmentResult copyWith({String? language, List<RuleSetEvaluation>? ruleSetEvaluations}) => SegmentResult(language: language ?? this.language, ruleSetEvaluations: ruleSetEvaluations ?? this.ruleSetEvaluations);
 
-  factory SegmentResult.fromJson(Map<String, dynamic> json) => SegmentResult(
-    language: json["language"],
-    ruleSetEvaluations: json["ruleSetEvaluations"] == null ? [] : List<RuleSetEvaluation>.from(json["ruleSetEvaluations"]!.map((x) => RuleSetEvaluation.fromJson(x))),
-  );
+  factory SegmentResult.fromJson(Map<String, dynamic> json) =>
+      SegmentResult(language: json["language"], ruleSetEvaluations: json["ruleSetEvaluations"] == null ? [] : List<RuleSetEvaluation>.from(json["ruleSetEvaluations"]!.map((x) => RuleSetEvaluation.fromJson(x))));
 
-  Map<String, dynamic> toJson() => {
-    "language": language,
-    "ruleSetEvaluations": ruleSetEvaluations == null ? [] : List<dynamic>.from(ruleSetEvaluations!.map((x) => x.toJson())),
-  };
+  Map<String, dynamic> toJson() => {"language": language, "ruleSetEvaluations": ruleSetEvaluations == null ? [] : List<dynamic>.from(ruleSetEvaluations!.map((x) => x.toJson()))};
 }
 
 class RuleSetEvaluation {
@@ -174,25 +104,10 @@ class RuleSetEvaluation {
   final List<DocumentResult> documents;
   final List<Regulation> regulations;
 
-  RuleSetEvaluation({
-    this.title,
-    this.ruleSetResult,
-    this.documents = const [],
-    this.regulations = const [],
-  });
+  RuleSetEvaluation({this.title, this.ruleSetResult, this.documents = const [], this.regulations = const []});
 
-  RuleSetEvaluation copyWith({
-    String? title,
-    String? ruleSetResult,
-    List<DocumentResult>? documents,
-    List<Regulation>? regulations,
-  }) =>
-      RuleSetEvaluation(
-        title: title ?? this.title,
-        ruleSetResult: ruleSetResult ?? this.ruleSetResult,
-        documents: documents ?? this.documents,
-        regulations: regulations ?? this.regulations,
-      );
+  RuleSetEvaluation copyWith({String? title, String? ruleSetResult, List<DocumentResult>? documents, List<Regulation>? regulations}) =>
+      RuleSetEvaluation(title: title ?? this.title, ruleSetResult: ruleSetResult ?? this.ruleSetResult, documents: documents ?? this.documents, regulations: regulations ?? this.regulations);
 
   factory RuleSetEvaluation.fromJson(Map<String, dynamic> json) => RuleSetEvaluation(
     title: json["title"],
@@ -208,9 +123,10 @@ class RuleSetEvaluation {
     "regulations": regulations == null ? [] : List<dynamic>.from(regulations!.map((x) => x.toJson())),
   };
 
-  EvalResult get evaluationResult => EvalResult.values.firstWhere((a)=>a.name.toUpperCase() == ruleSetResult,orElse: ()=>EvalResult.UNKNOWN);
+  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.name.toUpperCase() == ruleSetResult, orElse: () => EvalResult.UNKNOWN);
 
   Color get getColor => BasicClass.getColorForEvaluationResult(evaluationResult.name);
+
   IconData get getIcon => evaluationResult.getIcon;
 }
 
@@ -219,36 +135,17 @@ class DocumentResult {
   final String documentResult;
   final List<Regulation> regulations;
 
-  DocumentResult({
-    this.index,
-    required this.documentResult,
-    this.regulations = const [],
-  });
+  DocumentResult({this.index, required this.documentResult, this.regulations = const []});
 
-  DocumentResult copyWith({
-    int? index,
-    String? documentResult,
-    List<Regulation>? regulations,
-  }) =>
-      DocumentResult(
-        index: index ?? this.index,
-        documentResult: documentResult ?? this.documentResult,
-        regulations: regulations ?? this.regulations,
-      );
+  DocumentResult copyWith({int? index, String? documentResult, List<Regulation>? regulations}) =>
+      DocumentResult(index: index ?? this.index, documentResult: documentResult ?? this.documentResult, regulations: regulations ?? this.regulations);
 
-  factory DocumentResult.fromJson(Map<String, dynamic> json) => DocumentResult(
-    index: json["index"],
-    documentResult: json["documentResult"],
-    regulations: json["regulations"] == null ? [] : List<Regulation>.from(json["regulations"]!.map((x) => Regulation.fromJson(x))),
-  );
+  factory DocumentResult.fromJson(Map<String, dynamic> json) =>
+      DocumentResult(index: json["index"], documentResult: json["documentResult"], regulations: json["regulations"] == null ? [] : List<Regulation>.from(json["regulations"]!.map((x) => Regulation.fromJson(x))));
 
-  Map<String, dynamic> toJson() => {
-    "index": index,
-    "documentResult": documentResult,
-    "regulations": regulations == null ? [] : List<dynamic>.from(regulations!.map((x) => x.toJson())),
-  };
-  EvalResult get evaluationResult => EvalResult.values.firstWhere((a)=>a.name.toUpperCase() == documentResult,orElse: ()=>EvalResult.UNKNOWN);
+  Map<String, dynamic> toJson() => {"index": index, "documentResult": documentResult, "regulations": regulations == null ? [] : List<dynamic>.from(regulations!.map((x) => x.toJson()))};
 
+  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.name.toUpperCase() == documentResult, orElse: () => EvalResult.UNKNOWN);
 }
 
 class Regulation {
@@ -256,35 +153,13 @@ class Regulation {
   final String title;
   final List<String>? texts;
 
-  Regulation({
-    required this.regulationResult,
-    required this.title,
-    this.texts,
-  });
+  Regulation({required this.regulationResult, required this.title, this.texts});
 
-  Regulation copyWith({
-    String? regulationResult,
-    String? title,
-    List<String>? texts,
-  }) =>
-      Regulation(
-        regulationResult: regulationResult ?? this.regulationResult,
-        title: title ?? this.title,
-        texts: texts ?? this.texts,
-      );
+  Regulation copyWith({String? regulationResult, String? title, List<String>? texts}) => Regulation(regulationResult: regulationResult ?? this.regulationResult, title: title ?? this.title, texts: texts ?? this.texts);
 
-  factory Regulation.fromJson(Map<String, dynamic> json) => Regulation(
-    regulationResult: json["regulationResult"],
-    title: json["title"],
-    texts: json["texts"] == null ? [] : List<String>.from(json["texts"]!.map((x) => x)),
-  );
+  factory Regulation.fromJson(Map<String, dynamic> json) => Regulation(regulationResult: json["regulationResult"], title: json["title"], texts: json["texts"] == null ? [] : List<String>.from(json["texts"]!.map((x) => x)));
 
-  Map<String, dynamic> toJson() => {
-    "regulationResult": regulationResult,
-    "title": title,
-    "texts": texts == null ? [] : List<dynamic>.from(texts!.map((x) => x)),
-  };
+  Map<String, dynamic> toJson() => {"regulationResult": regulationResult, "title": title, "texts": texts == null ? [] : List<dynamic>.from(texts!.map((x) => x))};
 
-  EvalResult get evaluationResult => EvalResult.values.firstWhere((a)=>a.name.toUpperCase() == regulationResult,orElse: ()=>EvalResult.UNKNOWN);
-
+  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.name.toUpperCase() == regulationResult, orElse: () => EvalResult.UNKNOWN);
 }

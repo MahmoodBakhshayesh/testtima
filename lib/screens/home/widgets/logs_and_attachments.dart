@@ -557,23 +557,10 @@ class ManagerApprovalWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(approved ? ArtemisIcons.tick_square : ArtemisIcons.close_square, color: color),
-                      const SizedBox(width: 4),
-                      Text(
-                        approved ? "Approved" : "Denied",
-                        style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
+
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.48),
+                    // color: Colors.white.withOpacity(0.48),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white),
                   ),
@@ -583,8 +570,8 @@ class ManagerApprovalWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        his.payload?.name ?? '',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: color),
+                        his.user?.username??his.user?.email ?? '',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(his.payload?.message ?? ''),
                       (his.payload?.attachFiles ?? []).isEmpty
@@ -645,6 +632,24 @@ class ManagerApprovalWidget extends StatelessWidget {
                     ],
                   ),
                 ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.48),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  margin: EdgeInsets.only(left: 12,right: 12,bottom: 12),
+                  padding: EdgeInsets.all(12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        approved ? "Approved" : "Denied",
+                        style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -683,7 +688,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
-                    "Supervisor",
+                    "Supervisor Response",
                     style: TextStyle(color: res.getColor, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -698,23 +703,10 @@ class SupervisorApprovalWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(res.getIcon, color: color),
-                      const SizedBox(width: 4),
-                      Text(
-                        title,
-                        style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
+
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.48),
+                    // color: Colors.white.withOpacity(0.48),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white),
                   ),
@@ -726,8 +718,8 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            his.payload?.name ?? '',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: color),
+                            his.user?.username??his.user?.email ?? '',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
@@ -790,6 +782,24 @@ class SupervisorApprovalWidget extends StatelessWidget {
                     ],
                   ),
                 ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.48),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  margin: EdgeInsets.only(left: 12,right: 12,bottom: 12),
+                  padding: EdgeInsets.all(12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -815,8 +825,6 @@ class AttachmentsWidget extends StatelessWidget {
     hisList.where((a) => a.payload?.action == "attachVoice").forEach((p) {
       voices.addAll(p.payload?.attachFiles ?? []);
     });
-    log("photo ${photos.length}");
-    log("photo ${photos.length}");
     if (hisList.isEmpty) {
       return SizedBox();
     }

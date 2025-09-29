@@ -23,43 +23,44 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
     String api = '/user/myUsers';
     try {
       ResponseInterface res = await networkManager.get(api);
-      List<dynamic> fixed = res.body;
-      for (var p in fixed) {
-
-        // log(jsonEncode(p));
-        final List<dynamic> fixedPermissions = p["permissions"]??[];
-        Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(p["permission"]??{});
-        Map<String,dynamic> ppp = Map<String,dynamic>.from({});
-        // fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-
-        fixedPermission["permission"] = p["permission"]??ppp;
-        // fixedPermission.forEach((k,v){
-        //   if(v is List<dynamic>){
-        //     for (var a in v) {
-        //
-        //       a["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-        //       a["permission"] = p["permission"]??ppp;
-        //     }
-        //   }
-        // });
-         // log(jsonEncode(fixedPermission));
-         // p["permission"] = p["permission"]??{};
-         p["permission"] =fixedPermission;
-
-        // for (var ap in (p["permission"]["airlines"] as List<dynamic>)) {
-        //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-        // }
-        // for (var ap in (p["permission"]["airports"] as List<dynamic>)) {
-        //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-        // }
-        // for (var ap in (p["permission"]["handlings"] as List<dynamic>)) {
-        //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
-        // }
-      }
-      // log("fixed"+"*"*100);
+      // List<dynamic> fixed = res.body;
+      // for (var p in fixed) {
+      //
+      //   // log(jsonEncode(p));
+      //   final List<dynamic> fixedPermissions = p["permissions"]??[];
+      //   Map<String,dynamic> fixedPermission = Map<String,dynamic>.from(p["permission"]??{});
+      //   Map<String,dynamic> ppp = Map<String,dynamic>.from({});
+      //   // fixedPermission["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+      //
+      //   fixedPermission["permission"] = p["permission"]??ppp;
+      //   // fixedPermission.forEach((k,v){
+      //   //   if(v is List<dynamic>){
+      //   //     for (var a in v) {
+      //   //
+      //   //       a["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+      //   //       a["permission"] = p["permission"]??ppp;
+      //   //     }
+      //   //   }
+      //   // });
+      //    // log(jsonEncode(fixedPermission));
+      //    // p["permission"] = p["permission"]??{};
+      //    p["permission"] =fixedPermission;
+      //
+      //   // for (var ap in (p["permission"]["airlines"] as List<dynamic>)) {
+      //   //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+      //   // }
+      //   // for (var ap in (p["permission"]["airports"] as List<dynamic>)) {
+      //   //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+      //   // }
+      //   // for (var ap in (p["permission"]["handlings"] as List<dynamic>)) {
+      //   //   ap["allPermissions"] = BasicClass.constData.userPermissionAttributes.toJson();
+      //   // }
+      // }
+      // // log("fixed"+"*"*100);
       // log(jsonEncode(fixed));
-      final fixedRes = ResponseImplementation(message: res.message, body: fixed, status: res.status);
-      GetUserListResponse response = await Parser().parse(GetUserListResponse.fromResponse, fixedRes, executionReq: request);
+      //
+      // final fixedRes = ResponseImplementation(message: res.message, body: fixed, status: res.status);
+      GetUserListResponse response = await Parser().parse(GetUserListResponse.fromResponse, res, executionReq: request);
       return response;
     } catch (e) {
       log("$e");

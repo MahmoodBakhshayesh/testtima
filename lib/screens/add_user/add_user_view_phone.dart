@@ -64,13 +64,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
     passwordC.addListener(() => setState(() {}));
     passwordConfirmC.addListener(() => setState(() {}));
 
-    // UserPermission addingP = UserPermission(
-    //   allPermissions: BasicClass.constData.userPermissionAttributes,
-    //   permission: ActivePermissions.fromBitmask(BasicClass.constData.userPermissionAttributes, BasicClass.user!.permission.permission.toJson()),
-    //   id: BasicClass.user!.permission.id,
-    //   name: BasicClass.user!.permission!.name,
-    // );
-    // aup = addingP;
+    UserPermission addingP = UserPermission({});
+    aup = addingP;
     super.initState();
   }
 
@@ -169,14 +164,14 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                           Divider(height: 24,),
                           Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           Column(
-                            children: BasicClass.constData.data.permission.all.map((cat) {
+                            children: BasicClass.constData.data.permission.areas.map((area,cat) {
                               // final perList = permissions.allPermissions.getPermissionsFor(cat);
                               // final perList = permissions.permission.getPermissionsFor(cat);
-                              final perList = BasicClass.constData.data.permission[cat.value];
+                              final perList = BasicClass.constData.data.permission[area];
                               if(perList.isEmpty ){
-                                return SizedBox();
+                                return MapEntry(area, SizedBox());
                               }
-                              return Column(
+                              return MapEntry(area,Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
@@ -184,14 +179,15 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                     child: Row(
                                       children: [
                                         Expanded(
-                                          child: Text("${cat.value} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                          child: Text("${area.capitalizeFirst}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                         ),
                                         DotButton(
                                           icon: Icons.select_all,
                                           onPressed: () {
-                                            // final all = [...perList];
-                                            // aup.permission.setPermissionsFor(cat, all);
-                                            // setState(() {});
+                                            for (var a in perList) {
+                                              aup = aup.grantFlag(area, a.flag);
+                                            }
+                                            setState(() {});
                                           },
                                           color: Colors.green,
                                         ),
@@ -199,8 +195,10 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                         DotButton(
                                           icon: Icons.deselect,
                                           onPressed: () {
-                                            // aup.permission.setPermissionsFor(cat, []);
-                                            // setState(() {});
+                                            for (var a in perList) {
+                                              aup = aup.revokeFlag(area, a.flag);
+                                            }
+                                            setState(() {});
                                           },
                                           color: Colors.red,
                                         ),
@@ -213,21 +211,11 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                         return Padding(
                                           padding: const EdgeInsets.only(right: 4.0),
                                           child: SelectionChip(
-                                            // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
+                                            value: aup.hasFlag(area, ap.flag),
                                             label: ap.value,
-                                            value: false,
-                                            // value: aup.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
                                             onSelected: (bool value) {
-                                              // List<PermissionCategory> current = aup.;
-                                              // if (value) {
-                                              //   current.add(ap);
-                                              // } else {
-                                              //   log("should remove where ${ap.flag}");
-                                              //   current.removeWhere((a) => a.flag == ap.flag);
-                                              //
-                                              // }
-                                              // aup.permission.setPermissionsFor(cat, current);
-                                              // setState(() {});
+                                              aup = aup.toggleFlag(area, ap.flag);
+                                              setState(() {});
                                             },
                                           ),
                                         );
@@ -236,177 +224,9 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                   ),
                                   Divider(),
                                 ],
-                              );
-                            }).toList(),
+                              ));
+                            }).values.toList(),
                           ),
-                          // Column(
-                          //   children: permissions.categories.map((cat) {
-                          //     // final perList = permissions.allPermissions.getPermissionsFor(cat);
-                          //     final perList = permissions.permission.getPermissionsFor(cat);
-                          //     if(perList.isEmpty ){
-                          //       return SizedBox();
-                          //     }
-                          //     return Column(
-                          //       crossAxisAlignment: CrossAxisAlignment.start,
-                          //       children: [
-                          //         Padding(
-                          //           padding: const EdgeInsets.symmetric(vertical: 4),
-                          //           child: Row(
-                          //             children: [
-                          //               Expanded(
-                          //                 child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                          //               ),
-                          //               DotButton(
-                          //                 icon: Icons.select_all,
-                          //                 onPressed: () {
-                          //                   final all = [...perList];
-                          //                   aup.permission.setPermissionsFor(cat, all);
-                          //                   setState(() {});
-                          //                 },
-                          //                 color: Colors.green,
-                          //               ),
-                          //               const SizedBox(width: 8),
-                          //               DotButton(
-                          //                 icon: Icons.deselect,
-                          //                 onPressed: () {
-                          //                   aup.permission.setPermissionsFor(cat, []);
-                          //                   setState(() {});
-                          //                 },
-                          //                 color: Colors.red,
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //         Wrap(
-                          //           children: [
-                          //             ...perList.map((ap) {
-                          //               return Padding(
-                          //                 padding: const EdgeInsets.only(right: 4.0),
-                          //                 child: SelectionChip(
-                          //                   // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
-                          //                   label: ap.value,
-                          //                   value: aup.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
-                          //                   onSelected: (bool value) {
-                          //                     // List<int> current = BitmaskHelper.extract(aup.permission.getFlightPermissions.map((a)=>a.flag).toList());
-                          //                     List<PermissionCategory> current = aup.permission.getPermissionsFor(cat);
-                          //                     log(jsonEncode(current));
-                          //                     if (value) {
-                          //                       current.add(ap);
-                          //                     } else {
-                          //                       log("should remove where ${ap.flag}");
-                          //                       current.removeWhere((a) => a.flag == ap.flag);
-                          //
-                          //                     }
-                          //                     log(jsonEncode(current));
-                          //                     aup.permission.setPermissionsFor(cat, current);
-                          //                     log(jsonEncode(aup));
-                          //                     setState(() {});
-                          //                   },
-                          //                 ),
-                          //               );
-                          //             }),
-                          //           ],
-                          //         ),
-                          //         Divider(),
-                          //       ],
-                          //     );
-                          //   }).toList(),
-                          // ),
-
-                          // Column(
-                          //   children: permissions.map(
-                          //         (p) {
-                          //       UserPermission? aup = includedPermissions.firstWhereOrNull((b) => b.id == p.id);
-                          //       // log("adding user p = ${includedPermissions.length}");
-                          //       final ppp = permissions.firstWhere((a) => a.id == p.id);
-                          //       // log(aup.permission.toJson().toString() + "aup");
-                          //       // log(ppp.permission.toJson().toString() + "ppp");
-                          //       return ExpansionTile(
-                          //         dense: true,
-                          //         backgroundColor: Colors.white,
-                          //         tilePadding: EdgeInsets.symmetric(horizontal: 8),
-                          //         childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                          //         title: Row(
-                          //           children: [
-                          //             const SizedBox(width: 12),
-                          //             Expanded(
-                          //                 child: Text(
-                          //                   p.name,
-                          //                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          //                 )),
-                          //             CupertinoSwitch(
-                          //                 value: includedPermissions.any((a)=>a.id == p.id),
-                          //                 onChanged: (a) {
-                          //                   if (a) {
-                          //                     UserPermission addingP = UserPermission(allPermissions: BasicClass.constData.userPermissionAttributes, permission: ActivePermissions.fromBitmask(BasicClass.constData.userPermissionAttributes, p.permission.toJson()), id: p.id, name: p.name);
-                          //                     includedPermissions.add(addingP);
-                          //                   } else {
-                          //                     includedPermissions.remove(aup);
-                          //                   }
-                          //                   setState(() {});
-                          //                 })
-                          //           ],
-                          //         ),
-                          //         children: !includedPermissions.any((a)=>a.id == p.id)
-                          //             ? []
-                          //             : ppp.permission.categories.map((cat) {
-                          //           final perList = ppp.permission.getPermissionsFor(cat);
-                          //           // log("aup == null ${aup == null}");
-                          //           if (aup == null || perList.isEmpty) {
-                          //             return SizedBox();
-                          //           }
-                          //           return Column(
-                          //             crossAxisAlignment: CrossAxisAlignment.start,
-                          //             children: [
-                          //               Padding(
-                          //                 padding: const EdgeInsets.symmetric(vertical: 4),
-                          //                 child: Row(children: [
-                          //                   Expanded(child: Text("${cat.capitalizeFirst!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))),
-                          //                   DotButton(icon: Icons.select_all,onPressed: (){
-                          //                     final all = [...perList];
-                          //                     aup.permission.setPermissionsFor(cat, all);
-                          //                     setState(() {});
-                          //                   },color: Colors.green,),
-                          //                   const SizedBox(width: 8),
-                          //                   DotButton(icon: Icons.deselect,onPressed: (){
-                          //                     aup.permission.setPermissionsFor(cat, []);
-                          //                     setState(() {});
-                          //                   },color: Colors.red,),
-                          //                 ]),
-                          //               ),
-                          //               Wrap(
-                          //                 children: [
-                          //                   ...perList.map((ap) {
-                          //                     return Padding(
-                          //                       padding: const EdgeInsets.only(right: 4.0),
-                          //                       child: SelectionChip(
-                          //                         // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
-                          //                         label: ap.value,
-                          //                         value: aup.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
-                          //                         onSelected: (bool value) {
-                          //                           // List<int> current = BitmaskHelper.extract(aup.permission.getFlightPermissions.map((a)=>a.flag).toList());
-                          //                           List<PermissionCategory> current = aup.permission.getPermissionsFor(cat);
-                          //                           if (value) {
-                          //                             current.add(ap);
-                          //                           } else {
-                          //                             current.removeWhere((a)=>a.flag == ap.flag);
-                          //                           }
-                          //                           aup.permission.setPermissionsFor(cat, current);
-                          //                           setState(() {});
-                          //                         },
-                          //                       ),
-                          //                     );
-                          //                   }),
-                          //                 ],
-                          //               ),
-                          //               Divider()
-                          //             ],
-                          //           );
-                          //         }).toList(),
-                          //       );
-                          //     },
-                          //   ).toList(),
-                          // ),
                         ],
                       ),
                     ],

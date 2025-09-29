@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/people_class.dart';
+import '../../../core/classes/user_permission_class.dart';
 import '../../../core/interfaces/success_int.dart';
 import '../../../core/utils_and_services/handlers/success_handler.dart';
 import '../../../initialize.dart';
@@ -50,8 +51,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
   bool loading = false;
 
   late bool active = widget.user.enable;
-  // late UserPermission tmp = UserPermission.fromJson(widget.user.permission);
-  late Map<String,int> tmp = Map<String,int>.from(widget.user.permission);
+  late UserPermission tmp = UserPermission.fromPermissionMap(widget.user.userPermission.toPermissionMap());
+  // late Map<String,int> tmp = Map<String,int>.from(widget.user.permission);
 
 
   // List<UserPermission> includedPermissions = [];
@@ -87,7 +88,6 @@ class _EditUserDialogState extends State<EditUserDialog> {
     // log(tmp.airlines.map((a)=>a.airline.code).join("--"));
     // final current = widget.user.permission;
     // log("--" * 40);
-    // log(jsonEncode(current.toJson()));
     return Dialog(
       insetPadding: context.getDialogPadding,
       child: Column(
@@ -142,12 +142,14 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         Divider(height: 24,),
                         Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         Column(
-                          children:BasicClass.constData.data.permission.all.map((cat) {
-                            final perList = BasicClass.constData.data.permission[cat.value];
+                          children: BasicClass.constData.data.permission.areas.map((area,cat) {
+                            // final perList = permissions.allPermissions.getPermissionsFor(cat);
+                            // final perList = permissions.permission.getPermissionsFor(cat);
+                            final perList = BasicClass.constData.data.permission[area];
                             if(perList.isEmpty ){
-                              return SizedBox();
+                              return MapEntry(area, SizedBox());
                             }
-                            return Column(
+                            return MapEntry(area,Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
@@ -155,13 +157,14 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                   child: Row(
                                     children: [
                                       Expanded(
-                                        child: Text("${cat.value!} Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                        child: Text("${area.capitalizeFirst}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                                       ),
                                       DotButton(
                                         icon: Icons.select_all,
                                         onPressed: () {
-                                          final all = [...perList];
-                                          // tmp.permission.setPermissionsFor(cat, all);
+                                          for (var a in perList) {
+                                            tmp = tmp.grantFlag(area, a.flag);
+                                          }
                                           setState(() {});
                                         },
                                         color: Colors.green,
@@ -170,7 +173,9 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                       DotButton(
                                         icon: Icons.deselect,
                                         onPressed: () {
-                                          // tmp.permission.setPermissionsFor(cat, []);
+                                          for (var a in perList) {
+                                            tmp = tmp.revokeFlag(area, a.flag);
+                                          }
                                           setState(() {});
                                         },
                                         color: Colors.red,
@@ -184,22 +189,11 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                       return Padding(
                                         padding: const EdgeInsets.only(right: 4.0),
                                         child: SelectionChip(
-                                          // value: aup.permission.getFlightPermissions.any((b) => b.flag == ap.flag),
+                                          value: tmp.hasFlag(area, ap.flag),
                                           label: ap.value,
-                                          value: false,
-                                          // value: tmp.permission.getPermissionsFor(cat).any((a) => a.flag == ap.flag),
                                           onSelected: (bool value) {
-
-                                            // List<PermissionCategory> current = tmp.permission.getPermissionsFor(cat);
-                                            // log(jsonEncode(current));
-                                            // if (value) {
-                                            //   current.add(ap);
-                                            // } else {
-                                            //   log("should remove where ${ap.flag}");
-                                            //   current.removeWhere((a) => a.flag == ap.flag);
-                                            // }
-                                            // tmp.permission.setPermissionsFor(cat, current);
-                                            // setState(() {});
+                                            tmp = tmp.toggleFlag(area, ap.flag);
+                                            setState(() {});
                                           },
                                         ),
                                       );
@@ -208,10 +202,9 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                 ),
                                 Divider(),
                               ],
-                            );
-                          }).toList(),
+                            ));
+                          }).values.toList(),
                         ),
-
                       ],
                     ),
                   ],

@@ -291,7 +291,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // log("passes ${passports.length}");
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
-    bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb??"").isNotEmpty && a.operatingCarrier != null);
+    bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb ?? "").isNotEmpty && a.operatingCarrier != null);
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
     double additionalHeight = 120;
 
@@ -381,7 +381,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                     style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w600),
                                                   ),
                                                   timaticRes.evaluationResult.getIconWidget,
-                                                  Text(timaticRes!.evaluationResult.name,style: TextStyle(color: timaticRes.evaluationResult.getColor),),
+                                                  Text(timaticRes!.evaluationResult.name, style: TextStyle(color: timaticRes.evaluationResult.getColor)),
                                                   // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                                                 ],
                                               )
@@ -431,7 +431,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [BoxShadow(spreadRadius: 0, blurRadius: 34, color: Colors.black.withOpacity(0.16))],
                         ),
-                        child: timaticRes?.isLocked??false
+                        child: timaticRes?.isLocked ?? false
                             ? Row(
                                 children: [
                                   Expanded(
@@ -454,56 +454,52 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                 spacing: 8,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: MyButton(
-                                      label: "Options",
-                                      fontSize: 12,
-                                      iconSize: 15,
-                                      onPressed: !resultMode
-                                          ? null
-                                          : () {
-                                              getIt<HomeController>().showOptionSheet();
-                                            },
-                                      radius: 10,
-                                      borderSide: BorderSide(color: context.mainColor),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: MyButton(
-                                      label: "Manual",
-                                      fontSize: 12,
-                                      onPressed: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return ManualAddDocumentSheet();
-                                          },
-                                        );
-                                      },
+                                  MyButton(
+                                    label: "Options",
+                                    fontSize: 12,
+                                    iconSize: 15,
+                                    icon: ArtemisIcons.more_square,
 
-                                      radius: 10,
-                                      borderSide: BorderSide(color: context.mainColor),
-                                    ),
+                                    onPressed: () {
+                                      getIt<HomeController>().showOptionSheet();
+                                    },
+                                    radius: 10,
+                                    borderSide: BorderSide(color: context.mainColor),
                                   ),
-                                  Expanded(
-                                    child: MyButton(
-                                      label: "Scan",
-                                      fontSize: 12,
-                                      iconSize: 15,
-                                      onPressed: () {
-                                        // getIt<MrzReaderController>().askActiveSupport(context);
-                                        HomeViewPhone.myHomeController.goMrzReadr();
-                                      },
-                                      radius: 10,
-                                      icon: ArtemisIcons.scan,
-                                    ),
+                                  // Expanded(
+                                  //   child: MyButton(
+                                  //     label: "Manual",
+                                  //     fontSize: 12,
+                                  //     onPressed: () {
+                                  //       showModalBottomSheet(
+                                  //         context: context,
+                                  //         builder: (BuildContext context) {
+                                  //           return ManualAddDocumentSheet();
+                                  //         },
+                                  //       );
+                                  //     },
+                                  //
+                                  //     radius: 10,
+                                  //     borderSide: BorderSide(color: context.mainColor),
+                                  //   ),
+                                  // ),
+                                  MyButton(
+                                    label: "Scan Document",
+                                    fontSize: 12,
+                                    iconSize: 15,
+                                    onPressed: () {
+                                      // getIt<MrzReaderController>().askActiveSupport(context);
+                                      HomeViewPhone.myHomeController.goMrzReadr();
+                                    },
+                                    radius: 10,
+                                    icon: ArtemisIcons.scan,
                                   ),
                                   Expanded(
                                     child: MyButton(
                                       label: "TIMATIC",
-                                      iconInRight: true,
                                       iconSize: 12,
                                       fontSize: 12,
+                                      icon: ArtemisIcons.user_square,
                                       onPressed: !canCheck
                                           ? null
                                           : () async {
@@ -535,10 +531,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
                               width: context.width,
                               decoration: BoxDecoration(
-                                color: resultMode ? timaticRes!.evaluationResult.getColor.withOpacity(0.28) : null,
-                                border: Border(bottom: BorderSide(color: resultMode ? timaticRes!.evaluationResult.getColor : Colors.white, width: 2)),
-
-                                // color: Colors.red
+                                gradient: LinearGradient(colors: [MyColors.mainBlue.withOpacity(0.18), MyColors.mainBlue.withOpacity(0.02)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
                               ),
                               child: Column(
                                 children: [
@@ -578,12 +571,26 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                       //   borderSide: BorderSide(color: context.mainColor),
                                       //   icon: ArtemisIcons.more_square,
                                       // ):SizedBox(),
+                                      resultMode
+                                          ? DotButton(
+                                              icon: timaticRes.isLocked ? ArtemisIcons.lock : ArtemisIcons.unlock,
+                                              radius: 12,
+                                              size: 40,
+                                              onPressed: () async {
+                                                await getIt<HomeController>().lockUnlockResponse(!timaticRes.isLocked);
+                                              },
+                                              border: BorderSide(color: context.mainColor),
+                                              flat: true,
+                                              color: context.mainColor,
+                                            )
+                                          : SizedBox(),
                                       MyButton(
                                         label: "Restart",
                                         onPressed: () {
                                           getIt<HomeController>().clear();
                                           flightPaxController.expand();
                                         },
+                                        radius: 12,
                                         reverse: true,
                                         borderSide: BorderSide(color: context.mainColor),
                                         icon: ArtemisIcons.eraser_1,
@@ -733,6 +740,12 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                       ),
                     ),
                   ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    left: 0,
+                    child: SafeArea(child: Material(child: WarningsBuilder())),
+                  ),
                 ],
               ),
             ),
@@ -818,6 +831,144 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
     );
+  }
+}
+
+class WarningsBuilder extends ConsumerWidget {
+  const WarningsBuilder({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    List<DocumentDetail> passports = ref.watch(passportsProvider);
+    List<DocumentDetail> visas = ref.watch(visasProvider);
+    List<DocumentDetail> residents = ref.watch(residentsProvider);
+    List<String> warningList = [];
+    String? warning;
+    List<String> nats = [];
+    List<String> bDates = [];
+    if (passengerDetails.nationality != null) {
+      nats.add(passengerDetails.nationality!.code3);
+    }
+    passports.where((a) => a.nationality != null).forEach((p) {
+      nats.add(p.nationality!.code3);
+    });
+    visas.where((a) => a.nationality != null).forEach((v) {
+      nats.add(v.nationality!.code3);
+    });
+    residents.where((a) => a.nationality != null).forEach((v) {
+      nats.add(v.nationality!.code3);
+    });
+    if (nats.toSet().toList().length > 1) {
+      // warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
+      warningList.add("Nationalities do not match: ${nats.toSet().join(", ")}");
+    }
+    bDates.addAll(passports.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
+    bDates.addAll(visas.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
+    bDates.addAll(residents.where((a) => a.birthDate != null).map((a) => a.birthDate!.format_yyMMdd));
+    if (passengerDetails.birthDate != null) {
+      bDates.add(passengerDetails.birthDate!.format_yyMMdd);
+    }
+
+    if (bDates.toSet().toList().length > 1) {
+      // warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
+      warningList.add("BirthDates do not match: ${bDates.toSet().join(", ")}");
+    }
+
+    if (warningList.isNotEmpty) {
+      warning = warningList.join("\n");
+    }
+
+    if (warning == null || !ref.watch(showWarningsProvider)) return SizedBox();
+    Color color = Colors.black;
+    Color warColor = Color(0xffBf6C00);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Material(
+        elevation: 5,
+        borderRadius: BorderRadiusGeometry.circular(15),
+        child: Container(
+          // height: 100,
+          decoration: BoxDecoration(
+            // color: Colors.white,
+            gradient: LinearGradient(colors: [warColor.withOpacity(0.0), warColor], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+            borderRadius: BorderRadiusGeometry.circular(15),
+            // border: Border.all(color: Colors.orange, width: 2),
+          ),
+          child: Container(
+            margin: EdgeInsets.all(2),
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadiusGeometry.circular(15)),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(ArtemisIcons.warning_2, color: warColor, size: 30),
+                    const SizedBox(width: 4),
+                    Expanded(child: Text("Warning",style: TextStyle(fontSize: 16,fontWeight: FontWeight.w700,color: warColor),),),
+                    const SizedBox(width: 4),
+                    DotButton(
+                      icon: Icons.close,
+                      color: color,
+                      // fade: false,
+                      // backgroundColor: Colors.white.withOpacity(0.3),
+                      radius: 10,
+                      onPressed: () {
+                        ref.read(showWarningsProvider.notifier).update((s) => false);
+                      },
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(warning, style: TextStyle(color: color, fontSize: 12)),
+                    ),
+                    const SizedBox(width: 4),
+                    DotButton(
+                      icon: Icons.close,
+                      color: color,
+                      fade: false,
+                      backgroundColor: Colors.white.withOpacity(0.3),
+                      radius: 10,
+                      onPressed: () {
+                        ref.read(showWarningsProvider.notifier).update((s) => false);
+                      },
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    // return ListView(
+    //   shrinkWrap: true,
+    //   children: ref.watch(warningsProvider).map((w){
+    //     return Container(
+    //       height: 56,
+    //       decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadiusGeometry.circular(10)),
+    //       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    //       child: Row(
+    //         children: [
+    //           const SizedBox(width: 12),
+    //           Icon(ArtemisIcons.warning_2, color: Colors.white, size: 30),
+    //           const SizedBox(width: 4),
+    //           Expanded(child: Text(w, style: TextStyle(color: Colors.white,fontSize: 12))),
+    //           const SizedBox(width: 4),
+    //           DotButton(icon: Icons.close,color: Colors.white,fade: false,backgroundColor: Colors.white.withOpacity(0.3),radius: 10,onPressed: (){
+    //               ref.read(warningsProvider.notifier).update((s)=>[...s].where((a)=>a != w).toList());
+    //           },),
+    //           const SizedBox(width: 12),
+    //         ],
+    //       ),
+    //     );
+    //   }).toList(),
+    // );
   }
 }
 

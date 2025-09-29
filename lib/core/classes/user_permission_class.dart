@@ -71,7 +71,7 @@ class UserPermission {
   }
 
   Map<String, dynamic> toRootJson() => {'permission': masks};
-  Map<String, dynamic> toPermissionMap() => Map<String, dynamic>.from(masks);
+  Map<String, int> toPermissionMap() => Map<String, int>.from(masks);
 
   int maskOf(String area) => masks[area] ?? 0;
 

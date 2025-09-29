@@ -61,6 +61,7 @@ class DocumentDetail {
   final String? shortType;
   final String? docCode;
   final String? sex;
+  final bool verifiedDocNum;
 
   const DocumentDetail({
     this.documentNumber,
@@ -80,6 +81,7 @@ class DocumentDetail {
     this.ocrText,
     this.docCode,
     this.sex,
+    this.verifiedDocNum = false,
   });
 
   static const _unset = Object();
@@ -102,6 +104,7 @@ class DocumentDetail {
     Object? shortType = _unset,
     Object? docCode = _unset,
     Object? sex = _unset,
+    Object? verifiedDocNum = _unset,
   }) {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
@@ -118,9 +121,10 @@ class DocumentDetail {
       applicationDate: identical(applicationDate, _unset) ? this.applicationDate : applicationDate as DateTime?,
       mrz: identical(mrz, _unset) ? this.mrz : mrz as String?,
       ocrText: identical(ocrText, _unset) ? this.ocrText : ocrText as String?,
-      shortType: identical(shortType, _unset) ? this.shortType : ocrText as String?,
-      docCode: identical(docCode, _unset) ? this.docCode : ocrText as String?,
-      sex: identical(sex, _unset) ? this.sex : ocrText as String?,
+      shortType: identical(shortType, _unset) ? this.shortType : shortType as String?,
+      docCode: identical(docCode, _unset) ? this.docCode : docCode as String?,
+      sex: identical(sex, _unset) ? this.sex : sex as String?,
+      verifiedDocNum: identical(verifiedDocNum, _unset) ? this.verifiedDocNum : verifiedDocNum as bool,
     );
   }
 
@@ -143,6 +147,7 @@ class DocumentDetail {
       shortType: json["shortType"],
       docCode: json["docCode"],
       sex: json["sex"],
+      verifiedDocNum: json["verifiedDocNum"],
     );
   }
 
@@ -164,6 +169,7 @@ class DocumentDetail {
     'shortType': shortType,
     'docCode': docCode,
     'sex': sex,
+    'verifiedDocNum': verifiedDocNum,
   };
 
   bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now());

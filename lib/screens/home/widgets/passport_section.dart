@@ -1,4 +1,5 @@
 // Row (with its own controller)
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +10,10 @@ import 'package:intl/intl.dart';
 import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
+import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/timatic/artemis_timatic.dart';
+import '../../../widgets/DotButton.dart';
 import '../../../widgets/MyButton.dart';
 import '../../../widgets/MyDatePicker.dart';
 import '../../../widgets/MyExpansionTile.dart';
@@ -99,9 +102,11 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a) => a.type == "P").map((a) => a.code!).toList();
     return Container(
       decoration: BoxDecoration(
-        // color: Color(0xff324073).withOpacity(0.3),
-        border: Border(bottom: BorderSide(color: Colors.white)),
+        borderRadius: BorderRadiusGeometry.circular(20),
+        color: Color(0xffE2E7F5),
       ),
+      padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
+      margin: EdgeInsets.only(top:12),
       child: MyExpansionTile(
         tapOnTitleActive: false,
         initiallyExpanded: d.isScanned,
@@ -137,6 +142,27 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: Text("Passport #${widget.index+1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                ),
+                DotButton(
+                  icon: ArtemisIcons.eraser_1,
+                  onPressed: () async {
+                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    if (!confirm) return;
+                    ref.read(passportsProvider.notifier).removeAt(index);
+                  },
+                  size: 40,
+                  radius: 8,
+                  iconSize: 20,
+                  flat: true,
+                  border: BorderSide(width: 1, color: context.mainColor),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             Column(
               spacing: 12,

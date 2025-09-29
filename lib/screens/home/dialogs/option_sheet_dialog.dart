@@ -36,6 +36,7 @@ import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/navigation/routes.dart';
 import 'ask_supervisor_sheet.dart';
 import 'attach_comment_sheet.dart';
+import 'manul_add_doc_sheet.dart';
 
 class OptionSheetDialog extends ConsumerStatefulWidget {
   const OptionSheetDialog({super.key});
@@ -70,7 +71,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = true;
+    bool isLocked = ref.watch(timaticResultNewProvider)?.isLocked ?? false;
     return SafeArea(
       bottom: true,
       child: SizedBox(
@@ -85,9 +86,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(isLocked ? ArtemisIcons.more : ArtemisIcons.lock),
+                      Icon(ArtemisIcons.more),
                       const SizedBox(width: 8),
-                      Text(isLocked ? "Option" : "Lock", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text("Option", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -107,101 +108,124 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      spacing: 8,
-                      children: [
-                        DrawerAction(
-                          tileColor: MyColors.mainBlue,
-                          title: "Ask Supervisor",
-                          onTap: () async {
-                            List<Supervisor>? supervisors = await myHomeController.getSupervisors();
-                            if (supervisors == null) return;
+                  isLocked
+                      ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            spacing: 8,
+                            children: [
+                              DrawerAction(
+                                tileColor: MyColors.mainBlue,
+                                title: "Ask Supervisor",
+                                onTap: () async {
+                                  List<Supervisor>? supervisors = await myHomeController.getSupervisors();
+                                  if (supervisors == null) return;
 
-                            String? logId = getIt<HomeController>().ref.read(refCodeProvider);
-                            if (logId != null) {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+                                  String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                                  if (logId != null) {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+                                      },
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                    );
+                                  }
                                 },
-                                isScrollControlled: true,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                              );
-                            }
-                          },
-                          leadingIcon: ArtemisIcons.message_question,
-                        ),
-                        DrawerAction(
-                          tileColor: MyColors.mainBlue,
-                          title: "Station Manager Approval",
-                          onTap: () async {
-                            String? logId = getIt<HomeController>().ref.read(refCodeProvider);
-                            if (logId != null) {
-                              showModalBottomSheet(
-                                context: context,
-                                enableDrag: false,
-                                builder: (BuildContext context) {
-                                  return ManagerApprovalSheet(logId: logId);
+                                leadingIcon: ArtemisIcons.message_question,
+                              ),
+                              DrawerAction(
+                                tileColor: MyColors.mainBlue,
+                                title: "Station Manager Approval",
+                                onTap: () async {
+                                  String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                                  if (logId != null) {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: false,
+                                      builder: (BuildContext context) {
+                                        return ManagerApprovalSheet(logId: logId);
+                                      },
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                    );
+                                  }
                                 },
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                              );
-                            }
-                          },
-                          leadingIcon: ArtemisIcons.airplane_square,
-                        ),
-                        DrawerAction(
-                          tileColor: MyColors.mainBlue,
-                          title: "Translation for Passenger",
-                          onTap: () async {
-                            await myHomeController.translateForPassenger();
-                          },
-                          leadingIcon: ArtemisIcons.translate,
-                        ),
-                        DrawerAction(
-                          tileColor: MyColors.mainBlue,
-                          title: "Add Attachment",
-                          onTap: () async {
-                            String? logId = getIt<HomeController>().ref.read(refCodeProvider);
-                            if (logId != null) {
-                              showModalBottomSheet(
-                                context: context,
-                                enableDrag: false,
+                                leadingIcon: ArtemisIcons.airplane_square,
+                              ),
+                              DrawerAction(
+                                tileColor: MyColors.mainBlue,
+                                title: "Translation for Passenger",
+                                onTap: () async {
+                                  await myHomeController.translateForPassenger();
+                                },
+                                leadingIcon: ArtemisIcons.translate,
+                              ),
+                              DrawerAction(
+                                tileColor: MyColors.mainBlue,
+                                title: "Add Attachment",
+                                onTap: () async {
+                                  String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                                  if (logId != null) {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: false,
 
-                                builder: (BuildContext context) {
-                                  return AttachPhotoSheet(logId: logId);
+                                      builder: (BuildContext context) {
+                                        return AttachPhotoSheet(logId: logId);
+                                      },
+                                      isDismissible: false,
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                    );
+                                  }
                                 },
-                                isDismissible: false,
-                                isScrollControlled: true,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-                              );
-                            }
-                          },
-                          leadingIcon: ArtemisIcons.attach_circle,
+                                leadingIcon: ArtemisIcons.attach_circle,
+                              ),
+                              // DrawerAction(
+                              //   title: "Re-check TIMATIC",
+                              //   onTap: () async {
+                              //     final res = await getIt<HomeController>().lockUnlockResponse(false);
+                              //     setState(() {});
+                              //     if (res) {
+                              //       Navigator.pop(context);
+                              //     }
+                              //   },
+                              //   leadingIcon: ArtemisIcons.refresh,
+                              // ),
+                              // DrawerAction(
+                              //   title: "Final Decision",
+                              //   onTap: () async {
+                              //   },
+                              //   leadingIcon: ArtemisIcons.shield_tick,
+                              // ),
+                            ],
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            spacing: 8,
+                            children: [
+                              DrawerAction(
+                                tileColor: MyColors.mainBlue,
+                                title: "Manual",
+                                onTap: () async {
+                                  Navigator.pop(context);
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return ManualAddDocumentSheet();
+                                    },
+                                  );
+                                },
+                                leadingIcon: ArtemisIcons.edit_2,
+                              ),
+                            ],
+                          ),
                         ),
-                        // DrawerAction(
-                        //   title: "Re-check TIMATIC",
-                        //   onTap: () async {
-                        //     final res = await getIt<HomeController>().lockUnlockResponse(false);
-                        //     setState(() {});
-                        //     if (res) {
-                        //       Navigator.pop(context);
-                        //     }
-                        //   },
-                        //   leadingIcon: ArtemisIcons.refresh,
-                        // ),
-                        // DrawerAction(
-                        //   title: "Final Decision",
-                        //   onTap: () async {
-                        //   },
-                        //   leadingIcon: ArtemisIcons.shield_tick,
-                        // ),
-                      ],
-                    ),
-                  ),
                   // EasyAnimatedIndexedStack(
                   //   index: isLocked ? 1 : 0,
                   //   children: [

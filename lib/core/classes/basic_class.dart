@@ -86,7 +86,7 @@ class BasicClass {
     final up = instance._userPermission!;
 
     if (permission is UserUiPermission) {
-      // return up.
+      return up.maskOf("user")>0;
       // return up.user.isGreaterThan(0);
     }
 

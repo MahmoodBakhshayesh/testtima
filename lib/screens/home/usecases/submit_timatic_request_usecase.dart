@@ -21,8 +21,8 @@ class SubmitTimaticRequestUseCase extends UseCase<SubmitTimaticRequestResponse, 
 
 class SubmitTimaticRequestRequest extends RequestInterface {
   final DocumentRequest documentRequest;
-
-  SubmitTimaticRequestRequest({required this.documentRequest});
+  final String? employeeId;
+  SubmitTimaticRequestRequest({required this.documentRequest,required this.employeeId});
 
   @override
   Map<String, dynamic> toJson() => documentRequest.toJson();

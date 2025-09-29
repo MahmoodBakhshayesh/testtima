@@ -224,20 +224,25 @@ class MrzReaderController extends ControllerInterface {
     //   return;
     // }
 
+    final res = consensus.toResult();
+    bool verified = false;
+    List<String> passNumbers = ref.read(passportsProvider).map((a)=>a.documentNumber??'').where((a)=>a.isNotEmpty).toList();
+    verified = passNumbers.any((a)=>ocrMrzController.getAggregator.sessionScannedData(a));
     if (setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
-      final res = consensus.toResult();
+
+      // if(ocrMrzController.getAggregator.sessionScannedData(data))
       // res.ocrData = scanned.ocrData;
 
       ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
       if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
         if (res.matchSetting(setting)) {
-          onDocScan(res);
+          onDocScan(res,verified: verified);
         }
       }
     } else if (setting.algorithm == ParseAlgorithm.method2) {
       if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
         if (consensus.toResult().matchSetting(setting)) {
-          onDocScan(consensus.toResult());
+          onDocScan(consensus.toResult(),verified: verified);
         }
       }
     }
@@ -245,7 +250,7 @@ class MrzReaderController extends ControllerInterface {
     return;
   }
 
-  void onDocScan(OcrMrzResult res) {
+  void onDocScan(OcrMrzResult res,{bool verified = false}) {
     // return;
     try {
       if (popping) return;
@@ -316,6 +321,7 @@ class MrzReaderController extends ControllerInterface {
         ocrText: res.ocrData.text,
         sex: res.sex,
         docCode: res.documentCode,
+        verifiedDocNum: verified
       );
 
       log("*" * 100);

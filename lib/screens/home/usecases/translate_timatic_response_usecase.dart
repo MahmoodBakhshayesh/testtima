@@ -1,5 +1,5 @@
-import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:flutter/material.dart';
+import '../../../core/classes/timatic_response_new_class.dart';
 import '../../../core/interfaces/failures_int.dart';
 import '../../../core/interfaces/request_int.dart';
 import '../../../core/interfaces/response_int.dart';
@@ -7,16 +7,15 @@ import '../../../core/interfaces/result_int.dart';
 import '../../../core/interfaces/usecase_int.dart';
 import '../home_repository.dart';
 
-class TranslateTimaticResponseUseCase extends UseCase<TranslateTimaticResponseResponse,TranslateTimaticResponseRequest> {
+class TranslateTimaticResponseUseCase extends UseCase<TranslateTimaticResponseResponse, TranslateTimaticResponseRequest> {
   TranslateTimaticResponseUseCase();
 
   @override
   Future<Result<TranslateTimaticResponseResponse>> call({required TranslateTimaticResponseRequest request}) {
-  if(request.validate()!=null) return Future(() =>Result.error(request.validate()!));
+    if (request.validate() != null) return Future(() => Result.error(request.validate()!));
     HomeRepository repository = HomeRepository();
     return repository.translateTimaticResponse(request);
   }
-
 }
 
 class TranslateTimaticResponseRequest extends RequestInterface {
@@ -26,33 +25,19 @@ class TranslateTimaticResponseRequest extends RequestInterface {
   TranslateTimaticResponseRequest({required this.logId, required this.language});
 
   @override
-  Map<String, dynamic> toJson() =>{
-    "Body": {
-      "Execution": "TranslateTimaticResponse",
-      "Token":token,
-      "Request": {
-      }
-    }
+  Map<String, dynamic> toJson() => {
+    "Body": {"Execution": "TranslateTimaticResponse", "Token": token, "Request": {}},
   };
 
-  Failure? validate(){
+  Failure? validate() {
     return null;
   }
 }
 
-
 class TranslateTimaticResponseResponse extends ResponseInterface {
-  final DocumentResponse translated;
-  TranslateTimaticResponseResponse({required super.status, required super.message, required this.translated})
-      : super(
-          body: translated.toJson(),
-        );
+  final TimaticResponseNew translated;
 
-    factory TranslateTimaticResponseResponse.fromResponse(ResponseInterface res) => TranslateTimaticResponseResponse(
-        status: res.status,
-        message: res.message,
-        translated:DocumentResponse.fromJson(res.body),
-      );
+  TranslateTimaticResponseResponse({required super.status, required super.message, required this.translated}) : super(body: translated.toJson());
 
+  factory TranslateTimaticResponseResponse.fromResponse(ResponseInterface res) => TranslateTimaticResponseResponse(status: res.status, message: res.message, translated: TimaticResponseNew.fromJson(res.body));
 }
-

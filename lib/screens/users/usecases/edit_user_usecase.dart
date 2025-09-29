@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:abds/core/classes/user_permission_class.dart';
 import 'package:flutter/material.dart';
 import '../../../core/classes/people_class.dart';
 import '../../../core/interfaces/failures_int.dart';
@@ -25,14 +26,14 @@ class EditUserUseCase extends UseCase<EditUserResponse,EditUserRequest> {
 class EditUserRequest extends RequestInterface {
   final People people;
   final bool active;
-  final Map<String,int> updatedPermission;
+  final UserPermission updatedPermission;
 
   EditUserRequest({required this.people, required this.active, required this.updatedPermission});
 
   @override
   Map<String, dynamic> toJson() =>{
     "enable":active,
-    "permission":updatedPermission
+    "permission":updatedPermission.toPermissionMap()
   };
 
   Failure? validate(){

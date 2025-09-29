@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/classes/user_permission_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/extenstions/response_ext.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
@@ -49,9 +50,9 @@ class UsersController extends ControllerInterface {
       case Ok<GetUserListResponse>():
         final r = result.value;
         peopleList = r.peoples;
-        log("*" * 100);
-        log(jsonEncode(r.peoples.last.toJson()));
-        log("*" * 100);
+        r.peoples.forEach((p){
+          log(jsonEncode(p.toJson()));
+        });
         ref.read(peopleListProvider.notifier).update((s) => r.peoples);
     }
 
@@ -62,7 +63,7 @@ class UsersController extends ControllerInterface {
     navigation.openDialog(dialog: EditUserDialog(user: people));
   }
 
-  Future<People?> updateUser({required People user, required bool enable, required Map<String,int> permission}) async {
+  Future<People?> updateUser({required People user, required bool enable, required UserPermission permission}) async {
     People? updated;
     EditUserUseCase updateUserUseCase = EditUserUseCase();
     EditUserRequest editUserRequest = EditUserRequest(people: user, active: enable, updatedPermission: permission);
@@ -76,7 +77,7 @@ class UsersController extends ControllerInterface {
         final r = result.value;
         updated = People.fromJson(user.toJson());
         updated.enable = enable;
-        updated.permission = permission;
+        updated.userPermission = permission;
 
         int index = ref.read(peopleListProvider).indexWhere((a) => a.uId == updated!.uId);
         final copy = [...ref.read(peopleListProvider)];

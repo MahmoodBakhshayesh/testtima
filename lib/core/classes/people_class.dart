@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/classes/people_class.dart';
+import 'package:abds/core/classes/user_permission_class.dart';
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 
 class People {
@@ -13,9 +15,10 @@ class People {
   String? lastname;
   bool enable;
   bool hasImage;
-  Map<String,int> permission;
+  UserAttribute userAttribute;
+  UserPermission userPermission;
 
-  People({required this.uId, required this.username, required this.email, required this.hasImage, required this.firstname, required this.middlename, required this.lastname, required this.enable, required this.permission});
+  People({required this.uId, required this.username,required this.userAttribute, required this.email, required this.hasImage, required this.firstname, required this.middlename, required this.lastname, required this.enable, required this.userPermission});
 
   factory People.fromJson(Map<String, dynamic> json) {
 
@@ -28,7 +31,8 @@ class People {
       lastname: json["lastname"],
       hasImage: json["hasImage"] ?? false,
       enable: json["enable"],
-      permission: json["permission"]??{},
+      userAttribute: UserAttribute.fromJson(json["attributes"]??{}),
+      userPermission: UserPermission.fromPermissionMap(json["permission"]??{}),
     );
     // log("-"*100);
     // log(jsonEncode(json["permission"]));
@@ -46,7 +50,8 @@ class People {
     "middlename": middlename,
     "lastname": lastname,
     "enable": enable,
-    "permission": permission,
+    "attributes":userAttribute.toJson(),
+    "permission": userPermission.toPermissionMap(),
   };
 
   bool validateSearch(String text) {

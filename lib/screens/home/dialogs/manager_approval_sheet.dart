@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hand_signature/signature.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:voice_note_kit/recorder/voice_enums/voice_enums.dart';
@@ -79,16 +80,11 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                   padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
                   width: context.width,
                   decoration: BoxDecoration(
-                    color: timaticRes!.evaluationResult.getColor.withOpacity(0.28),
-                    border: Border(bottom: BorderSide(color: timaticRes!.evaluationResult.getColor, width: 2)),
-
-                    // color: Colors.red
+                    gradient: LinearGradient(colors: [MyColors.mainBlue.withOpacity(0.18), MyColors.mainBlue.withOpacity(0.02)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
                   ),
                   child: Column(
                     children: [
-                      const SizedBox(height: 36, width: double.infinity),
-                      const SizedBox(height: 36, width: double.infinity),
-
+                      const SizedBox(height: 24),
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Column(
@@ -444,17 +440,32 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                             ),
                           ),
 
-                          Visibility(
-                            visible: !keyboardIsOpen,
-                            child: Column(spacing: 12, children: []),
-                          ),
+                          Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                            String passNumber = ref.watch(passportsProvider).map((a)=>a.documentNumber).where((a)=>(a??'').isNotEmpty).firstOrNull??'********';
+                            String flnb = "${ref.watch(segmentsProvider).first.operatingCarrier?.code??''}${ref.watch(segmentsProvider).first.flnb??''}";
+                            String dateStr =ref.watch(segmentsProvider).first.departure.dateTime==null?"": DateFormat("dd MMM yyyy").format(ref.watch(segmentsProvider).first.departure.dateTime!);
+                            return Container(
+                              decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                              padding: EdgeInsets.all(12),
+                              child: Row(
+                                children: [
+                                  Icon(ArtemisIcons.verify, color: Color(0xff2A5Cff)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text("I confirm that the passenger holding passport number ${passNumber} is authorized to travel on flight ${flnb} on ${dateStr}.",style: TextStyle(fontSize: 12),),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },)
                         ],
                       ),
                     ),
                   ),
+
                   Divider(),
                   Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.only(left: 12.0,right: 12,top: 12),
                     child: Row(
                       children: [
                         Expanded(
