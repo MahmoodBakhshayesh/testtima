@@ -3,6 +3,7 @@ import '../../../core/interface_implementations/parser_imp.dart';
 import '../../../core/interfaces/response_int.dart';
 import '../interfaces/home_data_source_interface.dart';
 import '../usecases/ask_supervisor_usecase.dart';
+import '../usecases/flight_number_history_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
 import '../usecases/get_ref_code_log_usecase.dart';
 import '../usecases/get_supervisors_usecase.dart';
@@ -31,7 +32,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<GetSupervisorsResponse> getSupervisors({required GetSupervisorsRequest request}) async {
-    String api = '/supervisor';
+    String api = '/userRole/supervisor';
     ResponseInterface res = await networkManager.get(api);
     GetSupervisorsResponse response = await Parser().parse(GetSupervisorsResponse.fromResponse, res, executionReq: request);
     return response;
@@ -115,6 +116,14 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
     String api = "/logs/${request.logId}/supervisorResponse";
     ResponseInterface res = await networkManager.post(request, api: api);
     SupervisorResponseResponse response = await Parser().parse(SupervisorResponseResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
+
+  @override
+  Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request}) async {
+    String api = "/flightDetail/${request.flnb}";
+    ResponseInterface res = await networkManager.get(api);
+    FlightNumberHistoryResponse response = await Parser().parse(FlightNumberHistoryResponse.fromResponse, res, executionReq: request);
     return response;
   }
 }

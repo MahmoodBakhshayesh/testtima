@@ -458,10 +458,15 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                     label: "Options",
                                     fontSize: 12,
                                     iconSize: 15,
+                                    reverse: true,
                                     icon: ArtemisIcons.more_square,
-
                                     onPressed: () {
-                                      getIt<HomeController>().showOptionSheet();
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return ManualAddDocumentSheet();
+                                        },
+                                      );
                                     },
                                     radius: 10,
                                     borderSide: BorderSide(color: context.mainColor),
@@ -577,7 +582,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               radius: 12,
                                               size: 40,
                                               onPressed: () async {
-                                                await getIt<HomeController>().lockUnlockResponse(!timaticRes.isLocked);
+                                                // await getIt<HomeController>().lockUnlockResponse(!timaticRes.isLocked);
+                                                ref.read(timaticResultNewProvider.notifier).update((s)=>s?.setStatus(timaticRes.isLocked?0:1));
                                               },
                                               border: BorderSide(color: context.mainColor),
                                               flat: true,
@@ -735,7 +741,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                               ),
                             ),
                           ),
-                          Padding(padding: const EdgeInsets.all(12.0), child: HeaderAskSupervisorWidget()),
+                          // Padding(padding: const EdgeInsets.all(12.0), child: HeaderAskSupervisorWidget()),
                         ],
                       ),
                     ),

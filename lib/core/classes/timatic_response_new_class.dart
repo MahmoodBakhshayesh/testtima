@@ -68,7 +68,26 @@ class Segment {
 
   String get route => "${from?.airport ?? ''} - ${to?.airport ?? ''}";
 
-  String get routeWidget => "${from?.country ?? ''} - ${to?.country ?? ''}";
+  // String get routeWidget => "${from?.country ?? ''} - ${to?.country ?? ''}";
+
+  Widget get routeWidget =>Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadiusGeometry.circular(4),
+      color: segmentEvaluationResult.getColor,
+      border: Border.all(color: segmentEvaluationResult.getColor),
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+    child: Row(
+      children: [
+        Icon(segmentEvaluationResult.getIconCircle, color: Colors.white, size: 15),
+        const SizedBox(width: 4),
+        Text(
+          "${route}",
+          style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+      ],
+    ),
+  );
 }
 
 class From {

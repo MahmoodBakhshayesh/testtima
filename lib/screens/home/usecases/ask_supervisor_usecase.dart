@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:abds/core/classes/ref_history_log_class.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../core/interfaces/failures_int.dart';
 import '../../../core/interfaces/request_int.dart';
 import '../../../core/interfaces/response_int.dart';
@@ -39,16 +43,19 @@ class AskSupervisorRequest extends RequestInterface {
 
 class AskSupervisorResponse extends ResponseInterface {
   final String msg;
-  AskSupervisorResponse({required super.status, required super.message, required this.msg})
+  final List<RefHistoryLog> logs;
+  AskSupervisorResponse({required super.status, required super.message, required this.msg, required this.logs})
       : super(
           body: {
+            "logs":logs.map((l)=>l.toJson()).toList()
           },
         );
 
     factory AskSupervisorResponse.fromResponse(ResponseInterface res) => AskSupervisorResponse(
         status: res.status,
         message: res.message,
-        msg:res.message
+        msg:res.message,
+        logs: List<RefHistoryLog>.from((res.body["logs"].map((a)=>RefHistoryLog.fromJson(a))))
       );
 
 }

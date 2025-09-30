@@ -440,24 +440,24 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                             ),
                           ),
 
-                          Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                            String passNumber = ref.watch(passportsProvider).map((a)=>a.documentNumber).where((a)=>(a??'').isNotEmpty).firstOrNull??'********';
-                            String flnb = "${ref.watch(segmentsProvider).first.operatingCarrier?.code??''}${ref.watch(segmentsProvider).first.flnb??''}";
-                            String dateStr =ref.watch(segmentsProvider).first.departure.dateTime==null?"": DateFormat("dd MMM yyyy").format(ref.watch(segmentsProvider).first.departure.dateTime!);
-                            return Container(
-                              decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
-                              padding: EdgeInsets.all(12),
-                              child: Row(
-                                children: [
-                                  Icon(ArtemisIcons.verify, color: Color(0xff2A5Cff)),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text("I confirm that the passenger holding passport number ${passNumber} is authorized to travel on flight ${flnb} on ${dateStr}.",style: TextStyle(fontSize: 12),),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },)
+                          // Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                          //   String passNumber = ref.watch(passportsProvider).map((a)=>a.documentNumber).where((a)=>(a??'').isNotEmpty).firstOrNull??'********';
+                          //   String flnb = "${ref.watch(segmentsProvider).first.operatingCarrier?.code??''}${ref.watch(segmentsProvider).first.flnb??''}";
+                          //   String dateStr =ref.watch(segmentsProvider).first.departure.dateTime==null?"": DateFormat("dd MMM yyyy").format(ref.watch(segmentsProvider).first.departure.dateTime!);
+                          //   return Container(
+                          //     decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                          //     padding: EdgeInsets.all(12),
+                          //     child: Row(
+                          //       children: [
+                          //         Icon(ArtemisIcons.verify, color: Color(0xff2A5Cff)),
+                          //         const SizedBox(width: 8),
+                          //         Expanded(
+                          //           child: Text("I confirm that the passenger holding passport number ${passNumber} is authorized to travel on flight ${flnb} on ${dateStr}.",style: TextStyle(fontSize: 12),),
+                          //         ),
+                          //       ],
+                          //     ),
+                          //   );
+                          // },)
                         ],
                       ),
                     ),

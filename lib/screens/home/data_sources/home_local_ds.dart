@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:abds/screens/home/usecases/ask_supervisor_usecase.dart';
+import 'package:abds/screens/home/usecases/flight_number_history_usecase.dart';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
@@ -90,6 +91,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request}) {
     // TODO: implement supervisorResponse
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request}) {
+    // TODO: implement flightNumberHistory
     throw UnimplementedError();
   }
 

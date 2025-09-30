@@ -43,11 +43,11 @@ class GetSupervisorsResponse extends ResponseInterface {
   final List<Supervisor> supervisors;
 
   GetSupervisorsResponse({required super.status, required super.message, required this.supervisors})
-      : super(body:{"supervisors": supervisors.map((e)=>e.toJson()).toList()});
+      : super(body:{"allUserRole": supervisors.map((e)=>e.toJson()).toList()});
 
   factory GetSupervisorsResponse.fromResponse(ResponseInterface res) => GetSupervisorsResponse(
         status: res.status,
         message: res.message,
-        supervisors: List<Supervisor>.from(res.body["supervisors"].map((x) => Supervisor.fromJson(x))),
+        supervisors: List<Supervisor>.from(res.body["allUserRole"].map((x) => Supervisor.fromJson(x))),
       );
 }

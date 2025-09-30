@@ -25,7 +25,11 @@ class SubmitTimaticRequestRequest extends RequestInterface {
   SubmitTimaticRequestRequest({required this.documentRequest,required this.employeeId});
 
   @override
-  Map<String, dynamic> toJson() => documentRequest.toJson();
+  Map<String, dynamic> toJson() {
+    final reqJson =  documentRequest.toJson();
+    reqJson.putIfAbsent("employeeId", ()=>employeeId);
+    return reqJson;
+  }
 
   Failure? validate() {
     return null;

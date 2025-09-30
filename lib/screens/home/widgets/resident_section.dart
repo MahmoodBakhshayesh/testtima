@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/constant_data_class.dart';
+import '../../../core/constants/ui.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
 import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
@@ -102,7 +103,9 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadiusGeometry.circular(20),
-        color: Color(0xffE9F2EF),
+        // color: Color(0xffE9F2EF),
+          color:d.isExpired?MyColors.mainRed.withOpacity(0.12): Color(0xffE9F2EF),
+          border:d.isExpired? Border.all(color: MyColors.mainRed):null
       ),
       padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
       margin: EdgeInsets.only(top:12),

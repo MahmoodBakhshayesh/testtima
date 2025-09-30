@@ -30,7 +30,7 @@ class People {
       middlename: json["middlename"],
       lastname: json["lastname"],
       hasImage: json["hasImage"] ?? false,
-      enable: json["enable"],
+      enable: json["enable"]??true,
       userAttribute: UserAttribute.fromJson(json["attributes"]??{}),
       userPermission: UserPermission.fromPermissionMap(json["permission"]??{}),
     );

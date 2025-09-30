@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
@@ -34,11 +36,11 @@ class FlightWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked??false;
-    if(locked){
+    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked ?? false;
+    if (locked) {
       return Column(
         children: segments.map((d) {
-          return LockedSegmentRow(seg: d, tileColor:  Colors.black.withOpacity(0.08), index: segments.indexOf(d),);
+          return LockedSegmentRow(seg: d, tileColor: Colors.black.withOpacity(0.08), index: segments.indexOf(d));
         }).toList(),
       );
     }
@@ -63,14 +65,10 @@ class FlightWidget extends ConsumerWidget {
                 onPressed: () async {
                   final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                   if (!confirm) return;
-                  if(segments.length==1) {
-                    ref.read(segmentsProvider.notifier).updateAt(ref
-                        .read(segmentsProvider)
-                        .length - 1, ItinerarySegment.emptyNoAirport());
-                  }else{
-                    ref.read(segmentsProvider.notifier).removeAt(ref
-                        .read(segmentsProvider)
-                        .length - 1);
+                  if (segments.length == 1) {
+                    ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
+                  } else {
+                    ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
                   }
                 },
                 size: 40,
@@ -127,6 +125,7 @@ class SegmentItemRow extends ConsumerStatefulWidget {
 
 class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
   late final TextEditingController controller;
+
   @override
   void initState() {
     super.initState();
@@ -204,14 +203,25 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Row(
               children: [
                 Expanded(
-                  child: MyTextFieldNew(headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48), controller: controller, label: "Flight#",
-                      required: true,
-                      keyboardType: TextInputType.numberWithOptions(signed: true),
-                      placeholder: "Number", rowLabelRatio: [3, 5], labelInRow: true),
+                  child: MyTextFieldNew(
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    controller: controller,
+                    label: "Flight#",
+                    required: true,
+                    keyboardType: TextInputType.numberWithOptions(signed: true),
+                    placeholder: "Number",
+                    rowLabelRatio: [3, 5],
+                    labelInRow: true,
+                    onSubmit: (a) async {
+                      log("get history for $a");
+                      await getIt<HomeController>().getFlightNumberHistory(a,index:widget.index);
+
+                    },
+                  ),
                 ),
 
                 const SizedBox(width: 12),
@@ -226,7 +236,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                     items: BasicClass.constData.data.carrier,
                     value: seg.operatingCarrier,
-                    valueToString: (a)=> a.code,
+                    valueToString: (a) => a.code,
                     onChange: (a) {
                       seg = seg.copyWith(operatingCarrier: a);
                       ref.read(segmentsProvider.notifier).updateAt(index, seg);
@@ -255,7 +265,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
                     searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
                     items: BasicClass.constData.data.airport,
-                    value:  BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.departure.point),
+                    value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.departure.point),
                     onChange: (a) {
                       final update = seg.departure.copyWith(point: a?.code3 ?? '');
                       seg = seg.copyWith(departure: update);
@@ -287,7 +297,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     required: true,
                     items: BasicClass.constData.data.airport,
                     searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
-                    value:  BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.arrival.point),
+                    value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.arrival.point),
                     onChange: (a) {
                       final update = seg.arrival.copyWith(point: a?.code3 ?? '');
                       seg = seg.copyWith(arrival: update);

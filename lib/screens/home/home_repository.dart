@@ -9,6 +9,7 @@ import 'interfaces/home_repository_interface.dart';
 import 'data_sources/home_local_ds.dart';
 import 'data_sources/home_remote_ds.dart';
 import 'usecases/ask_supervisor_usecase.dart';
+import 'usecases/flight_number_history_usecase.dart';
 import 'usecases/get_notif_count_usecase.dart';
 import 'usecases/get_ref_code_log_usecase.dart';
 import 'usecases/get_supervisors_usecase.dart';
@@ -187,6 +188,21 @@ class HomeRepository implements HomeRepositoryInterface {
         supervisorResponseResponse = await homeLocalDataSource.supervisorResponse(request: request);
       }
       return Result.ok(supervisorResponseResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<FlightNumberHistoryResponse>> flightNumberHistory(FlightNumberHistoryRequest request) async {
+    try {
+      FlightNumberHistoryResponse flightNumberHistoryResponse;
+      if (await networkInfo.isConnected) {
+        flightNumberHistoryResponse = await homeRemoteDataSource.flightNumberHistory(request: request);
+      } else {
+        flightNumberHistoryResponse = await homeLocalDataSource.flightNumberHistory(request: request);
+      }
+      return Result.ok(flightNumberHistoryResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

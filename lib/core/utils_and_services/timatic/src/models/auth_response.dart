@@ -117,6 +117,7 @@ class LoginData {
 }
 
 class Profile {
+  final String? id;
   final String? username;
   final String? email;
   final String? firstname;
@@ -126,10 +127,11 @@ class Profile {
   final bool hasImage;
   final int? gender;
 
-  const Profile({this.username, this.email, this.firstname, this.middlename, this.lastname, this.hasImage = false, this.gender, this.defaultAirport});
+  const Profile({this.id, this.username, this.email, this.firstname, this.middlename, this.lastname, this.hasImage = false, this.gender, this.defaultAirport});
 
   Profile copyWith({String? username, String? email, String? firstname, String? middlename, String? lastname, String? defaultAirport, bool? hasImage, int? gender}) {
     return Profile(
+      id: id ?? this.id,
       username: username ?? this.username,
       email: email ?? this.email,
       firstname: firstname ?? this.firstname,
@@ -143,6 +145,7 @@ class Profile {
 
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
+      id: json['_id'],
       username: json['username'],
       email: json['email'],
       firstname: json['firstname'],
@@ -154,7 +157,9 @@ class Profile {
     );
   }
 
-  Map<String, dynamic> toJson() => {'username': username, 'email': email, 'firstname': firstname, 'middlename': middlename, 'defaultAirport': defaultAirport, 'lastname': lastname, 'hasImage': hasImage, 'gender': gender};
+  Map<String, dynamic> toJson() => {
+    "_id":id,
+    'username': username, 'email': email, 'firstname': firstname, 'middlename': middlename, 'defaultAirport': defaultAirport, 'lastname': lastname, 'hasImage': hasImage, 'gender': gender};
 }
 
 class UserAttribute {

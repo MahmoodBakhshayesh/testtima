@@ -54,7 +54,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                         padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                         child: Row(
                           children: [
-                            Text(segRes.route),
+                            segRes.routeWidget,
                             Spacer(),
                             Text(
                               "Segment ${index + 1} ",

@@ -38,8 +38,11 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
             case null:
               return SizedBox();
             case "askSupervisor":
-              return SizedBox();
-              return AskSupervisorWidget(his: l);
+              // return SizedBox();
+              return Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: AskSupervisorWidget(his: l),
+              );
             case "airlineApproval":
               return ManagerApprovalWidget(his: l);
             case "supervisorResponse":
@@ -100,16 +103,16 @@ class HeaderAskSupervisorWidget extends ConsumerWidget {
   }
 }
 
-class AskSupervisorWidget extends StatefulWidget {
+class AskSupervisorWidget extends ConsumerStatefulWidget {
   final RefHistoryLog his;
 
   const AskSupervisorWidget({super.key, required this.his});
 
   @override
-  State<AskSupervisorWidget> createState() => _AskSupervisorWidgetState();
+  ConsumerState<AskSupervisorWidget> createState() => _AskSupervisorWidgetState();
 }
 
-class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
+class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
   TextEditingController commentC = TextEditingController();
   String? msg;
 
@@ -122,6 +125,35 @@ class _AskSupervisorWidgetState extends State<AskSupervisorWidget> {
     final greenColor = Color(0xff08AB7D);
     final redColor = Color(0xffFF3F42);
     final blackColor = Color(0xff2D2D2D);
+    final logs = ref.watch(showingLogsProvider);
+    log(logs.map((a) => a.type ?? '').join("--"));
+    final asks = logs.where((a) => a.type == "askSupervisor");
+    final resps = logs.where((a) => a.type == "supervisorResponse");
+    final ask = asks.lastOrNull;
+    final resp = resps.lastOrNull;
+    if (ask == null || resps.length >= asks.length) {
+      return SizedBox();
+    }
+    final superID = widget.his.payload?.supervisorId;
+    bool isMine = BasicClass.user?.profile.id == superID;
+    log("superid $superID -- my Id${BasicClass.user?.profile.id}");
+
+    if(!isMine){
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          // color: Color(0xff2A5CFF).withOpacity(.08)
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Waiting for Supervisor Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ],
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),

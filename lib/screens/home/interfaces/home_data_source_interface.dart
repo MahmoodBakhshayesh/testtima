@@ -1,4 +1,5 @@
 import '../usecases/ask_supervisor_usecase.dart';
+import '../usecases/flight_number_history_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
 import '../usecases/get_ref_code_log_usecase.dart';
 import '../usecases/get_supervisors_usecase.dart';
@@ -22,4 +23,5 @@ abstract class HomeDataSourceInterface {
   Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request});
   Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request});
   Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request});
+  Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request});
 }
