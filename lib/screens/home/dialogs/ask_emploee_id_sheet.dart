@@ -46,6 +46,12 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
   TextEditingController idC = TextEditingController();
 
   @override
+  void initState() {
+
+    super.initState();
+    idC.addListener(()=>setState((){}));
+  }
+  @override
   Widget build(BuildContext context) {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
     return SafeArea(
@@ -78,22 +84,38 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    //   child: IgnorePointer(
+                    //     child: MyTextFieldNew(
+                    //       headerBgColor: Colors.black.withOpacity(0.08),
+                    //       bodyBgColor: Colors.black.withOpacity(0.04),
+                    //       placeholder: "Enter ID",
+                    //       label: "Employee ID",
+                    //       controller: idC,
+                    //       onSubmit: (a) {
+                    //
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      child: IgnorePointer(
-                        child: MyTextFieldNew(
-                          headerBgColor: Colors.black.withOpacity(0.08),
-                          bodyBgColor: Colors.black.withOpacity(0.04),
-                          placeholder: "Enter ID",
-                          label: "Employee ID",
-                          controller: idC,
-                          onSubmit: (a) {
-
-                          },
+                      padding: const EdgeInsets.all(12.0),
+                      child: CupertinoTextField(
+                        maxLength: 6,
+                        textAlign: TextAlign.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                          color: MyColors.lineColor,
                         ),
+                        style: TextStyle(fontSize: 40),
+                        placeholder: "Employee ID",
+                        controller: idC,
                       ),
                     ),
-                    CupertinoNumericKeyboard(controller: idC,onDone: (){
+                    CupertinoNumericKeyboard(
+                      maxLength: 6,
+                      controller: idC,onDone:idC.text.isEmpty?null: (){
                       Navigator.of(context).pop(idC.text);
                     },),
                   ],

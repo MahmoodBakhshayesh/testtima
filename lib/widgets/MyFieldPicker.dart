@@ -200,7 +200,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   final TextEditingController searchC = TextEditingController();
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _positionsListener = ItemPositionsListener.create();
-
+  bool autoPop = false;
   @override
   void initState() {
     super.initState();
@@ -329,7 +329,13 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   @override
   Widget build(BuildContext context) {
     final items = _filteredSorted();
+    if(items.length==1 && !autoPop){
+      autoPop = true;
+      Future.delayed(Duration(milliseconds: 300),(){
+        Navigator.of(context).pop(items.first);
+      });
 
+    }
     return SafeArea(
       child: BottomSheet(
         backgroundColor: const Color(0xffEAECF2),

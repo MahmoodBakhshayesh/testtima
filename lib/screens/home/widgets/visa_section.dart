@@ -154,19 +154,47 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                 Expanded(
                   child: Text("Visa #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
+                // DotButton(
+                //   icon: ArtemisIcons.eraser_1,
+                //   onPressed: () async {
+                //     final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                //     if (!confirm) return;
+                //     ref.read(visasProvider.notifier).removeAt(widget.index);
+                //   },
+                //   size: 40,
+                //   radius: 8,
+                //   flat: true,
+                //   iconSize: 20,
+                //
+                //   border: BorderSide(width: 1, color: context.mainColor),
+                // ),
                 DotButton(
                   icon: ArtemisIcons.eraser_1,
                   onPressed: () async {
                     final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                     if (!confirm) return;
-                    ref.read(visasProvider.notifier).removeAt(widget.index);
+                    ref.read(visasProvider.notifier).updateAt(index,DocumentDetail());
                   },
                   size: 40,
                   radius: 8,
-                  flat: true,
                   iconSize: 20,
-
+                  color: context.mainColor,
+                  flat: true,
                   border: BorderSide(width: 1, color: context.mainColor),
+                ),
+                DotButton(
+                  icon: ArtemisIcons.trash,
+                  onPressed: () async {
+                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    if (!confirm) return;
+                    ref.read(visasProvider.notifier).removeAt(index);
+                  },
+                  size: 40,
+                  radius: 8,
+                  iconSize: 20,
+                  color: Colors.red,
+                  flat: true,
+                  border: BorderSide(width: 1, color: Colors.red),
                 ),
               ],
             ),

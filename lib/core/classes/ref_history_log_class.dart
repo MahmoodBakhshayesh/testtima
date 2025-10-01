@@ -79,7 +79,7 @@ class Payload {
   final bool? result;
   final bool? cache;
   final bool? approved;
-  final bool? locked;
+  final int? locked;
   final int? status;
   final int? actionId;
   final String? title;
@@ -121,7 +121,7 @@ class Payload {
     String? output,
     bool? result,
     bool? cache,
-    bool? locked,
+    int? locked,
     bool? approved,
     int? status,
     int? actionId,

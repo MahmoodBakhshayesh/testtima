@@ -45,9 +45,10 @@ class TranslateLanguageSelectSheet extends ConsumerStatefulWidget {
 class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectSheet> {
   final myHomeController = getIt<HomeController>();
   Language? selected;
-
+  TextEditingController searchC = TextEditingController();
   @override
   void initState() {
+    searchC.addListener(()=>setState((){}));
     super.initState();
   }
 
@@ -77,6 +78,15 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
               ],
             ),
             Divider(),
+            CupertinoTextField(
+              decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
+              prefix: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(Icons.search),
+              ),
+              placeholder: "Search",
+              controller: searchC,
+            ),
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -104,10 +114,12 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
                 color: Colors.white,
                 child: ListView(
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  children: widget.languages.map((a) {
+                  children: widget.languages.where((a)=>a.validateSearch(searchC.text)).map((a) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: MyExpansionTile(
+                        enabled: false,
+                        initiallyExpanded: true,
                         showTrailingIcon: true,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
                         collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -115,10 +127,10 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
                         collapsedBackgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
                         title: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Row(children: [CountryFlag.fromCountryCode(a.country!, width: 30, height: 20), const SizedBox(width: 8), Text(a.country!)]),
+                          child: Row(children: [CountryFlag.fromCountryCode(a.country!, width: 30, height: 20), const SizedBox(width: 8), Text(a.country!,style: TextStyle(color: Colors.black),)]),
                         ),
                         showFooter: false,
-                        children: a.languages!.map((l) {
+                        children: a.languages!.where((l)=>l.validateSearch(searchC.text)).map((l) {
                           bool isSelected = l.language == selected?.language;
                           return RadioListTile(
                             dense: true,

@@ -122,17 +122,19 @@ class _MyOcrSettingDialogState extends State<AttachPhotoSheet> {
                         },
                         leadingIcon: ArtemisIcons.camera,
                       ),
-                      DrawerAction(
-                        title: "File",
-                        onTap: () async {
-                          final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
-                          if (path != null) {
-                            attachingPhoto.add(path);
-                            setState(() {});
-                          }
-                        },
-                        leadingIcon: ArtemisIcons.attach_circle,
-                      ),
+                      // DrawerAction(
+                      //   title: "File",
+                      //   onTap: () async {
+                      //     final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
+                      //     if (path != null) {
+                      //       attachingPhoto.add(path);
+                      //       setState(() {});
+                      //     }
+                      //   },
+                      //   leadingIcon: ArtemisIcons.attach_circle,
+                      // ),
+
+
                       // Expanded(
                       //   child: MyButton(
                       //     height: (context.width - 36) / 2,

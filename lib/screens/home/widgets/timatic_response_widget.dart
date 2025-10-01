@@ -43,8 +43,8 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                   padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: segRes.segmentEvaluationResult.getColor.withOpacity(0.12)),
-                    color: segRes.segmentEvaluationResult.getColor.withOpacity(0.08),
+                    border: Border.all(color: segRes.getRes.getColor.withOpacity(0.12)),
+                    color: segRes.getRes.getColor.withOpacity(0.08),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +58,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                             Spacer(),
                             Text(
                               "Segment ${index + 1} ",
-                              style: TextStyle(color: segRes.segmentEvaluationResult.getColor, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: segRes.getRes.getColor, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -79,13 +79,13 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                                 FittedBox(
                                   fit: BoxFit.fitWidth,
                                   child: Text(
-                                    segRes.segmentEvaluationResult.getTitle,
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: segRes.segmentEvaluationResult.getColor),
+                                    segRes.getRes.title,
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: segRes.getRes.getColor),
                                   ),
                                 ),
                               ],
                             ),
-                            segRes.segmentEvaluationResult.getSubtitleWidget,
+                            segRes.getRes.getSubtitleWidget,
                           ],
                         ),
                       ),
@@ -145,7 +145,7 @@ class RuleSetWidgetNew extends StatelessWidget {
         backgroundColor: ruleSet.getColor.withOpacity(0.08),
         collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
         tilePadding: EdgeInsets.symmetric(horizontal: 8),
-        childPreview: ruleSet.evaluationResult.index > 1
+        childPreview: ruleSet.getRes.resultId! <2
             ? null
             : Column(
                 children: [
@@ -160,9 +160,9 @@ class RuleSetWidgetNew extends StatelessWidget {
                               Expanded(
                                 child: Text(a.title ?? '', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               ),
-                              a.evaluationResult.getIconWidgetMini,
+                              a.getRes.getIconWidgetMini,
                               const SizedBox(width: 1),
-                              Text(a.regulationResult ?? '', style: TextStyle(fontSize: 11, color: BasicClass.getColorForEvaluationResult(a.regulationResult ?? ''.toString()))),
+                              Text(BasicClass.getResultOfCode(a.regulationResult).title??'', style: TextStyle(fontSize: 11, color: BasicClass.getResultOfCode(a.regulationResult).getColor)),
                             ],
                           ),
                         ),
@@ -181,9 +181,9 @@ class RuleSetWidgetNew extends StatelessWidget {
                                   Expanded(
                                     child: Text(a.title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                                   ),
-                                  a.evaluationResult.getIconWidgetMini,
+                                  a.getRes.getIconWidgetMini,
                                   const SizedBox(width: 1),
-                                  Text(a.regulationResult ?? '', style: TextStyle(fontSize: 11, color: BasicClass.getColorForEvaluationResult(a.regulationResult.toString()))),
+                                  Text(a.getRes.title, style: TextStyle(fontSize: 11, color: BasicClass.getColorForEvaluationResult(a.regulationResult.toString()))),
                                 ],
                               ),
                             ),
@@ -201,15 +201,17 @@ class RuleSetWidgetNew extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(ruleSet.title ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    // child: Text(ruleSet.getRes.resultId.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    // child: Text(ruleSet.regulations.length.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   ),
                   Container(
                     padding: EdgeInsets.all(4),
                     child: Row(
                       children: [
-                        ruleSet.evaluationResult.getIconWidget,
+                        ruleSet.getRes.getIconWidget,
                         const SizedBox(width: 4),
                         Text(
-                          ruleSet.ruleSetResult ?? '',
+                          ruleSet.getRes.title,
                           style: TextStyle(color: ruleSet.getColor, fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -251,9 +253,9 @@ class RegulationWidgetNew extends StatelessWidget {
               Expanded(
                 child: Text('${regulation.title}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
-              regulation.evaluationResult.getIconWidgetMini,
+              regulation.getRes.getIconWidgetMini,
               const SizedBox(width: 1),
-              Text(regulation.regulationResult ?? '', style: TextStyle(color: BasicClass.getColorForEvaluationResult(regulation.regulationResult ?? ''), fontSize: 11)),
+              Text(regulation.getRes.title!, style: TextStyle(color: regulation.getRes.getColor, fontSize: 11)),
             ],
           ),
           const Divider(),

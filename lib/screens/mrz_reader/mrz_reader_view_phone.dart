@@ -443,7 +443,7 @@ class ImprovingResultWidget extends ConsumerWidget {
                 ),
               ),
               Visibility(
-                visible: improving != null || ref.watch(showDynamsoftProvider),
+                visible:!Platform.isAndroid && (improving != null || ref.watch(showDynamsoftProvider)),
                 child: MyButton(
                   label: "Dynamsoft",
                   onPressed: () {

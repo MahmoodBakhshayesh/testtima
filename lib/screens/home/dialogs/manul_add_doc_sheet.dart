@@ -64,26 +64,31 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: BasicClass.constData.data.documentType.map((dt) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 8.0,right: 8,top: 8),
+                    padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8),
                     child: DrawerAction(
                       tileColor: dt.getColor.withOpacity(0.2),
                       onTap: () async {
                         final ref = getIt<HomeController>().ref;
                         if (dt.type == "P") {
-                          ref.read(passportsProvider.notifier).add(DocumentDetail());
+                          Navigator.of(context).pop(DocumentDetail(shortType: "P"));
+                          // ref.read(passportsProvider.notifier).add(DocumentDetail());
                         } else if (dt.type == "V") {
-                          ref.read(visasProvider.notifier).add(DocumentDetail());
+                          Navigator.of(context).pop(DocumentDetail(shortType: "V"));
+                          // ref.read(visasProvider.notifier).add(DocumentDetail());
                         } else if (dt.type == "I") {
-                          ref.read(residentsProvider.notifier).add(DocumentDetail());
+                          Navigator.of(context).pop(DocumentDetail(shortType: "I"));
+                          // ref.read(residentsProvider.notifier).add(DocumentDetail());
+                        }else{
+                          Navigator.of(context).pop();
                         }
-                        Navigator.of(context).pop();
+                        // Navigator.of(context).pop();
                       },
 
                       dense: true,
+
                       // leading: IcomoonLayeredCss.global(baseColor: MyColors.mainBlue),
                       // leading: dt.getIcon,
-
-                      title:"${dt.title} ${dt.type}",
+                      title: "${dt.title} ${dt.type}",
                       leadingWidget: dt.getIcon,
                     ),
                   );

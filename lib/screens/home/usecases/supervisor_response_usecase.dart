@@ -1,5 +1,6 @@
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:flutter/material.dart';
+import '../../../core/classes/current_status_class.dart';
 import '../../../core/classes/ref_history_log_class.dart';
 import '../../../core/interfaces/failures_int.dart';
 import '../../../core/interfaces/request_int.dart';
@@ -37,9 +38,16 @@ class SupervisorResponseRequest extends RequestInterface {
 class SupervisorResponseResponse extends ResponseInterface {
   final String msg;
   final List<RefHistoryLog> logs;
+  final CurrentStatus currentStatus;
 
-  SupervisorResponseResponse({required super.status, required super.message, required this.msg, required this.logs}) : super(body: {"logs": logs.map((a) => a.toJson()).toList()});
+  SupervisorResponseResponse({required super.status, required super.message, required this.msg, required this.currentStatus, required this.logs})
+    : super(body: {'result': currentStatus.toJson(), "logs": logs.map((a) => a.toJson()).toList()});
 
-  factory SupervisorResponseResponse.fromResponse(ResponseInterface res) =>
-      SupervisorResponseResponse(status: res.status, message: res.message, msg: res.message, logs: List<RefHistoryLog>.from((res.body["logs"].map((a) => RefHistoryLog.fromJson(a)))));
+  factory SupervisorResponseResponse.fromResponse(ResponseInterface res) => SupervisorResponseResponse(
+    status: res.status,
+    message: res.message,
+    msg: res.message,
+    currentStatus: CurrentStatus.fromJson(res.body["result"]),
+    logs: List<RefHistoryLog>.from((res.body["logs"].map((a) => RefHistoryLog.fromJson(a)))),
+  );
 }

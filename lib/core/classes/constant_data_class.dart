@@ -3,9 +3,12 @@
 //     final constantData = constantDataFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:abds/core/constants/ui.dart';
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -65,6 +68,8 @@ class VersionedData {
   final List<Airport> city;
   final List<Country> country;
   final List<Airport> airport;
+  final MandatoryFields? mandatory;
+  final List<TimaticResult>? timaticResult;
 
   VersionedData({
     required this.logNoteType,
@@ -87,6 +92,8 @@ class VersionedData {
     required this.city,
     required this.country,
     required this.airport,
+    required this.mandatory,
+    required this.timaticResult,
   });
 
   VersionedData copyWith({
@@ -110,6 +117,8 @@ class VersionedData {
     List<Airport>? city,
     List<Country>? country,
     List<Airport>? airport,
+    MandatoryFields? mandatory,
+    List<TimaticResult>? timaticResult,
   }) =>
       VersionedData(
         logNoteType: logNoteType ?? this.logNoteType,
@@ -132,6 +141,8 @@ class VersionedData {
         city: city ?? this.city,
         country: country ?? this.country,
         airport: airport ?? this.airport,
+        mandatory: mandatory ?? this.mandatory,
+        timaticResult: timaticResult ?? this.timaticResult,
       );
 
   factory VersionedData.fromJson(Map<String, dynamic> json) => VersionedData(
@@ -155,6 +166,9 @@ class VersionedData {
     city: List<Airport>.from(json["city"].map((x) => Airport.fromJson(x))),
     country: List<Country>.from(json["country"].map((x) => Country.fromJson(x))),
     airport: List<Airport>.from(json["airport"].map((x) => Airport.fromJson(x))),
+    mandatory: json["mandatory"] == null ? null : MandatoryFields.fromJson(json["mandatory"]),
+    timaticResult: json["timaticResult"] == null ? [] : List<TimaticResult>.from(json["timaticResult"]!.map((x) => TimaticResult.fromJson(x))),
+
   );
 
   Map<String, dynamic> toJson() => {
@@ -178,6 +192,9 @@ class VersionedData {
     "city": List<dynamic>.from(city.map((x) => x.toJson())),
     "country": List<dynamic>.from(country.map((x) => x.toJson())),
     "airport": List<dynamic>.from(airport.map((x) => x.toJson())),
+
+    "mandatory": mandatory?.toJson(),
+    "timaticResult": timaticResult == null ? [] : List<dynamic>.from(timaticResult!.map((x) => x.toJson())),
   };
 }
 
@@ -298,6 +315,371 @@ class ParameterValue {
   String toString() => "$code ($name)";
 }
 
+class MandatoryFields {
+  final FlightFields? flight;
+  final PassengerFields? passenger;
+  final DocumentFields? passport;
+  final DocumentFields? visa;
+  final DocumentFields? idCard;
+  final DocumentFields? other;
+
+  MandatoryFields({
+    this.flight,
+    this.passenger,
+    this.passport,
+    this.visa,
+    this.idCard,
+    this.other,
+  });
+
+  MandatoryFields copyWith({
+    FlightFields? flight,
+    PassengerFields? passenger,
+    DocumentFields? other,
+    DocumentFields? passport,
+    DocumentFields? visa,
+    DocumentFields? idCard,
+  }) =>
+      MandatoryFields(
+        flight: flight ?? this.flight,
+        passenger: passenger ?? this.passenger,
+        passport: passport ?? this.passport,
+        visa: visa ?? this.visa,
+        idCard: idCard ?? this.idCard,
+        other: other ?? this.other,
+      );
+
+  factory MandatoryFields.fromJson(Map<String, dynamic> json) => MandatoryFields(
+    passenger: json["passenger"] == null ? null : PassengerFields.fromJson(json["passenger"]),
+    passport: json["passport"] == null ? null : DocumentFields.fromJson(json["passport"]),
+    visa: json["visa"] == null ? null : DocumentFields.fromJson(json["visa"]),
+    idCard: json["idCard"] == null ? null : DocumentFields.fromJson(json["idCard"]),
+    other: json["other"] == null ? null : DocumentFields.fromJson(json["other"]),
+    flight: json["flight"] == null ? null : FlightFields.fromJson(json["flight"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "passenger": passenger?.toJson(),
+    "other": other?.toJson(),
+    "visa": visa?.toJson(),
+    "passport": passport?.toJson(),
+    "idCard": idCard?.toJson(),
+    "flight": flight?.toJson(),
+  };
+}
+
+class FlightFields {
+  final bool? flightNumber;
+  final bool? airline;
+  final bool? from;
+  final bool? to;
+  final bool? departure;
+  final bool? arrival;
+  final bool? std;
+  final bool? sta;
+  final bool? pos;
+  final bool? dos;
+  final bool? ticket;
+  final bool? flightType;
+
+  FlightFields({
+    this.flightNumber,
+    this.airline,
+    this.from,
+    this.to,
+    this.departure,
+    this.arrival,
+    this.std,
+    this.sta,
+    this.pos,
+    this.dos,
+    this.ticket,
+    this.flightType,
+  });
+
+  FlightFields copyWith({
+    bool? flightNumber,
+    bool? airline,
+    bool? from,
+    bool? to,
+    bool? departure,
+    bool? arrival,
+    bool? std,
+    bool? sta,
+    bool? pos,
+    bool? dos,
+    bool? ticket,
+    bool? flightType,
+  }) =>
+      FlightFields(
+        flightNumber: flightNumber ?? this.flightNumber,
+        airline: airline ?? this.airline,
+        from: from ?? this.from,
+        to: to ?? this.to,
+        departure: departure ?? this.departure,
+        arrival: arrival ?? this.arrival,
+        std: std ?? this.std,
+        sta: sta ?? this.sta,
+        pos: pos ?? this.pos,
+        dos: dos ?? this.dos,
+        ticket: ticket ?? this.ticket,
+        flightType: flightType ?? this.flightType,
+      );
+
+  factory FlightFields.fromJson(Map<String, dynamic> json) => FlightFields(
+    flightNumber: json["flightNumber"],
+    airline: json["airline"],
+    from: json["from"],
+    to: json["to"],
+    departure: json["departure"],
+    arrival: json["arrival"],
+    std: json["std"],
+    sta: json["sta"],
+    pos: json["pos"],
+    dos: json["dos"],
+    ticket: json["ticket"],
+    flightType: json["type"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "flightNumber": flightNumber,
+    "airline": airline,
+    "from": from,
+    "to": to,
+    "departure": departure,
+    "arrival": arrival,
+    "std": std,
+    "sta": sta,
+    "pos": pos,
+    "dos": dos,
+    "ticket": ticket,
+    "type": flightType,
+  };
+}
+
+class PassengerFields {
+  final bool? notionality;
+  final bool? resident;
+  final bool? gender;
+  final bool? birthPlace;
+  final bool? birthDate;
+
+  PassengerFields({
+    this.notionality,
+    this.resident,
+    this.gender,
+    this.birthPlace,
+    this.birthDate,
+  });
+
+  PassengerFields copyWith({
+    bool? notionality,
+    bool? resident,
+    bool? gender,
+    bool? birthPlace,
+    bool? birthDate,
+  }) =>
+      PassengerFields(
+        notionality: notionality ?? this.notionality,
+        resident: resident ?? this.resident,
+        gender: gender ?? this.gender,
+        birthPlace: birthPlace ?? this.birthPlace,
+        birthDate: birthDate ?? this.birthDate,
+      );
+
+  factory PassengerFields.fromJson(Map<String, dynamic> json) => PassengerFields(
+    notionality: json["notionality"],
+    resident: json["resident"],
+    gender: json["gender"],
+    birthPlace: json["birthPlace"],
+    birthDate: json["birthDate"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "notionality": notionality,
+    "resident": resident,
+    "gender": gender,
+    "birthPlace": birthPlace,
+    "birthDate": birthDate,
+  };
+}
+
+class DocumentFields {
+  final bool? code;
+  final bool? issuedIn;
+  final bool? notionality;
+  final bool? expiryDate;
+  final bool? birthDate;
+  final bool? documentNumber;
+
+  DocumentFields({
+    this.code,
+    this.issuedIn,
+    this.notionality,
+    this.expiryDate,
+    this.birthDate,
+    this.documentNumber,
+  });
+
+  DocumentFields copyWith({
+    bool? code,
+    bool? issuedIn,
+    bool? notionality,
+    bool? expiryDate,
+    bool? birthDate,
+    bool? documentNumber,
+  }) =>
+      DocumentFields(
+        code: code ?? this.code,
+        issuedIn: issuedIn ?? this.issuedIn,
+        notionality: notionality ?? this.notionality,
+        expiryDate: expiryDate ?? this.expiryDate,
+        birthDate: birthDate ?? this.birthDate,
+        documentNumber: documentNumber ?? this.documentNumber,
+      );
+
+  factory DocumentFields.fromJson(Map<String, dynamic> json) => DocumentFields(
+    code: json["code"],
+    issuedIn: json["issuedIn"],
+    notionality: json["notionality"],
+    expiryDate: json["expiryDate"],
+    birthDate: json["birthDate"],
+    documentNumber: json["documentNumber"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "code": code,
+    "issuedIn": issuedIn,
+    "notionality": notionality,
+    "expiryDate": expiryDate,
+    "birthDate": birthDate,
+    "documentNumber": documentNumber,
+  };
+}
+
+class TimaticResult {
+  final int? resultId;
+  final String title;
+  final String color;
+
+  TimaticResult({
+    this.resultId,
+    required this.title,
+    required this.color,
+  });
+
+  TimaticResult copyWith({
+    int? resultId,
+    String? title,
+    String? color,
+  }) =>
+      TimaticResult(
+        resultId: resultId ?? this.resultId,
+        title: title ?? this.title,
+        color: color ?? this.color,
+      );
+
+  factory TimaticResult.fromJson(Map<String, dynamic> json) => TimaticResult(
+    resultId: json["resultId"],
+    title: json["title"],
+    color: json["color"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "resultId": resultId,
+    "title": title,
+    "color": color,
+  };
+
+  Color get getColor => HexColor(color!);
+
+  EvalResult get getEvalRes {
+    log("or else not ${resultId}");
+    return EvalResult.values.firstWhere((a)=>a.index == (resultId!-1),orElse: () {
+    log("or else ${resultId}");
+    return EvalResult.UNKNOWN;
+  });
+  }
+
+  IconData? get getIconCircle => getEvalRes.getIconCircle;
+
+  String get getTitle => getEvalRes.getTitle;
+
+  Widget get getSubtitleWidget {
+    String text = "";
+    Color iconColor = Colors.black;
+    Color borderColor = Colors.transparent;
+
+    if(resultId == 1){
+      text = "Travel Allowed";
+      borderColor = Colors.white;
+      iconColor = Colors.transparent;
+    }else if(resultId ==2){
+      text = "View Requirements";
+      borderColor = getColor;
+      iconColor = getColor;
+    }else if(resultId ==3){
+      text = "View Requirements";
+      borderColor = getColor;
+      iconColor = getColor;
+    }
+    return Container(
+      height: 40,
+      margin: EdgeInsets.only(top: 12),
+      decoration: BoxDecoration(border: Border.all(color: borderColor), borderRadius: BorderRadius.circular(12)),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(width: 8),
+            Icon(Icons.arrow_drop_down,color: Colors.transparent,),
+            Expanded(child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              IcomoonLayeredCss.danger(colors: [iconColor.withOpacity(0.4),iconColor],size: 16),
+              Text(
+                text,
+                style: TextStyle(color: getColor, fontWeight: FontWeight.w500, fontSize: 15),
+              ),
+            ],)),
+            Icon(Icons.arrow_drop_down,color: iconColor,),
+            const SizedBox(width: 8),
+          ],
+        ),
+      ),
+    );
+    // return SizedBox();
+    // return Container(
+    //   child: Text("View Requirement"),
+    // );
+    // return getEvalRes.getSubtitleWidget;
+  }
+
+  Widget get getIconWidget {
+    if(resultId ==1){
+      return IcomoonLayeredCss.tick_square(colors: [getColor.withOpacity(0.3), getColor], size: 20);
+    }else if(resultId ==2){
+      return IcomoonLayeredCss.close_square(colors: [getColor.withOpacity(0.3), getColor], size: 20);
+    }else if(resultId ==3){
+      return IcomoonLayeredCss.danger(colors: [getColor.withOpacity(0.3), getColor], size: 20);
+    }
+    // return Icon(Icons.camera,color: getColor,);
+    return getEvalRes.getIconWidget;
+  }
+  Widget get getIconWidgetMini {
+    if(resultId ==1){
+      return IcomoonLayeredCss.tick_square(colors: [getColor.withOpacity(0.3), getColor], size: 15);
+    }else if(resultId ==2){
+      return IcomoonLayeredCss.close_square(colors: [getColor.withOpacity(0.3), getColor], size: 15);
+    }else if(resultId ==3){
+
+      return IcomoonLayeredCss.danger(colors: [getColor.withOpacity(0.3), getColor], size: 15);
+    }
+    return getEvalRes.getIconWidgetMini;
+  }
+}
+
+
 
 class Country {
   final String type;
@@ -379,7 +761,7 @@ class DocumentCode {
   };
 
   @override
-  String toString() => "$code ($name)";
+  String toString() => "$name";
 }
 
 class DocumentDetailType {

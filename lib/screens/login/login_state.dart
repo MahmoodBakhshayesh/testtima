@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/supervisor_class.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/initialize.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,3 +24,4 @@ final updatingAvatarProvider = StateProvider<bool>((ref) => false);
 
 final selectedServerProvider = StateProvider<Server>((ref) => Server.fromJson({"_id": "689cc9c518d9059a41d665a3", "title": "Main Server", "apiAddress": "https://timatic.multidcs.com/api$apiVersion", "active": true, "default": false}));
 final serverListProvider = StateProvider<List<Server>>((ref)=>[]);
+final supervisorsProvider = StateProvider<List<Supervisor>>((ref)=>[]);

@@ -81,6 +81,7 @@ class LoginController extends ControllerInterface {
         initData(user);
         // final tData = await getIt<HomeController>().preloadAll();
         checkNotifCount();
+        loadSupervisors();
         getIt<HomeController>().clear();
         if (user.setPassword) {
           navigation.openDialog(
@@ -361,5 +362,10 @@ class LoginController extends ControllerInterface {
     }
 
     return constData;
+  }
+
+  Future<void> loadSupervisors() async {
+    final supervisors = await getIt<HomeController>().getSupervisors();
+    ref.read(supervisorsProvider.notifier).update((s)=>supervisors??s);
   }
 }

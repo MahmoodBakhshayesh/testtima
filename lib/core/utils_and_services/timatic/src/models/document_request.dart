@@ -209,8 +209,9 @@ class DocumentDetail {
     String? dc = docCode;
     DocumentType? match;
     if (dc != null && dc.length > 1) {
-      match = BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a) => a.code == documentCode?.code).type);
+      match = BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a) =>a.type == shortType || a.code == documentCode?.code).type);
     }
+    match ??= BasicClass.constData.data.documentType.lastOrNullWhere((a)=>a.type == shortType);
     return match;
   }
 
@@ -350,8 +351,8 @@ class ItinerarySegment {
 
   factory ItinerarySegment.emptyNoAirport() {
     return ItinerarySegment(
+      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport??'', dateTime: DateTime.now()),
       arrival: ItinPoint(point: '', dateTime: DateTime.now()),
-      departure: ItinPoint(point: '', dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,

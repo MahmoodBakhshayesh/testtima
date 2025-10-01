@@ -151,14 +151,28 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   onPressed: () async {
                     final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                     if (!confirm) return;
-                    ref.read(residentsProvider.notifier).removeAt(widget.index);
+                    ref.read(residentsProvider.notifier).updateAt(index,DocumentDetail());
                   },
                   size: 40,
                   radius: 8,
                   iconSize: 20,
-
+                  color: context.mainColor,
                   flat: true,
                   border: BorderSide(width: 1, color: context.mainColor),
+                ),
+                DotButton(
+                  icon: ArtemisIcons.trash,
+                  onPressed: () async {
+                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    if (!confirm) return;
+                    ref.read(residentsProvider.notifier).removeAt(index);
+                  },
+                  size: 40,
+                  radius: 8,
+                  iconSize: 20,
+                  color: Colors.red,
+                  flat: true,
+                  border: BorderSide(width: 1, color: Colors.red),
                 ),
               ],
             ),

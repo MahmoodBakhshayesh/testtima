@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:abds/core/classes/constant_data_class.dart';
+import 'package:abds/core/classes/current_status_class.dart';
 import 'package:abds/core/classes/flight_history_data_class.dart';
 import 'package:abds/core/classes/timatic_response_new_class.dart';
 import 'package:abds/core/interfaces/failures_int.dart';
@@ -15,13 +16,13 @@ import 'package:abds/screens/home/dialogs/ask_emploee_id_sheet.dart';
 import 'package:abds/screens/home/dialogs/ask_ref_code_dialog.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/confirm_scanned_doc_dialog.dart';
+import 'package:abds/screens/home/dialogs/manul_add_doc_sheet.dart';
 import 'package:abds/screens/home/dialogs/translate_language_select_sheet.dart';
 import 'package:abds/screens/home/dialogs/translated_response_dialog.dart';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supported_language_usecased.dart';
-import 'package:abds/screens/home/usecases/lock_unlock_response_usecase.dart';
 import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
@@ -57,6 +58,7 @@ import 'dialogs/option_sheet_dialog.dart';
 import 'home_state.dart';
 import 'usecases/ask_supervisor_usecase.dart';
 import 'usecases/flight_number_history_usecase.dart';
+import 'usecases/set_status_response_usecase.dart';
 import 'usecases/supervisor_response_usecase.dart';
 
 class HomeController extends ControllerInterface {
@@ -65,6 +67,7 @@ class HomeController extends ControllerInterface {
   // late TimaticApi timaticApi = getIt<TimaticApi>();
 
   void clear() {
+    ref.read(currentStatusProvider.notifier).update((s) => CurrentStatus());
     ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
     ref.read(improvingMrzResultProvider.notifier).update((s) => null);
     // ref.read(visasProvider.notifier).update((s) => [DocumentDetail()]);
@@ -129,7 +132,7 @@ class HomeController extends ControllerInterface {
     goNamed(Routes.mrzReader).then((a) {
       if (ref.read(confirmingDocumentProvider) != null) {
         Future(() {
-          navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!), barrierDismissible: false).then((v) {
+          navigation.openDialog(dialog: ConfirmScannedDocDialog(),barrierDismissible: false).then((v) {
             if (v == true) {
               addConfirmingDocument();
             } else {
@@ -252,6 +255,7 @@ class HomeController extends ControllerInterface {
       case Ok<GetRefCodeLogResponse>():
         final r = result.value;
         historyLog = r.history;
+        ref.read(currentStatusProvider.notifier).update((s)=>r.currentStatus);
         fillWithRefHistory(r.history, code);
     }
 
@@ -263,7 +267,7 @@ class HomeController extends ControllerInterface {
     final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') != ("timaticCheck")).toList();
     ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
     if (timaticReqLog != null) {
-      bool locked = timaticReqLog.payload?.locked ?? false;
+      bool locked = timaticReqLog.payload?.locked ==1;
       Map<String, dynamic> input = jsonDecode(timaticReqLog.payload?.input ?? "{}");
       Map<String, dynamic> output = jsonDecode(timaticReqLog.payload?.output ?? "{}");
       log("is Locked ==>${locked}");
@@ -556,13 +560,13 @@ class HomeController extends ControllerInterface {
 
     switch (result) {
       case Err<SubmitTimaticRequestResponse>():
-        log("123 ${result.error}");
         FailureHandler.handle(result.error);
 
       case Ok<SubmitTimaticRequestResponse>():
         final r = result.value;
         response = r.response;
         ref.read(refCodeProvider.notifier).update((s) => r.refCode);
+        ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
     }
 
     return response;
@@ -623,20 +627,21 @@ class HomeController extends ControllerInterface {
     return translated;
   }
 
-  Future<bool> lockUnlockResponse(bool lock) async {
+  Future<bool> setStatus(int status) async {
     bool res = false;
-    LockUnlockResponseUseCase lockUnlockResponseUseCase = LockUnlockResponseUseCase();
-    LockUnlockResponseRequest lockUnlockResponseRequest = LockUnlockResponseRequest(logId: ref.read(refCodeProvider)!, lock: lock);
+    SetStatusResponseUseCase lockUnlockResponseUseCase = SetStatusResponseUseCase();
+    SetStatusResponseRequest lockUnlockResponseRequest = SetStatusResponseRequest(logId: ref.read(refCodeProvider)!, status: status);
     final result = await lockUnlockResponseUseCase(request: lockUnlockResponseRequest);
 
     switch (result) {
-      case Err<LockUnlockResponseResponse>():
+      case Err<SetStatusResponseResponse>():
         FailureHandler.handle(result.error);
 
-      case Ok<LockUnlockResponseResponse>():
+      case Ok<SetStatusResponseResponse>():
         final r = result.value;
         res = r.isSuccess;
-        ref.read(timaticResultNewProvider.notifier).update((s) => s?.setStatus(lock ? 1 : 0));
+        ref.read(currentStatusProvider.notifier).update((s)=>r.currentStatus);
+        // ref.read(timaticResultNewProvider.notifier).update((s) => s?.setStatus(1));
     }
 
     return res;
@@ -717,6 +722,16 @@ class HomeController extends ControllerInterface {
     }
 
     return history;
+  }
+
+  void addManualDoc() async{
+    final added = await navigation.openBottomSheet(bottomSheet: ManualAddDocumentSheet());
+    log("add ${added.runtimeType}");
+    if(added is DocumentDetail){
+      ref.read(confirmingDocumentProvider.notifier).update((s)=>added);
+      log("add ${added.runtimeType}");
+      navigation.openDialog(dialog: ConfirmScannedDocDialog(),barrierDismissible: false);
+    }
   }
 
 // UseCase UseCase = UseCase(repository: Repository());

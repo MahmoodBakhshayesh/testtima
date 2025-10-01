@@ -5,7 +5,9 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 
 import 'basic_class.dart';
@@ -15,22 +17,25 @@ TimaticResponseNew timaticResponseNewFromJson(String str) => TimaticResponseNew.
 String timaticResponseNewToJson(TimaticResponseNew data) => json.encode(data.toJson());
 
 class TimaticResponseNew {
-  final String? totalResult;
+  final int? totalResult;
   final int? status;
   final List<Segment> segments;
 
   TimaticResponseNew({this.totalResult, this.status, required this.segments});
 
-  TimaticResponseNew copyWith({String? totalResult, int? status, List<Segment>? segments}) => TimaticResponseNew(status: status ?? this.status, totalResult: totalResult ?? this.totalResult, segments: segments ?? this.segments);
+  TimaticResponseNew copyWith({int? totalResult, int? status, List<Segment>? segments}) => TimaticResponseNew(status: status ?? this.status, totalResult: totalResult ?? this.totalResult, segments: segments ?? this.segments);
+
 
   factory TimaticResponseNew.fromJson(Map<String, dynamic> json) =>
       TimaticResponseNew(totalResult: json["totalResult"], status: json["status"], segments: json["segments"] == null ? [] : List<Segment>.from(json["segments"]!.map((x) => Segment.fromJson(x))));
 
-  bool get isLocked => status == 1;
+  // bool get isLocked => status == 1;
 
-  EvalResult get evaluationResult {
-    return EvalResult.values.firstWhere((a) => a.name.toUpperCase() == totalResult, orElse: () => EvalResult.UNKNOWN);
-  }
+  TimaticResult get getRes => BasicClass.getResultOfCode(totalResult!);
+
+  // EvalResult get evaluationResult {
+  //   return EvalResult.values.firstWhere((a) => a.name.toUpperCase() == totalResult, orElse: () => EvalResult.UNKNOWN);
+  // }
 
   Map<String, dynamic> toJson() => {"totalResult": totalResult, "status": status, "segments": segments == null ? [] : List<dynamic>.from(segments!.map((x) => x.toJson()))};
 
@@ -42,7 +47,7 @@ class TimaticResponseNew {
 }
 
 class Segment {
-  final String? segmentResult;
+  final int? segmentResult;
 
   final From? from;
   final From? to;
@@ -50,7 +55,7 @@ class Segment {
 
   Segment({this.segmentResult, this.from, this.to, this.result});
 
-  Segment copyWith({String? segmentResult, From? from, From? to, List<SegmentResult>? result}) =>
+  Segment copyWith({int? segmentResult, From? from, From? to, List<SegmentResult>? result}) =>
       Segment(segmentResult: segmentResult ?? this.segmentResult, from: from ?? this.from, to: to ?? this.to, result: result ?? this.result);
 
   factory Segment.fromJson(Map<String, dynamic> json) => Segment(
@@ -62,9 +67,11 @@ class Segment {
 
   Map<String, dynamic> toJson() => {"segmentResult": segmentResult, "from": from?.toJson(), "to": to?.toJson(), "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toJson()))};
 
-  EvalResult get segmentEvaluationResult {
-    return EvalResult.values.firstWhere((a) => a.name.toUpperCase() == segmentResult, orElse: () => EvalResult.UNKNOWN);
-  }
+  // EvalResult get segmentEvaluationResult {
+  //   return EvalResult.values.firstWhere((a) => a.index == segmentResult - 1, orElse: () => EvalResult.UNKNOWN);
+  // }
+
+  TimaticResult get getRes => BasicClass.getResultOfCode(segmentResult!);
 
   String get route => "${from?.airport ?? ''} - ${to?.airport ?? ''}";
 
@@ -73,16 +80,21 @@ class Segment {
   Widget get routeWidget =>Container(
     decoration: BoxDecoration(
       borderRadius: BorderRadiusGeometry.circular(4),
-      color: segmentEvaluationResult.getColor,
-      border: Border.all(color: segmentEvaluationResult.getColor),
+      color: getRes.getColor,
+      border: Border.all(color: getRes.getColor),
     ),
     padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
     child: Row(
       children: [
-        Icon(segmentEvaluationResult.getIconCircle, color: Colors.white, size: 15),
-        const SizedBox(width: 4),
+        // Icon(getRes.getIconCircle, color: Colors.white, size: 15),
+        // const SizedBox(width: 4),
         Text(
-          "${route}",
+          "${from!.airport} - ",
+          style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+        CountryFlag.fromCountryCode(to!.country!,width: 20,height: 15,shape: RoundedRectangle(4),),
+        Text(
+          " ${to!.airport}",
           style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
         ),
       ],
@@ -91,10 +103,10 @@ class Segment {
 }
 
 class From {
-  final String? airport;
-  final String? country;
+  final String airport;
+  final String country;
 
-  From({this.airport, this.country});
+  From({required this.airport, required this.country});
 
   From copyWith({String? airport, String? country}) => From(airport: airport ?? this.airport, country: country ?? this.country);
 
@@ -119,13 +131,13 @@ class SegmentResult {
 
 class RuleSetEvaluation {
   final String? title;
-  final String? ruleSetResult;
+  final int ruleSetResult;
   final List<DocumentResult> documents;
   final List<Regulation> regulations;
 
-  RuleSetEvaluation({this.title, this.ruleSetResult, this.documents = const [], this.regulations = const []});
+  RuleSetEvaluation({this.title,required this.ruleSetResult, this.documents = const [], this.regulations = const []});
 
-  RuleSetEvaluation copyWith({String? title, String? ruleSetResult, List<DocumentResult>? documents, List<Regulation>? regulations}) =>
+  RuleSetEvaluation copyWith({String? title, int? ruleSetResult, List<DocumentResult>? documents, List<Regulation>? regulations}) =>
       RuleSetEvaluation(title: title ?? this.title, ruleSetResult: ruleSetResult ?? this.ruleSetResult, documents: documents ?? this.documents, regulations: regulations ?? this.regulations);
 
   factory RuleSetEvaluation.fromJson(Map<String, dynamic> json) => RuleSetEvaluation(
@@ -142,21 +154,23 @@ class RuleSetEvaluation {
     "regulations": regulations == null ? [] : List<dynamic>.from(regulations!.map((x) => x.toJson())),
   };
 
-  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.name.toUpperCase() == ruleSetResult, orElse: () => EvalResult.UNKNOWN);
+  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.index == ruleSetResult-1, orElse: () => EvalResult.UNKNOWN);
 
-  Color get getColor => BasicClass.getColorForEvaluationResult(evaluationResult.name);
+  Color get getColor => getRes.getColor;
 
   IconData get getIcon => evaluationResult.getIcon;
+
+  TimaticResult get getRes => BasicClass.getResultOfCode(ruleSetResult);
 }
 
 class DocumentResult {
   final int? index;
-  final String documentResult;
+  final int documentResult;
   final List<Regulation> regulations;
 
   DocumentResult({this.index, required this.documentResult, this.regulations = const []});
 
-  DocumentResult copyWith({int? index, String? documentResult, List<Regulation>? regulations}) =>
+  DocumentResult copyWith({int? index, int? documentResult, List<Regulation>? regulations}) =>
       DocumentResult(index: index ?? this.index, documentResult: documentResult ?? this.documentResult, regulations: regulations ?? this.regulations);
 
   factory DocumentResult.fromJson(Map<String, dynamic> json) =>
@@ -164,21 +178,23 @@ class DocumentResult {
 
   Map<String, dynamic> toJson() => {"index": index, "documentResult": documentResult, "regulations": regulations == null ? [] : List<dynamic>.from(regulations!.map((x) => x.toJson()))};
 
-  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.name.toUpperCase() == documentResult, orElse: () => EvalResult.UNKNOWN);
+  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.index == documentResult -1, orElse: () => EvalResult.UNKNOWN);
 }
 
 class Regulation {
-  final String regulationResult;
+  final int regulationResult;
   final String title;
   final List<String>? texts;
 
   Regulation({required this.regulationResult, required this.title, this.texts});
 
-  Regulation copyWith({String? regulationResult, String? title, List<String>? texts}) => Regulation(regulationResult: regulationResult ?? this.regulationResult, title: title ?? this.title, texts: texts ?? this.texts);
+  Regulation copyWith({int? regulationResult, String? title, List<String>? texts}) => Regulation(regulationResult: regulationResult ?? this.regulationResult, title: title ?? this.title, texts: texts ?? this.texts);
 
   factory Regulation.fromJson(Map<String, dynamic> json) => Regulation(regulationResult: json["regulationResult"], title: json["title"], texts: json["texts"] == null ? [] : List<String>.from(json["texts"]!.map((x) => x)));
 
   Map<String, dynamic> toJson() => {"regulationResult": regulationResult, "title": title, "texts": texts == null ? [] : List<dynamic>.from(texts!.map((x) => x))};
 
-  EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.name.toUpperCase() == regulationResult, orElse: () => EvalResult.UNKNOWN);
+  // EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.index == regulationResult-1, orElse: () => EvalResult.UNKNOWN);
+
+  TimaticResult get getRes => BasicClass.getResultOfCode(regulationResult);
 }

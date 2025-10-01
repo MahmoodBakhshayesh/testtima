@@ -8,7 +8,7 @@ import '../usecases/get_notif_count_usecase.dart';
 import '../usecases/get_ref_code_log_usecase.dart';
 import '../usecases/get_supervisors_usecase.dart';
 import '../usecases/get_supported_language_usecased.dart';
-import '../usecases/lock_unlock_response_usecase.dart';
+import '../usecases/set_status_response_usecase.dart';
 import '../usecases/submit_timatic_request_usecase.dart';
 import '../usecases/supervisor_response_usecase.dart';
 import '../usecases/timatic_get_locations_usecase.dart';
@@ -96,10 +96,10 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
   }
 
   @override
-  Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request}) async {
-    String api = "/logs/${request.logId}/lock";
+  Future<SetStatusResponseResponse> lockUnlockResponse({required SetStatusResponseRequest request}) async {
+    String api = "/logs/${request.logId}/status";
     ResponseInterface res = await networkManager.put(request, api: api);
-    LockUnlockResponseResponse response = await Parser().parse(LockUnlockResponseResponse.fromResponse, res, executionReq: request);
+    SetStatusResponseResponse response = await Parser().parse(SetStatusResponseResponse.fromResponse, res, executionReq: request);
     return response;
   }
 

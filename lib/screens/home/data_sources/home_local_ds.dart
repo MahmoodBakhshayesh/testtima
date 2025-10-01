@@ -5,7 +5,6 @@ import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
 import 'package:abds/screens/home/usecases/get_ref_code_log_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supervisors_usecase.dart';
 import 'package:abds/screens/home/usecases/get_supported_language_usecased.dart';
-import 'package:abds/screens/home/usecases/lock_unlock_response_usecase.dart';
 import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/supervisor_response_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
@@ -21,6 +20,7 @@ import '../../../core/data_base/table_names.dart';
 import '../../../core/interfaces/response_int.dart';
 import '../../../initialize.dart';
 import '../interfaces/home_data_source_interface.dart';
+import '../usecases/set_status_response_usecase.dart';
 
 const String userJsonLocalKey = "UserJson";
 
@@ -77,7 +77,7 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   }
 
   @override
-  Future<LockUnlockResponseResponse> lockUnlockResponse({required LockUnlockResponseRequest request}) {
+  Future<SetStatusResponseResponse> lockUnlockResponse({required SetStatusResponseRequest request}) {
     // TODO: implement lockUnlockResponse
     throw UnimplementedError();
   }

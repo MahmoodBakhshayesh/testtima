@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:abds/core/classes/current_status_class.dart';
 import 'package:abds/core/classes/timatic_response_new_class.dart';
 import 'package:abds/core/utils_and_services/import_toggler.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,3 +36,4 @@ final confirmingDocumentProvider = StateProvider<DocumentDetail?>((ref) => null)
 final showingLogsProvider =  StateProvider<List<RefHistoryLog>>((ref) => []);
 final notifCountProvider =  StateProvider<int>((ref) => 0);
 final refCodeProvider =  StateProvider<String?>((ref) => null);
+final currentStatusProvider =  StateProvider<CurrentStatus>((ref) => CurrentStatus());

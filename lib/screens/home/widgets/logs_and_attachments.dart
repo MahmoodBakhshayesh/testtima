@@ -51,7 +51,7 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
               return SizedBox();
           }
         }).toList(),
-        AttachmentsWidget(hisList: logs.where((a) => ["attachVoice", "attachPhoto","attach"].contains(a.type)).toList()),
+        AttachmentsWidget(hisList: logs.where((a) => ["attachVoice", "attachPhoto", "attach"].contains(a.type)).toList()),
         ...logs.map((l) {
           switch (l.type) {
             case null:
@@ -135,10 +135,11 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
       return SizedBox();
     }
     final superID = widget.his.payload?.supervisorId;
+    final sup = ref.watch(supervisorsProvider).firstWhereOrNull((a)=>a.id == superID);
     bool isMine = BasicClass.user?.profile.id == superID;
     log("superid $superID -- my Id${BasicClass.user?.profile.id}");
 
-    if(!isMine){
+    if (!isMine) {
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -148,9 +149,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
         padding: EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Waiting for Supervisor Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
+          children: [Text("Waiting for ${sup?.name}'s Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))],
         ),
       );
     }
@@ -561,6 +560,8 @@ class ManagerApprovalWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     bool approved = his.payload?.approved ?? false;
     final color = approved ? Color(0xff00C68E) : Color(0xffFF3F42);
+
+    log("${his.payload?.toJson()}");
     return Container(
       margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
       decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
@@ -589,7 +590,6 @@ class ManagerApprovalWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-
                 Container(
                   decoration: BoxDecoration(
                     // color: Colors.white.withOpacity(0.48),
@@ -601,11 +601,16 @@ class ManagerApprovalWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        his.user?.username??his.user?.email ?? '',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                      Consumer(
+                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                          return Text(
+                            // his.user?.username??his.user?.email ?? '',
+                            "Employee ${ref.watch(currentStatusProvider).employeeId ?? ''}",
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                          );
+                        },
                       ),
-                      Text(his.payload?.message ?? ''),
+                      Text(his.payload?.name ?? ''),
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
@@ -670,7 +675,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white),
                   ),
-                  margin: EdgeInsets.only(left: 12,right: 12,bottom: 12),
+                  margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
                   padding: EdgeInsets.all(12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -735,7 +740,6 @@ class SupervisorApprovalWidget extends StatelessWidget {
             ),
             child: Column(
               children: [
-
                 Container(
                   decoration: BoxDecoration(
                     // color: Colors.white.withOpacity(0.48),
@@ -750,7 +754,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            his.user?.username??his.user?.email ?? '',
+                            his.user?.username ?? his.user?.email ?? '',
                             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
@@ -820,7 +824,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white),
                   ),
-                  margin: EdgeInsets.only(left: 12,right: 12,bottom: 12),
+                  margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
                   padding: EdgeInsets.all(12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

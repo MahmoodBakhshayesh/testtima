@@ -29,13 +29,13 @@ import '../../../widgets/auto_link_text.dart';
 import '../home_view_phone.dart';
 
 class ConfirmScannedDocDialog extends ConsumerWidget {
-  final DocumentDetail documentDetail;
 
-  const ConfirmScannedDocDialog({super.key, required this.documentDetail});
+  const ConfirmScannedDocDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    log(documentDetail.documentCode?.code ?? '');
+    final documentDetail= ref.watch(confirmingDocumentProvider)!;
+    log(documentDetail.shortType?? '');
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
       insetPadding: EdgeInsets.symmetric(horizontal: 12),
@@ -49,7 +49,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 // color: MyColors.scaffoldHeader,
-                color: documentDetail.getMatch()?.getColor.withOpacity(0.4),
+                color: (documentDetail.isExpired?MyColors.red: documentDetail.getMatch()?.getColor)?.withOpacity(0.4),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: Row(
@@ -84,7 +84,8 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                       label: "Confirm",
                       reverse: true,
                       borderSide: BorderSide(color: context.mainColor),
-                      onPressed: () {
+                      onPressed:documentDetail.documentCode==null?null: () {
+
                         // log(documentDetail.docCode??'');
                         Navigator.of(context).pop(true);
                       },
@@ -181,7 +182,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     String? docCode = d.docCode;
     DocumentDetailType? match = d.getTypeDetailsMatch();
     DocumentType? typeMatch = d.getMatch();
-
+    List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == d.shortType).map((a) => a.code!).toList();
+    log(validCodes.join(","));
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -194,8 +196,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         showFooter: false,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: typeMatch?.getColor.withOpacity(0.2),
-        collapsedBackgroundColor: typeMatch?.getColor.withOpacity(0.2),
+        backgroundColor: (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2),
+        collapsedBackgroundColor:  (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
@@ -261,7 +263,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  items: BasicClass.constData.data.documentCode,
+                  items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   // itemToString: docCodeToString,
                   valueToString: docCodeToString,
                   value: d.documentCode,

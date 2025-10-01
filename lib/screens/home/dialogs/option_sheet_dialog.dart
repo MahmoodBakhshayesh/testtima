@@ -71,7 +71,8 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLocked = ref.watch(timaticResultNewProvider)?.isLocked ?? false;
+
+    bool isLocked =  ref.watch(currentStatusProvider).isLocked;
     return SafeArea(
       bottom: true,
       child: SizedBox(

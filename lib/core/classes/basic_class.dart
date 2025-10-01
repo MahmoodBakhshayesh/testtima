@@ -69,6 +69,10 @@ class BasicClass {
     return Colors.grey;
   }
 
+  static TimaticResult getResultOfCode(int code){
+    return constData.data.timaticResult!.firstWhere((a)=>a.resultId == code);
+  }
+
   static Country? getLocationWithCode(String code) {
     return constData.data.country.firstWhereOrNull((a) => a.code3 == code);
     // return timData.locations.of(LocationType.country).firstWhereOrNull((a) => a.code3 == code);

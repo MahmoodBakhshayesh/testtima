@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/current_status_class.dart';
 import 'package:flutter/material.dart';
 import '../../../core/classes/ref_history_log_class.dart';
 import '../../../core/interfaces/failures_int.dart';
@@ -41,15 +42,18 @@ class GetRefCodeLogRequest extends RequestInterface {
 
 class GetRefCodeLogResponse extends ResponseInterface {
   final RefHistory history;
-  GetRefCodeLogResponse({required super.status, required super.message, required this.history})
+  final CurrentStatus currentStatus;
+  GetRefCodeLogResponse({required super.status, required super.message, required this.history, required this.currentStatus})
       : super(
           body: history.toJson(),
+          // currentStatus: currentStatus.toJson(),
         );
 
     factory GetRefCodeLogResponse.fromResponse(ResponseInterface res) => GetRefCodeLogResponse(
         status: res.status,
         message: res.message,
         history:RefHistory.fromJson(res.body),
+        currentStatus:CurrentStatus.fromJson(res.body["result"]),
       );
 
 }

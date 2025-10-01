@@ -25,6 +25,11 @@ class SupportedLanguage {
     "country": country,
     "languages": languages == null ? [] : List<dynamic>.from(languages!.map((x) => x.toJson())),
   };
+
+  bool validateSearch(String text) {
+    if(text.trim().isEmpty) return true;
+    return (country??'').toLowerCase().contains(text.toLowerCase()) || languages!.any((l)=>l.validateSearch(text));
+  }
 }
 
 class Language {
@@ -60,4 +65,9 @@ class Language {
     "name": name,
     "language": language,
   };
+
+  bool validateSearch(String text) {
+    if(text.trim().isEmpty) return true;
+    return "${name} ${language} ${title}".toLowerCase().contains(text.toLowerCase());
+  }
 }

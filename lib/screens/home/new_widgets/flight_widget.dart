@@ -5,6 +5,7 @@ import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
 import 'package:abds/initialize.dart';
 import 'package:abds/screens/home/home_controller.dart';
+import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/export.dart';
@@ -28,6 +29,7 @@ import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
 import '../home_state.dart';
+import '../home_view_phone.dart';
 import '../widgets/locked_segment_widget.dart';
 
 class FlightWidget extends ConsumerWidget {
@@ -36,7 +38,7 @@ class FlightWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked ?? false;
+    final bool locked =  ref.watch(currentStatusProvider).isLocked;
     if (locked) {
       return Column(
         children: segments.map((d) {
@@ -51,7 +53,12 @@ class FlightWidget extends ConsumerWidget {
             spacing: 12,
             children: [
               Expanded(
-                child: Text("Flight", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                child: Row(
+                  children: [
+                    Text("Flight", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    airlineLogoBuild(segments.first.operatingCarrier)
+                  ],
+                ),
               ),
               MyButton(
                 label: "Scan Boarding Pass",
@@ -234,8 +241,10 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     rowLabelRatio: [3, 5],
                     headerBgColor: Color(0xffECECEC),
                     bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+
                     items: BasicClass.constData.data.carrier,
                     value: seg.operatingCarrier,
+                    // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
                     valueToString: (a) => a.code,
                     onChange: (a) {
                       seg = seg.copyWith(operatingCarrier: a);
@@ -515,4 +524,6 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
       ),
     );
   }
+
+
 }

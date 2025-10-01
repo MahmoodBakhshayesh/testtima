@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:abds/core/classes/current_status_class.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:flutter/material.dart';
 import '../../../core/classes/timatic_response_new_class.dart';
@@ -22,12 +25,13 @@ class SubmitTimaticRequestUseCase extends UseCase<SubmitTimaticRequestResponse, 
 class SubmitTimaticRequestRequest extends RequestInterface {
   final DocumentRequest documentRequest;
   final String? employeeId;
-  SubmitTimaticRequestRequest({required this.documentRequest,required this.employeeId});
+
+  SubmitTimaticRequestRequest({required this.documentRequest, required this.employeeId});
 
   @override
   Map<String, dynamic> toJson() {
-    final reqJson =  documentRequest.toJson();
-    reqJson.putIfAbsent("employeeId", ()=>employeeId);
+    final reqJson = documentRequest.toJson();
+    reqJson.putIfAbsent("employeeId", () => employeeId);
     return reqJson;
   }
 
@@ -38,10 +42,13 @@ class SubmitTimaticRequestRequest extends RequestInterface {
 
 class SubmitTimaticRequestResponse extends ResponseInterface {
   final TimaticResponseNew response;
+  final CurrentStatus currentStatus;
   final String refCode;
 
-  SubmitTimaticRequestResponse({required super.status, required super.message, required this.response, required this.refCode}) : super(body: response.toJson());
+  SubmitTimaticRequestResponse({required super.status, required super.message, required this.response, required this.refCode, required this.currentStatus}) : super(body: response.toJson());
 
   factory SubmitTimaticRequestResponse.fromResponse(ResponseInterface res) =>
-      SubmitTimaticRequestResponse(status: res.status, message: res.message, refCode: res.body["refCode"], response: TimaticResponseNew.fromJson(res.body));
+      SubmitTimaticRequestResponse(status: res.status, currentStatus: CurrentStatus.fromJson(res.body["result"]), message: res.message, refCode: res.body["refCode"],
+
+          response: TimaticResponseNew.fromJson(jsonDecode(res.body["logs"][0]["payload"]["output"])));
 }

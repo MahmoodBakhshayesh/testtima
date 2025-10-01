@@ -40,7 +40,7 @@ class _AirlineLogoState extends State<AirlineLogo> {
         fadeInDuration: const Duration(milliseconds: 300),
         errorBuilder: (context, exception, stacktrace) {
           // log("${exception}");
-          return Icon(Icons.error, color: Colors.transparent);
+          return Icon(Icons.error, color: Colors.transparent,size: 10,);
         },
         loadingBuilder: (context, progress) {
           return Container(
@@ -48,7 +48,7 @@ class _AirlineLogoState extends State<AirlineLogo> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                SizedBox(width: 120, height: 120, child: CircularProgressIndicator(color: context.mainColor, value: progress.progressPercentage.value)),
+                SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: context.mainColor, value: progress.progressPercentage.value)),
               ],
             ),
           );

@@ -28,7 +28,6 @@ class BarcodeReaderController extends ControllerInterface {
       if (bpl.isNotEmpty) {
         for (var bp in bpl) {
           final segment = bp.getFlightLeg;
-          log(jsonEncode(segment.toJson()));
           int emptyIndex = ref.read(segmentsProvider).indexWhere((s) => s.isEmpty);
           bool isSamePerson = bp.fullname == ref.read(scannedBpProvider)?.fullname;
 

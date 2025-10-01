@@ -101,6 +101,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     final bodyBg = Color(0xffF0F2Fa);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a) => a.type == "P").map((a) => a.code!).toList();
+    final requiredFields = BasicClass.constData.data.mandatory!.passport;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadiusGeometry.circular(20),
@@ -155,13 +156,28 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   onPressed: () async {
                     final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                     if (!confirm) return;
+                    ref.read(passportsProvider.notifier).updateAt(index,DocumentDetail());
+                  },
+                  size: 40,
+                  radius: 8,
+                  iconSize: 20,
+                  color: context.mainColor,
+                  flat: true,
+                  border: BorderSide(width: 1, color: context.mainColor),
+                ),
+                DotButton(
+                  icon: ArtemisIcons.trash,
+                  onPressed: () async {
+                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    if (!confirm) return;
                     ref.read(passportsProvider.notifier).removeAt(index);
                   },
                   size: 40,
                   radius: 8,
                   iconSize: 20,
+                  color: Colors.red,
                   flat: true,
-                  border: BorderSide(width: 1, color: context.mainColor),
+                  border: BorderSide(width: 1, color: Colors.red),
                 ),
               ],
             ),

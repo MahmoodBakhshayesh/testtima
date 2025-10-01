@@ -25,6 +25,7 @@ import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
 import '../home_state.dart';
+import '../home_view_phone.dart';
 
 class PassengerWidget extends ConsumerWidget {
   const PassengerWidget({super.key});
@@ -33,7 +34,7 @@ class PassengerWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     // final bool locked = ref.watch(timaticResultProvider)?.status == 1;
-    final bool locked = ref.watch(timaticResultNewProvider)?.isLocked??false;
+    final bool locked = ref.watch(currentStatusProvider).isLocked;
     if(locked){
       return LockedPassengerRow(passengerDetails: passengerDetails, tileColor: Colors.black.withOpacity(0.08));
     }
@@ -412,24 +413,24 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
   }
 }
 
-String? birthDateValidator(String v, DateTime? bDate) {
-  if (bDate == null) return null;
-  int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-  String s = StringUtility.formatDaysToAge(bDate.difference(DateTime.now()).inDays.abs());
-  return s;
-}
+// String? birthDateValidator(String v, DateTime? bDate) {
+//   if (bDate == null) return null;
+//   int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
+//   String s = StringUtility.formatDaysToAge(bDate.difference(DateTime.now()).inDays.abs());
+//   return s;
+// }
 
-Color? birthDateValidationColor(DateTime? bDate) {
-  if (bDate == null) return null;
-  int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-  double realYears = (bDate.difference(DateTime.now()).inDays / 365).abs();
-  // log("realYears $realYears");
-  if (realYears < 2) {
-    return Colors.orange;
-  }
-  if (realYears <= 12) {
-    return Colors.orange;
-  }
-  return MyColors.green2;
-}
+// Color? birthDateValidationColor(DateTime? bDate) {
+//   if (bDate == null) return null;
+//   int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
+//   double realYears = (bDate.difference(DateTime.now()).inDays / 365).abs();
+//   // log("realYears $realYears");
+//   if (realYears < 2) {
+//     return Colors.orange;
+//   }
+//   if (realYears <= 12) {
+//     return Colors.orange;
+//   }
+//   return MyColors.green2;
+// }
 

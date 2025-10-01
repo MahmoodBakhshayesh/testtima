@@ -14,7 +14,7 @@ import 'usecases/get_notif_count_usecase.dart';
 import 'usecases/get_ref_code_log_usecase.dart';
 import 'usecases/get_supervisors_usecase.dart';
 import 'usecases/get_supported_language_usecased.dart';
-import 'usecases/lock_unlock_response_usecase.dart';
+import 'usecases/set_status_response_usecase.dart';
 import 'usecases/submit_timatic_request_usecase.dart';
 import 'usecases/supervisor_response_usecase.dart';
 import 'usecases/timatic_get_locations_usecase.dart';
@@ -149,9 +149,9 @@ class HomeRepository implements HomeRepositoryInterface {
   }
 
   @override
-  Future<Result<LockUnlockResponseResponse>> lockUnlockResponse(LockUnlockResponseRequest request) async {
+  Future<Result<SetStatusResponseResponse>> lockUnlockResponse(SetStatusResponseRequest request) async {
     try {
-      LockUnlockResponseResponse lockUnlockResponseResponse;
+      SetStatusResponseResponse lockUnlockResponseResponse;
       if (await networkInfo.isConnected) {
         lockUnlockResponseResponse = await homeRemoteDataSource.lockUnlockResponse(request: request);
       } else {

@@ -284,8 +284,9 @@ class _KeyGrid extends StatelessWidget {
         child: Container(
           height: 56,
           alignment: Alignment.center,
+
           decoration: BoxDecoration(
-            color: CupertinoColors.activeBlue.resolveFrom(context),
+            color:onDone==null?CupertinoColors.inactiveGray: CupertinoColors.activeBlue.resolveFrom(context),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const DefaultTextStyle(
