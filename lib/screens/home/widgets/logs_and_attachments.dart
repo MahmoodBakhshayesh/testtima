@@ -120,13 +120,19 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
   SupervisorResponse? response;
 
   @override
+  void initState() {
+    commentC.addListener(() => setState(() {}));
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final selectionColor = Color(0xff2A5CFF);
     final greenColor = Color(0xff08AB7D);
     final redColor = Color(0xffFF3F42);
     final blackColor = Color(0xff2D2D2D);
     final logs = ref.watch(showingLogsProvider);
-    log(logs.map((a) => a.type ?? '').join("--"));
+    // log(logs.map((a) => a.type ?? '').join("--"));
     final asks = logs.where((a) => a.type == "askSupervisor");
     final resps = logs.where((a) => a.type == "supervisorResponse");
     final ask = asks.lastOrNull;
@@ -135,9 +141,9 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
       return SizedBox();
     }
     final superID = widget.his.payload?.supervisorId;
-    final sup = ref.watch(supervisorsProvider).firstWhereOrNull((a)=>a.id == superID);
+    final sup = ref.watch(supervisorsProvider).firstWhereOrNull((a) => a.id == superID);
     bool isMine = BasicClass.user?.profile.id == superID;
-    log("superid $superID -- my Id${BasicClass.user?.profile.id}");
+    // log("superid $superID -- my Id${BasicClass.user?.profile.id}");
 
     if (!isMine) {
       return Container(
@@ -153,6 +159,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
         ),
       );
     }
+    log(widget.his.payload!.actionId.toString());
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -198,7 +205,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             children: (BasicClass.user?.setting?.supervisorResponse ?? []).map((re) {
               return Expanded(
                 child: MyButton(
-                  color: re.getColor,
+                  color: response == null ? null :response!.actionId == re.actionId? re.getColor:null,
                   fontSize: 12,
                   radius: 12,
                   label: "${re.name}",
@@ -214,74 +221,12 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                     setState(() {});
                   },
                   icon: re.getIcon,
-                  reverse: response != re,
-                  borderSide: BorderSide(color: re.getColor),
+                  reverse: response == null ? false : response != re,
+                  borderSide: response == null ? null :BorderSide(color:response!.actionId == re.actionId? re.getColor:MyColors.mainColor),
                 ),
               );
             }).toList(),
           ),
-          // Row(
-          //   spacing: 12,
-          //   children: [
-          //     Expanded(
-          //       child: MyButton(
-          //         color: greenColor,
-          //         fontSize: 12,
-          //         radius: 12,
-          //         label: "Approve",
-          //         onPressed: () {
-          //           if (status == 1) {
-          //             status = null;
-          //           } else {
-          //             status = 1;
-          //           }
-          //           setState(() {});
-          //         },
-          //         icon: ArtemisIcons.tick_square,
-          //         reverse: status != 1,
-          //         borderSide: BorderSide(color: greenColor),
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: MyButton(
-          //         color: redColor,
-          //         radius: 12,
-          //         fontSize: 12,
-          //         label: "Deny",
-          //         onPressed: () {
-          //           if (status == 2) {
-          //             status = null;
-          //           } else {
-          //             status = 2;
-          //           }
-          //           setState(() {});
-          //         },
-          //         icon: ArtemisIcons.close_square,
-          //         reverse: status != 2,
-          //         borderSide: BorderSide(color: redColor),
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: MyButton(
-          //         color: blackColor,
-          //         radius: 12,
-          //         fontSize: 12,
-          //         label: "Wait",
-          //         onPressed: () {
-          //           if (status == 3) {
-          //             status = null;
-          //           } else {
-          //             status = 3;
-          //           }
-          //           setState(() {});
-          //         },
-          //         icon: ArtemisIcons.timer,
-          //         reverse: status != 3,
-          //         borderSide: BorderSide(color: blackColor),
-          //       ),
-          //     ),
-          //   ],
-          // ),
           const SizedBox(height: 12),
           AnimatedContainer(
             height: (response?.message ?? []).length * 48.0,
@@ -320,6 +265,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                 }),
               ],
             ),
+
             // status == 3
             //     ? Column(
             //         spacing: 8,
@@ -373,13 +319,18 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             //       )
             //     : SizedBox(),
           ),
+          (response?.textEntry ?? false)
+              ? SizedBox()
+              : SizedBox(
+                  child: MyTextFieldNew(label: "Message", placeholder: "Enter Message", controller: commentC, headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48)),
+                ),
           const SizedBox(height: 12),
           MyButton(
             label: "Send",
-            onPressed: response == null || msg == null
+            onPressed: response == null || (msg == null && commentC.text.isEmpty)
                 ? null
                 : () async {
-                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: msg!);
+                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: msg! + commentC.text);
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -705,6 +656,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // bool approved = his.payload?.approved ?? false;
     final int status = his.payload?.status ?? 3;
+    log(his.payload!.actionId.toString());
     SupervisorResponse? res = (BasicClass.user?.setting?.supervisorResponse ?? []).firstWhereOrNull((a) => a.actionId == his.payload?.actionId);
 
     if (res == null) {

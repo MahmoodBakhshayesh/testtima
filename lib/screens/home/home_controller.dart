@@ -74,7 +74,9 @@ class HomeController extends ControllerInterface {
     ref.read(passportsProvider.notifier).removeAll();
     ref.read(visasProvider.notifier).removeAll();
     ref.read(residentsProvider.notifier).removeAll();
+    ref.read(segmentsProvider.notifier).resetFirst();
     // ref.read(segmentsProvider.notifier).removeAll();
+
 
     ref.read(showWarningsProvider.notifier).update((s) => true);
     ref.read(passNumberInVisaProvider.notifier).update((s) => false);
@@ -730,7 +732,12 @@ class HomeController extends ControllerInterface {
     if(added is DocumentDetail){
       ref.read(confirmingDocumentProvider.notifier).update((s)=>added);
       log("add ${added.runtimeType}");
-      navigation.openDialog(dialog: ConfirmScannedDocDialog(),barrierDismissible: false);
+      final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(),barrierDismissible: false);
+      if(addRes == true){
+        addConfirmingDocument();
+      }else{
+        ref.read(confirmingDocumentProvider.notifier).update((s)=>null);
+      }
     }
   }
 

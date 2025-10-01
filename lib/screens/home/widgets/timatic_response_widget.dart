@@ -105,7 +105,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
             ),
             children: [
               ...(segRes.result ?? []).map((sr) {
-                final sorted = sr.ruleSetEvaluations??[];
+                final sorted = sr.ruleSetEvaluations ?? [];
                 // sorted.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
 
                 return Column(children: [...(sorted).map((a) => RuleSetWidgetNew(ruleSet: a))]);
@@ -134,6 +134,8 @@ class RuleSetWidgetNew extends StatelessWidget {
       child: MyExpansionTile(
         // initiallyExpanded: ruleSet.evaluationResult.index < 2,
         showFooter: false,
+        initiallyExpanded: ruleSet.ruleSetResult !=1,
+        enabled: ruleSet.ruleSetResult ==1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
@@ -145,54 +147,55 @@ class RuleSetWidgetNew extends StatelessWidget {
         backgroundColor: ruleSet.getColor.withOpacity(0.08),
         collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
         tilePadding: EdgeInsets.symmetric(horizontal: 8),
-        childPreview: ruleSet.getRes.resultId! <2
-            ? null
-            : Column(
-                children: [
-                  ...ruleSet.regulations.map(
-                    (a) => Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(a.title ?? '', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                              ),
-                              a.getRes.getIconWidgetMini,
-                              const SizedBox(width: 1),
-                              Text(BasicClass.getResultOfCode(a.regulationResult).title??'', style: TextStyle(fontSize: 11, color: BasicClass.getResultOfCode(a.regulationResult).getColor)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...ruleSet.documents.map(
-                    (d) => Column(
-                      children: d.regulations
-                          .map(
-                            (a) => Container(
-                              margin: EdgeInsets.only(top: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(a.title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                                  ),
-                                  a.getRes.getIconWidgetMini,
-                                  const SizedBox(width: 1),
-                                  Text(a.getRes.title, style: TextStyle(fontSize: 11, color: BasicClass.getColorForEvaluationResult(a.regulationResult.toString()))),
-                                ],
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ],
-              ),
+
+        // childPreview: ruleSet.getRes.resultId! <2
+        //     ? null
+        //     : Column(
+        //         children: [
+        //           ...ruleSet.regulations.map(
+        //             (a) => Column(
+        //               children: [
+        //                 Container(
+        //                   margin: EdgeInsets.only(top: 8),
+        //                   child: Row(
+        //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                     children: [
+        //                       Expanded(
+        //                         child: Text(a.title ?? '', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+        //                       ),
+        //                       a.getRes.getIconWidgetMini,
+        //                       const SizedBox(width: 1),
+        //                       Text(BasicClass.getResultOfCode(a.regulationResult).title??'', style: TextStyle(fontSize: 11, color: BasicClass.getResultOfCode(a.regulationResult).getColor)),
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //           ...ruleSet.documents.map(
+        //             (d) => Column(
+        //               children: d.regulations
+        //                   .map(
+        //                     (a) => Container(
+        //                       margin: EdgeInsets.only(top: 8),
+        //                       child: Row(
+        //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                         children: [
+        //                           Expanded(
+        //                             child: Text(a.title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+        //                           ),
+        //                           a.getRes.getIconWidgetMini,
+        //                           const SizedBox(width: 1),
+        //                           Text(a.getRes.title, style: TextStyle(fontSize: 11, color: BasicClass.getColorForEvaluationResult(a.regulationResult.toString()))),
+        //                         ],
+        //                       ),
+        //                     ),
+        //                   )
+        //                   .toList(),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
         title: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Column(
@@ -200,7 +203,10 @@ class RuleSetWidgetNew extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(ruleSet.title ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    child: Text(
+                      ruleSet.title ?? '',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: ruleSet.getColor),
+                    ),
                     // child: Text(ruleSet.getRes.resultId.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     // child: Text(ruleSet.regulations.length.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   ),
@@ -242,6 +248,55 @@ class RegulationWidgetNew extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0,right: 8,bottom: 8),
+      child: MyExpansionTile(
+        showFooter: false,
+        collapsedShape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(12),
+          side: BorderSide(color: Colors.white, width: 2),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(12),
+          side: BorderSide(color: Colors.white, width: 2),
+        ),
+        collapsedBackgroundColor: Colors.white.withOpacity(0.48),
+        backgroundColor: Colors.white.withOpacity(0.58),
+        showLeadingIcon: true,
+        tilePadding: EdgeInsets.zero,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+          child: Container(
+            child: Row(
+              children: [
+                Expanded(child: Text(regulation.title, style: TextStyle(fontSize: 10))),
+                regulation.getRes.getIconWidgetMini,
+                const SizedBox(width: 1),
+                Text(regulation.getRes.title!, style: TextStyle(color: regulation.getRes.getColor, fontSize: 11)),
+              ],
+            ),
+          ),
+        ),
+        children: (regulation.texts ?? [])
+            .map(
+              (e) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        children: <Widget>[] + [HtmlWidget(e, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12))],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
       child: Column(

@@ -70,13 +70,13 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
                       onTap: () async {
                         final ref = getIt<HomeController>().ref;
                         if (dt.type == "P") {
-                          Navigator.of(context).pop(DocumentDetail(shortType: "P"));
+                          Navigator.of(context).pop(DocumentDetail.passport());
                           // ref.read(passportsProvider.notifier).add(DocumentDetail());
                         } else if (dt.type == "V") {
-                          Navigator.of(context).pop(DocumentDetail(shortType: "V"));
+                          Navigator.of(context).pop(DocumentDetail.visa());
                           // ref.read(visasProvider.notifier).add(DocumentDetail());
                         } else if (dt.type == "I") {
-                          Navigator.of(context).pop(DocumentDetail(shortType: "I"));
+                          Navigator.of(context).pop(DocumentDetail.resident());
                           // ref.read(residentsProvider.notifier).add(DocumentDetail());
                         }else{
                           Navigator.of(context).pop();

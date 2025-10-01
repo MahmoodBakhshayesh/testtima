@@ -28,8 +28,9 @@ class AddUserRequest extends RequestInterface {
   final String? firstname;
   final String? lastname;
   final UserPermission permissions;
+  final Map<String,dynamic> attributes;
 
-  AddUserRequest({required this.email, required this.username, required this.password, required this.firstname, required this.lastname, required this.permissions});
+  AddUserRequest({required this.email, required this.username, required this.password, required this.firstname, required this.lastname, required this.permissions,required this.attributes});
 
   @override
   Map<String, dynamic> toJson() =>{
@@ -40,6 +41,7 @@ class AddUserRequest extends RequestInterface {
     "middlename": null,
     "lastname":lastname.pureValue,
     "permission":permissions.toRootJson()["permission"],
+    "attribute":attributes,
   };
 
   Failure? validate(){

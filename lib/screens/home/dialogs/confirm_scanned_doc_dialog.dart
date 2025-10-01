@@ -34,7 +34,10 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final documentDetail= ref.watch(confirmingDocumentProvider)!;
+    final documentDetail= ref.watch(confirmingDocumentProvider);
+    if(documentDetail== null){
+      return SizedBox();
+    }
     log(documentDetail.shortType?? '');
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
@@ -82,9 +85,9 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                   Expanded(
                     child: MyButton(
                       label: "Confirm",
-                      reverse: true,
+                      // reverse: true,
                       borderSide: BorderSide(color: context.mainColor),
-                      onPressed:documentDetail.documentCode==null?null: () {
+                      onPressed:!documentDetail.hasAllRequired()?null: () {
 
                         // log(documentDetail.docCode??'');
                         Navigator.of(context).pop(true);
@@ -183,7 +186,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     DocumentDetailType? match = d.getTypeDetailsMatch();
     DocumentType? typeMatch = d.getMatch();
     List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == d.shortType).map((a) => a.code!).toList();
-    log(validCodes.join(","));
+    final requiredFields = d.getRequiredFields;
+
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -212,12 +216,44 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
             Column(
               spacing: 12,
               children: [
+                MyFieldPicker<DocumentCode>(
+                  label: "Code",
+                  required: requiredFields.code,
+                  placeholder: "Code",
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
+                  items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
+                  // itemToString: docCodeToString,
+                  valueToString: docCodeToString,
+                  value: d.documentCode,
+                  onChange: (a) {
+                    d = d.copyWith(documentCode: a);
+                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                  },
+                ),
+                ?(match?.note != null)
+                    ? Container(
+                  decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                  padding: EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                )
+                    : null,
                 Row(
                   spacing: 12,
                   children: [
                     Expanded(
                       child: MyFieldPicker<Country>(
                         label: "Issued In",
+                        required: requiredFields.issuedIn,
+
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         searchAutoFocus: true,
@@ -237,13 +273,14 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                     Expanded(
                       child: MyFieldPicker<Country>(
                         hasSearch: true,
+                        required: requiredFields.notionality,
+
                         searchAutoFocus: true,
                         rowLabelRatio: [5, 4],
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         label: "Nationality",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
-                        required: true,
                         placeholder: "Country",
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
@@ -258,40 +295,13 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                     ),
                   ],
                 ),
-                MyFieldPicker<DocumentCode>(
-                  label: "Code",
-                  placeholder: "Code",
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
-                  // itemToString: docCodeToString,
-                  valueToString: docCodeToString,
-                  value: d.documentCode,
-                  onChange: (a) {
-                    d = d.copyWith(documentCode: a);
-                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
-                  },
-                ),
 
-                ?(match?.note != null)
-                    ? Container(
-                        decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
-                        padding: EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
-                            ),
-                          ],
-                        ),
-                      )
-                    : null,
+
+
 
                 MyDatePicker(
                   label: "Expiry Date",
-                  required: true,
+                  required: requiredFields.expiryDate,
                   validator: (a) => expiryValidator(a, d.documentExpiryDate),
                   validationColor: expiryValidationColor(d.documentExpiryDate),
                   validationIcon: expiryValidationIcon(d.documentExpiryDate),
@@ -312,9 +322,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
           MyDatePicker(
-            required: true,
+            required: requiredFields.birthDate,
             label: "Birth Date",
             placeholder: "Birth Date",
+
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             validator: (a) => birthDateValidator(a, d.birthDate),
@@ -333,7 +344,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
           const SizedBox(height: 12),
 
           // const SizedBox(height: 12),
-          MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(
+              required: requiredFields.documentNumber,
+
+              headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           d.getMrzWidget,
           // MyDatePicker(

@@ -99,6 +99,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF4F8F7);
     List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a)=>a.type == "I").map((a)=>a.code!).toList();
+    final requiredFields = BasicClass.constData.data.mandatory!.idCard!;
 
     return Container(
       decoration: BoxDecoration(
@@ -129,7 +130,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
               label: "Resident",
               icon: Icons.add_circle_outline,
               onPressed: () {
-                ref.read(residentsProvider.notifier).add(DocumentDetail());
+                ref.read(residentsProvider.notifier).add(DocumentDetail.resident());
               },
               textColor: Colors.blueAccent,
               color: Colors.blueAccent.withOpacity(0.1),
@@ -183,6 +184,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                 MyFieldPicker<DocumentCode>(
                   label: "Code",
                   placeholder: "Code",
+                  required: requiredFields.code,
                   // valueToString: docCodeToString,
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
@@ -199,6 +201,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     Expanded(
                       child: MyFieldPicker<Country>(
                         label: "Issued In",
+                        required: requiredFields.issuedIn,
+
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         rowLabelRatio: [5, 4],
@@ -218,6 +222,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     Expanded(
                       child: MyFieldPicker<Country>(
                         hasSearch: true,
+                        required: requiredFields.notionality,
+
                         label: "Nationality",
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
@@ -244,6 +250,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     Expanded(
                       child: MyDatePicker(
                         label: "Expiry",
+                        required: requiredFields.expiryDate,
+
                         // rowLabelRatio: [3, 7],
                         // required: true,
                         headerBgColor: headerBg,
@@ -271,6 +279,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           MyDatePicker(
             // required: true,
             label: "Birth Date",
+            required: requiredFields.birthDate,
+
             placeholder: "Birth Date",
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
@@ -286,7 +296,10 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           ),
 
           const SizedBox(height: 12),
-          MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(
+              required: requiredFields.documentNumber,
+
+              headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           d.getMrzWidget,
         ],

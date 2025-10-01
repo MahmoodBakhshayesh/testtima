@@ -114,6 +114,7 @@ class MyExpansionTile extends StatefulWidget {
     this.children = const <Widget>[],
     this.trailing,
     this.showTrailingIcon = false,
+    this.showLeadingIcon = false,
     this.initiallyExpanded = false,
     this.maintainState = false,
     this.tapOnTitleActive = true,
@@ -217,6 +218,7 @@ class MyExpansionTile extends StatefulWidget {
 
   /// Specifies if the [MyExpansionTile] should build a default trailing icon if [trailing] is null.
   final bool showTrailingIcon;
+  final bool showLeadingIcon;
 
   /// Specifies if the list tile is initially expanded (true) or collapsed (false).
   ///
@@ -547,6 +549,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
 
   Widget? _buildIcon(BuildContext context, Animation<double> animation) {
     _iconTurns = animation.drive(_halfTween.chain(_easeInTween));
+
     return RotationTransition(
       turns: _iconTurns,
       child: Icon(Icons.arrow_drop_down_sharp, color: Colors.blueAccent),
@@ -554,9 +557,6 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
   }
 
   Widget? _buildLeadingIcon(BuildContext context, Animation<double> animation) {
-    if (_effectiveAffinity() != ListTileControlAffinity.leading) {
-      return null;
-    }
     return _buildIcon(context, animation);
   }
 
@@ -597,11 +597,15 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
           visualDensity: widget.visualDensity,
           enableFeedback: widget.enableFeedback,
           contentPadding: widget.tilePadding ?? EdgeInsets.symmetric(horizontal: 12),
-          leading: widget.leading ?? _buildLeadingIcon(context, animation),
-          title: widget.title,
+          // leading: widget.leading ?? _buildLeadingIcon(context, animation),
+          title: widget.showLeadingIcon?Row(children: [
+            _buildLeadingIcon(context, animation)!,
+            Expanded(child: widget.title)
+          ],):widget.title,
           subtitle: _tileController.isExpanded ? SizedBox() : widget.childPreview,
           trailing: widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation) : null,
           minTileHeight: widget.minTileHeight,
+          // leading: widget.showLeadingIcon?_buildLeadingIcon(context, animation) : null,
 
           internalAddSemanticForOnTap: widget.internalAddSemanticForOnTap,
         ),

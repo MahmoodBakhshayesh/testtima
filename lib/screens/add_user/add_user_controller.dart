@@ -15,10 +15,10 @@ import 'usecases/add_user_usecase.dart';
 class AddUserController extends ControllerInterface {
   final _log = Logger('AddUserController');
 
-  Future<People?> addUser({required String? username, required String? email, required String? password, required String? firstname, required String? lastname, required UserPermission permissions}) async {
+  Future<People?> addUser({required String? username, required String? email, required String? password, required String? firstname, required String? lastname, required UserPermission permissions,required Map<String,dynamic> attributes}) async {
     People? user;
     AddUserUseCase addUserUseCase = AddUserUseCase();
-    AddUserRequest addUserRequest = AddUserRequest(email: email, username: username, password: password, firstname: firstname, lastname: lastname, permissions: permissions);
+    AddUserRequest addUserRequest = AddUserRequest(email: email, username: username, password: password, firstname: firstname, lastname: lastname, permissions: permissions, attributes: attributes);
     final result = await addUserUseCase(request: addUserRequest);
 
     switch (result) {

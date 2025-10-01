@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/widgets/MyDatePicker.dart';
+import 'package:abds/widgets/MyExpansionTile.dart';
+import 'package:abds/widgets/MyFieldPicker.dart';
+import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -51,9 +55,10 @@ class _EditUserDialogState extends State<EditUserDialog> {
   bool loading = false;
 
   late bool active = widget.user.enable;
-  late UserPermission tmp = UserPermission.fromPermissionMap(widget.user.userPermission.toPermissionMap());
-  // late Map<String,int> tmp = Map<String,int>.from(widget.user.permission);
+  late UserPermission aup = UserPermission.fromPermissionMap(widget.user.userPermission.toPermissionMap());
 
+  Map<String,dynamic> attributes = {};
+  // late Map<String,int> tmp = Map<String,int>.from(widget.user.permission);
 
   // List<UserPermission> includedPermissions = [];
 
@@ -61,7 +66,21 @@ class _EditUserDialogState extends State<EditUserDialog> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final permissions = myUsersController.ref.read(userProvider)!.permission;
-
+      BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).forEach((att){
+        if(att.type == "string"){
+          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute.toJson()[att.name]));
+        }else if(att.type =="enum"){
+          attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute.toJson()[att.name]);
+        }else if(att.type =="date"){
+          attributes.putIfAbsent(att.name, ()=>DateTime.tryParse(widget.user.userAttribute.toJson()[att.name]));
+        }else if(att.type =="boolean"){
+          attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute.toJson()[att.name])??false);
+        }else if(att.type =="number"){
+          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute.toJson()[att.name]?.toString()));
+        }else if(att.type =="float"){
+          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute.toJson()[att.name]?.toString()));
+        }
+      });
       // tmp = permissions.where((p) => widget.user.permission.map((pp) => pp.id).contains(p.id)).map((a) {
       //   final peoplePer = widget.user.permissions.firstWhereOrNull((pp) => pp.id == a.id);
       //   return UserPermission(
@@ -107,6 +126,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
             ],
           ),
           const Divider(height: 1),
+
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -136,76 +156,173 @@ class _EditUserDialogState extends State<EditUserDialog> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Divider(height: 24,),
-                        Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Column(
-                          children: BasicClass.constData.data.permission.areas.map((area,cat) {
-                            // final perList = permissions.allPermissions.getPermissionsFor(cat);
-                            // final perList = permissions.permission.getPermissionsFor(cat);
+                    MyExpansionTile(
+                      showFooter: false,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+                      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+                      childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                      backgroundColor: Colors.green.withOpacity(0.08),
+                      collapsedBackgroundColor: Colors.green.withOpacity(0.08),
+                      title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      children: BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).map((att){
+                        if(att.type == "string"){
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyTextFieldNew(
+                              headerBgColor: Colors.black26,
+                              bodyBgColor: Colors.black12,
+                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                          );
+                        }else if(att.type == "enum"){
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyFieldPicker<dynamic>(
+                              items: att.defaultList,
+                              headerBgColor: Colors.black26,
+                              bodyBgColor: Colors.black12,
+                              value: attributes[att.name],
+                              onChange: (a){
+                                attributes[att.name] = a;
+                                setState((){});
+                              },
+                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,),
+                          );
+                        }else if(att.type == "boolean"){
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyTextFieldNew(
+                              headerBgColor: Colors.black26,
+                              bodyBgColor: Colors.black12,
+                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                          );
+                        }else if(att.type == "number"){
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyTextFieldNew(
+                              headerBgColor: Colors.black26,
+                              bodyBgColor: Colors.black12,
+                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                          );
+                        }else if(att.type == "float"){
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyTextFieldNew(
+                              headerBgColor: Colors.black26,
+                              bodyBgColor: Colors.black12,
+                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                          );
+                        }else if(att.type == "date"){
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyDatePicker(
+                              headerBgColor: Colors.black26,
+                              bodyBgColor: Colors.black12,
+                              value: attributes[att.name],
+                              onChanged: (a){
+                                attributes[att.name] = a;
+                                setState((){});
+                              },
+                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,),
+                          );
+                        }
+                        return Container(
+                          child: Row(
+                            children: [
+                              Text("${att.name.capitalizeFirst}"),
+                            ],
+                          ),
+                        );
+                      }).toList()
+                    ),
+                    const SizedBox(height: 12),
+                    MyExpansionTile(
+                      showFooter: false,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+                      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+                      childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                      backgroundColor: Colors.blueAccent.withOpacity(0.08),
+                      collapsedBackgroundColor: Colors.blueAccent.withOpacity(0.08),
+                      title: Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      children: BasicClass.constData.data.permission.areas
+                          .map((area, cat) {
                             final perList = BasicClass.constData.data.permission[area];
-                            if(perList.isEmpty ){
+                            if (permissions.maskOf(area) == 0) {
                               return MapEntry(area, SizedBox());
                             }
-                            return MapEntry(area,Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text("${area.capitalizeFirst}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                      ),
-                                      DotButton(
-                                        icon: Icons.select_all,
-                                        onPressed: () {
-                                          for (var a in perList) {
-                                            tmp = tmp.grantFlag(area, a.flag);
-                                          }
-                                          setState(() {});
-                                        },
-                                        color: Colors.green,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      DotButton(
-                                        icon: Icons.deselect,
-                                        onPressed: () {
-                                          for (var a in perList) {
-                                            tmp = tmp.revokeFlag(area, a.flag);
-                                          }
-                                          setState(() {});
-                                        },
-                                        color: Colors.red,
-                                      ),
-                                    ],
-                                  ),
+                            if (perList.isEmpty) {
+                              return MapEntry(area, SizedBox());
+                            }
+                            return MapEntry(
+                              area,
+                              Container(
+                                margin: EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.48),
+                                  border: Border.all(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(10)
                                 ),
-                                Wrap(
+                                padding: EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    ...perList.map((ap) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(right: 4.0),
-                                        child: SelectionChip(
-                                          value: tmp.hasFlag(area, ap.flag),
-                                          label: ap.value,
-                                          onSelected: (bool value) {
-                                            tmp = tmp.toggleFlag(area, ap.flag);
-                                            setState(() {});
-                                          },
-                                        ),
-                                      );
-                                    }),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 4),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Text("${area.capitalizeFirst}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                          ),
+                                          DotButton(
+                                            icon: Icons.select_all,
+                                            onPressed: () {
+                                              for (var a in perList) {
+                                                if (permissions.hasFlag(area, a.flag)) {
+                                                  aup = aup.grantFlag(area, a.flag);
+                                                }
+                                              }
+                                              setState(() {});
+                                            },
+                                            color: Colors.green,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          DotButton(
+                                            icon: Icons.deselect,
+                                            onPressed: () {
+                                              for (var a in perList) {
+                                                aup = aup.revokeFlag(area, a.flag);
+                                              }
+                                              setState(() {});
+                                            },
+                                            color: Colors.red,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Wrap(
+                                      children: [
+                                        ...perList.where((a) => permissions.hasFlag(area, a.flag)).map((ap) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 4.0),
+                                            child: SelectionChip(
+                                              value: aup.hasFlag(area, ap.flag),
+                                              label: ap.value,
+                                              onSelected: (bool value) {
+                                                aup = aup.toggleFlag(area, ap.flag);
+                                                setState(() {});
+                                              },
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                    Divider(),
                                   ],
                                 ),
-                                Divider(),
-                              ],
-                            ));
-                          }).values.toList(),
-                        ),
-                      ],
+                              ),
+                            );
+                          })
+                          .values
+                          .toList(),
                     ),
                   ],
                 ),
@@ -222,7 +339,24 @@ class _EditUserDialogState extends State<EditUserDialog> {
                 const SizedBox(width: 8),
                 MyButton(
                   onPressed: () async {
-                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: tmp);
+                    final attFix = <String,dynamic>{};
+                    attributes.forEach((k,v){
+                      final att = BasicClass.constData.data.attribute.firstWhere((a)=>a.name == k);
+                      if(att.type == "string"){
+                        attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
+                      }else if(att.type =="enum"){
+                        attFix.putIfAbsent(att.name, ()=>v);
+                      }else if(att.type =="date"){
+                        attFix.putIfAbsent(att.name, ()=>(v as DateTime?).format_yyMMdd);
+                      }else if(att.type =="boolean"){
+                        attFix.putIfAbsent(att.name, ()=>v);
+                      }else if(att.type =="number"){
+                        attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
+                      }else if(att.type =="float"){
+                        attFix.putIfAbsent(att.name,()=>(v as TextEditingController).text);
+                      }
+                    });
+                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: aup,attributes:attFix);
                     if (res != null) {
                       Navigator.of(context).pop();
                       Future.delayed(Duration(milliseconds: 300), () {

@@ -33,6 +33,15 @@ class ItemsController extends StateNotifier<List<ItinerarySegment>> {
     final next = [ItinerarySegment.empty()];
     state = next;
   }
+  void resetFirst() {
+    if(state.isEmpty){
+      state = [ItinerarySegment.empty()];
+    }
+    final next = [ItinerarySegment(
+
+        flnb: state.first.flnb,operatingCarrier: state.first.operatingCarrier,departure:state.first.departure.copyWith(dateTime: DateTime.now()),arrival: state.first.arrival.copyWith(dateTime: DateTime.now()))];
+    state = next;
+  }
 
   void setAll(List<ItinerarySegment> next) {
     state = [...next];

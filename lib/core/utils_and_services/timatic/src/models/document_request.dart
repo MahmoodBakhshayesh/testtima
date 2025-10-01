@@ -151,6 +151,16 @@ class DocumentDetail {
     );
   }
 
+  factory DocumentDetail.visa() {
+    return DocumentDetail(shortType: "V");
+  }
+  factory DocumentDetail.passport() {
+    return DocumentDetail(shortType: "P");
+  }
+  factory DocumentDetail.resident() {
+    return DocumentDetail(shortType: "I");
+  }
+
   Map<String, dynamic> toJson() => {
     'documentNumber': documentNumber,
     'fullName': fullName,
@@ -209,9 +219,9 @@ class DocumentDetail {
     String? dc = docCode;
     DocumentType? match;
     if (dc != null && dc.length > 1) {
-      match = BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a) =>a.type == shortType || a.code == documentCode?.code).type);
+      match = BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a) => a.type == shortType || a.code == documentCode?.code).type);
     }
-    match ??= BasicClass.constData.data.documentType.lastOrNullWhere((a)=>a.type == shortType);
+    match ??= BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == shortType);
     return match;
   }
 
@@ -227,6 +237,31 @@ class DocumentDetail {
       );
     }
     return match;
+  }
+
+  DocumentFields get getRequiredFields {
+    DocumentFields required = DocumentFields();
+    if (shortType == "P") {
+      required = BasicClass.constData.data.mandatory!.passport!;
+    } else if (shortType == "V") {
+      required = BasicClass.constData.data.mandatory!.visa!;
+    } else if (shortType == "I") {
+      required = BasicClass.constData.data.mandatory!.idCard!;
+    }
+    return required;
+  }
+
+  bool hasAllRequired() {
+    DocumentFields required = getRequiredFields;
+
+    final bDate = !required.birthDate || birthDate != null;
+    final eDate = !required.expiryDate || documentExpiryDate != null;
+    final number = !required.documentNumber || (documentNumber ?? '').isNotEmpty;
+    final nat = !required.notionality || nationality != null;
+    final issuing = !required.issuedIn || documentIssueCountry != null;
+    final code = !required.code || documentCode != null;
+
+    return (bDate && eDate && number && nat && issuing && code);
   }
 }
 
@@ -345,13 +380,13 @@ class ItinerarySegment {
       returnOnwardTicket: TicketStatus.values.firstWhereOrNull((a) => a.value == json["returnOnwardTicket"]),
       purposeOfStay: PurposeOfStayType.values.firstWhereOrNull((a) => a.value == json["purposeOfStay"]),
       durationOfStay: json["durationOfStay"] == null ? null : DurationOfStay.fromJson(json["durationOfStay"]),
-      operatingCarrier: BasicClass.getAirlineWithCode(json["operatingCarrier"]??''),
+      operatingCarrier: BasicClass.getAirlineWithCode(json["operatingCarrier"] ?? ''),
     );
   }
 
   factory ItinerarySegment.emptyNoAirport() {
     return ItinerarySegment(
-      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport??'', dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '', dateTime: DateTime.now()),
       arrival: ItinPoint(point: '', dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
@@ -373,8 +408,23 @@ class ItinerarySegment {
     'returnOnwardTicket': returnOnwardTicket?.value,
     'operatingCarrier': operatingCarrier?.code,
     'segmentType': segmentType?.toString(),
-    "flightNumber":flnb
+    "flightNumber": flnb,
   };
+
+  bool hasAllRequired() {
+    FlightFields required = BasicClass.constData.data.mandatory!.flight!;
+
+    final from = !required.from || departure.point.isNotEmpty;
+    final to = !required.to || arrival.point.isNotEmpty;
+    final fling = !required.to || (flnb ?? '').isNotEmpty;
+    final flightType = !required.flightType || segmentType != null;
+    final al = !required.airline || operatingCarrier != null;
+    final pos = !required.pos || purposeOfStay != null;
+    final dos = !required.dos || durationOfStay != null;
+    final ticket = !required.ticket || returnOnwardTicket != null;
+
+    return (from && to && fling && flightType && al && pos && dos && ticket);
+  }
 }
 
 // ---------------- ItinPoint ----------------
@@ -439,4 +489,16 @@ class PassengerDetails {
   }
 
   Map<String, dynamic> toJson() => {'birthDate': formatDate(birthDate), 'nationality': nationality?.code3, 'birthCountry': birthCountry?.code3, 'gender': gender?.value, 'residentCountryCode': residentCountryCode?.code3};
+
+  bool hasAllRequired() {
+    PassengerFields required = BasicClass.constData.data.mandatory!.passenger!;
+
+    final bDate = !required.birthDate || birthDate != null;
+    final gen = !required.gender || gender != null;
+    final nat = !required.notionality || nationality != null;
+    final bp = !required.birthPlace || birthCountry != null;
+    final res = !required.resident || residentCountryCode != null;
+
+    return (bDate && gen && bp && nat && res);
+  }
 }

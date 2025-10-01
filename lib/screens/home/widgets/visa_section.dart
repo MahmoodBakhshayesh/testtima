@@ -102,6 +102,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
     List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a) => a.type == "V").map((a) => a.code!).toList();
+    final requiredFields = BasicClass.constData.data.mandatory!.visa!;
 
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (d.ocrText??'').contains('N97191'));
     // log(d.ocrText??'-');
@@ -137,7 +138,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
               label: "Visa",
               icon: Icons.add_circle_outline,
               onPressed: () {
-                ref.read(visasProvider.notifier).add(DocumentDetail());
+                ref.read(visasProvider.notifier).add(DocumentDetail.visa());
               },
               textColor: Colors.blueAccent,
               color: Colors.blueAccent.withOpacity(0.1),
@@ -204,6 +205,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
               children: [
                 MyFieldPicker<DocumentCode>(
                   label: "Code",
+                  required: requiredFields.code,
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
@@ -221,6 +223,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     Expanded(
                       child: MyFieldPicker<Country>(
                         label: "Issued In",
+                        required: requiredFields.issuedIn,
                         rowLabelRatio: [5, 4],
                         placeholder: "Country",
                         headerBgColor: headerBg,
@@ -242,6 +245,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                       child: MyFieldPicker<Country>(
                         hasSearch: true,
                         searchAutoFocus: true,
+                        required: requiredFields.notionality,
+
                         label: "Nationality",
                         rowLabelRatio: [5, 4],
                         headerBgColor: headerBg,
@@ -268,6 +273,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                     Expanded(
                       child: MyDatePicker(
                         label: "Expiry",
+                        required: requiredFields.expiryDate,
+
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         // required: true,
@@ -297,6 +304,8 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             bodyBgColor: bodyBg,
             label: "Birth Date",
             placeholder: "Birth Date",
+            required: requiredFields.birthDate,
+
             validator: (a) => birthDateValidator(a, d.birthDate),
             validationColor: birthDateValidationColor(d.birthDate),
             validationIcon: ArtemisIcons.user_square,
@@ -315,6 +324,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             controller: controller,
+            required: requiredFields.documentNumber,
             label: "Document # ${foundPassInVisa ? '✅' : ''}",
             placeholder: "Number",
             labelInRow: true,

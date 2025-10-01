@@ -295,9 +295,14 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // log("passes ${passports.length}");
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
-    bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb ?? "").isNotEmpty && a.operatingCarrier != null);
+    // bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb ?? "").isNotEmpty && a.operatingCarrier != null);
+    bool canCheck = segments.every((s)=>s.hasAllRequired()) && passports.every((p)=>p.hasAllRequired())&& visas.every((v)=>v.hasAllRequired())&& residents.every((r)=>r.hasAllRequired());
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
+    visas.forEach((v){
+      log("v ${v.shortType} - ${v.hasAllRequired()}");
+    });
     double additionalHeight = 120;
+
 
     return PopScope(
       canPop: false,

@@ -101,15 +101,15 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     final bodyBg = Color(0xffF0F2Fa);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a) => a.type == "P").map((a) => a.code!).toList();
-    final requiredFields = BasicClass.constData.data.mandatory!.passport;
+    final requiredFields = BasicClass.constData.data.mandatory!.passport!;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadiusGeometry.circular(20),
-        color:d.isExpired?MyColors.mainRed.withOpacity(0.12): Color(0xffE2E7F5),
-        border:d.isExpired? Border.all(color: MyColors.mainRed):null
+        color: d.isExpired ? MyColors.mainRed.withOpacity(0.12) : Color(0xffE2E7F5),
+        border: d.isExpired ? Border.all(color: MyColors.mainRed) : null,
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
-      margin: EdgeInsets.only(top:12),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: EdgeInsets.only(top: 12),
       child: MyExpansionTile(
         tapOnTitleActive: false,
         initiallyExpanded: d.isScanned,
@@ -132,7 +132,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                 label: "Passport",
                 icon: Icons.add_circle_outline,
                 onPressed: () {
-                  ref.read(passportsProvider.notifier).add(DocumentDetail());
+                  ref.read(passportsProvider.notifier).add(DocumentDetail.passport());
                 },
                 textColor: Colors.blueAccent,
                 color: Colors.blueAccent.withOpacity(0.1),
@@ -149,14 +149,14 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
               spacing: 12,
               children: [
                 Expanded(
-                  child: Text("Passport #${widget.index+1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  child: Text("Passport #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
                 DotButton(
                   icon: ArtemisIcons.eraser_1,
                   onPressed: () async {
                     final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                     if (!confirm) return;
-                    ref.read(passportsProvider.notifier).updateAt(index,DocumentDetail());
+                    ref.read(passportsProvider.notifier).updateAt(index, DocumentDetail());
                   },
                   size: 40,
                   radius: 8,
@@ -188,6 +188,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                 MyFieldPicker<DocumentCode>(
                   label: "Code",
                   placeholder: "Code",
+                  required: requiredFields.code,
                   rowLabelRatio: [12, 33],
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
@@ -204,6 +205,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                     Expanded(
                       child: MyFieldPicker<Country>(
                         label: "Issued In",
+                        required: requiredFields.issuedIn,
                         searchAutoFocus: true,
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
@@ -217,13 +219,15 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                          ref.read(passengerProvider.notifier).update((s)=>s.copyWith(residentCountryCode: s.residentCountryCode??a));
+                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(residentCountryCode: s.residentCountryCode ?? a));
                         },
                       ),
                     ),
                     Expanded(
                       child: MyFieldPicker<Country>(
                         hasSearch: true,
+                        required: requiredFields.notionality,
+
                         searchAutoFocus: true,
                         rowLabelRatio: [5, 4],
                         headerBgColor: headerBg,
@@ -240,8 +244,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                           d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                          ref.read(passengerProvider.notifier).update((s)=>s.copyWith(nationality: s.nationality??a));
-
+                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: s.nationality ?? a));
                         },
                       ),
                     ),
@@ -252,6 +255,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   label: "Expiry Date",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
+                  required: requiredFields.expiryDate,
+
                   validator: (a) => expiryValidator(a, d.documentExpiryDate),
                   validationColor: expiryValidationColor(d.documentExpiryDate),
                   validationIcon: expiryValidationIcon(d.documentExpiryDate),
@@ -272,6 +277,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             // required: true,
             // rowLabelRatio: [3, 7],
             label: "Birth Date",
+            required: requiredFields.birthDate,
+
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             placeholder: "Birth Date",
@@ -286,7 +293,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             },
           ),
           const SizedBox(height: 12),
-          MyTextFieldNew(controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg),
+          MyTextFieldNew(required: requiredFields.documentNumber, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg),
           const SizedBox(height: 12),
           d.getMrzWidget,
         ],
@@ -294,5 +301,3 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     );
   }
 }
-
-

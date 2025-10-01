@@ -14,6 +14,7 @@ import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/interfaces/network_info_int.dart';
 import '../../core/utils_and_services/app_config.dart';
 import '../../core/utils_and_services/app_data.dart';
@@ -282,4 +283,5 @@ Future<void> _initPackages() async {
   // getIt.registerLazySingleton(() => api);
 
   await FastCachedImageConfig.init();
+  await WakelockPlus.enable();
 }

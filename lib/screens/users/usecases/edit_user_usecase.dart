@@ -27,13 +27,15 @@ class EditUserRequest extends RequestInterface {
   final People people;
   final bool active;
   final UserPermission updatedPermission;
+  final Map<String,dynamic> attributes;
 
-  EditUserRequest({required this.people, required this.active, required this.updatedPermission});
+  EditUserRequest({required this.people, required this.active, required this.updatedPermission,required this.attributes});
 
   @override
   Map<String, dynamic> toJson() =>{
     "enable":active,
-    "permission":updatedPermission.toPermissionMap()
+    "permission":updatedPermission.toPermissionMap(),
+    "attribute":attributes
   };
 
   Failure? validate(){

@@ -369,32 +369,32 @@ class MandatoryFields {
 }
 
 class FlightFields {
-  final bool? flightNumber;
-  final bool? airline;
-  final bool? from;
-  final bool? to;
-  final bool? departure;
-  final bool? arrival;
-  final bool? std;
-  final bool? sta;
-  final bool? pos;
-  final bool? dos;
-  final bool? ticket;
-  final bool? flightType;
+  final bool flightNumber;
+  final bool airline;
+  final bool from;
+  final bool to;
+  final bool departure;
+  final bool arrival;
+  final bool std;
+  final bool sta;
+  final bool pos;
+  final bool dos;
+  final bool ticket;
+  final bool flightType;
 
   FlightFields({
-    this.flightNumber,
-    this.airline,
-    this.from,
-    this.to,
-    this.departure,
-    this.arrival,
-    this.std,
-    this.sta,
-    this.pos,
-    this.dos,
-    this.ticket,
-    this.flightType,
+    this.flightNumber =false,
+    this.airline=false,
+    this.from=false,
+    this.to=false,
+    this.departure=false,
+    this.arrival=false,
+    this.std=false,
+    this.sta=false,
+    this.pos=false,
+    this.dos=false,
+    this.ticket=false,
+    this.flightType=false,
   });
 
   FlightFields copyWith({
@@ -458,18 +458,18 @@ class FlightFields {
 }
 
 class PassengerFields {
-  final bool? notionality;
-  final bool? resident;
-  final bool? gender;
-  final bool? birthPlace;
-  final bool? birthDate;
+  final bool notionality;
+  final bool resident;
+  final bool gender;
+  final bool birthPlace;
+  final bool birthDate;
 
   PassengerFields({
-    this.notionality,
-    this.resident,
-    this.gender,
-    this.birthPlace,
-    this.birthDate,
+    this.notionality = false,
+    this.resident = false,
+    this.gender = false,
+    this.birthPlace = false,
+    this.birthDate = false,
   });
 
   PassengerFields copyWith({
@@ -505,20 +505,20 @@ class PassengerFields {
 }
 
 class DocumentFields {
-  final bool? code;
-  final bool? issuedIn;
-  final bool? notionality;
-  final bool? expiryDate;
-  final bool? birthDate;
-  final bool? documentNumber;
+  final bool code;
+  final bool issuedIn;
+  final bool notionality;
+  final bool expiryDate;
+  final bool birthDate;
+  final bool documentNumber;
 
   DocumentFields({
-    this.code,
-    this.issuedIn,
-    this.notionality,
-    this.expiryDate,
-    this.birthDate,
-    this.documentNumber,
+     this.code = false,
+     this.issuedIn= false,
+     this.notionality= false,
+     this.expiryDate= false,
+     this.birthDate= false,
+     this.documentNumber= false,
   });
 
   DocumentFields copyWith({
