@@ -41,7 +41,7 @@ class AddUserRequest extends RequestInterface {
     "middlename": null,
     "lastname":lastname.pureValue,
     "permission":permissions.toRootJson()["permission"],
-    "attribute":attributes,
+    "attributes":attributes,
   };
 
   Failure? validate(){

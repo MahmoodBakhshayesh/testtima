@@ -68,17 +68,17 @@ class _EditUserDialogState extends State<EditUserDialog> {
       final permissions = myUsersController.ref.read(userProvider)!.permission;
       BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).forEach((att){
         if(att.type == "string"){
-          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute.toJson()[att.name]));
+          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]));
         }else if(att.type =="enum"){
-          attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute.toJson()[att.name]);
+          attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute[att.name]);
         }else if(att.type =="date"){
-          attributes.putIfAbsent(att.name, ()=>DateTime.tryParse(widget.user.userAttribute.toJson()[att.name]));
+          attributes.putIfAbsent(att.name, ()=>DateTime.tryParse(widget.user.userAttribute[att.name]));
         }else if(att.type =="boolean"){
-          attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute.toJson()[att.name])??false);
+          attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute[att.name])??false);
         }else if(att.type =="number"){
-          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute.toJson()[att.name]?.toString()));
+          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
         }else if(att.type =="float"){
-          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute.toJson()[att.name]?.toString()));
+          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
         }
       });
       // tmp = permissions.where((p) => widget.user.permission.map((pp) => pp.id).contains(p.id)).map((a) {

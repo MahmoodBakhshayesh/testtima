@@ -15,7 +15,7 @@ class People {
   String? lastname;
   bool enable;
   bool hasImage;
-  UserAttribute userAttribute;
+  Map<String,dynamic> userAttribute;
   UserPermission userPermission;
 
   People({required this.uId, required this.username,required this.userAttribute, required this.email, required this.hasImage, required this.firstname, required this.middlename, required this.lastname, required this.enable, required this.userPermission});
@@ -31,7 +31,7 @@ class People {
       lastname: json["lastname"],
       hasImage: json["hasImage"] ?? false,
       enable: json["enable"]??true,
-      userAttribute: UserAttribute.fromJson(json["attributes"]??{}),
+      userAttribute: json["attributes"]??{},
       userPermission: UserPermission.fromPermissionMap(json["permission"]??{}),
     );
     // log("-"*100);
@@ -50,7 +50,7 @@ class People {
     "middlename": middlename,
     "lastname": lastname,
     "enable": enable,
-    "attributes":userAttribute.toJson(),
+    "attributes":userAttribute,
     "permission": userPermission.toPermissionMap(),
   };
 

@@ -35,7 +35,7 @@ class EditUserRequest extends RequestInterface {
   Map<String, dynamic> toJson() =>{
     "enable":active,
     "permission":updatedPermission.toPermissionMap(),
-    "attribute":attributes
+    "attributes":attributes
   };
 
   Failure? validate(){

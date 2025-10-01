@@ -362,7 +362,7 @@ class ItinerarySegment {
   factory ItinerarySegment.empty() {
     return ItinerarySegment(
       arrival: ItinPoint(point: '', dateTime: DateTime.now()),
-      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '', dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.attributes["defaultAirport"] ?? '', dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,
       luggageCollected: true,
@@ -386,7 +386,7 @@ class ItinerarySegment {
 
   factory ItinerarySegment.emptyNoAirport() {
     return ItinerarySegment(
-      departure: ItinPoint(point: BasicClass.user?.attributes.defaultAirport ?? '', dateTime: DateTime.now()),
+      departure: ItinPoint(point: BasicClass.user?.attributes["defaultAirport"] ?? '', dateTime: DateTime.now()),
       arrival: ItinPoint(point: '', dateTime: DateTime.now()),
       processingEntity: "ABOMIS DOC CHECK",
       segmentType: SegmentType.entry,

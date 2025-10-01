@@ -34,7 +34,7 @@ class LoginEnvelope {
 class LoginData {
   final dynamic versionCheck; // can be null or any type
   final Profile profile;
-  final UserAttribute attributes;
+  final Map<String,dynamic> attributes;
   final bool setPassword;
   final String token;
   final String constDataVersion;
@@ -59,7 +59,7 @@ class LoginData {
   LoginData copyWith({
     dynamic versionCheck,
     Profile? profile,
-    UserAttribute? attributes,
+    Map<String,dynamic>? attributes,
     bool? setPassword,
     String? token,
     String? constDataVersion,
@@ -91,7 +91,7 @@ class LoginData {
     return LoginData(
       versionCheck: json['versionCheck'],
       profile: Profile.fromJson(json['profile'] ?? {}),
-      attributes: UserAttribute.fromJson(json['attribute'] ?? {}),
+      attributes: json['attributes'] ?? {},
       setPassword: json['setPassword'] ?? false,
       token: json['token'] ?? '',
       constDataVersion: json['constDataVersion'] ?? '',
@@ -105,7 +105,7 @@ class LoginData {
   Map<String, dynamic> toJson() => {
     'versionCheck': versionCheck,
     'profile': profile.toJson(),
-    'attribute': attributes.toJson(),
+    'attributes': attributes,
     'setPassword': setPassword,
     'token': token,
     'constDataVersion': constDataVersion,
@@ -162,28 +162,28 @@ class Profile {
     'username': username, 'email': email, 'firstname': firstname, 'middlename': middlename, 'defaultAirport': defaultAirport, 'lastname': lastname, 'hasImage': hasImage, 'gender': gender};
 }
 
-class UserAttribute {
-  final String? region;
-  final String? defaultAirport;
-  final String? type;
-  final String? defaultLanguage;
-  final bool? rtlLanguage;
-
-  UserAttribute({this.region, this.defaultAirport, this.type, this.defaultLanguage, this.rtlLanguage});
-
-  UserAttribute copyWith({String? region, String? defaultAirport, String? type, String? defaultLanguage, bool? rtlLanguage}) => UserAttribute(
-    region: region ?? this.region,
-    defaultAirport: defaultAirport ?? this.defaultAirport,
-    type: type ?? this.type,
-    defaultLanguage: defaultLanguage ?? this.defaultLanguage,
-    rtlLanguage: rtlLanguage ?? this.rtlLanguage,
-  );
-
-  factory UserAttribute.fromJson(Map<String, dynamic> json) =>
-      UserAttribute(region: json["region"], defaultAirport: json["defaultAirport"], type: json["type"], defaultLanguage: json["defaultLanguage"], rtlLanguage: json["rtlLanguage"]);
-
-  Map<String, dynamic> toJson() => {"region": region, "defaultAirport": defaultAirport, "type": type, "defaultLanguage": defaultLanguage, "rtlLanguage": rtlLanguage};
-}
+// class UserAttribute {
+//   final String? region;
+//   final String? defaultAirport;
+//   final String? type;
+//   final String? defaultLanguage;
+//   final bool? rtlLanguage;
+//
+//   UserAttribute({this.region, this.defaultAirport, this.type, this.defaultLanguage, this.rtlLanguage});
+//
+//   UserAttribute copyWith({String? region, String? defaultAirport, String? type, String? defaultLanguage, bool? rtlLanguage}) => UserAttribute(
+//     region: region ?? this.region,
+//     defaultAirport: defaultAirport ?? this.defaultAirport,
+//     type: type ?? this.type,
+//     defaultLanguage: defaultLanguage ?? this.defaultLanguage,
+//     rtlLanguage: rtlLanguage ?? this.rtlLanguage,
+//   );
+//
+//   factory UserAttribute.fromJson(Map<String, dynamic> json) =>
+//       UserAttribute(region: json["region"], defaultAirport: json["defaultAirport"], type: json["type"], defaultLanguage: json["defaultLanguage"], rtlLanguage: json["rtlLanguage"]);
+//
+//   Map<String, dynamic> toJson() => {"region": region, "defaultAirport": defaultAirport, "type": type, "defaultLanguage": defaultLanguage, "rtlLanguage": rtlLanguage};
+// }
 
 class Device {
   final bool? multiuser;
