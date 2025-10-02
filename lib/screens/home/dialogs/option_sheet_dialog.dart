@@ -27,6 +27,7 @@ import 'package:abds/widgets/drawer_action.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
@@ -115,6 +116,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                           child: Column(
                             spacing: 8,
                             children: [
+                              ?ref.watch(currentStatusProvider).canAskSupervisor?
                               DrawerAction(
                                 tileColor: MyColors.mainBlue,
                                 title: "Ask Supervisor",
@@ -124,6 +126,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
 
                                   String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                   if (logId != null) {
+                                    Navigator.pop(context);
                                     showModalBottomSheet(
                                       context: context,
                                       builder: (BuildContext context) {
@@ -135,13 +138,14 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                   }
                                 },
                                 leadingIcon: ArtemisIcons.message_question,
-                              ),
+                              ):null,
                               DrawerAction(
                                 tileColor: MyColors.mainBlue,
                                 title: "Station Manager Approval",
                                 onTap: () async {
                                   String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                   if (logId != null) {
+                                    Navigator.pop(context);
                                     showModalBottomSheet(
                                       context: context,
                                       enableDrag: false,

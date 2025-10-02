@@ -75,6 +75,8 @@ class FlightWidget extends ConsumerWidget {
                   if (segments.length == 1) {
                     ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
                   } else {
+
+                    ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 2,ref.read(segmentsProvider)[ref.read(segmentsProvider).length - 2].copyWith(segmentType: SegmentType.entry,luggageCollected: true));
                     ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
                   }
                 },
@@ -219,6 +221,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     controller: controller,
                     label: "Flight#",
                     required: true,
+                    openNumberSheet: true,
                     keyboardType: TextInputType.numberWithOptions(signed: true),
                     placeholder: "Number",
                     rowLabelRatio: [3, 5],

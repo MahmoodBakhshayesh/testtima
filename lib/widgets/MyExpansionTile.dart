@@ -134,7 +134,7 @@ class MyExpansionTile extends StatefulWidget {
     this.clipBehavior,
     this.controlAffinity,
     this.controller,
-    this.dense,
+    this.dense = true,
     this.visualDensity,
     this.minTileHeight,
     this.footerExtra,
@@ -472,6 +472,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
   static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
   static final Animatable<double> _easeOutTween = CurveTween(curve: Curves.easeOut);
   static final Animatable<double> _halfTween = Tween<double>(begin: 0.0, end: 0.5);
+  static final Animatable<double> _quartTween = Tween<double>(begin: 0.0, end: 0.25);
 
   final ShapeBorderTween _borderTween = ShapeBorderTween();
   final ColorTween _headerColorTween = ColorTween();
@@ -556,8 +557,17 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
     );
   }
 
+  Widget? _buildIconLead(BuildContext context, Animation<double> animation) {
+    _iconTurns = animation.drive(_quartTween.chain(_easeInTween));
+
+    return RotationTransition(
+      turns: _iconTurns,
+      child: Icon(Icons.arrow_right, color: Colors.blueAccent),
+    );
+  }
+
   Widget? _buildLeadingIcon(BuildContext context, Animation<double> animation) {
-    return _buildIcon(context, animation);
+    return _buildIconLead(context, animation);
   }
 
   Widget? _buildTrailingIcon(BuildContext context, Animation<double> animation) {
@@ -591,6 +601,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
         iconColor: _iconColor.value ?? _expansionTileTheme.iconColor,
         textColor: _headerColor.value,
         child: ListTile(
+
           enabled: widget.enabled,
           onTap: !widget.tapOnTitleActive?null:_tileController.isExpanded ? _tileController.collapse : _tileController.expand,
           dense: widget.dense,
@@ -602,13 +613,15 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
             _buildLeadingIcon(context, animation)!,
             Expanded(child: widget.title)
           ],):widget.title,
-          subtitle: _tileController.isExpanded ? SizedBox() : widget.childPreview,
+          subtitle: _tileController.isExpanded ?null : widget.childPreview,
           trailing: widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation) : null,
-          minTileHeight: widget.minTileHeight,
+          // minTileHeight: widget.minTileHeight,
           // leading: widget.showLeadingIcon?_buildLeadingIcon(context, animation) : null,
+
 
           internalAddSemanticForOnTap: widget.internalAddSemanticForOnTap,
         ),
+        // child: ListTile()
       ),
     );
   }

@@ -67,13 +67,14 @@ class LoginController extends ControllerInterface {
         // timaticApi.setToken(user!.token);
         // log("${user.profile.username}");
         final constData = await loadConstantData(user.constDataVersion);
-        if(constData == null){
+        if (constData == null) {
           return null;
         }
         // return null;
 
         BasicClass.initialize(user);
         BasicClass.setVersionedConstData(constData);
+
         ///todo preload basic data tData
         saveLoginData(username: username, password: password);
         ref.read(userProvider.notifier).update((s) => user);
@@ -322,31 +323,58 @@ class LoginController extends ControllerInterface {
   }
 
   Future<VersionedConstantData?> loadConstantData(String constantVersion) async {
-    final String? constJson = await sharedPref.getVariable(key: "constantData");
-    if(constJson == null){
-      final newConst = await getConstantData(constantVersion);
-      if(newConst != null){
-        return newConst;
-      }else{
-        return null;
-      }
-    }else{
+    VersionedConstantData? cached = await loadCachedConstData();
+    cached ??= await getConstantData(constantVersion);
+    if (cached == null) return null;
+    BasicClass.setVersionedConstData(cached);
+    if (constantVersion.compareTo(cached.version) > 0) {
+      cached = await getConstantData(constantVersion);
+    } else {
+      log("no need to get const data");
+    }
+    return cached;
+    // final String? constJson = await sharedPref.getVariable(key: "constantData");
+    // if(constJson == null){
+    //   final newConst = await getConstantData(constantVersion);
+    //   if(newConst != null){
+    //     return newConst;
+    //   }else{
+    //     return null;
+    //   }
+    // }else{
+    //   VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
+    //   BasicClass.setVersionedConstData(constantData);
+    //   log("new const version is ${constantVersion} and saved version is ${constantData.version} --> ${constantVersion.compareTo("20250924150831")}");
+    //   if(constantVersion.compareTo(constantData.version)>0){
+    //     getConstantData(constantVersion);
+    //   }else{
+    //     log("no need to get const data");
+    //   }
+    //   return constantData;
+    // }
+  }
+
+  Future<VersionedConstantData?> loadCachedConstData() async {
+    String key = "${ref.read(selectedServerProvider).id}/${getIt<AppDeviceNetworkData>().app.versionKey}/constantData";
+    log("CachedConstData key $key");
+    final String? constJson = await sharedPref.getVariable(key: key);
+    if (constJson != null) {
       VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
-      BasicClass.setVersionedConstData(constantData);
-      log("new const version is ${constantVersion} and saved version is ${constantData.version} --> ${constantVersion.compareTo("20250924150831")}");
-      if(constantVersion.compareTo(constantData.version)>0){
-        getConstantData(constantVersion);
-      }else{
-        log("no need to get const data");
-      }
       return constantData;
     }
+    return null;
+  }
+
+  catchConstData(VersionedConstantData data) async {
+    String key = "${ref.read(selectedServerProvider).id}/${getIt<AppDeviceNetworkData>().app.versionKey}/constantData";
+    log("CachedConstData key $key");
+    await sharedPref.setVariable(key: key, value: jsonEncode(data.toJson()));
   }
 
   Future<VersionedConstantData?> getConstantData(String? consVersion) async {
     VersionedConstantData? constData;
     GetConsDataUseCase getConstantDataUseCase = GetConsDataUseCase();
-    GetConsDataRequest getConsDataRequest = GetConsDataRequest(constVersion: consVersion??'');
+    GetConsDataRequest getConsDataRequest = GetConsDataRequest(constVersion: consVersion ?? '');
     final result = await getConstantDataUseCase(request: getConsDataRequest);
 
     switch (result) {
@@ -357,8 +385,9 @@ class LoginController extends ControllerInterface {
         final r = result.value;
         constData = r.constantData;
         BasicClass.setVersionedConstData(r.constantData);
-        await sharedPref.setVariable(key: "constantData", value: jsonEncode(r.constantData.toJson()));
-        log("got and saved constant data version ${constData!.version}");
+        catchConstData(r.constantData);
+        // await sharedPref.setVariable(key: "constantData", value: jsonEncode(r.constantData.toJson()));
+        // log("got and saved constant data version ${constData!.version}");
     }
 
     return constData;
@@ -366,6 +395,6 @@ class LoginController extends ControllerInterface {
 
   Future<void> loadSupervisors() async {
     final supervisors = await getIt<HomeController>().getSupervisors();
-    ref.read(supervisorsProvider.notifier).update((s)=>supervisors??s);
+    ref.read(supervisorsProvider.notifier).update((s) => supervisors ?? s);
   }
 }

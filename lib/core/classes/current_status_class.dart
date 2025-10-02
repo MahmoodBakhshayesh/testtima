@@ -1,6 +1,6 @@
 class CurrentStatus {
   final List<StatusSupervisor>? supervisor;
-  final int? status;
+  final int status;
   final bool? read;
   final String? airline;
   final String? employeeId;
@@ -14,7 +14,7 @@ class CurrentStatus {
 
   CurrentStatus({
     this.supervisor,
-    this.status,
+    this.status = 0,
     this.read,
     this.airline,
     this.employeeId,
@@ -71,7 +71,10 @@ class CurrentStatus {
     user: json["user_"],
   );
 
-  bool get isLocked => status ==1;
+  bool get isLocked => status! >=1;
+  bool get canUnlock => status! <2;
+  bool get canAskSupervisor => status! <2;
+  bool get canUseOption => status! <3;
 
 
   Map<String, dynamic> toJson() => {

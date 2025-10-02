@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-
+import 'package:http/http.dart' as http;
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:network_manager/network_manager.dart';
@@ -56,8 +56,12 @@ class NetworkManagerImp implements NetworkManagerInterface {
       // log("${networkResponse.responseCode}");
       // log("${networkResponse.responseDetails}");
       // log("*"*20);
-      if(networkResponse.responseCode == -404){
-        throw ServerException(code: networkResponse.responseCode, message: "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      if (networkResponse.responseCode == -404) {
+        String? msg;
+        if (networkResponse.responseDetails is http.Response) {
+          msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+        }
+        throw ServerException(code: networkResponse.responseCode, message: msg ?? "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
       }
       String? errorMsg;
       if (networkResponse.responseBody is Map<String, dynamic>) {
@@ -94,9 +98,8 @@ class NetworkManagerImp implements NetworkManagerInterface {
 
     // log(jsonEncode(networkRequest.options.headers));
     NetworkResponse networkResponse = await networkRequest.get();
-    if(networkResponse.responseDetails is dio.Response){
+    if (networkResponse.responseDetails is dio.Response) {
       log("${(networkResponse.responseDetails as dio.Response).data}-- ${networkResponse.status}");
-
     }
     if (networkResponse.status) {
       try {
@@ -107,11 +110,12 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      log("*"*100);
-      log("${networkResponse.responseCode}");
-      log("*"*100);
-      if(networkResponse.responseCode == -404 || networkResponse.responseCode == -100){
-        throw ServerException(code: networkResponse.responseCode, message: "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      if (networkResponse.responseCode == -404) {
+        String? msg;
+        if (networkResponse.responseDetails is http.Response) {
+          msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+        }
+        throw ServerException(code: networkResponse.responseCode, message: msg ?? "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
       }
       String? errorMsg;
       if (networkResponse.responseBody is Map<String, dynamic>) {
@@ -157,6 +161,13 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
+      if (networkResponse.responseCode == -404) {
+        String? msg;
+        if (networkResponse.responseDetails is http.Response) {
+          msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+        }
+        throw ServerException(code: networkResponse.responseCode, message: msg ?? "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      }
       String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
 
       throw ServerException(code: networkResponse.responseCode, message: errorMsg ?? networkResponse.extractedMessage!, trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
@@ -193,8 +204,12 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      if(networkResponse.responseCode == -404){
-        throw ServerException(code: networkResponse.responseCode, message: "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      if (networkResponse.responseCode == -404) {
+        String? msg;
+        if (networkResponse.responseDetails is http.Response) {
+          msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+        }
+        throw ServerException(code: networkResponse.responseCode, message: msg ?? "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
       }
       String? errorMsg = jsonDecode(networkResponse.responseBody)["message"];
 
@@ -232,8 +247,12 @@ class NetworkManagerImp implements NetworkManagerInterface {
         throw ParseException(message: e.toString(), trace: trace);
       }
     } else {
-      if(networkResponse.responseCode == -404){
-        throw ServerException(code: networkResponse.responseCode, message: "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
+      if (networkResponse.responseCode == -404) {
+        String? msg;
+        if (networkResponse.responseDetails is http.Response) {
+          msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+        }
+        throw ServerException(code: networkResponse.responseCode, message: msg ?? "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
       }
       String? errorMsg;
       if (networkResponse.responseBody is String) {

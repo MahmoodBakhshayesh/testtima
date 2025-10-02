@@ -241,6 +241,7 @@ class DocumentDetail {
 
   DocumentFields get getRequiredFields {
     DocumentFields required = DocumentFields();
+    if(BasicClass.constData.data.mandatory == null ) return required;
     if (shortType == "P") {
       required = BasicClass.constData.data.mandatory!.passport!;
     } else if (shortType == "V") {
@@ -252,6 +253,8 @@ class DocumentDetail {
   }
 
   bool hasAllRequired() {
+    if(BasicClass.constData.data.mandatory == null ) return true;
+
     DocumentFields required = getRequiredFields;
 
     final bDate = !required.birthDate || birthDate != null;
@@ -412,6 +415,7 @@ class ItinerarySegment {
   };
 
   bool hasAllRequired() {
+    if(BasicClass.constData.data.mandatory == null ) return true;
     FlightFields required = BasicClass.constData.data.mandatory!.flight!;
 
     final from = !required.from || departure.point.isNotEmpty;
@@ -491,6 +495,8 @@ class PassengerDetails {
   Map<String, dynamic> toJson() => {'birthDate': formatDate(birthDate), 'nationality': nationality?.code3, 'birthCountry': birthCountry?.code3, 'gender': gender?.value, 'residentCountryCode': residentCountryCode?.code3};
 
   bool hasAllRequired() {
+    if(BasicClass.constData.data.mandatory == null ) return true;
+
     PassengerFields required = BasicClass.constData.data.mandatory!.passenger!;
 
     final bDate = !required.birthDate || birthDate != null;

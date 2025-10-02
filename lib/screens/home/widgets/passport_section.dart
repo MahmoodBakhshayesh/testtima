@@ -192,6 +192,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   rowLabelRatio: [12, 33],
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
+                  valueToString: (v)=>v.name,
                   items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
@@ -219,7 +220,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(residentCountryCode: s.residentCountryCode ?? a));
+                          // ref.read(passengerProvider.notifier).update((s) => s.copyWith(residentCountryCode: s.residentCountryCode ?? a));
                         },
                       ),
                     ),

@@ -188,6 +188,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   // valueToString: docCodeToString,
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
+                  valueToString: (v)=>v.name,
                   items: BasicClass.constData.data.documentCode.where((a)=>validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {

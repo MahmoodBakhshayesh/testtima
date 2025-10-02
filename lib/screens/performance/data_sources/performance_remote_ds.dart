@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:artemis_utils/artemis_utils.dart';
 
 import '../../../core/interface_implementations/network_manager_imp.dart';
@@ -16,7 +18,8 @@ class PerformanceRemoteDataSource implements PerformanceDataSourceInterface {
 
   @override
   Future<GetReportResponse> getReport({required GetReportRequest request}) async {
-    String api = "/report?${request.fromDate==null?'':'startDT${request.fromDate.format_yyyyMMdd}&'}${request.toDate==null?'':'endDT${request.toDate.format_yyyyMMdd}&'}${request.from==null?'':'from${request.from}&'}${request.to==null?'':'to${request.to}'}";
+    String api = "/report?${request.fromDate==null?'':'startDT=${request.fromDate.format_yyyyMMdd}&'}${request.toDate==null?'':'endDT=${request.toDate.format_yyyyMMdd}&'}${request.from==null?'':'from=${request.from}&'}${request.to==null?'':'to=${request.to}'}";
+    log(api);
     ResponseInterface res = await networkManager.get(api);
     GetReportResponse response = await Parser().parse(GetReportResponse.fromResponse, res, executionReq: request);
     return response;

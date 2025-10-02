@@ -80,22 +80,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
               final passports = ref.watch(passportsProvider);
               final passengerDetails = ref.watch(passengerProvider);
               final segments = ref.watch(segmentsProvider);
-              return FigmaGlass(
-                // height: 124 + (resultMode ? additionalHeight : 0),
-                child: Container(
-                  padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
-                  width: context.width,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [MyColors.mainBlue.withOpacity(0.18), MyColors.mainBlue.withOpacity(0.02)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 24),
-                      HeaderSummaryWidget()
-                    ],
-                  ),
-                ),
-              );
+              return  HeaderSummaryWidget(header:  const SizedBox(height: 24),);
 
             },
           ),

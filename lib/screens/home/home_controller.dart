@@ -77,7 +77,6 @@ class HomeController extends ControllerInterface {
     ref.read(segmentsProvider.notifier).resetFirst();
     // ref.read(segmentsProvider.notifier).removeAll();
 
-
     ref.read(showWarningsProvider.notifier).update((s) => true);
     ref.read(passNumberInVisaProvider.notifier).update((s) => false);
     ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
@@ -91,29 +90,15 @@ class HomeController extends ControllerInterface {
   }
 
   Future<void> setAirportDialog(BuildContext context) async {
-    final current = BasicClass.constData.data.airport.firstWhereOrNull((a) =>
-    a.code3 == ref
-        .read(userProvider)
-        ?.profile
-        .defaultAirport);
+    final current = BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == ref.read(userProvider)?.profile.defaultAirport);
     final newVal = await showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
         return Padding(
           // This moves content above the keyboard
-          padding: EdgeInsets.only(bottom: MediaQuery
-              .of(context)
-              .viewInsets
-              .bottom),
-          child: PickerSheetWidget(value: current,
-              hasClear: false,
-              searchAutoFocus: false,
-              searchBuilder: null,
-              items: BasicClass.constData.data.airport,
-              label: "Airport",
-              itemToWidget: null,
-              hasSearch: true),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: PickerSheetWidget(value: current, hasClear: false, searchAutoFocus: false, searchBuilder: null, items: BasicClass.constData.data.airport, label: "Airport", itemToWidget: null, hasSearch: true),
         );
         // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
       },
@@ -134,7 +119,7 @@ class HomeController extends ControllerInterface {
     goNamed(Routes.mrzReader).then((a) {
       if (ref.read(confirmingDocumentProvider) != null) {
         Future(() {
-          navigation.openDialog(dialog: ConfirmScannedDocDialog(),barrierDismissible: false).then((v) {
+          navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false).then((v) {
             if (v == true) {
               addConfirmingDocument();
             } else {
@@ -160,14 +145,10 @@ class HomeController extends ControllerInterface {
     if (doc.isPassport) {
       int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
       if (emptyIndex == -1) {
-        if (ref
-            .read(passportsProvider)
-            .isEmpty) {
+        if (ref.read(passportsProvider).isEmpty) {
           ref.read(passportsProvider.notifier).add(doc);
         } else {
-          int lastIndex = ref
-              .read(passportsProvider)
-              .length - 1;
+          int lastIndex = ref.read(passportsProvider).length - 1;
           ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
         }
       } else {
@@ -257,7 +238,7 @@ class HomeController extends ControllerInterface {
       case Ok<GetRefCodeLogResponse>():
         final r = result.value;
         historyLog = r.history;
-        ref.read(currentStatusProvider.notifier).update((s)=>r.currentStatus);
+        ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
         fillWithRefHistory(r.history, code);
     }
 
@@ -269,7 +250,7 @@ class HomeController extends ControllerInterface {
     final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') != ("timaticCheck")).toList();
     ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
     if (timaticReqLog != null) {
-      bool locked = timaticReqLog.payload?.locked ==1;
+      bool locked = timaticReqLog.payload?.locked == 1;
       Map<String, dynamic> input = jsonDecode(timaticReqLog.payload?.input ?? "{}");
       Map<String, dynamic> output = jsonDecode(timaticReqLog.payload?.output ?? "{}");
       log("is Locked ==>${locked}");
@@ -308,28 +289,13 @@ class HomeController extends ControllerInterface {
       //   log("${a.getMatch()?.type} ${a.docCode}");
       //   return a.getMatch()?.type == "P";
       // }).toList();
-      final passes = allDocs.where((a) =>
-      a
-          .getMatch()
-          ?.type == "P").toList();
-      final visas = allDocs.where((a) =>
-      a
-          .getMatch()
-          ?.type == "V").toList();
-      final residents = allDocs.where((a) =>
-      a
-          .getMatch()
-          ?.type == "I").toList();
+      final passes = allDocs.where((a) => a.getMatch()?.type == "P").toList();
+      final visas = allDocs.where((a) => a.getMatch()?.type == "V").toList();
+      final residents = allDocs.where((a) => a.getMatch()?.type == "I").toList();
 
-      log("AllDoces ${allDocs.map((a) =>
-      a
-          .getMatch()
-          ?.type)}");
+      log("AllDoces ${allDocs.map((a) => a.getMatch()?.type)}");
       log("Passes ${passes.length} -- Visas${visas.length} -- Residents${residents.length}");
-      final others = allDocs.where((a) =>
-      !["V", "I", "P"].contains(a
-          .getMatch()
-          ?.type)).toList();
+      final others = allDocs.where((a) => !["V", "I", "P"].contains(a.getMatch()?.type)).toList();
       final allSegs = List<ItinerarySegment>.from(
         (input["itineraryDetails"]['segments']).map((s) {
           return ItinerarySegment.regenerateFromJson(s);
@@ -367,17 +333,12 @@ class HomeController extends ControllerInterface {
     // Text data (can also be a JSON string)
     final textData = "your text or json here";
     List<String> images = ref.read(attachingPhotoPathProvider);
-    final imageFiles = await Future.wait(images.map((path) async =>
-    await MultipartFile.fromFile(path, filename: path
-        .split('/')
-        .last)));
+    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
     final formData = FormData.fromMap({
       "images": imageFiles, // multiple images
       "data": jsonEncode({"logNoteType": noteType, "description": desc}),
     });
-    String api = "${ref
-        .read(selectedServerProvider)
-        .apiAddress}/logs/$logId";
+    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
 
     try {
       final response = await dio.post(
@@ -391,6 +352,8 @@ class HomeController extends ControllerInterface {
       } else {
         FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
       }
+      final currentStatus = CurrentStatus.fromJson(response.data["response"]["result"]);
+      ref.read(currentStatusProvider.notifier).update((s)=>currentStatus);
       log("Response: ${response.data}");
       return result;
     } catch (e) {
@@ -412,23 +375,15 @@ class HomeController extends ControllerInterface {
     bool result = false;
     final dio = Dio();
 
-    final imageFiles = await Future.wait(images.map((path) async =>
-    await MultipartFile.fromFile(path, filename: path
-        .split('/')
-        .last)));
-    final voiceFiles = await Future.wait(voices.map((path) async =>
-    await MultipartFile.fromFile(path, filename: path
-        .split('/')
-        .last)));
+    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
     final attachings = [...imageFiles, ...voiceFiles];
     log("\n${[...images, ...voices].join("\n")}\n to $logId");
     final formData = FormData.fromMap({
       "attachFiles": attachings, // multiple images
       "data": jsonEncode(data),
     });
-    String api = "${ref
-        .read(selectedServerProvider)
-        .apiAddress}/logs/$logId/attach";
+    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId/attach";
     try {
       final response = await dio.post(
         api,
@@ -444,6 +399,8 @@ class HomeController extends ControllerInterface {
       log("Response: ${response.data}");
       final logs = List<RefHistoryLog>.from((response.data["response"]["logs"].map((a) => RefHistoryLog.fromJson(a))));
       ref.read(showingLogsProvider.notifier).update((s) => [...logs, ...s]);
+      final currentStatus = CurrentStatus.fromJson(response.data["response"]["result"]);
+      ref.read(currentStatusProvider.notifier).update((s) => currentStatus);
       return result;
     } catch (e) {
       log("Error: $e");
@@ -457,9 +414,7 @@ class HomeController extends ControllerInterface {
     final dio = Dio();
 
     // final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final signFile = await MultipartFile.fromFile(sign, filename: sign
-        .split('/')
-        .last);
+    final signFile = await MultipartFile.fromFile(sign, filename: sign.split('/').last);
     // final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
     // final attachings = [...imageFiles, ...voiceFiles];
     // log("\n${[...images, ...voices].join("\n")}\n to $logId");
@@ -467,9 +422,7 @@ class HomeController extends ControllerInterface {
       "sign": signFile, // multiple images
       "data": jsonEncode(data),
     });
-    String api = "${ref
-        .read(selectedServerProvider)
-        .apiAddress}/logs/$logId/airlineApproval";
+    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId/airlineApproval";
     try {
       final response = await dio.post(
         api,
@@ -485,6 +438,8 @@ class HomeController extends ControllerInterface {
       log("Response: ${response.data}");
       final logs = List<RefHistoryLog>.from((response.data["response"]["logs"].map((a) => RefHistoryLog.fromJson(a))));
       ref.read(showingLogsProvider.notifier).update((s) => [...logs, ...s]);
+      final currentStatus = CurrentStatus.fromJson(response.data["response"]["result"]);
+      ref.read(currentStatusProvider.notifier).update((s) => currentStatus);
       return result;
     } catch (e) {
       log("Error: $e");
@@ -504,9 +459,7 @@ class HomeController extends ControllerInterface {
     final Directory appDir = await getApplicationDocumentsDirectory();
 
     /// Generate Image Name
-    final String imageName = url
-        .split('/')
-        .last;
+    final String imageName = url.split('/').last;
 
     /// Create Empty File in app dir & fill with new image
     final File file = File(appDir.path + "/${imageName.replaceAll(".enc", ".m4a")}");
@@ -623,7 +576,7 @@ class HomeController extends ControllerInterface {
         // translated.status = ref.read(timaticResultProvider)?.status;
         ref.read(timaticResultNewProvider.notifier).update((s) => translated!.setStatus(1));
         navigation.pop();
-    // navigation.openDialog(dialog: TranslatedResponseDialog(translated: r.translated));
+      // navigation.openDialog(dialog: TranslatedResponseDialog(translated: r.translated));
     }
 
     return translated;
@@ -642,8 +595,8 @@ class HomeController extends ControllerInterface {
       case Ok<SetStatusResponseResponse>():
         final r = result.value;
         res = r.isSuccess;
-        ref.read(currentStatusProvider.notifier).update((s)=>r.currentStatus);
-        // ref.read(timaticResultNewProvider.notifier).update((s) => s?.setStatus(1));
+        ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
+      // ref.read(timaticResultNewProvider.notifier).update((s) => s?.setStatus(1));
     }
 
     return res;
@@ -654,12 +607,12 @@ class HomeController extends ControllerInterface {
     if (id != null) {
       List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
       final timResult = await checkTimatic(
-          DocumentRequest(
-            documentDetails: ddl,
-            itineraryDetails: ItineraryDetails(segments: ref.read(segmentsProvider)),
-            passengerDetails: ref.read(passengerProvider),
-          ),
-          employeeId: id
+        DocumentRequest(
+          documentDetails: ddl,
+          itineraryDetails: ItineraryDetails(segments: ref.read(segmentsProvider)),
+          passengerDetails: ref.read(passengerProvider),
+        ),
+        employeeId: id,
       );
       return timResult;
     } else {
@@ -679,6 +632,7 @@ class HomeController extends ControllerInterface {
       case Ok<AskSupervisorResponse>():
         final r = result.value;
         ref.read(showingLogsProvider.notifier).update((s) => [...r.logs, ...s]);
+        ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
         return true;
     }
     return false;
@@ -699,7 +653,7 @@ class HomeController extends ControllerInterface {
     }
   }
 
-  Future<FlightHistoryData?> getFlightNumberHistory(String flnb,{required int index}) async {
+  Future<FlightHistoryData?> getFlightNumberHistory(String flnb, {required int index}) async {
     FlightHistoryData? history;
     FlightNumberHistoryUseCase getFlightNumberHistoryUseCase = FlightNumberHistoryUseCase();
     FlightNumberHistoryRequest flightNumberHistoryRequest = FlightNumberHistoryRequest(flnb: flnb);
@@ -714,32 +668,38 @@ class HomeController extends ControllerInterface {
         // history = r.historyData;
         if (r.historyData.isNotEmpty) {
           history = r.historyData.last;
-          ref.read(segmentsProvider.notifier).updateAt(index, ref.read(segmentsProvider)[index].copyWith(
-            arrival: ItinPoint(point: history.to!),
-            departure: ItinPoint(point: history.from!),
-            operatingCarrier: BasicClass.getAirlineWithCode(history.airline!)
-          ));
-
+          ref
+              .read(segmentsProvider.notifier)
+              .updateAt(
+                index,
+                ref
+                    .read(segmentsProvider)[index]
+                    .copyWith(
+                      arrival: ItinPoint(point: history.to!),
+                      departure: ItinPoint(point: history.from!),
+                      operatingCarrier: BasicClass.getAirlineWithCode(history.airline!),
+                    ),
+              );
         }
     }
 
     return history;
   }
 
-  void addManualDoc() async{
+  void addManualDoc() async {
     final added = await navigation.openBottomSheet(bottomSheet: ManualAddDocumentSheet());
     log("add ${added.runtimeType}");
-    if(added is DocumentDetail){
-      ref.read(confirmingDocumentProvider.notifier).update((s)=>added);
+    if (added is DocumentDetail) {
+      ref.read(confirmingDocumentProvider.notifier).update((s) => added);
       log("add ${added.runtimeType}");
-      final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(),barrierDismissible: false);
-      if(addRes == true){
+      final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
+      if (addRes == true) {
         addConfirmingDocument();
-      }else{
-        ref.read(confirmingDocumentProvider.notifier).update((s)=>null);
+      } else {
+        ref.read(confirmingDocumentProvider.notifier).update((s) => null);
       }
     }
   }
 
-// UseCase UseCase = UseCase(repository: Repository());
+  // UseCase UseCase = UseCase(repository: Repository());
 }

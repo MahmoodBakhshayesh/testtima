@@ -209,6 +209,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
+                  valueToString: (v)=>v.name,
                   // valueToString: docCodeToString,
                   items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   value: d.documentCode,

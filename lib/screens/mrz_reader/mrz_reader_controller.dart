@@ -218,7 +218,7 @@ class MrzReaderController extends ControllerInterface {
   //   // }
   // }
 
-  void onReceivedConsensus(OcrMrzConsensus consensus){
+  void onReceivedConsensus(OcrMrzConsensus consensus) {
     OcrMrzSetting setting = ref.read(ocrMrzSettingProvider);
     // if(scanned.line2.isEmpty){
     //   return;
@@ -226,23 +226,22 @@ class MrzReaderController extends ControllerInterface {
 
     final res = consensus.toResult();
     bool verified = false;
-    List<String> passNumbers = ref.read(passportsProvider).map((a)=>a.documentNumber??'').where((a)=>a.isNotEmpty).toList();
-    verified = passNumbers.any((a)=>ocrMrzController.getAggregator.sessionScannedData(a));
+    List<String> passNumbers = ref.read(passportsProvider).map((a) => a.documentNumber ?? '').where((a) => a.isNotEmpty).toList();
+    verified = passNumbers.any((a) => ocrMrzController.getAggregator.sessionScannedData(a));
     if (setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
-
       // if(ocrMrzController.getAggregator.sessionScannedData(data))
       // res.ocrData = scanned.ocrData;
 
       ref.read(improvingMrzResultProvider.notifier).update((s) => consensus);
       if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
         if (res.matchSetting(setting)) {
-          onDocScan(res,verified: verified);
+          onDocScan(res, verified: verified);
         }
       }
     } else if (setting.algorithm == ParseAlgorithm.method2) {
       if (ref.read(ocrMrzSettingProvider).algorithm != ParseAlgorithm.method3) {
         if (consensus.toResult().matchSetting(setting)) {
-          onDocScan(consensus.toResult(),verified: verified);
+          onDocScan(consensus.toResult(), verified: verified);
         }
       }
     }
@@ -250,7 +249,7 @@ class MrzReaderController extends ControllerInterface {
     return;
   }
 
-  void onDocScan(OcrMrzResult res,{bool verified = false}) {
+  void onDocScan(OcrMrzResult res, {bool verified = false}) {
     // return;
     try {
       if (popping) return;
@@ -267,14 +266,16 @@ class MrzReaderController extends ControllerInterface {
 
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
 
-      if (BasicClass.constData.data.documentDetailType.isNotEmpty && res.countryCode.length>1) {
+      if (BasicClass.constData.data.documentDetailType.isNotEmpty && res.countryCode.length > 1) {
         final match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
-          (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
+          // (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
+          (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
         );
+
         if (match != null) {
           docType = BasicClass.constData.data.documentCode.firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
         } else {
-          log("no mapper match for ${res.documentCode}");
+          log("no mapper match for ${res.documentCode} should type be ${res.documentCode.characters.first} and subtype be ${res.documentCode.characters.last} || ${res.documentCode.characters.last == "<"}");
         }
       } else {
         log("BasicClass.constData.documentTypeMappers is empty");
@@ -321,7 +322,7 @@ class MrzReaderController extends ControllerInterface {
         ocrText: res.ocrData.text,
         sex: res.sex,
         docCode: res.documentCode,
-        verifiedDocNum: verified
+        verifiedDocNum: verified,
       );
 
       log("*" * 100);

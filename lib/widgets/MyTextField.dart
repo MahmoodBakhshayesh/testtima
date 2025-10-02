@@ -49,6 +49,7 @@ class MyTextField extends StatefulWidget {
   final bool disabled;
   final bool labelInRow;
   final bool showError;
+  final bool openNumberSheet;
   final Color? validationColor;
   final Color? backgroundColor;
   final BorderRadius? radius;
@@ -66,6 +67,7 @@ class MyTextField extends StatefulWidget {
     this.backgroundColor,
     this.prevFn,
     this.labelInRow = false,
+    this.openNumberSheet = false,
     this.controller,
     this.labelStyle,
     this.focusNode,
@@ -283,7 +285,7 @@ class _MyTextFieldState extends State<MyTextField> {
                     Expanded(
                       child: TextField(
                         textInputAction: widget.textInputAction ?? TextInputAction.done,
-                        enabled: !widget.locked && !widget.disabled,
+                        enabled:!widget.openNumberSheet&&  !widget.locked && !widget.disabled,
                         maxLines: obscureText
                             ? 1
                             : widget.maxLines == 0

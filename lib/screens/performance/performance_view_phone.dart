@@ -53,11 +53,18 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
               children: [
                 Expanded(
                   flex: 3,
-                  child: MyDatePicker(onChanged: (a) {}, label: "Date Range", rowLabelRatio: [2, 4], placeholder: "From", backgroundColor: textFieldBG),
+                  child: MyDatePicker(onChanged: (a) {
+                    fromDate = a;
+                    setState((){});
+                  }, label: "Date Range", rowLabelRatio: [2, 4], placeholder: "From", backgroundColor: textFieldBG,value: fromDate,),
                 ),
                 Expanded(
                   flex: 2,
-                  child: MyDatePicker(onChanged: (a) {}, label: "", rowLabelRatio: [1, 100], placeholder: "Until", backgroundColor: textFieldBG),
+                  child: MyDatePicker(onChanged: (a) {
+                    toDate = a;
+                    setState((){});
+
+                  }, label: "", rowLabelRatio: [1, 100], placeholder: "Until", backgroundColor: textFieldBG,value: toDate,),
                 ),
               ],
             ),

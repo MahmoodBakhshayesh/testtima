@@ -20,9 +20,9 @@ class ItemsController extends StateNotifier<List<ItinerarySegment>> {
   }
 
   void updateAt(int index, ItinerarySegment item) {
-    if(state.isEmpty){
+    if (state.isEmpty) {
       state = [item];
-    }else {
+    } else {
       final next = [...state];
       next[index] = item;
       state = next;
@@ -33,13 +33,21 @@ class ItemsController extends StateNotifier<List<ItinerarySegment>> {
     final next = [ItinerarySegment.empty()];
     state = next;
   }
+
   void resetFirst() {
-    if(state.isEmpty){
+    if (state.isEmpty) {
       state = [ItinerarySegment.empty()];
     }
-    final next = [ItinerarySegment(
-
-        flnb: state.first.flnb,operatingCarrier: state.first.operatingCarrier,departure:state.first.departure.copyWith(dateTime: DateTime.now()),arrival: state.first.arrival.copyWith(dateTime: DateTime.now()))];
+    final next = [
+      ItinerarySegment(
+        luggageCollected: true,
+        segmentType: SegmentType.entry,
+        flnb: state.first.flnb,
+        operatingCarrier: state.first.operatingCarrier,
+        departure: state.first.departure.copyWith(dateTime: DateTime.now()),
+        arrival: state.first.arrival.copyWith(dateTime: DateTime.now()),
+      ),
+    ];
     state = next;
   }
 

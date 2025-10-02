@@ -8,6 +8,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import '../core/constants/ui.dart';
 import '../core/utils_and_services/keyboard/lib/keyboard_actions.dart';
 import '../core/utils_and_services/keyboard/lib/keyboard_actions_item.dart';
+import 'number_input_sheet.dart';
 
 class MyTextFieldNew extends StatefulWidget {
   final FocusNode? focusNode;
@@ -44,6 +45,7 @@ class MyTextFieldNew extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final bool showClearButton;
   final bool locked;
+  final bool openNumberSheet;
   final bool showLimit;
   final bool required;
   final bool disabled;
@@ -70,6 +72,7 @@ class MyTextFieldNew extends StatefulWidget {
     this.backgroundColor,
     this.prevFn,
     this.labelInRow = false,
+    this.openNumberSheet = false,
     this.controller,
     this.labelStyle,
     this.focusNode,
@@ -147,137 +150,153 @@ class _MyTextFieldNewState extends State<MyTextFieldNew> {
     bool hasError = (widget.validator?.call(widget.controller?.text ?? '') ?? '').isNotEmpty;
     bool requiredError = widget.required && (widget.controller?.text ?? '').isEmpty;
     Color validationColor = widget.validationColor ?? Colors.red;
-    return ClipRRect(
-      borderRadius: widget.radius ?? BorderRadius.circular(5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: widget.rowLabelRatio[0],
-            child: widget.label == null
-                ? const SizedBox()
-                : Container(
-                    height: widget.height,
-                    color: widget.headerBgColor,
-                    child: IgnorePointer(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            widget.label ?? '',
-                            style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
-                          ),
-                          widget.required
-                              ? Padding(
-                                  padding: const EdgeInsets.only(bottom: 10.0),
-                                  child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
-                                )
-                              : const SizedBox(),
-                        ],
-                      ),
-                    ),
-                  ),
-          ),
-          Expanded(
-            flex: widget.rowLabelRatio[1],
-            child: Container(
-              color: widget.bodyBgColor,
-              // color:Colors.red,
-              height: widget.height,
-              child: Center(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
+    return GestureDetector(
+      onTap:!widget.openNumberSheet?null: () async {
+        showModalBottomSheet(context: context,
+            isScrollControlled: true,
+            builder: (c)=>NumericInputSheet(label: widget.label??'',maxLength: widget.maxLength,)).then((a){
+          if(a is String){
+            widget.controller?.text = a;
+            widget.onSubmit?.call(a);
+            // widget.onChanged.call(a!);
+          }
+        });
+      },
+      child: AbsorbPointer(
+        absorbing: widget.openNumberSheet,
+        child: ClipRRect(
+          borderRadius: widget.radius ?? BorderRadius.circular(5),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: widget.rowLabelRatio[0],
+                child: widget.label == null
+                    ? const SizedBox()
+                    : Container(
                         height: widget.height,
-                        child: TextField(
-                          textInputAction: widget.textInputAction ?? TextInputAction.done,
-                          enabled: !widget.locked && !widget.disabled,
-                          maxLines: obscureText
-                              ? 1
-                              : widget.maxLines == 0
-                              ? null
-                              : widget.maxLines,
-                          minLines: widget.minLines,
-                          maxLength: widget.maxLength,
-                          focusNode: widget.focusNode,
-                          onSubmitted: widget.onSubmit,
-                          keyboardType: widget.keyboardType,
-                          obscureText: obscureText,
-                          autofocus: widget.autofocus,
-                          inputFormatters: widget.inputFormatters,
-                          style:
-                              widget.style ??
-                              TextStyle(
-                                fontSize: widget.fontSize,
-                                color: Colors.black,
-                                // height: 0.5
-                                // height: 1,
+                        color: widget.headerBgColor,
+                        child: IgnorePointer(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.label ?? '',
+                                style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
                               ),
-
-                          // textAlignVertical: TextAlignVertical.top,
-                          decoration: InputDecoration(
-                            contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-                            filled: false,
-                            fillColor: widget.bodyBgColor,
-                            hintText: widget.placeholder,
-                            prefix: widget.prefix,
-                            counter: widget.showLimit ? null : SizedBox(),
-                            hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                            border: InputBorder.none,
-                            prefixIcon: widget.prefixIcon,
-                            suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200,maxHeight: 40),
-                            suffixIcon:
-                                widget.suffixIcon ??
-                                (!widget.isPassword
-                                    ? widget.locked
-                                          ? const Icon(Icons.lock)
-                                          : null
-                                    : IconButton(
-                                        onPressed: () {
-                                          obscureText = !obscureText;
-                                          setState(() {});
-                                        },
-                                        icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                      ))??SizedBox(height: 30,),
+                              widget.required
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(bottom: 10.0),
+                                      child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
+                                    )
+                                  : const SizedBox(),
+                            ],
                           ),
-                          controller: widget.controller,
                         ),
                       ),
-                    ),
-                    (hasError) && widget.showError
-                        ? Expanded(
-                            child: Container(
-                              height: widget.height,
-                              margin: EdgeInsets.only(left: 12),
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: validationColor),
-                                color: validationColor.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Row(
-                                children: [
-                                  widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
-                                  Expanded(
-                                    child: Text(
-                                      "${widget.validator?.call(widget.controller?.text ?? '')}",
-                                      style: TextStyle(color: validationColor, fontSize: 9, height: 1),
-                                      textAlign: TextAlign.center,
-                                    ),
+              ),
+              Expanded(
+                flex: widget.rowLabelRatio[1],
+                child: Container(
+                  color: widget.bodyBgColor,
+                  // color:Colors.red,
+                  height: widget.height,
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: widget.height,
+                            child: TextField(
+                              textInputAction: widget.textInputAction ?? TextInputAction.done,
+                              enabled: !widget.locked && !widget.disabled,
+                              maxLines: obscureText
+                                  ? 1
+                                  : widget.maxLines == 0
+                                  ? null
+                                  : widget.maxLines,
+                              minLines: widget.minLines,
+                              maxLength: widget.maxLength,
+                              focusNode: widget.focusNode,
+                              onSubmitted: widget.onSubmit,
+                              keyboardType: widget.keyboardType,
+                              obscureText: obscureText,
+                              autofocus: widget.autofocus,
+                              inputFormatters: widget.inputFormatters,
+                              style:
+                                  widget.style ??
+                                  TextStyle(
+                                    fontSize: widget.fontSize,
+                                    color: Colors.black,
+                                    // height: 0.5
+                                    // height: 1,
                                   ),
-                                ],
+
+                              // textAlignVertical: TextAlignVertical.top,
+                              decoration: InputDecoration(
+                                contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
+                                filled: false,
+                                fillColor: widget.bodyBgColor,
+                                hintText: widget.placeholder,
+                                prefix: widget.prefix,
+                                counter: widget.showLimit ? null : SizedBox(),
+                                hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
+                                border: InputBorder.none,
+                                prefixIcon: widget.prefixIcon,
+                                suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200,maxHeight: 40),
+                                suffixIcon:
+                                    widget.suffixIcon ??
+                                    (!widget.isPassword
+                                        ? widget.locked
+                                              ? const Icon(Icons.lock)
+                                              : null
+                                        : IconButton(
+                                            onPressed: () {
+                                              obscureText = !obscureText;
+                                              setState(() {});
+                                            },
+                                            icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                          ))??SizedBox(height: 30,),
                               ),
+                              controller: widget.controller,
                             ),
-                          )
-                        : SizedBox.shrink(),
-                  ],
+                          ),
+                        ),
+                        (hasError) && widget.showError
+                            ? Expanded(
+                                child: Container(
+                                  height: widget.height,
+                                  margin: EdgeInsets.only(left: 12),
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: validationColor),
+                                    color: validationColor.withOpacity(0.05),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
+                                      Expanded(
+                                        child: Text(
+                                          "${widget.validator?.call(widget.controller?.text ?? '')}",
+                                          style: TextStyle(color: validationColor, fontSize: 9, height: 1),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : SizedBox.shrink(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -265,7 +265,7 @@ class RegulationWidgetNew extends StatelessWidget {
         showLeadingIcon: true,
         tilePadding: EdgeInsets.zero,
         title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8),
+          padding: const EdgeInsets.only(right: 8,bottom: 4,top: 4,left: 0),
           child: Container(
             child: Row(
               children: [
