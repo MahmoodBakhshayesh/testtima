@@ -12,6 +12,7 @@ class CurrentStatus {
   final String? from;
   final String? nationality;
   final int? timaticResult;
+  final int? totalResult;
   final String? to;
   final String? user;
 
@@ -26,6 +27,7 @@ class CurrentStatus {
     this.from,
     this.nationality,
     this.timaticResult,
+    this.totalResult,
     this.to,
     this.user,
   });
@@ -41,6 +43,7 @@ class CurrentStatus {
     String? from,
     String? nationality,
     int? timaticResult,
+    int? totalResult,
     String? to,
     String? user,
   }) =>
@@ -55,6 +58,7 @@ class CurrentStatus {
         from: from ?? this.from,
         nationality: nationality ?? this.nationality,
         timaticResult: timaticResult ?? this.timaticResult,
+        totalResult: totalResult ?? this.totalResult,
         to: to ?? this.to,
         user: user ?? this.user,
       );
@@ -70,6 +74,7 @@ class CurrentStatus {
     from: json["from"],
     nationality: json["nationality"],
     timaticResult: json["timaticResult"],
+    totalResult: json["totalResult"],
     to: json["to"],
     user: json["user_"],
   );
@@ -79,7 +84,7 @@ class CurrentStatus {
   bool get canAskSupervisor => status! <2;
   bool get canUseOption => status! <3;
 
-  TimaticResult get getRes => BasicClass.getResultOfCode(timaticResult??0);
+  TimaticResult get getRes => BasicClass.getResultOfCode(totalResult??timaticResult??0);
 
   Map<String, dynamic> toJson() => {
     "supervisor": supervisor == null ? [] : List<dynamic>.from(supervisor!.map((x) => x.toJson())),
@@ -92,6 +97,7 @@ class CurrentStatus {
     "from": from,
     "nationality": nationality,
     "timaticResult": timaticResult,
+    "totalResult": totalResult,
     "to": to,
     "user_": user,
   };

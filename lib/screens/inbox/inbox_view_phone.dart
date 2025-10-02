@@ -165,6 +165,8 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                   Row(
                     children: [
                       Expanded(child: Text("From: ${widget.message.user?.username??widget.message.user?.email??""}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),)),
+                      loading?SpinKitThreeBounce(color: Colors.black,size: 20,):SizedBox(),
+                      const SizedBox(width: 4),
                       response == null?SizedBox():
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
@@ -177,6 +179,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                       // Expanded(child: Text(widget.message.code ?? '')),
                       // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
                       // Text("${widget.message.user?.username ?? widget.message?.user?.email}"),
+
                       const SizedBox(width: 4),
                       Icon(Icons.arrow_forward_ios_rounded,size: 15,)
                     ],

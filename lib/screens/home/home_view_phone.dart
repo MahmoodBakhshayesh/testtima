@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/classes/constant_data_class.dart';
+import 'package:abds/core/classes/ref_history_log_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/controller_int.dart';
@@ -43,6 +44,7 @@ import 'package:abds/widgets/check_permission.dart';
 import 'package:abds/widgets/user_avatar.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
@@ -757,11 +759,28 @@ class HeaderSummaryWidget extends ConsumerWidget {
     bool isClosed = !ref.watch(currentStatusProvider).canUseOption;
     Color color =   MyColors.mainBlue;
     final currentStatus = ref.watch(currentStatusProvider);
-
+    // final logs = ref.watch(showingLogsProvider);
+    // RefHistoryLog? airlineApproval = logs.lastOrNullWhere((a)=>a.type == "airlineApproval");
+    // RefHistoryLog? supervisorApproval = logs.lastOrNullWhere((a)=>a.type == "supervisorResponse");
+    // SupervisorResponse? finalResponse ;
+    // if(supervisorApproval!=null){
+    //   log(" has supervisorApproval");
+    //   finalResponse = BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == supervisorApproval.payload?.actionId);
+    // }
+    // if(airlineApproval!=null){
+    //   log(" has airlineApproval");
+    //
+    //   finalResponse = BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == airlineApproval.payload?.actionId);
+    // }
     var gradiant = LinearGradient(colors: [color.withOpacity(0.18), color.withOpacity(0.02)], begin: Alignment.topCenter, end: Alignment.bottomCenter);
     if(isClosed){
       gradiant = LinearGradient(colors: [currentStatus!.getRes.getColor.withOpacity(0.48), currentStatus!.getRes.getColor.withOpacity(0.18)], begin: Alignment.topCenter, end: Alignment.bottomCenter);
     }
+    // if(finalResponse !=null){
+    //   gradiant = LinearGradient(colors: [finalResponse.getColor.withOpacity(0.48), finalResponse.getColor.withOpacity(0.18)], begin: Alignment.topCenter, end: Alignment.bottomCenter);
+    // }
+    // log(logs.map((l)=>l.type??'').join("*"));
+    // log("final response ${finalResponse?.name}");
     return  FigmaGlass(
       // height: 124 + (resultMode ? additionalHeight : 0),
       child: Container(
