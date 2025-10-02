@@ -212,6 +212,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         bodyBgColor: bodyBg,
                         rowLabelRatio: [5, 4],
                         placeholder: "Country",
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
+
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
@@ -235,7 +237,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         bodyBgColor: bodyBg,
                         label: "Nationality",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
-                        // required: true,
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
                         placeholder: "Country",
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
@@ -274,6 +276,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
         ),
         childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
         children: [
+
           MyDatePicker(
             // required: true,
             // rowLabelRatio: [3, 7],
@@ -291,6 +294,23 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             onChanged: (a) {
               d = d.copyWith(birthDate: a);
               ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+            },
+          ),
+          const SizedBox(height: 12),
+          MyFieldPicker<Gender>(
+            label: "Gender",
+            headerBgColor: headerBg,
+            bodyBgColor: bodyBg,
+            placeholder: "Gender",
+            valueToString: (a)=>a.title,
+            items: Gender.values,
+            hasSearch: false,
+            value: passengerDetails.gender,
+            onChange: (a) {
+              var pd = passengerDetails.copyWith(gender: a);
+              ref.read(passengerProvider.notifier).update((s) => pd);
+              // d = d.copyWith(birthDate: a);
+              // ref.read(confirmingDocumentProvider.notifier).update((s) => d);
             },
           ),
           const SizedBox(height: 12),

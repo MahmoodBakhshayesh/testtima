@@ -58,7 +58,8 @@ class VisaWidget extends ConsumerWidget {
             bool isFirst = index == 0;
             return VisaItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst);
           }).toList(),
-        )
+        ),
+        // const SizedBox(height: 12),
       ],
     );
     return MyExpansionTile(

@@ -54,23 +54,24 @@ class LockedPassengerRow extends StatelessWidget {
               Expanded(
                 child: LockedFieldWidget(half: true, label: "Nationality", value: countryPrefixBuilder(passengerDetails.nationality?.code3)),
               ),
-              Expanded(
-                child: LockedFieldWidget(half: true, label: "Issued In", value: countryPrefixBuilder(passengerDetails.residentCountryCode?.code3)),
-              ),
+              // Expanded(
+              //   child: LockedFieldWidget(half: true, label: "Issued In", value: countryPrefixBuilder(passengerDetails.residentCountryCode?.code3)),
+              // ),
             ],
           ),
-          ?passengerDetails.birthDate!=null?
-          LockedFieldWidget(
-            label: "Birth Date",
-            value: Row(
-              children: [
-                Expanded(child: Text(passengerDetails.birthDate==null?"":DateFormat("dd MMM yyyy").format(passengerDetails.birthDate!))),
-                Icon(Icons.date_range, size: 10, color: birthDateValidationColor(passengerDetails.birthDate)),
-                Text(birthDateValidator("", passengerDetails.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(passengerDetails.birthDate))),
-              ],
-            ),
-          ):null,
-          ?passengerDetails.gender!=null?LockedFieldWidget(label: "Gender", value: Text(passengerDetails.gender?.name.capitalizeFirst ?? '')):null,
+
+          // ?passengerDetails.birthDate!=null?
+          // LockedFieldWidget(
+          //   label: "Birth Date",
+          //   value: Row(
+          //     children: [
+          //       Expanded(child: Text(passengerDetails.birthDate==null?"":DateFormat("dd MMM yyyy").format(passengerDetails.birthDate!))),
+          //       Icon(Icons.date_range, size: 10, color: birthDateValidationColor(passengerDetails.birthDate)),
+          //       Text(birthDateValidator("", passengerDetails.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(passengerDetails.birthDate))),
+          //     ],
+          //   ),
+          // ):null,
+          // ?passengerDetails.gender!=null?LockedFieldWidget(label: "Gender", value: Text(passengerDetails.gender?.name.capitalizeFirst ?? '')):null,
           ?passengerDetails.birthCountry!=null? LockedFieldWidget(label: "Birth Place", value:  countryPrefixBuilder(passengerDetails.birthCountry?.code3)):null,
         ],
       ),

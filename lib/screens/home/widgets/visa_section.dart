@@ -210,6 +210,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
                   valueToString: (v)=>v.name,
+
                   // valueToString: docCodeToString,
                   items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
@@ -231,6 +232,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         bodyBgColor: bodyBg,
                         searchAutoFocus: true,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
 
                         itemToWidget: countryBuilder,
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
@@ -254,6 +256,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         bodyBgColor: bodyBg,
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
 
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,

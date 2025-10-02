@@ -265,11 +265,18 @@ class MrzReaderController extends ControllerInterface {
       // log("*"*100);
 
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
-
+      DocumentDetailType? suggest;
       if (BasicClass.constData.data.documentDetailType.isNotEmpty && res.countryCode.length > 1) {
         final match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
           // (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
-          (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
+          // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
+          // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && ( a.country == res.countryCode),
+          (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last) && ( a.country == res.countryCode),
+        );
+        suggest = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
+          (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
+          // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
+          // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && ( a.country == res.countryCode),
         );
 
         if (match != null) {
@@ -323,6 +330,7 @@ class MrzReaderController extends ControllerInterface {
         sex: res.sex,
         docCode: res.documentCode,
         verifiedDocNum: verified,
+        suggestionCodes: suggest== null?[]:[suggest.code]
       );
 
       log("*" * 100);

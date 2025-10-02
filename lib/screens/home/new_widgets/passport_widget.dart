@@ -36,9 +36,14 @@ class PassportWidget extends ConsumerWidget {
     final bool locked = ref.watch(currentStatusProvider).isLocked;
     if(locked){
       return Column(
-        children: passports.map((d) {
-          return LockedDocumentItemRow(d: d, tileColor:  Color(0xffE2E7F5),);
-        }).toList(),
+        children: [
+          Column(
+            children: passports.map((d) {
+              return LockedDocumentItemRow(d: d, tileColor:  Color(0xffE2E7F5),);
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+        ],
       );
     }
     if(passports.isEmpty){
@@ -53,8 +58,8 @@ class PassportWidget extends ConsumerWidget {
         bool isLocked = true;
         return Column(
           children: [
-
             PassportItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst),
+            // const SizedBox(height: 12),
           ],
         );
       }).toList(),

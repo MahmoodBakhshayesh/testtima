@@ -301,7 +301,6 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
 
     double additionalHeight = 120;
     final currentStatus = ref.watch(currentStatusProvider);
-    log("current status ${currentStatus.status}");
     return PopScope(
       canPop: false,
       child: Container(
@@ -348,15 +347,10 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                   showFooter: false,
                                   children: [
                                     FlightWidget(),
-                                    const SizedBox(height: 12),
                                     PassengerWidget(),
-                                    const SizedBox(height: 12),
                                     PassportWidget(),
-                                    const SizedBox(height: 12),
                                     VisaWidget(),
-                                    const SizedBox(height: 12),
                                     ResidentWidget(),
-                                    const SizedBox(height: 12),
                                   ],
                                 ),
                               ),

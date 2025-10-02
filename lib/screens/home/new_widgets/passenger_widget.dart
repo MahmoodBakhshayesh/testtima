@@ -36,7 +36,12 @@ class PassengerWidget extends ConsumerWidget {
     // final bool locked = ref.watch(timaticResultProvider)?.status == 1;
     final bool locked = ref.watch(currentStatusProvider).isLocked;
     if(locked){
-      return LockedPassengerRow(passengerDetails: passengerDetails, tileColor: Colors.black.withOpacity(0.08));
+      return Column(
+        children: [
+          LockedPassengerRow(passengerDetails: passengerDetails, tileColor: Colors.black.withOpacity(0.08)),
+          const SizedBox(height: 12),
+        ],
+      );
     }
 
     return Container(
@@ -162,32 +167,60 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 6),
+        const SizedBox(height: 12),
+        // Row(
+        //   spacing: 12,
+        //   children: [
+        //     Expanded(
+        //       child: MyFieldPicker<Country>(
+        //         hasSearch: true,
+        //         searchAutoFocus: true,
+        //         label: "Nationality",
+        //         required: true,
+        //         headerBgColor: headerBgColor,
+        //         bodyBgColor: bodyBgColor,
+        //         placeholder: "Country",
+        //         prefixIcon: countryPrefixBuilder(details.nationality?.code3),
+        //
+        //         rowLabelRatio: [5, 4],
+        //         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+        //         itemToWidget: countryBuilder,
+        //         items: BasicClass.constData.data.country,
+        //         value: details.nationality,
+        //         onChange: (a) {
+        //           details = details.copyWith(nationality: a);
+        //           ref.read(passengerProvider.notifier).update((s) => details);
+        //         },
+        //       ),
+        //     ),
+        //     Expanded(
+        //       child: MyFieldPicker<Country>(
+        //         hasSearch: true,
+        //         searchAutoFocus: true,
+        //         label: "Resident",
+        //         required: true,
+        //         headerBgColor: headerBgColor,
+        //         bodyBgColor: bodyBgColor,
+        //         rowLabelRatio: [5, 4],
+        //         placeholder: "Country",
+        //         prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
+        //
+        //         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+        //         itemToWidget: countryBuilder,
+        //         items: BasicClass.constData.data.country,
+        //         value: details.residentCountryCode,
+        //         onChange: (a) {
+        //           details = details.copyWith(residentCountryCode: a);
+        //           ref.read(passengerProvider.notifier).update((s) => details);
+        //         },
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        // const SizedBox(height: 12),
         Row(
           spacing: 12,
           children: [
-            Expanded(
-              child: MyFieldPicker<Country>(
-                hasSearch: true,
-                searchAutoFocus: true,
-                label: "Nationality",
-                required: true,
-                headerBgColor: headerBgColor,
-                bodyBgColor: bodyBgColor,
-                placeholder: "Country",
-                prefixIcon: countryPrefixBuilder(details.nationality?.code3),
-
-                rowLabelRatio: [5, 4],
-                searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                itemToWidget: countryBuilder,
-                items: BasicClass.constData.data.country,
-                value: details.nationality,
-                onChange: (a) {
-                  details = details.copyWith(nationality: a);
-                  ref.read(passengerProvider.notifier).update((s) => details);
-                },
-              ),
-            ),
             Expanded(
               child: MyFieldPicker<Country>(
                 hasSearch: true,
@@ -210,29 +243,24 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                 },
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: MyFieldPicker<Gender>(
-                label: "Gender",
-                headerBgColor: headerBgColor,
-                bodyBgColor: bodyBgColor,
-                placeholder: "Gender",
-                valueToString: (a)=>a.title,
-                rowLabelRatio: [5, 4],
-                items: Gender.values,
-                hasSearch: false,
-                value: details.gender,
-                onChange: (a) {
-                  details = details.copyWith(gender: a);
-                  ref.read(passengerProvider.notifier).update((s) => details);
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
+            // Expanded(
+            //   child: MyFieldPicker<Gender>(
+            //     label: "Gender",
+            //     headerBgColor: headerBgColor,
+            //     bodyBgColor: bodyBgColor,
+            //     placeholder: "Gender",
+            //     valueToString: (a)=>a.title,
+            //     rowLabelRatio: [5, 4],
+            //     items: Gender.values,
+            //     hasSearch: false,
+            //     value: details.gender,
+            //     onChange: (a) {
+            //       details = details.copyWith(gender: a);
+            //       ref.read(passengerProvider.notifier).update((s) => details);
+            //     },
+            //   ),
+            // ),
+            // const SizedBox(width: 12),
             Expanded(child:   MyFieldPicker<Country>(
               label: "Birth Place",
               hasSearch: true,
@@ -254,24 +282,22 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
             ),)
           ],
         ),
-        const SizedBox(height: 12),
-        MyDatePicker(
-          required: true,
-
-
-          label: "Birth Date",
-          placeholder: "Birth Date",
-          headerBgColor: headerBgColor,
-          bodyBgColor: bodyBgColor,
-          validator: (a) => birthDateValidator(a, details.birthDate),
-          validationColor: birthDateValidationColor(details.birthDate),
-          max: DateTime.now(),
-          validationIcon: ArtemisIcons.user_square,
-          value: details.birthDate,
-          onChanged: (a) {
-            ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-          },
-        ),
+        // const SizedBox(height: 12),
+        // MyDatePicker(
+        //   required: true,
+        //   label: "Birth Date",
+        //   placeholder: "Birth Date",
+        //   headerBgColor: headerBgColor,
+        //   bodyBgColor: bodyBgColor,
+        //   validator: (a) => birthDateValidator(a, details.birthDate),
+        //   validationColor: birthDateValidationColor(details.birthDate),
+        //   max: DateTime.now(),
+        //   validationIcon: ArtemisIcons.user_square,
+        //   value: details.birthDate,
+        //   onChanged: (a) {
+        //     ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+        //   },
+        // ),
 
       ],
     );

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
@@ -219,6 +220,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                 MyFieldPicker<DocumentCode>(
                   label: "Code",
                   required: requiredFields.code,
+                  locked: d.verifiedDocCode,
+                  suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
+                  // suggestion: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList().sublist(1,3),
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
@@ -259,6 +263,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         searchAutoFocus: true,
                         rowLabelRatio: [5, 4],
                         placeholder: "Country",
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
+
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
@@ -280,6 +286,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         label: "Nationality",
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
+
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
                         placeholder: "Country",
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
@@ -288,7 +296,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                          d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
+                          d = d.copyWith(nationality: a, documentIssueCountry:  d.documentIssueCountry??a);
                           ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                         },
                       ),
@@ -321,6 +329,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
 
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
+
           MyDatePicker(
             required: requiredFields.birthDate,
             label: "Birth Date",
@@ -342,6 +351,26 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
           ),
 
           const SizedBox(height: 12),
+          ?d.shortType =="P"?
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: MyFieldPicker<Gender>(
+              label: "Gender",
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              placeholder: "Gender",
+              valueToString: (a)=>a.title,
+              items: Gender.values,
+              hasSearch: false,
+              value: d.gender,
+              onChange: (a) {
+                // var pd = passengerDetails.copyWith(gender: a);
+                // ref.read(passengerProvider.notifier).update((s) => pd);
+                d = d.copyWith(sex: a?.value);
+                ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+              },
+            ),
+          ):null,
 
           // const SizedBox(height: 12),
           MyTextFieldNew(

@@ -62,10 +62,13 @@ class DocumentDetail {
   final String? docCode;
   final String? sex;
   final bool verifiedDocNum;
+  final bool verifiedDocCode;
+  final List<String> suggestionCodes;
 
   const DocumentDetail({
     this.documentNumber,
     this.shortType,
+    this.suggestionCodes = const[],
     this.fullName,
     this.documentCode,
     this.documentExpiryDate,
@@ -82,6 +85,7 @@ class DocumentDetail {
     this.docCode,
     this.sex,
     this.verifiedDocNum = false,
+    this.verifiedDocCode = false,
   });
 
   static const _unset = Object();
@@ -105,6 +109,7 @@ class DocumentDetail {
     Object? docCode = _unset,
     Object? sex = _unset,
     Object? verifiedDocNum = _unset,
+    Object? verifiedDocCode = _unset,
   }) {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
@@ -125,6 +130,7 @@ class DocumentDetail {
       docCode: identical(docCode, _unset) ? this.docCode : docCode as String?,
       sex: identical(sex, _unset) ? this.sex : sex as String?,
       verifiedDocNum: identical(verifiedDocNum, _unset) ? this.verifiedDocNum : verifiedDocNum as bool,
+      verifiedDocCode: identical(verifiedDocCode, _unset) ? this.verifiedDocCode : verifiedDocCode as bool,
     );
   }
 
@@ -197,6 +203,9 @@ class DocumentDetail {
   bool get isVisa => shortType == "V";
 
   bool get isPassport => shortType == "P";
+
+  Gender? get gender => Gender.values.firstWhereOrNull((a)=>a.value == sex);
+
 
   Widget get getMrzWidget => (mrz ?? "").isEmpty
       ? SizedBox()

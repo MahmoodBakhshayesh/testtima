@@ -210,6 +210,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
 
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         items:BasicClass.constData.data.country,
@@ -230,6 +231,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         bodyBgColor: bodyBg,
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
 
                         rowLabelRatio: [5, 4],
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",

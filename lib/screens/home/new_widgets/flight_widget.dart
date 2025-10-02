@@ -38,7 +38,7 @@ class FlightWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-    final bool locked =  ref.watch(currentStatusProvider).isLocked;
+    final bool locked = ref.watch(currentStatusProvider).isLocked;
     if (locked) {
       return Column(
         children: segments.map((d) {
@@ -49,46 +49,6 @@ class FlightWidget extends ConsumerWidget {
     return MyExpansionTile(
       title: Column(
         children: [
-          Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Text("Flight", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    airlineLogoBuild(segments.first.operatingCarrier)
-                  ],
-                ),
-              ),
-              MyButton(
-                label: "Scan Boarding Pass",
-                onPressed: () {
-                  getIt<HomeController>().goNamed(Routes.barcodeReader);
-                },
-                radius: 8,
-              ),
-              DotButton(
-                icon: ArtemisIcons.eraser_1,
-                onPressed: () async {
-                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
-                  if (!confirm) return;
-                  if (segments.length == 1) {
-                    ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
-                  } else {
-
-                    ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 2,ref.read(segmentsProvider)[ref.read(segmentsProvider).length - 2].copyWith(segmentType: SegmentType.entry,luggageCollected: true));
-                    ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
-                  }
-                },
-                size: 40,
-                iconSize: 20,
-
-                radius: 8,
-                flat: true,
-                border: BorderSide(width: 1, color: context.mainColor),
-              ),
-            ],
-          ),
           Column(
             children: segments.map((seg) {
               int index = segments.indexOf(seg);
@@ -178,6 +138,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     int index = widget.index;
     ItinerarySegment seg = widget.item;
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
+    final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
 
     return Container(
       decoration: BoxDecoration(
@@ -210,57 +171,141 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           ],
         ),
         title: Column(
+          spacing: 12,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: MyTextFieldNew(
-                    headerBgColor: Color(0xffECECEC),
-                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                    controller: controller,
-                    label: "Flight#",
-                    required: true,
-                    openNumberSheet: true,
-                    keyboardType: TextInputType.numberWithOptions(signed: true),
-                    placeholder: "Number",
-                    rowLabelRatio: [3, 5],
-                    labelInRow: true,
-                    onSubmit: (a) async {
-                      log("get history for $a");
-                      await getIt<HomeController>().getFlightNumberHistory(a,index:widget.index);
+            widget.index == 0
+                ? Row(
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Text("Transit ${widget.index+1}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                            airlineLogoBuild(widget.item.operatingCarrier),
+                          ],
+                        ),
+                      ),
+                      MyButton(
+                        label: "Scan Boarding Pass",
+                        onPressed: () {
+                          getIt<HomeController>().goNamed(Routes.barcodeReader);
+                        },
+                        radius: 8,
+                      ),
+                      DotButton(
+                        icon: ArtemisIcons.eraser_1,
+                        onPressed: () async {
+                          final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                          if (!confirm) return;
+                          if (segments.length == 1) {
+                            ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
+                          } else {
+                            ref
+                                .read(segmentsProvider.notifier)
+                                .updateAt(ref.read(segmentsProvider).length - 2, ref.read(segmentsProvider)[ref.read(segmentsProvider).length - 2].copyWith(segmentType: SegmentType.entry, luggageCollected: true));
+                            ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
+                          }
+                        },
+                        size: 40,
+                        iconSize: 20,
 
-                    },
+                        radius: 8,
+                        flat: true,
+                        border: BorderSide(width: 1, color: context.mainColor),
+                      ),
+                    ],
+                  )
+                : Row(
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Text("Transit ${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                            airlineLogoBuild(widget.item.operatingCarrier),
+                          ],
+                        ),
+                      ),
+                      DotButton(
+                        icon: ArtemisIcons.trash,
+                        onPressed: () async {
+                          final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                          if (!confirm) return;
+                          ref.read(segmentsProvider.notifier).removeAt(widget.index);
+                        },
+                        size: 40,
+                        iconSize: 20,
+                        radius: 8,
+                        flat: true,
+                        color: Colors.red,
+                        border: BorderSide(width: 1, color: Colors.red),
+                      ),
+                      DotButton(
+                        icon: ArtemisIcons.eraser_1,
+                        onPressed: () async {
+                          final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                          if (!confirm) return;
+                          ref.read(segmentsProvider.notifier).updateAt(widget.index, ItinerarySegment.empty());
+                        },
+                        size: 40,
+                        iconSize: 20,
+                        radius: 8,
+                        flat: true,
+                        border: BorderSide(width: 1, color: context.mainColor),
+                      ),
+                    ],
                   ),
-                ),
+            widget.index == 0
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: MyTextFieldNew(
+                          headerBgColor: Color(0xffECECEC),
+                          bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                          controller: controller,
+                          label: "Flight#",
+                          required: true,
+                          openNumberSheet: true,
+                          keyboardType: TextInputType.numberWithOptions(signed: true),
+                          placeholder: "Number",
+                          rowLabelRatio: [3, 5],
+                          labelInRow: true,
+                          onSubmit: (a) async {
+                            log("get history for $a");
+                            await getIt<HomeController>().getFlightNumberHistory(a, index: widget.index);
+                          },
+                        ),
+                      ),
 
-                const SizedBox(width: 12),
-                Expanded(
-                  child: MyFieldPicker<ParameterValue>(
-                    label: "Airline",
-                    required: true,
-                    placeholder: "Airline",
-                    searchAutoFocus: true,
-                    rowLabelRatio: [3, 5],
-                    headerBgColor: Color(0xffECECEC),
-                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: MyFieldPicker<ParameterValue>(
+                          label: "Airline",
+                          required: true,
+                          placeholder: "Airline",
+                          searchAutoFocus: true,
+                          rowLabelRatio: [3, 5],
+                          headerBgColor: Color(0xffECECEC),
+                          bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
 
-                    items: BasicClass.constData.data.carrier,
-                    value: seg.operatingCarrier,
-                    // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
-                    valueToString: (a) => a.code,
-                    onChange: (a) {
-                      seg = seg.copyWith(operatingCarrier: a);
-                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                          items: BasicClass.constData.data.carrier,
+                          value: seg.operatingCarrier,
+                          // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
+                          valueToString: (a) => a.code,
+                          onChange: (a) {
+                            seg = seg.copyWith(operatingCarrier: a);
+                            ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
-                      // log(jsonEncode(seg.toJson()));
-                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+                            // log(jsonEncode(seg.toJson()));
+                            // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                : SizedBox(),
+            // const SizedBox(height: 12),
             Row(
               spacing: 12,
               children: [
@@ -334,6 +379,58 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
         ),
         // childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
+          widget.index != 0
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: MyTextFieldNew(
+                          headerBgColor: Color(0xffECECEC),
+                          bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                          controller: controller,
+                          label: "Flight#",
+                          required: true,
+                          openNumberSheet: true,
+                          keyboardType: TextInputType.numberWithOptions(signed: true),
+                          placeholder: "Number",
+                          rowLabelRatio: [3, 5],
+                          labelInRow: true,
+                          onSubmit: (a) async {
+                            log("get history for $a");
+                            await getIt<HomeController>().getFlightNumberHistory(a, index: widget.index);
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: MyFieldPicker<ParameterValue>(
+                          label: "Airline",
+                          required: true,
+                          placeholder: "Airline",
+                          searchAutoFocus: true,
+                          rowLabelRatio: [3, 5],
+                          headerBgColor: Color(0xffECECEC),
+                          bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+
+                          items: BasicClass.constData.data.carrier,
+                          value: seg.operatingCarrier,
+                          // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
+                          valueToString: (a) => a.code,
+                          onChange: (a) {
+                            seg = seg.copyWith(operatingCarrier: a);
+                            ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                            // log(jsonEncode(seg.toJson()));
+                            // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox(),
           Row(
             spacing: 12,
             children: [
@@ -527,6 +624,4 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
       ),
     );
   }
-
-
 }

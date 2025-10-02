@@ -89,27 +89,27 @@ class HomeController extends ControllerInterface {
     // ref.read(segmentsProvider.notifier).update((s) => [ItinerarySegment.empty()]);
   }
 
-  Future<void> setAirportDialog(BuildContext context) async {
-    final current = BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == ref.read(userProvider)?.profile.defaultAirport);
-    final newVal = await showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return Padding(
-          // This moves content above the keyboard
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: PickerSheetWidget(value: current, hasClear: false, searchAutoFocus: false, searchBuilder: null, items: BasicClass.constData.data.airport, label: "Airport", itemToWidget: null, hasSearch: true),
-        );
-        // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
-      },
-      elevation: 2,
-    );
-
-    if (newVal is Country) {
-      log("set new to $newVal");
-      await getIt<UsersController>().updateUserStation(newVal.code3);
-    }
-  }
+  // Future<void> setAirportDialog(BuildContext context) async {
+  //   final current = BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == ref.read(userProvider)?.profile.defaultAirport);
+  //   final newVal = await showModalBottomSheet(
+  //     isScrollControlled: true,
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Padding(
+  //         // This moves content above the keyboard
+  //         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+  //         child: PickerSheetWidget(value: current, hasClear: false, searchAutoFocus: false, searchBuilder: null, items: BasicClass.constData.data.airport, label: "Airport", itemToWidget: null, hasSearch: true),
+  //       );
+  //       // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
+  //     },
+  //     elevation: 2,
+  //   );
+  //
+  //   if (newVal is Country) {
+  //     log("set new to $newVal");
+  //     await getIt<UsersController>().updateUserStation(newVal.code3);
+  //   }
+  // }
 
   void goMrzReadr() {
     ref.read(ocrMrzLogsProvider.notifier).update((s) => []);
@@ -119,13 +119,14 @@ class HomeController extends ControllerInterface {
     goNamed(Routes.mrzReader).then((a) {
       if (ref.read(confirmingDocumentProvider) != null) {
         Future(() {
-          navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false).then((v) {
-            if (v == true) {
-              addConfirmingDocument();
-            } else {
-              ref.read(confirmingDocumentProvider.notifier).update((s) => null);
-            }
-          });
+          handleConfirming(ref.read(confirmingDocumentProvider)!);
+          // navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false).then((v) {
+          //   if (v == true) {
+          //     handleConfirming(ref.read(confirmingDocumentProvider)!);
+          //   } else {
+          //     ref.read(confirmingDocumentProvider.notifier).update((s) => null);
+          //   }
+          // });
         });
         // Future.delayed(Duration(milliseconds: 500), () {
         //   navigation.openDialog(dialog: ConfirmScannedDocDialog(documentDetail: ref.read(confirmingDocumentProvider)!)).then((v) {
@@ -353,7 +354,7 @@ class HomeController extends ControllerInterface {
         FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
       }
       final currentStatus = CurrentStatus.fromJson(response.data["response"]["result"]);
-      ref.read(currentStatusProvider.notifier).update((s)=>currentStatus);
+      ref.read(currentStatusProvider.notifier).update((s) => currentStatus);
       log("Response: ${response.data}");
       return result;
     } catch (e) {
@@ -688,10 +689,37 @@ class HomeController extends ControllerInterface {
 
   void addManualDoc() async {
     final added = await navigation.openBottomSheet(bottomSheet: ManualAddDocumentSheet());
-    log("add ${added.runtimeType}");
     if (added is DocumentDetail) {
-      ref.read(confirmingDocumentProvider.notifier).update((s) => added);
-      log("add ${added.runtimeType}");
+      handleConfirming(added);
+    }
+  }
+
+  handleConfirming(DocumentDetail added) async {
+    ref.read(confirmingDocumentProvider.notifier).update((s) => added);
+    if (added.documentCode == null) {
+      final code = await navigation.openBottomSheet(
+        bottomSheet: PickerSheetWidget(
+          suggestion: BasicClass.constData.data.documentCode.where((a) => added.suggestionCodes.contains(a.code)).toList(),
+          value: null,
+          searchAutoFocus: false,
+          hasClear: false,
+          items: BasicClass.constData.data.documentCode.where((a) => a.type == added.shortType).toList(),
+          label: "Type",
+          hasSearch: true,
+        ),
+      );
+      if (code is DocumentCode) {
+        log("code ${code}");
+        ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true));
+        log(ref.read(confirmingDocumentProvider)!.documentCode.toString());
+        final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
+        if (addRes == true) {
+          addConfirmingDocument();
+        } else {
+          ref.read(confirmingDocumentProvider.notifier).update((s) => null);
+        }
+      }
+    } else {
       final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
       if (addRes == true) {
         addConfirmingDocument();

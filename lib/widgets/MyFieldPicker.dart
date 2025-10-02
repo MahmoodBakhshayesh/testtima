@@ -22,6 +22,7 @@ class MyFieldPicker<T> extends StatefulWidget {
   final Color Function(T)? itemToColor;
   final Widget Function(T)? itemToWidget;
   final List<T> items;
+  final List<T> suggestion;
   final ValueChanged<T?>? onChange;
   final T? value;
   final String? label;
@@ -41,12 +42,14 @@ class MyFieldPicker<T> extends StatefulWidget {
   final Color? bodyBgColor;
   final TextStyle? labelStyle;
   final List<int> rowLabelRatio;
+  final Widget? suffixIcon;
 
   const MyFieldPicker({
     super.key,
     this.itemToString,
     this.valueToString,
     this.searchBuilder,
+    this.suffixIcon,
     this.headerBgColor,
     this.bodyBgColor,
     this.locked = false,
@@ -59,6 +62,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.placeholder,
     required this.items,
     this.onChange,
+    this.suggestion=const [],
     this.labelStyle,
     this.hasSearch = true,
     this.searchAutoFocus = false,
@@ -117,7 +121,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
       valueListenable: value,
       builder: (context, v, _) {
         return GestureDetector(
-          onTap: () {
+          onTap:widget.locked ?null: () {
             dev.log("pick item");
             showModalBottomSheet(
               isScrollControlled: true,
@@ -127,6 +131,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                   // This moves content above the keyboard
                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                   child: PickerSheetWidget(
+                    suggestion: widget.suggestion,
                     value: widget.value,
                     searchAutoFocus: widget.searchAutoFocus,
                     hasClear: widget.showClearButton,
@@ -171,7 +176,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             label: widget.label,
             fontSize: 12,
             placeholder: widget.placeholder,
-            suffixIcon: SizedBox(height:25,child: Icon(Icons.arrow_drop_down,size: 20,)),
+            suffixIcon:widget.suffixIcon?? SizedBox(height:25,child: Icon(Icons.arrow_drop_down,size: 20,)),
           ),
         );
       },
@@ -181,6 +186,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
 
 class PickerSheetWidget<T> extends StatefulWidget {
   final List<T> items;
+  final List<T> suggestion;
   final String label;
   final bool hasSearch;
   final bool hasClear;
@@ -189,7 +195,7 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final Widget Function(T)? itemToWidget;
   final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items, required this.label, required this.hasClear, this.itemToWidget, required this.value, required this.searchAutoFocus, this.searchBuilder, required this.hasSearch});
+  const PickerSheetWidget({super.key, required this.items, required this.suggestion, required this.label, required this.hasClear, this.itemToWidget, required this.value, required this.searchAutoFocus, this.searchBuilder, required this.hasSearch});
 
   @override
   State<PickerSheetWidget<T>> createState() => _PickerSheetWidgetState<T>();
@@ -233,7 +239,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
     // dev.log(widget.searchBuilder!(widget.items.first));
     // dev.log((widget.searchBuilder?.call(widget.items.first) ?? widget.items.first.toString()).toLowerCase().indexOf(query).toString());
 
-    final filtered = widget.items.where((a) => query.isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().contains(query)).toList();
+    final filtered = widget.items.where((a) => query.isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().split(' ').any((sp)=>sp.startsWith(query))).toList();
 
 
     // same sort rule you had: by match position
@@ -249,7 +255,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
     // dev.log(filtered.first.toString());
     // dev.log(widget.searchBuilder!(filtered.first));
     // dev.log((widget.searchBuilder?.call(filtered.first) ?? filtered.first.toString()).toLowerCase().indexOf(query).toString());
-
+    return filtered.where((a)=>!widget.suggestion.contains(a)).toList();
     return filtered;
   }
 
@@ -334,7 +340,6 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
       Future.delayed(Duration(milliseconds: 300),(){
         Navigator.of(context).pop(items.first);
       });
-
     }
     return SafeArea(
       child: BottomSheet(
@@ -374,6 +379,19 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
                 ),
 
               // List
+              Column(children: widget.suggestion.map((s){
+                return InkWell(
+                  onTap: () => Navigator.of(context).pop(s),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: MyColors.mainGreen.withOpacity(0.18),
+                      border: const Border(bottom: BorderSide(color: Colors.white)),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
+                    child: Row(children: [Expanded(child: widget.itemToWidget?.call(s) ?? Text(s.toString())),Text("Suggestion",style: TextStyle(color: Colors.black45,fontSize: 10),)]),
+                  ),
+                );
+              }).toList(),),
               Expanded(
                 child: ScrollablePositionedList.builder(
                   itemScrollController: _itemScrollController,
