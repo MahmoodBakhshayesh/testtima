@@ -296,7 +296,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
     // bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb ?? "").isNotEmpty && a.operatingCarrier != null);
-    bool canCheck = segments.every((s) => s.hasAllRequired()) && passports.every((p) => p.hasAllRequired()) && visas.every((v) => v.hasAllRequired()) && residents.every((r) => r.hasAllRequired());
+    bool canCheck = segments.every((s) => s.hasAllRequired()) && passengerDetails.hasAllRequired() && passports.every((p) => p.hasAllRequired()) && visas.every((v) => v.hasAllRequired()) && residents.every((r) => r.hasAllRequired());
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
 
     double additionalHeight = 120;
@@ -756,9 +756,11 @@ class HeaderSummaryWidget extends ConsumerWidget {
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     bool isClosed = !ref.watch(currentStatusProvider).canUseOption;
     Color color =   MyColors.mainBlue;
+    final currentStatus = ref.watch(currentStatusProvider);
+
     var gradiant = LinearGradient(colors: [color.withOpacity(0.18), color.withOpacity(0.02)], begin: Alignment.topCenter, end: Alignment.bottomCenter);
     if(isClosed){
-      gradiant = LinearGradient(colors: [timaticRes!.getRes.getColor.withOpacity(0.48), timaticRes!.getRes.getColor.withOpacity(0.18)], begin: Alignment.topCenter, end: Alignment.bottomCenter);
+      gradiant = LinearGradient(colors: [currentStatus!.getRes.getColor.withOpacity(0.48), currentStatus!.getRes.getColor.withOpacity(0.18)], begin: Alignment.topCenter, end: Alignment.bottomCenter);
     }
     return  FigmaGlass(
       // height: 124 + (resultMode ? additionalHeight : 0),

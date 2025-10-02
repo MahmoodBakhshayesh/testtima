@@ -106,6 +106,9 @@ initNetworkManager([String? baseUrl]) {
           }
         }
       } else if (res.responseBody?["response"] is List) {
+        if(res.responseBody?["response"][0] is String){
+          return true;
+        }
         List<Map<String, dynamic>> respList = List<Map<String, dynamic>>.from(res.responseBody["response"]);
         for (Map<String, dynamic> resp in respList) {
           if (resp["bags"] is List) {

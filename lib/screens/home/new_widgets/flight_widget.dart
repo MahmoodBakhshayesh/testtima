@@ -46,36 +46,40 @@ class FlightWidget extends ConsumerWidget {
         }).toList(),
       );
     }
-    return MyExpansionTile(
-      title: Column(
-        children: [
-          Column(
-            children: segments.map((seg) {
-              int index = segments.indexOf(seg);
-              bool isLast = segments.length == index + 1;
-              bool isFirst = index == 0;
-              return SegmentItemRow(index: index, item: seg, isLast: isLast, isFirst: isFirst);
-            }).toList(),
+    return Column(
+      children: [
+        MyExpansionTile(
+          title: Column(
+            children: [
+              Column(
+                children: segments.map((seg) {
+                  int index = segments.indexOf(seg);
+                  bool isLast = segments.length == index + 1;
+                  bool isFirst = index == 0;
+                  return SegmentItemRow(index: index, item: seg, isLast: isLast, isFirst: isFirst);
+                }).toList(),
+              ),
+              // Row(
+              //   spacing: 12,
+              //   children: [
+              //     Expanded(
+              //       child: MyFieldPicker(label: "From", items: [], headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48)),
+              //     ),
+              //     Expanded(
+              //       child: MyFieldPicker(label: "From", items: []),
+              //     ),
+              //   ],
+              // ),
+            ],
           ),
-
-          // Row(
-          //   spacing: 12,
-          //   children: [
-          //     Expanded(
-          //       child: MyFieldPicker(label: "From", items: [], headerBgColor: Color(0xffECECEC), bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48)),
-          //     ),
-          //     Expanded(
-          //       child: MyFieldPicker(label: "From", items: []),
-          //     ),
-          //   ],
-          // ),
-        ],
-      ),
-      showFooter: false,
-      backgroundColor: Colors.white,
-      collapsedBackgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          showFooter: false,
+          backgroundColor: Colors.white,
+          collapsedBackgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 }
@@ -232,7 +236,11 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                         onPressed: () async {
                           final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                           if (!confirm) return;
+                          final prev = segments[widget.index-1];
+                          ref.read(segmentsProvider.notifier).updateAt(index-1,prev.copyWith(segmentType: SegmentType.entry,luggageCollected: true));
+
                           ref.read(segmentsProvider.notifier).removeAt(widget.index);
+
                         },
                         size: 40,
                         iconSize: 20,

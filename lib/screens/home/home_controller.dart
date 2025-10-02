@@ -26,6 +26,7 @@ import 'package:abds/screens/home/usecases/get_supported_language_usecased.dart'
 import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
+import 'package:abds/screens/home/usecases/translate_text_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
 import 'package:abds/screens/home/widgets/logs_and_attachments.dart';
 import 'package:abds/screens/login/login_state.dart';
@@ -604,7 +605,8 @@ class HomeController extends ControllerInterface {
   }
 
   Future<TimaticResponseNew?> timatic() async {
-    final id = await navigation.openBottomSheet(bottomSheet: AskEmployeeIDSheet(), isScrollControlled: true);
+    String? id = ref.watch(currentStatusProvider).employeeId;
+    id ??= await navigation.openBottomSheet(bottomSheet: AskEmployeeIDSheet(), isScrollControlled: true);
     if (id != null) {
       List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
       final timResult = await checkTimatic(
@@ -666,6 +668,7 @@ class HomeController extends ControllerInterface {
         return null;
       case Ok<FlightNumberHistoryResponse>():
         final r = result.value;
+        final currentSeg = ref.read(segmentsProvider)[index];
         // history = r.historyData;
         if (r.historyData.isNotEmpty) {
           history = r.historyData.last;
@@ -673,11 +676,10 @@ class HomeController extends ControllerInterface {
               .read(segmentsProvider.notifier)
               .updateAt(
                 index,
-                ref
-                    .read(segmentsProvider)[index]
+                    currentSeg
                     .copyWith(
-                      arrival: ItinPoint(point: history.to!),
-                      departure: ItinPoint(point: history.from!),
+                      arrival: ItinPoint(point: history.to!,dateTime: currentSeg.arrival.dateTime??DateTime.now()),
+                      departure: ItinPoint(point: history.from!,dateTime: currentSeg.departure.dateTime??DateTime.now()),
                       operatingCarrier: BasicClass.getAirlineWithCode(history.airline!),
                     ),
               );
@@ -698,6 +700,7 @@ class HomeController extends ControllerInterface {
     ref.read(confirmingDocumentProvider.notifier).update((s) => added);
     if (added.documentCode == null) {
       final code = await navigation.openBottomSheet(
+        isScrollControlled: true,
         bottomSheet: PickerSheetWidget(
           suggestion: BasicClass.constData.data.documentCode.where((a) => added.suggestionCodes.contains(a.code)).toList(),
           value: null,
@@ -728,6 +731,24 @@ class HomeController extends ControllerInterface {
       }
     }
   }
+
+    Future<String?> translateText({required String lang,required List<String> texts}) async {
+        String? translated;
+        TranslateTextUseCase translateTextUseCase = TranslateTextUseCase();
+        TranslateTextRequest translateTextRequest = TranslateTextRequest(lang: lang, texts: texts);
+        final result = await translateTextUseCase(request: translateTextRequest);
+
+        switch (result) {
+          case Err<TranslateTextResponse>():
+            FailureHandler.handle(result.error);
+
+          case Ok<TranslateTextResponse>():
+            final r = result.value;
+            translated = r.translate;
+        }
+
+        return translated;
+      }
 
   // UseCase UseCase = UseCase(repository: Repository());
 }

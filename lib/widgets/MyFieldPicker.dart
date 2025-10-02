@@ -129,7 +129,8 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               builder: (BuildContext context) {
                 return Padding(
                   // This moves content above the keyboard
-                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  padding: EdgeInsets.only(top: 0),
                   child: PickerSheetWidget(
                     suggestion: widget.suggestion,
                     value: widget.value,
@@ -345,7 +346,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
       child: BottomSheet(
         backgroundColor: const Color(0xffEAECF2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        constraints: BoxConstraints(maxHeight: context.height * 0.5),
+        constraints: BoxConstraints(maxHeight: context.height * 0.9),
         onClosing: () {},
         builder: (BuildContext context) {
           return Column(

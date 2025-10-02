@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/drawer_action.dart';
@@ -134,57 +135,96 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
     ThemeData theme = Theme.of(context);
     bool isOdd = widget.index % 2 != 0;
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
-    return InkWell(
-      onTap: () async {
-        if(loading){
-          return;
-        }
-        loading = true;
-        setState((){});
-        await widget.onTap?.call();
-        loading = false;
-        setState((){});
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: !isOdd ? MyColors.white2 : MyColors.white3),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(child: Text(widget.message.code ?? '')),
-                loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
-                Text("${widget.message.user?.username ?? widget.message?.user?.email}"),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Row(
+    final response = widget.message.supervisor?.lastOrNull?.getRes;
+    return Container(
+      margin: const EdgeInsets.only(left: 12.0,right: 12,top: 12),
+      child: Material(
+        color: response?.getColor.withOpacity(0.12)??Colors.white,
+        borderRadius: BorderRadiusGeometry.circular(12),
+        child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
+
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () async {
+              if(loading){
+                return;
+              }
+              loading = true;
+              setState((){});
+              await widget.onTap?.call();
+              loading = false;
+              setState((){});
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+
+              // decoration: BoxDecoration(color: response?.getColor.withOpacity(0.12)??Colors.white,borderRadius: BorderRadiusGeometry.circular(12)),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      AirlineLogo(widget.message.airline ?? '--'),
-                      Column(
-                        children: [
-                          Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                          Text("${widget.message.from ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
+                      Expanded(child: Text("From: ${widget.message.user?.username??widget.message.user?.email??""}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),)),
+                      response == null?SizedBox():
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
+                            decoration: BoxDecoration(
+                              color: response.getColor.withOpacity(0.08),
+                              borderRadius: BorderRadiusGeometry.circular(12),
+                              border: Border.all(color: Colors.white)
+                            ),
+                            child: Text(response!.name??'',style: TextStyle(color: response.getColor,fontSize: 12),),),
+                      // Expanded(child: Text(widget.message.code ?? '')),
+                      // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
+                      // Text("${widget.message.user?.username ?? widget.message?.user?.email}"),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios_rounded,size: 15,)
                     ],
                   ),
-                ),
-                Column(
-                  children: [
-                    // Text("${message.createdAt?.toLocal().format_ddMMM}\n${message.createdAt?.toLocal().format_HHmmss}",style: TextStyle(fontSize: 8),textAlign: TextAlign.center,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Text("Flight",style: TextStyle(color: Colors.grey),),
+                            AirlineLogo(widget.message.airline ?? '--',size: 30,),
+                            Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 14)),
+                            const SizedBox(width: 12),
+                            Text("${widget.message.from ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
+                            // Text("Nationality",style: TextStyle(color: Colors.grey),),
+                            // Text("${widget.message. ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+
+                    ],
+                  ),
+                  Row(children: [
+                    Icon(ArtemisIcons.send_2,color: Colors.grey,size: 10,),
+                    const SizedBox(width: 4),
                     Text(
-                      "${DateFormat("dd MMM yyyy - hh:mm").format(widget.message.createdAt!.toLocal())}",
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      "Employee ID: ",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
-                  ],
-                ),
-              ],
+                    Text(
+                      widget.message.employeeId??"",
+                      style: TextStyle(fontSize: 10, color: Colors.black),
+                      textAlign: TextAlign.center,
+                    ),
+                    Spacer(),
+                    Icon(ArtemisIcons.eye,color: Colors.grey,size: 10,),
+                    const SizedBox(width: 4),
+                    Text(
+                      DateFormat("dd MMM, hh:mm").format(widget.message.createdAt!.toLocal()),
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],)
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -264,7 +264,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                          d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
+                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry??a);
                           ref.read(visasProvider.notifier).updateAt(widget.index, d);
                         },
                       ),

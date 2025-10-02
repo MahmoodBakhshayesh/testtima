@@ -1,13 +1,21 @@
+import 'dart:developer';
+
 import 'package:abds/core/classes/timatic_response_new_class.dart';
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/screens/home/dialogs/partial_translate_sheet.dart';
+import 'package:abds/screens/home/home_controller.dart';
+import 'package:abds/widgets/DotButton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:html_parser_plus/html_parser_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/constants/ui.dart';
 import '../../../core/utils_and_services/timatic/artemis_timatic.dart';
 import '../../../core/utils_and_services/timatic/src/models/document_request.dart';
+import '../../../initialize.dart';
 import '../../../widgets/MyExpansionTile.dart';
 import '../home_state.dart';
 
@@ -279,10 +287,13 @@ class RegulationWidgetNew extends StatelessWidget {
         ),
         children: (regulation.texts ?? [])
             .map(
-              (e) => Padding(
+              (e) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: MyColors.lineColor))
+                ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       flex: 5,
@@ -290,6 +301,26 @@ class RegulationWidgetNew extends StatelessWidget {
                         children: <Widget>[] + [HtmlWidget(e, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12))],
                       ),
                     ),
+                    DotButton(icon: ArtemisIcons.translate,onPressed: ()async{
+                      final langs = await getIt<HomeController>().getSupportLanguage();
+                      if(langs == null) return;
+                      log(e);
+                      final regex = RegExp(r'<p[^>]*>(.*?)<\/p>', dotAll: true);
+                      final match = regex.firstMatch(e);
+
+                      if (match != null) {
+                        final innerText = match.group(1);
+                        log(innerText.toString());
+                        final regex = RegExp(r'<[^>]*>');
+                        final plainText = e.replaceAll(regex, '').trim();
+                        showModalBottomSheet(context: context,isScrollControlled: true, builder: (c)=>PartialTranslateSheet(languages: langs, text: plainText??''));
+
+                        // Output: Passengers with a re-entry permit or a residence permit issued by Algeria do not need a visa.
+                      }
+                      // log(matches.length.toString());
+
+                      // showModalBottomSheet(context: context,isScrollControlled: true, builder: (c)=>PartialTranslateSheet(languages: langs, text: matches.join("\n")));
+                    },)
                   ],
                 ),
               ),

@@ -9,6 +9,7 @@ import 'package:abds/screens/home/usecases/submit_timatic_request_usecase.dart';
 import 'package:abds/screens/home/usecases/supervisor_response_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
+import 'package:abds/screens/home/usecases/translate_text_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
 
 import '../../../core/interfaces/local_data_base_int.dart';
@@ -97,6 +98,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request}) {
     // TODO: implement flightNumberHistory
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TranslateTextResponse> translateText({required TranslateTextRequest request}) {
+    // TODO: implement translateText
     throw UnimplementedError();
   }
 

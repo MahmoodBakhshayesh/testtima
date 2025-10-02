@@ -240,7 +240,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                          d = d.copyWith(nationality: a, documentIssueCountry: a ?? d.documentIssueCountry);
+                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry??a);
                           ref.read(residentsProvider.notifier).updateAt(widget.index, d);
                         },
                       ),

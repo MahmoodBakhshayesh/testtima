@@ -51,12 +51,12 @@ class LockedPassengerRow extends StatelessWidget {
           Row(
             spacing: 12,
             children: [
-              Expanded(
-                child: LockedFieldWidget(half: true, label: "Nationality", value: countryPrefixBuilder(passengerDetails.nationality?.code3)),
-              ),
               // Expanded(
-              //   child: LockedFieldWidget(half: true, label: "Issued In", value: countryPrefixBuilder(passengerDetails.residentCountryCode?.code3)),
+              //   child: LockedFieldWidget(half: true, label: "Nationality", value: countryPrefixBuilder(passengerDetails.nationality?.code3)),
               // ),
+              Expanded(
+                child: LockedFieldWidget(half: true, label: "Resident", value: countryPrefixBuilder(passengerDetails.residentCountryCode?.code3)),
+              ),
             ],
           ),
 

@@ -330,7 +330,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             onPressed: response == null || (msg == null && commentC.text.isEmpty)
                 ? null
                 : () async {
-                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: msg! + commentC.text);
+                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: (msg??'') + commentC.text);
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -870,7 +870,11 @@ class AttachmentsWidget extends StatelessWidget {
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(5),
-                            child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(0.3)
+                                ),
+                                child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"},)),
                           ),
                         );
                       }).toList(),

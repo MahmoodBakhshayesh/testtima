@@ -1,3 +1,6 @@
+import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/classes/constant_data_class.dart';
+
 class CurrentStatus {
   final List<StatusSupervisor>? supervisor;
   final int status;
@@ -76,6 +79,7 @@ class CurrentStatus {
   bool get canAskSupervisor => status! <2;
   bool get canUseOption => status! <3;
 
+  TimaticResult get getRes => BasicClass.getResultOfCode(timaticResult??0);
 
   Map<String, dynamic> toJson() => {
     "supervisor": supervisor == null ? [] : List<dynamic>.from(supervisor!.map((x) => x.toJson())),

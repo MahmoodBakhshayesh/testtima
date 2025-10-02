@@ -9,6 +9,7 @@ import '../usecases/submit_timatic_request_usecase.dart';
 import '../usecases/supervisor_response_usecase.dart';
 import '../usecases/timatic_get_locations_usecase.dart';
 import '../usecases/timatic_get_parameters_usecase.dart';
+import '../usecases/translate_text_usecase.dart';
 import '../usecases/translate_timatic_response_usecase.dart';
 
 abstract class HomeDataSourceInterface {
@@ -24,4 +25,5 @@ abstract class HomeDataSourceInterface {
   Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request});
   Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request});
   Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request});
+  Future<TranslateTextResponse> translateText({required TranslateTextRequest request});
 }
