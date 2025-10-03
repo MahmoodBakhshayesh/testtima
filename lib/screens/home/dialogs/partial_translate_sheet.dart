@@ -62,222 +62,233 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: true,
-      child: SizedBox(
-        height: context.height * 0.9,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Icon(ArtemisIcons.translate),
-                      const SizedBox(width: 8),
-                      Text("Translate", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-                CloseButton(),
-              ],
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: CupertinoTextField(controller: textC, maxLines: null),
-            ),
-            Divider(),
-            Expanded(
-              child: translated == null
-                  ? Column(
-                      children: [
-                        CupertinoTextField(
-                          decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
-                          prefix: Padding(padding: const EdgeInsets.all(8.0), child: Icon(Icons.search)),
-                          placeholder: "Search",
-                          controller: searchC,
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            margin: EdgeInsets.only(left: 8, right: 8, top: 12),
-                            decoration: BoxDecoration(color: MyColors.greyBG, borderRadius: BorderRadius.circular(12)),
-                            child: RadioListTile(
-                              dense: true,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              selected: selected == null,
-                              selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
-                              title: Text("English (Default)", style: TextStyle(fontSize: 14, color: selected == null ? context.mainColor : Colors.black)),
-                              value: null,
-                              groupValue: selected?.language,
-                              onChanged: (a) {
-                                selected = null;
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            color: Colors.white,
-                            child: ListView(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                              children: widget.languages.where((a) => a.validateSearch(searchC.text)).map((a) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: MyExpansionTile(
-                                    enabled: false,
-                                    initiallyExpanded: true,
-                                    showTrailingIcon: true,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
-                                    collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
-                                    backgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
-                                    collapsedBackgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
-                                    title: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        children: [
-                                          CountryFlag.fromCountryCode(a.country!, width: 30, height: 20),
-                                          const SizedBox(width: 8),
-                                          Text(a.country!, style: TextStyle(color: Colors.black)),
-                                        ],
-                                      ),
-                                    ),
-                                    showFooter: false,
-                                    children: a.languages!.where((l) => l.validateSearch(searchC.text)).map((l) {
-                                      bool isSelected = l.language == selected?.language;
-                                      return RadioListTile(
-                                        dense: true,
-                                        selected: isSelected,
-                                        selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
-                                        title: Text("${l.name} (${l.title!})", style: TextStyle(fontSize: 14, color: isSelected ? context.mainColor : Colors.black)),
-                                        value: l.language!,
-                                        groupValue: selected?.language,
-                                        onChanged: (a) {
-                                          selected = l;
-                                          setState(() {});
-                                        },
-                                      );
-                                    }).toList(),
-                                  ),
-                                );
-                                return Column(
-                                  children: [
-                                    Container(
-                                      margin: EdgeInsets.only(bottom: 8),
-                                      // decoration: BoxDecoration(
-                                      //   color: Colors.black.withOpacity(0.08),
-                                      //   borderRadius: BorderRadius.circular(12),
-                                      //   border: Border.all(color: MyColors.lineColor),
-                                      // ),
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Container(
-                                                padding: EdgeInsets.all(2),
-                                                decoration: BoxDecoration(color: MyColors.lineColor, borderRadius: BorderRadius.circular(4)),
-                                                child: CountryFlag.fromCountryCode(a.country!, width: 40, height: 20),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(a.country ?? '-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              const SizedBox(width: 20),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                  child: Column(
-                                                    children: (a.languages ?? [])
-                                                        .map(
-                                                          (l) => DrawerAction(
-                                                            title: l.name!,
-                                                            onTap: () async {
-                                                              await myHomeController.translateTimaticResponse(language: l.language!, logId: ref.read(refCodeProvider)!);
-                                                            },
-                                                            leadingIcon: Icons.circle,
-                                                          ),
-                                                        )
-                                                        .toList(),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(children: [Expanded(child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(translated!),
-                  ))]),
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
+    return GestureDetector(
+      onTap: (){
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: SafeArea(
+        bottom: true,
+        child: SizedBox(
+          height: context.height * 0.9,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Row(
                 children: [
-                  Expanded(
-                    child: MyButton(
-                      color: Colors.grey,
-                      radius: 12,
-                      borderSide: BorderSide(color: MyColors.lineColor),
-                      reverse: true,
-                      label: "Cancel",
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child:
-                    translated == null?
-                    MyButton(
-                      label: "Translate",
-                      radius: 12,
-                      icon: ArtemisIcons.translate,
-                      iconInRight: true,
-                      onPressed: selected == null
-                          ? null
-                          : () async {
-                              final tt = await myHomeController.translateText(lang: selected!.language!, texts: [textC.text]);
-                              log(translated ?? '-');
-                              translated = tt;
-                              setState(() {});
-                              // Navigator.of(context).pop(true);
-                            },
-                    ):MyButton(
-                      label: "New Translate",
-                      radius: 12,
-                      icon: ArtemisIcons.refresh,
-                      iconInRight: true,
-                      onPressed: (){
-                        translated = null;
-                        setState(() {});
-                        // Navigator.of(context).pop(true);
-                      },
+                    child: Row(
+                      children: [
+                        Icon(ArtemisIcons.translate),
+                        const SizedBox(width: 8),
+                        Text("Translate", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ],
                     ),
                   ),
+                  CloseButton(),
                 ],
               ),
-            ),
-          ],
+              Divider(),
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: context.height*0.25
+                ),
+                padding: const EdgeInsets.all(12.0),
+                child: CupertinoTextField(controller: textC, maxLines: null),
+              ),
+              Divider(),
+              Expanded(
+                child: translated == null
+                    ? Column(
+                        children: [
+                          CupertinoTextField(
+                            decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
+                            prefix: Padding(padding: const EdgeInsets.all(8.0), child: Icon(Icons.search)),
+                            placeholder: "Search",
+                            controller: searchC,
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              margin: EdgeInsets.only(left: 8, right: 8, top: 12),
+                              decoration: BoxDecoration(color: MyColors.greyBG, borderRadius: BorderRadius.circular(12)),
+                              child: RadioListTile(
+                                dense: true,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                selected: selected == null,
+                                selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
+                                title: Text("English (Default)", style: TextStyle(fontSize: 14, color: selected == null ? context.mainColor : Colors.black)),
+                                value: null,
+                                groupValue: selected?.language,
+                                onChanged: (a) {
+                                  selected = null;
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              color: Colors.white,
+                              child: ListView(
+                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                children: widget.languages.where((a) => a.validateSearch(searchC.text)).map((a) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: MyExpansionTile(
+                                      enabled: false,
+                                      initiallyExpanded: true,
+                                      showTrailingIcon: true,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
+                                      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
+                                      backgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
+                                      collapsedBackgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
+                                      title: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: [
+                                            CountryFlag.fromCountryCode(a.country!, width: 30, height: 20),
+                                            const SizedBox(width: 8),
+                                            Text(a.country!, style: TextStyle(color: Colors.black)),
+                                          ],
+                                        ),
+                                      ),
+                                      showFooter: false,
+                                      children: a.languages!.where((l) => l.validateSearch(searchC.text)).map((l) {
+                                        bool isSelected = l.language == selected?.language;
+                                        return RadioListTile(
+                                          dense: true,
+                                          selected: isSelected,
+                                          selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
+                                          title: Text("${l.name} (${l.title!})", style: TextStyle(fontSize: 14, color: isSelected ? context.mainColor : Colors.black)),
+                                          value: l.language!,
+                                          groupValue: selected?.language,
+                                          onChanged: (a) {
+                                            selected = l;
+                                            setState(() {});
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  );
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        margin: EdgeInsets.only(bottom: 8),
+                                        // decoration: BoxDecoration(
+                                        //   color: Colors.black.withOpacity(0.08),
+                                        //   borderRadius: BorderRadius.circular(12),
+                                        //   border: Border.all(color: MyColors.lineColor),
+                                        // ),
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.all(2),
+                                                  decoration: BoxDecoration(color: MyColors.lineColor, borderRadius: BorderRadius.circular(4)),
+                                                  child: CountryFlag.fromCountryCode(a.country!, width: 40, height: 20),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(a.country ?? '-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                const SizedBox(width: 20),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                    child: Column(
+                                                      children: (a.languages ?? [])
+                                                          .map(
+                                                            (l) => DrawerAction(
+                                                              title: l.name!,
+                                                              onTap: () async {
+                                                                await myHomeController.translateTimaticResponse(language: l.language!, logId: ref.read(refCodeProvider)!);
+                                                              },
+                                                              leadingIcon: Icons.circle,
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(children: [Expanded(child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(translated!,style: TextStyle(fontSize: 18),),
+                      ),
+                    ))]),
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: MyButton(
+                        color: Colors.grey,
+                        radius: 12,
+                        borderSide: BorderSide(color: MyColors.lineColor),
+                        reverse: true,
+                        label: "Cancel",
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child:
+                      translated == null?
+                      MyButton(
+                        label: "Translate",
+                        radius: 12,
+                        icon: ArtemisIcons.translate,
+                        iconInRight: true,
+                        onPressed: selected == null
+                            ? null
+                            : () async {
+                                final tt = await myHomeController.translateText(lang: selected!.language!, texts: [textC.text]);
+                                log(translated ?? '-');
+                                translated = tt;
+                                setState(() {});
+                                // Navigator.of(context).pop(true);
+                              },
+                      ):MyButton(
+                        label: "New Translate",
+                        radius: 12,
+                        icon: ArtemisIcons.refresh,
+                        iconInRight: true,
+                        onPressed: (){
+                          translated = null;
+                          setState(() {});
+                          // Navigator.of(context).pop(true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

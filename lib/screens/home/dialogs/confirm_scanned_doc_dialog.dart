@@ -220,7 +220,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                 MyFieldPicker<DocumentCode>(
                   label: "Code",
                   required: requiredFields.code,
-                  locked: d.verifiedDocCode,
+                  // locked: d.verifiedDocCode,
                   suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
                   // suggestion: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList().sublist(1,3),
                   placeholder: "Code",

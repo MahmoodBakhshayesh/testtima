@@ -13,6 +13,7 @@ import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/constants/ui.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
+import '../../../core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/stateControllers/visas_state_controller.dart';
@@ -101,7 +102,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     bool foundPassInVisa = passports.any((p) => (p.documentNumber ?? '').isNotEmpty && (d.ocrText ?? '').contains(p.documentNumber ?? '-------------------'));
-    List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a) => a.type == "V").map((a) => a.code!).toList();
+    List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == "V").map((a) => a.code!).toList();
     final requiredFields = BasicClass.constData.data.mandatory!.visa!;
 
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (d.ocrText??'').contains('N97191'));
@@ -206,6 +207,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                 MyFieldPicker<DocumentCode>(
                   label: "Code",
                   required: requiredFields.code,
+                  suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
                   placeholder: "Code",
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,

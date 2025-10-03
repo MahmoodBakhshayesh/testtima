@@ -212,6 +212,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                   onPressed: () {
                     if (response == re) {
                       response = null;
+                      msg = null;
                     } else {
                       response = re;
                       if ((re.message ?? []).length == 1) {
@@ -327,10 +328,10 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
           const SizedBox(height: 12),
           MyButton(
             label: "Send",
-            onPressed: response == null || (msg == null && commentC.text.isEmpty)
+            onPressed: response == null
                 ? null
                 : () async {
-                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: (msg??'') + commentC.text);
+                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: commentC.text+ (msg??''), );
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -663,7 +664,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
       return SizedBox();
     }
     final color = res.getColor;
-    final title = res.name!;
+    final title = res.name2!;
     return Container(
       margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
       decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),

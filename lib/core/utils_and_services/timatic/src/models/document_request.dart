@@ -217,11 +217,11 @@ class DocumentDetail {
           ),
         );
 
-  bool isSameAs(OcrMrzResult res) {
+  bool isSameAs(OcrMrzResult res,{List<String?> notThis= const[]}) {
     // log("${res.documentCode} -- ${documentCode?.code}");
     // log("${res.documentNumber} -- ${documentNumber}");
 
-    return (shortType == res.getShortType) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
+    return (shortType == res.getShortType) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty && !notThis.contains(documentNumber);
   }
 
   DocumentType? getMatch() {
@@ -508,9 +508,13 @@ class PassengerDetails {
 
     PassengerFields required = BasicClass.constData.data.mandatory!.passenger!;
 
-    final bDate = !required.birthDate || birthDate != null;
-    final gen = !required.gender || gender != null;
-    final nat = !required.notionality || nationality != null;
+    // final bDate = !required.birthDate || birthDate != null;
+    final bDate =true;
+    final nat =true;
+    // final gen = !required.gender || gender != null;
+    final gen = true;
+
+    // final nat = !required.notionality || nationality != null;
     final bp = !required.birthPlace || birthCountry != null;
     final res = !required.resident || residentCountryCode != null;
 

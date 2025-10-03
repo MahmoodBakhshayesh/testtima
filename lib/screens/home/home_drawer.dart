@@ -88,6 +88,19 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
+
+                        DrawerAction(
+                          title: 'Inbox',
+                          // permission: LogUiPermission.read(),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            ref.read(inboxMessagesProvider.notifier).update((s) => []);
+                            ref.read(nextMessageId.notifier).update((s) => null);
+                            myHomeController.goNamed(Routes.inbox);
+                          },
+                          leadingIcon: Icons.inbox,
+                          trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
+                        ),
                         CheckPermission(
                           saveSpace: false,
                           permission: UserUiPermission.edit(),
@@ -116,18 +129,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           },
                           leadingIcon: Icons.bar_chart,
                         ),
-                        DrawerAction(
-                          title: 'Inbox',
-                          // permission: LogUiPermission.read(),
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            ref.read(inboxMessagesProvider.notifier).update((s) => []);
-                            ref.read(nextMessageId.notifier).update((s) => null);
-                            myHomeController.goNamed(Routes.inbox);
-                          },
-                          leadingIcon: Icons.inbox,
-                          trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
-                        ),
+
                       ],
                     ),
                   ),

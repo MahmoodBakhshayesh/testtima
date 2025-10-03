@@ -9,6 +9,7 @@ import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/constants/ui.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
+import '../../../core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/stateControllers/residents_state_controller.dart';
@@ -98,7 +99,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF4F8F7);
-    List<String> validCodes = BasicClass.constData.data.documentDetailType.where((a)=>a.type == "I").map((a)=>a.code!).toList();
+    List<String> validCodes = BasicClass.constData.data.documentCode.where((a)=>a.type == "I").map((a)=>a.code!).toList();
     final requiredFields = BasicClass.constData.data.mandatory!.idCard!;
 
     return Container(
@@ -185,6 +186,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   label: "Code",
                   placeholder: "Code",
                   required: requiredFields.code,
+                  suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
+
                   // valueToString: docCodeToString,
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,

@@ -297,8 +297,12 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     // log("passes ${passports.length}");
     // log("visas ${visas.length}");
     bool resultMode = timaticRes != null;
+    bool hasAnyDocs = passports.isNotEmpty || visas.isNotEmpty || residents.isNotEmpty;
+
     // bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb ?? "").isNotEmpty && a.operatingCarrier != null);
     bool canCheck = segments.every((s) => s.hasAllRequired()) && passengerDetails.hasAllRequired() && passports.every((p) => p.hasAllRequired()) && visas.every((v) => v.hasAllRequired()) && residents.every((r) => r.hasAllRequired());
+    log("pax ok ${passengerDetails.hasAllRequired()}");
+    bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom >30;
     // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
 
     double additionalHeight = 120;
@@ -416,7 +420,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                       ),
                     ],
                   ),
-                  ?currentStatus.canUseOption?
+                  ?currentStatus.canUseOption && !isKeyboardOpen?
                   Positioned(
                     bottom: 0,
                     right: 12,
@@ -847,7 +851,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
                       Row(
                         children: [
                           Text("Tracking: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          Text(ref.watch(refCodeProvider) ?? '', style: TextStyle(color: Colors.black)),
+                          Text((ref.watch(refCodeProvider) ?? '').padLeft(3,"0").substring(0,3), style: TextStyle(color: Colors.black)),
                           // timaticRes.getRes.getIconWidget,
                           // Text("${timaticRes.getRes.title}",style: TextStyle(fontSize: 12,color: timaticRes.getRes.getColor),),
                           // Container(

@@ -175,7 +175,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                               borderRadius: BorderRadiusGeometry.circular(12),
                               border: Border.all(color: Colors.white)
                             ),
-                            child: Text(response!.name??'',style: TextStyle(color: response.getColor,fontSize: 12),),),
+                            child: Text(response!.name2??'',style: TextStyle(color: response.getColor,fontSize: 12),),),
                       // Expanded(child: Text(widget.message.code ?? '')),
                       // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
                       // Text("${widget.message.user?.username ?? widget.message?.user?.email}"),

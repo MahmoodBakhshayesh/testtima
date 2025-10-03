@@ -160,14 +160,15 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 },
                                 leadingIcon: ArtemisIcons.airplane_square,
                               ),
-                              DrawerAction(
-                                tileColor: MyColors.mainBlue,
-                                title: "Translation for Passenger",
-                                onTap: () async {
-                                  await myHomeController.translateForPassenger();
-                                },
-                                leadingIcon: ArtemisIcons.translate,
-                              ),
+                              // DrawerAction(
+                              //   tileColor: MyColors.mainBlue,
+                              //   title: "Translation for Passenger",
+                              //   onTap: () async {
+                              //     await myHomeController.translateForPassenger();
+                              //   },
+                              //   leadingIcon: ArtemisIcons.translate,
+                              // ),
+
                               DrawerAction(
                                 tileColor: MyColors.mainBlue,
                                 title: "Add Attachment",

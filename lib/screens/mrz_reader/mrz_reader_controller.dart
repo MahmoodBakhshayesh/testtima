@@ -271,8 +271,13 @@ class MrzReaderController extends ControllerInterface {
           // (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
           // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
           // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && ( a.country == res.countryCode),
-          (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last) && ( a.country == res.countryCode),
+          (a) {
+            log("${res.documentCode.characters.first == a.type} ${a.subType == res.documentCode.characters.last}${res.documentCode.characters.last} vs ${a.subType} ${a.country=="-"}");
+            return a.type == res.documentCode.characters.first && (a.subType == "-" || a.subType == res.documentCode.characters.last) && (a.country =="-" || a.country == res.countryCode);
+          },
         );
+
+
         suggest = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
           (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
           // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
@@ -282,6 +287,8 @@ class MrzReaderController extends ControllerInterface {
         if (match != null) {
           docType = BasicClass.constData.data.documentCode.firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
         } else {
+
+          log(BasicClass.constData.data.documentDetailType.map((a)=>"${a.type} ${a.subType} ${a.country}").join("\n"));
           log("no mapper match for ${res.documentCode} should type be ${res.documentCode.characters.first} and subtype be ${res.documentCode.characters.last} || ${res.documentCode.characters.last == "<"}");
         }
       } else {
@@ -318,6 +325,7 @@ class MrzReaderController extends ControllerInterface {
       DocumentDetail documentDetail = DocumentDetail(
         shortType: res.getShortType,
         documentExpiryDate: res.expiryDate,
+
         documentIssueCountry: issueCountry,
         documentCode: docType,
         fullName: "${res.firstName} ${res.lastName}",
@@ -339,8 +347,9 @@ class MrzReaderController extends ControllerInterface {
       log("*" * 100);
 
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
+      final passNumbers = ref.read(passportsProvider).map((a)=>a.documentNumber).toList();
 
-      if (ref.read(passportsProvider).any((a) => a.isSameAs(res)) || ref.read(visasProvider).any((a) => a.isSameAs(res)) || ref.read(residentsProvider).any((a) => a.isSameAs(res))) {
+      if (ref.read(visasProvider).any((a) => a.isSameAs(res))  ||ref.read(visasProvider).any((a) => a.isSameAs(res,notThis: passNumbers) || ref.read(residentsProvider).any((a) => a.isSameAs(res,notThis: passNumbers)))){
         log("was isSameAs");
         navigation.pop();
         Future.delayed(Duration(seconds: 1), () {

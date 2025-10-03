@@ -1,6 +1,7 @@
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
+import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
 import 'package:abds/screens/home/widgets/locked_passenger_widget.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
@@ -163,7 +164,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     PassengerDetails details = ref.watch(passengerProvider);
     final headerBgColor = Color(0xffECECEC);
     final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
-
+    final passNat = ref.watch(passportsProvider).firstOrNull?.nationality;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -232,7 +233,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                 rowLabelRatio: [5, 4],
                 placeholder: "Country",
                 prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
-
+                suggestion:  BasicClass.constData.data.country.where((a)=>a.code3 == passNat?.code3).toList(),
                 searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                 itemToWidget: countryBuilder,
                 items: BasicClass.constData.data.country,
@@ -265,7 +266,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
               label: "Birth Place",
               hasSearch: true,
               rowLabelRatio: [5, 4],
-
+              suggestion:  BasicClass.constData.data.country.where((a)=>a.code3 == passNat?.code3).toList(),
               searchAutoFocus: true,
               placeholder: "Country",
               headerBgColor: headerBgColor,
