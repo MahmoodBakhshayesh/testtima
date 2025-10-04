@@ -54,7 +54,7 @@ class LoginController extends ControllerInterface {
     getIt<HomeController>().clear();
     ref.read(timaticResultNewProvider.notifier).update((s) => null);
 
-    if(["appleuser","googleuser"].contains(username.toLowerCase())){
+    if (["appleuser", "googleuser"].contains(username.toLowerCase())) {
       String? publishApi = await getPublishServer();
     }
     // DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
@@ -86,7 +86,7 @@ class LoginController extends ControllerInterface {
         ref.read(profileProvider.notifier).update((s) => user!.profile);
         initData(user);
         // final tData = await getIt<HomeController>().preloadAll();
-        checkNotifCount();
+        checkNotifCount(user.setting?.refreshInboxTimer);
         loadSupervisors();
         getIt<HomeController>().clear();
         if (user.setPassword) {
@@ -315,14 +315,16 @@ class LoginController extends ControllerInterface {
     ref.read(segmentsProvider.notifier).removeAll();
   }
 
-  checkNotifCount() {
-    return;
+  checkNotifCount(int? refreshInboxTimer) {
+    if (refreshInboxTimer == null) {
+      return;
+    }
     if (ref.read(userProvider) == null) {
       return;
     }
     getIt<HomeController>().getNotifCount().then((a) {
-      Future.delayed(Duration(seconds: 10), () {
-        checkNotifCount();
+      Future.delayed(Duration(microseconds: refreshInboxTimer), () {
+        checkNotifCount(refreshInboxTimer);
       });
     });
   }
@@ -418,7 +420,7 @@ class LoginController extends ControllerInterface {
         apiAddress = r.apiAddress;
         String address = apiAddress + apiVersion;
         log("setting address ${address}");
-        Server pubServer = Server(id: "100", title: "Publish", apiAddress:address , active: true, serverDefault: false);
+        Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false);
         saveServer(pubServer);
     }
 

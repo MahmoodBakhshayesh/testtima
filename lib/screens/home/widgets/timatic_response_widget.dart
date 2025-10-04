@@ -38,7 +38,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
         ...widget.res.segments.map((segRes) {
           int index = widget.res.segments.indexOf(segRes);
           return MyExpansionTile(
-            initiallyExpanded: segRes.result!.first.ruleSetEvaluations!.any((a) => a.evaluationResult.index < 2),
+            initiallyExpanded: segRes.result!.first.ruleSetEvaluations!.any((a) => a.getRes.resultId!=1),
             tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
             collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),

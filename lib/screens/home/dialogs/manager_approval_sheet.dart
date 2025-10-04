@@ -134,7 +134,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                               controller: nameC,
                             ),
 
-                            MyTextFieldNew(headerBgColor: Colors.white, bodyBgColor: Color(0xffF4f4f4), labelInRow: true, label: "Message", backgroundColor: Colors.white, placeholder: "Message", controller: msgC),
+                            MyTextFieldNew(headerBgColor: Colors.white, bodyBgColor: Color(0xffF4f4f4), labelInRow: true, label: "Note", backgroundColor: Colors.white, placeholder: "Note", controller: msgC),
 
                             Expanded(
                               child: GestureDetector(
