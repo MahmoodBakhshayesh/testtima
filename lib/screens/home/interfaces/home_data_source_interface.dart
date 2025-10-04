@@ -11,6 +11,7 @@ import '../usecases/timatic_get_locations_usecase.dart';
 import '../usecases/timatic_get_parameters_usecase.dart';
 import '../usecases/translate_text_usecase.dart';
 import '../usecases/translate_timatic_response_usecase.dart';
+import '../usecases/validate_employee_id_usecase.dart';
 
 abstract class HomeDataSourceInterface {
   Future<GetRefCodeLogResponse> getRefCodeLog({required GetRefCodeLogRequest request});
@@ -26,4 +27,5 @@ abstract class HomeDataSourceInterface {
   Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request});
   Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request});
   Future<TranslateTextResponse> translateText({required TranslateTextRequest request});
+  Future<ValidateEmployeeIdResponse> validateEmployeeId({required ValidateEmployeeIdRequest request});
 }

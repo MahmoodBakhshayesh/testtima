@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:ui';
+import 'package:abds/core/classes/supported_language_class.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +26,10 @@ class BasicClass {
   static final BasicClass instance = BasicClass._();
   static late bool initialized;
   String? _username;
+
   // TimaticData? _timaticData;
   LoginData? _loginData;
+
   // ConstData? _constData;
   VersionedConstantData? _versionedConstantData;
   PackageInfo? _packageInfo;
@@ -69,8 +72,8 @@ class BasicClass {
     return Colors.grey;
   }
 
-  static TimaticResult getResultOfCode(int code){
-    return constData.data.timaticResult!.firstWhere((a)=>a.resultId == code);
+  static TimaticResult getResultOfCode(int code) {
+    return constData.data.timaticResult!.firstWhere((a) => a.resultId == code);
   }
 
   static Country? getLocationWithCode(String code) {
@@ -90,7 +93,7 @@ class BasicClass {
     final up = instance._userPermission!;
 
     if (permission is UserUiPermission) {
-      return up.maskOf("user")>0;
+      return up.maskOf("user") > 0;
       // return up.user.isGreaterThan(0);
     }
 
@@ -99,6 +102,23 @@ class BasicClass {
     }
 
     return false;
+  }
+
+  static List<SupportedLanguage> getAllSupportedLanguages() {
+    List<SupportedLanguage> result = [];
+    constData.data.languages.map((a) => a.country).toSet().forEach((c) {
+      SupportedLanguage sp = SupportedLanguage(country: c, languages: constData.data.languages.where((a) => a.country == c).map((l) => Language(
+        title: l.title,
+        language: l.language,
+        name: l.name
+      )).toList());
+      result.add(sp);
+    });
+    return result;
+  }
+
+  static AvailableLanguage getLanguageByCode(String code){
+    return constData.data.languages.firstWhere((a)=>a.language == code);
   }
 }
 

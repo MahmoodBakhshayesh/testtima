@@ -5,6 +5,7 @@ import 'package:abds/screens/inbox/inbox_view.dart';
 import 'package:abds/screens/logs/logs_view.dart';
 import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
+import 'package:abds/screens/outbox/outbox_view.dart';
 import 'package:abds/screens/users/users_view.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         TreeRoute(routeInfo: Routes.addUser, pageWidget: AddUserView()),
         TreeRoute(routeInfo: Routes.profile, pageWidget: ProfileView()),
         TreeRoute(routeInfo: Routes.performance, pageWidget: PerformanceView()),
+        TreeRoute(routeInfo: Routes.outbox, pageWidget: OutboxView()),
         TreeRoute(
           routeInfo: Routes.inbox,
           pageWidget: InboxView(),

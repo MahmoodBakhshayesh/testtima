@@ -10,6 +10,7 @@ import '../../../core/interfaces/network_manager_int.dart';
 import '../../../core/interfaces/parser_int.dart';
 import '../interfaces/login_data_source_interface.dart';
 import '../usecases/get_cons_data_usecase.dart';
+import '../usecases/get_publish_server_usecase.dart';
 import '../usecases/login_usecase.dart';
 import '../usecases/reset_password_usecase.dart';
 import '../usecases/send_forget_password_code_usecase.dart';
@@ -68,6 +69,14 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
     String api = "/constant/${request.constVersion}";
     ResponseInterface res = await networkManager.get(api);
     GetConsDataResponse response = await Parser().parse(GetConsDataResponse.fromResponse, res, executionReq: request);
+    return response;
+  }
+
+  @override
+  Future<GetPublishServerResponse> getPublishServer({required GetPublishServerRequest request}) async {
+    String api = "/server/publish";
+    ResponseInterface res = await networkManager.get(api);
+    GetPublishServerResponse response = await Parser().parse(GetPublishServerResponse.fromResponse, res, executionReq: request);
     return response;
   }
 }

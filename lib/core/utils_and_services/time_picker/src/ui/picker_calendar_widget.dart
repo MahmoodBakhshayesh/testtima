@@ -374,6 +374,7 @@ class _PickerCalendarStandardWidgetState
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+
                       if (args.options.isTopTitleHeader)
                         TopTitleWidget(options: args.options,onSubmit: widget.onSubmit,),
                       args.headerBuilder(context),

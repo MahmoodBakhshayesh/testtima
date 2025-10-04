@@ -21,6 +21,7 @@ import 'usecases/timatic_get_locations_usecase.dart';
 import 'usecases/timatic_get_parameters_usecase.dart';
 import 'usecases/translate_text_usecase.dart';
 import 'usecases/translate_timatic_response_usecase.dart';
+import 'usecases/validate_employee_id_usecase.dart';
 
 class HomeRepository implements HomeRepositoryInterface {
   final HomeRemoteDataSource homeRemoteDataSource = HomeRemoteDataSource();
@@ -209,19 +210,33 @@ class HomeRepository implements HomeRepositoryInterface {
     }
   }
 
-      @override
-        Future<Result<TranslateTextResponse>> translateText(TranslateTextRequest request) async {
-          try {
-            TranslateTextResponse translateTextResponse;
-            if (await networkInfo.isConnected) {
-              translateTextResponse = await homeRemoteDataSource.translateText(request: request);
-            } else {
-              translateTextResponse = await homeLocalDataSource.translateText(request: request);
-            }
-            return Result.ok(translateTextResponse);
-          } on AppException catch (e) {
-            return Result.error(ServerFailure.fromAppException(e));
-          }
-        }
+  @override
+  Future<Result<TranslateTextResponse>> translateText(TranslateTextRequest request) async {
+    try {
+      TranslateTextResponse translateTextResponse;
+      if (await networkInfo.isConnected) {
+        translateTextResponse = await homeRemoteDataSource.translateText(request: request);
+      } else {
+        translateTextResponse = await homeLocalDataSource.translateText(request: request);
+      }
+      return Result.ok(translateTextResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
 
+  @override
+  Future<Result<ValidateEmployeeIdResponse>> validateEmployeeId(ValidateEmployeeIdRequest request) async {
+    try {
+      ValidateEmployeeIdResponse validateEmployeeIdResponse;
+      if (await networkInfo.isConnected) {
+        validateEmployeeIdResponse = await homeRemoteDataSource.validateEmployeeId(request: request);
+      } else {
+        validateEmployeeIdResponse = await homeLocalDataSource.validateEmployeeId(request: request);
+      }
+      return Result.ok(validateEmployeeIdResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
 }

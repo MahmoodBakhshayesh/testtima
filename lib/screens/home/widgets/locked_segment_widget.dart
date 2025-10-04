@@ -81,7 +81,7 @@ class LockedSegmentRow extends StatelessWidget {
           ?seg.returnOnwardTicket != null ? LockedFieldWidget(label: "Ticket", value: Text(seg.returnOnwardTicket!.title)) : null,
           ?seg.purposeOfStay != null ? LockedFieldWidget(label: "POS", value: Text(seg.purposeOfStay!.title)) : null,
           ?seg.durationOfStay != null ? LockedFieldWidget(label: "DOS", value: Text(seg.durationOfStay!.formatDurationUnit)) : null,
-          ?seg.luggageCollected != null ? LockedFieldWidget(label: "Luggage Collected", value: Text(seg.luggageCollected!?"Yes":"No")) : null,
+          // ?seg.luggageCollected != null ? LockedFieldWidget(label: "Luggage Collected", value: Text(seg.luggageCollected!?"Yes":"No")) : null,
         ],
       ),
     );

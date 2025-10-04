@@ -10,6 +10,7 @@ import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/login/usecases/get_cons_data_usecase.dart';
+import 'package:abds/screens/login/usecases/get_publish_server_usecase.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -52,6 +53,10 @@ class LoginController extends ControllerInterface {
     _log.warning("Logging in");
     getIt<HomeController>().clear();
     ref.read(timaticResultNewProvider.notifier).update((s) => null);
+
+    if(["appleuser","googleuser"].contains(username.toLowerCase())){
+      String? publishApi = await getPublishServer();
+    }
     // DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     // DeviceInfo deviceInfo = deviceInfoService.getInfo();
     AppDeviceNetworkData adnd = getIt<AppDeviceNetworkData>();
@@ -386,8 +391,8 @@ class LoginController extends ControllerInterface {
         constData = r.constantData;
         BasicClass.setVersionedConstData(r.constantData);
         catchConstData(r.constantData);
-        // await sharedPref.setVariable(key: "constantData", value: jsonEncode(r.constantData.toJson()));
-        // log("got and saved constant data version ${constData!.version}");
+      // await sharedPref.setVariable(key: "constantData", value: jsonEncode(r.constantData.toJson()));
+      // log("got and saved constant data version ${constData!.version}");
     }
 
     return constData;
@@ -396,5 +401,27 @@ class LoginController extends ControllerInterface {
   Future<void> loadSupervisors() async {
     final supervisors = await getIt<HomeController>().getSupervisors();
     ref.read(supervisorsProvider.notifier).update((s) => supervisors ?? s);
+  }
+
+  Future<String?> getPublishServer() async {
+    String? apiAddress;
+    GetPublishServerUseCase getPublishServerUseCase = GetPublishServerUseCase();
+    GetPublishServerRequest getPublishServerRequest = GetPublishServerRequest();
+    final result = await getPublishServerUseCase(request: getPublishServerRequest);
+
+    switch (result) {
+      case Err<GetPublishServerResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<GetPublishServerResponse>():
+        final r = result.value;
+        apiAddress = r.apiAddress;
+        String address = apiAddress + apiVersion;
+        log("setting address ${address}");
+        Server pubServer = Server(id: "100", title: "Publish", apiAddress:address , active: true, serverDefault: false);
+        saveServer(pubServer);
+    }
+
+    return apiAddress;
   }
 }

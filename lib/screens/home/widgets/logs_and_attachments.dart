@@ -152,10 +152,32 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
           // color: Color(0xff2A5CFF).withOpacity(.08)
           color: Colors.white,
         ),
-        padding: EdgeInsets.all(12),
-        child: Row(
+        padding: EdgeInsets.symmetric(horizontal: 6,vertical: 0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Text("Waiting for ${sup?.name}'s Response", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))],
+          children: [
+            widget.his.payload?.message == null
+                ? SizedBox()
+                : Container(
+              margin: EdgeInsets.symmetric(vertical: 6),
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(color: MyColors.mainBlue.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(15)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [Text(widget.his.user?.username ?? '-', style: TextStyle(fontWeight: FontWeight.bold))],
+                  ),
+                  Text(widget.his.payload!.message!),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text("Waiting for ${sup?.name}'s Response", style: TextStyle( fontSize: 12)),
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
       );
     }
@@ -558,11 +580,11 @@ class ManagerApprovalWidget extends StatelessWidget {
                           return Text(
                             // his.user?.username??his.user?.email ?? '',
                             "Employee ${ref.watch(currentStatusProvider).employeeId ?? ''}",
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                            style: TextStyle(color: Colors.black,fontSize: 12),
                           );
                         },
                       ),
-                      Text(his.payload?.name ?? ''),
+
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
@@ -618,6 +640,9 @@ class ManagerApprovalWidget extends StatelessWidget {
                                 ),
                               ],
                             ),
+
+                      Text(his.payload?.message ?? '',style: TextStyle(fontSize: 12),),
+                      Text(his.payload?.name ?? '',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
                     ],
                   ),
                 ),

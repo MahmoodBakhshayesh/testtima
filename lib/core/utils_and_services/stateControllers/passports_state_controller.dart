@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../timatic/artemis_timatic.dart';
 
 final passportsProvider = StateNotifierProvider<ItemsController, List<DocumentDetail>>((ref) {
-  return ItemsController(const []);
+  return ItemsController( [DocumentDetail.passport()]);
 });
 
 class ItemsController extends StateNotifier<List<DocumentDetail>> {
@@ -26,7 +26,7 @@ class ItemsController extends StateNotifier<List<DocumentDetail>> {
   }
 
   void removeAll() {
-    final List<DocumentDetail> next = [];
+    final List<DocumentDetail> next = [DocumentDetail.passport()];
     state = next;
   }
 

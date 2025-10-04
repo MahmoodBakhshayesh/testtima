@@ -44,16 +44,19 @@ import 'package:abds/widgets/check_permission.dart';
 import 'package:abds/widgets/user_avatar.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -248,6 +251,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
   late GlobalKey<ScaffoldState> flightsScaffoldKey;
   ExpansibleController flightPaxController = ExpansibleController();
   ExpansibleController timaticController = ExpansibleController();
+  ScrollController scrollController = ScrollController();
 
   Timer? _ticker;
 
@@ -300,11 +304,8 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     bool hasAnyDocs = passports.isNotEmpty || visas.isNotEmpty || residents.isNotEmpty;
 
     // bool canCheck = segments.any((a) => a.arrival.point.isNotEmpty && a.departure.point.isNotEmpty && (a.flnb ?? "").isNotEmpty && a.operatingCarrier != null);
-    bool canCheck = segments.every((s) => s.hasAllRequired()) && passengerDetails.hasAllRequired() && passports.every((p) => p.hasAllRequired()) && visas.every((v) => v.hasAllRequired()) && residents.every((r) => r.hasAllRequired());
-    log("pax ok ${passengerDetails.hasAllRequired()}");
+    bool canCheck = segments.first.hasAllRequired() &&  segments.every((s) => s.hasRoute()) && passengerDetails.hasAllRequired() && passports.every((p) => p.hasAllRequired()) && visas.every((v) => v.hasAllRequired()) && residents.every((r) => r.hasAllRequired());
     bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom >30;
-    // bool foundPassInVisa = passports.any((p)=>p.documentNumber!=null && (ref.read(lastVisaOcrProvider)?.text??'').contains(p.documentNumber??'-------------------'));
-
     double additionalHeight = 120;
     final currentStatus = ref.watch(currentStatusProvider);
     return PopScope(
@@ -324,97 +325,111 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                   Column(
                     children: [
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              SizedBox(height: 124 + (resultMode ? additionalHeight : 0)),
-                              LogsAndAttachmentsWidget(),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: MyExpansionTile(
-                                  controller: flightPaxController,
-                                  initiallyExpanded: true,
-                                  backgroundColor: Color(0xffFAFAFB),
-                                  collapsedBackgroundColor: Color(0xffFAFAFB),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadiusGeometry.circular(28),
-                                    side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                  ),
-                                  collapsedShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadiusGeometry.circular(28),
-                                    side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                  ),
-                                  childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                                  showTrailingIcon: true,
-                                  title: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text("Flight / Passenger", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                                  ),
-                                  showFooter: false,
-                                  children: [
-                                    FlightWidget(),
-                                    PassengerWidget(),
-                                    PassportWidget(),
-                                    VisaWidget(),
-                                    ResidentWidget(),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: MyExpansionTile(
-                                  controller: timaticController,
-                                  showTrailingIcon: resultMode,
-                                  backgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
-                                  collapsedBackgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadiusGeometry.circular(28),
-                                    side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                  ),
-                                  collapsedShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadiusGeometry.circular(28),
-                                    side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                  ),
-                                  childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                                  title: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Row(
-                                      children: [
-                                        Text("TIMATIC ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                                        resultMode
-                                            ? Row(
-                                                children: [
-                                                  timaticRes.getRes.getIconWidget,
-                                                  Text(timaticRes!.getRes.title, style: TextStyle(color: timaticRes.getRes.getColor)),
-                                                  // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                                ],
-                                              )
-                                            : SizedBox(),
-                                      ],
+                        child: CustomMaterialIndicator(
+
+                          onRefresh:() async =>await  getIt<HomeController>().refreshResults(), // Your refresh logic
+                          backgroundColor: Colors.white,
+                          indicatorBuilder: (context, controller) {
+                            return Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: SpinKitChasingDots(size: 40,color: Colors.black45,)
+                            );
+                          },
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            child: Column(
+                              children: [
+                                SizedBox(height: 124 + (resultMode ? additionalHeight : 0)),
+                                LogsAndAttachmentsWidget(),
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: MyExpansionTile(
+                                    controller: flightPaxController,
+                                    initiallyExpanded: true,
+                                    backgroundColor: Color(0xffFAFAFB),
+                                    collapsedBackgroundColor: Color(0xffFAFAFB),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadiusGeometry.circular(28),
+                                      side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
                                     ),
-                                  ),
-                                  showFooter: false,
-                                  children: [
-                                    Consumer(
-                                      builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                        final result = ref.watch(timaticResultNewProvider);
-                                        if (result == null) {
-                                          return SizedBox();
-                                        }
-                                        // return SizedBox(height: 100);
-                                        return Column(
-                                          children: [
-                                            TimaticTrueResultWidgetNew(res: result),
-                                            const SizedBox(height: 12),
-                                          ],
-                                        );
-                                      },
+                                    collapsedShape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadiusGeometry.circular(28),
+                                      side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
                                     ),
-                                  ],
+                                    childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                                    showTrailingIcon: true,
+                                    title: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text("Flight / Passenger", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                    ),
+                                    showFooter: false,
+                                    children: [
+                                      FlightWidget(),
+                                      PassengerWidget(),
+                                      PassportWidget(),
+                                      VisaWidget(),
+                                      ResidentWidget(),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 100),
-                            ],
+                                ?resultMode?
+                                Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: MyExpansionTile(
+                                    initiallyExpanded: true,
+                                    // controller: timaticController,
+                                    showTrailingIcon: resultMode,
+                                    backgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
+                                    collapsedBackgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadiusGeometry.circular(28),
+                                      side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                                    ),
+                                    collapsedShape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadiusGeometry.circular(28),
+                                      side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                                    ),
+                                    childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                                    title: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Row(
+                                        children: [
+                                          Text("TIMATIC ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                          resultMode
+                                              ? Row(
+                                                  children: [
+                                                    timaticRes.getRes.getIconWidget,
+                                                    Text(timaticRes!.getRes.title, style: TextStyle(color: timaticRes.getRes.getColor)),
+                                                    // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                                  ],
+                                                )
+                                              : SizedBox(),
+                                        ],
+                                      ),
+                                    ),
+                                    showFooter: false,
+                                    children: [
+                                      Consumer(
+                                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                          final result = ref.watch(timaticResultNewProvider);
+                                          if (result == null) {
+                                            return SizedBox();
+                                          }
+                                          // return SizedBox(height: 100);
+                                          return Column(
+                                            children: [
+                                              TimaticTrueResultWidgetNew(res: result),
+                                              const SizedBox(height: 12),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ):null,
+                                const SizedBox(height: 100),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -581,6 +596,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                                 ref.read(timaticResultNewProvider.notifier).update((s) => timResult);
                                                 flightPaxController.collapse();
                                                 timaticController.expand();
+                                                scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
                                               }
                                             },
                                       radius: 12,
@@ -1153,7 +1169,7 @@ class WarningsBuilder extends ConsumerWidget {
 
     if (bDates.toSet().toList().length > 1) {
       // warning = "Nationalities do not match: ${nats.toSet().join(", ")}";
-      warningList.add("BirthDates do not match: ${bDates.toSet().join(", ")}");
+      warningList.add("Birth dates do not match:\n${bDates.toSet().map((a)=>DateFormat("dd ,MMM yyyy").format(DateFormat("yy-MM-dd").parse(a))).join(" vs ")}");
     }
 
     if (warningList.isNotEmpty) {

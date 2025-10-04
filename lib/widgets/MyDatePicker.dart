@@ -153,13 +153,18 @@ class _MyDatePickerState extends State<MyDatePicker> {
     return GestureDetector(
       onTap: () {
         if (context.isDesktop) {
-          showDatePicker(context: context, initialDate: widget.value ?? DateTime.now(), firstDate: widget.min ?? DateTime(1900), lastDate: widget.max ?? DateTime(3000)).then((v) {
+          showDatePicker(context: context,
+              barrierDismissible: false,
+              initialDate: widget.value ?? DateTime.now(), firstDate: widget.min ?? DateTime(1900), lastDate: widget.max ?? DateTime(3000)).then((v) {
             widget.onChanged(v);
             controller?.text = v?.format_HHmm ?? '';
           });
         } else {
           showBoardDateTimePicker(
             context: context,
+            enableDrag: false,
+            showDragHandle: false,
+            isDismissible: false,
             initialDate: widget.value ?? DateTime.now(),
             pickerType: DateTimePickerType.date,
             maximumDate: widget.max ?? DateTime(3000),

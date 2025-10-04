@@ -39,8 +39,9 @@ import 'attach_comment_sheet.dart';
 class PartialTranslateSheet extends ConsumerStatefulWidget {
   final String text;
   final List<SupportedLanguage> languages;
+  final List<SupportedLanguage> allLangs;
 
-  const PartialTranslateSheet({super.key, required this.languages, required this.text});
+  const PartialTranslateSheet({super.key, required this.languages,required this.allLangs, required this.text});
 
   @override
   ConsumerState<PartialTranslateSheet> createState() => _MyOcrSettingDialogState();
@@ -62,6 +63,7 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final langs = widget.allLangs.where((a) => a.validateSearch(searchC.text)).toList();
     return GestureDetector(
       onTap: (){
         FocusScope.of(context).requestFocus(FocusNode());
@@ -132,34 +134,35 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                           Expanded(
                             child: Container(
                               color: Colors.white,
-                              child: ListView(
+                              child: ListView.builder(
+                                itemCount:langs.length ,
                                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                children: widget.languages.where((a) => a.validateSearch(searchC.text)).map((a) {
+                               itemBuilder: (c,i){
+                                  final a = langs[i];
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: MyExpansionTile(
                                       enabled: false,
                                       initiallyExpanded: true,
                                       showTrailingIcon: true,
+                                      dense: true,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
                                       collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
                                       backgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
                                       collapsedBackgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
-                                      title: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          children: [
-                                            CountryFlag.fromCountryCode(a.country!, width: 30, height: 20),
-                                            const SizedBox(width: 8),
-                                            Text(a.country!, style: TextStyle(color: Colors.black)),
-                                          ],
-                                        ),
+                                      title: Row(
+                                        children: [
+                                          CountryFlag.fromCountryCode(a.country!, width: 30, height: 20),
+                                          const SizedBox(width: 8),
+                                          Text(a.country!, style: TextStyle(color: Colors.black)),
+                                        ],
                                       ),
                                       showFooter: false,
-                                      children: a.languages!.where((l) => l.validateSearch(searchC.text)).map((l) {
+                                      children: a.languages!.where((l) => l.validateSearch(searchC.text) || true).map((l) {
                                         bool isSelected = l.language == selected?.language;
                                         return RadioListTile(
                                           dense: true,
+                                          contentPadding: EdgeInsets.zero,
                                           selected: isSelected,
                                           selectedTileColor: MyColors.mainBlue.withOpacity(0.08),
                                           title: Text("${l.name} (${l.title!})", style: TextStyle(fontSize: 14, color: isSelected ? context.mainColor : Colors.black)),
@@ -173,67 +176,19 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                                       }).toList(),
                                     ),
                                   );
-                                  return Column(
-                                    children: [
-                                      Container(
-                                        margin: EdgeInsets.only(bottom: 8),
-                                        // decoration: BoxDecoration(
-                                        //   color: Colors.black.withOpacity(0.08),
-                                        //   borderRadius: BorderRadius.circular(12),
-                                        //   border: Border.all(color: MyColors.lineColor),
-                                        // ),
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding: EdgeInsets.all(2),
-                                                  decoration: BoxDecoration(color: MyColors.lineColor, borderRadius: BorderRadius.circular(4)),
-                                                  child: CountryFlag.fromCountryCode(a.country!, width: 40, height: 20),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Text(a.country ?? '-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const SizedBox(width: 20),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                    child: Column(
-                                                      children: (a.languages ?? [])
-                                                          .map(
-                                                            (l) => DrawerAction(
-                                                              title: l.name!,
-                                                              onTap: () async {
-                                                                await myHomeController.translateTimaticResponse(language: l.language!, logId: ref.read(refCodeProvider)!);
-                                                              },
-                                                              leadingIcon: Icons.circle,
-                                                            ),
-                                                          )
-                                                          .toList(),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
+                               },
                               ),
                             ),
                           ),
                         ],
                       )
                     : Column(children: [Expanded(child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Text(translated!,style: TextStyle(fontSize: 18),),
+                      child: Directionality(
+                        textDirection: BasicClass.getLanguageByCode(selected!.language!).dir =="ltr"?TextDirection.ltr:TextDirection.rtl,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(translated!,style: TextStyle(fontSize: 18),),
+                        ),
                       ),
                     ))]),
               ),

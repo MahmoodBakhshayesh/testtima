@@ -11,6 +11,7 @@ import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_text_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
+import 'package:abds/screens/home/usecases/validate_employee_id_usecase.dart';
 
 import '../../../core/interfaces/local_data_base_int.dart';
 
@@ -104,6 +105,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<TranslateTextResponse> translateText({required TranslateTextRequest request}) {
     // TODO: implement translateText
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<ValidateEmployeeIdResponse> validateEmployeeId({required ValidateEmployeeIdRequest request}) {
+    // TODO: implement validateEmployeeId
     throw UnimplementedError();
   }
 

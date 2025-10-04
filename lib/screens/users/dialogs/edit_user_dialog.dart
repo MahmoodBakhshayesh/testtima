@@ -67,17 +67,17 @@ class _EditUserDialogState extends State<EditUserDialog> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final permissions = myUsersController.ref.read(userProvider)!.permission;
       BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).forEach((att){
-        if(att.type == "string"){
+        if(att.type.toLowerCase() == "string"){
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]));
-        }else if(att.type =="enum"){
+        }else if(att.type.toLowerCase() =="enum"){
           attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute[att.name]);
-        }else if(att.type =="date"){
+        }else if(att.type.toLowerCase() =="date"){
           attributes.putIfAbsent(att.name, ()=>DateTime.tryParse(widget.user.userAttribute[att.name]));
-        }else if(att.type =="boolean"){
+        }else if(att.type.toLowerCase() =="boolean"){
           attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute[att.name])??false);
-        }else if(att.type =="number"){
+        }else if(att.type.toLowerCase() =="number"){
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
-        }else if(att.type =="float"){
+        }else if(att.type.toLowerCase() =="float"){
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
         }
       });
@@ -165,12 +165,14 @@ class _EditUserDialogState extends State<EditUserDialog> {
                       collapsedBackgroundColor: Colors.green.withOpacity(0.08),
                       title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       children: BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).map((att){
+                        final headerBg = MyColors.green2.withOpacity(0.26);
+                        final bodyBg = MyColors.green2.withOpacity(0.12);
                         if(att.type == "string"){
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyTextFieldNew(
-                              headerBgColor: Colors.black26,
-                              bodyBgColor: Colors.black12,
+                              headerBgColor:headerBg,
+                              bodyBgColor: bodyBg,
                               label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
                           );
                         }else if(att.type == "enum"){
@@ -178,8 +180,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyFieldPicker<dynamic>(
                               items: att.defaultList,
-                              headerBgColor: Colors.black26,
-                              bodyBgColor: Colors.black12,
+                              headerBgColor:headerBg,
+                              bodyBgColor: bodyBg,
                               value: attributes[att.name],
                               onChange: (a){
                                 attributes[att.name] = a;
@@ -191,32 +193,32 @@ class _EditUserDialogState extends State<EditUserDialog> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyTextFieldNew(
-                              headerBgColor: Colors.black26,
-                              bodyBgColor: Colors.black12,
+                              headerBgColor:headerBg,
+                              bodyBgColor: bodyBg,
                               label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
                           );
                         }else if(att.type == "number"){
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyTextFieldNew(
-                              headerBgColor: Colors.black26,
-                              bodyBgColor: Colors.black12,
+                              headerBgColor:headerBg,
+                              bodyBgColor: bodyBg,
                               label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
                           );
                         }else if(att.type == "float"){
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyTextFieldNew(
-                              headerBgColor: Colors.black26,
-                              bodyBgColor: Colors.black12,
+                              headerBgColor:headerBg,
+                              bodyBgColor: bodyBg,
                               label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
                           );
                         }else if(att.type == "date"){
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyDatePicker(
-                              headerBgColor: Colors.black26,
-                              bodyBgColor: Colors.black12,
+                              headerBgColor:headerBg,
+                              bodyBgColor: bodyBg,
                               value: attributes[att.name],
                               onChanged: (a){
                                 attributes[att.name] = a;

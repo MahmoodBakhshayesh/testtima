@@ -44,13 +44,14 @@ class AskEmployeeIDSheet extends StatefulWidget {
 
 class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
   TextEditingController idC = TextEditingController();
+  bool invalidId = false;
 
   @override
   void initState() {
-
     super.initState();
-    idC.addListener(()=>setState((){}));
+    idC.addListener(() => setState(() {}));
   }
+
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
@@ -100,24 +101,40 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                     //   ),
                     // ),
                     Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.only(top: 12.0,left: 12,right: 12),
                       child: CupertinoTextField(
                         maxLength: 6,
                         textAlign: TextAlign.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadiusGeometry.circular(8),
-                          color: MyColors.lineColor,
-                        ),
+                        decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(8), color: invalidId ? Colors.red.withOpacity(0.12) : MyColors.lineColor),
                         style: TextStyle(fontSize: 40),
                         placeholder: "Employee ID",
                         controller: idC,
                       ),
                     ),
+                    IndexedStack(
+                      index: invalidId ? 0 : 1,
+                      children: [
+                        Container(padding: EdgeInsets.symmetric(horizontal: 12),child: Text("Invalid Employee ID",style: TextStyle(color: Colors.red),)),
+                        SizedBox(),
+                      ],
+                    ),
                     CupertinoNumericKeyboard(
                       maxLength: 6,
-                      controller: idC,onDone:idC.text.isEmpty?null: (){
-                      Navigator.of(context).pop(idC.text);
-                    },),
+                      controller: idC,
+                      onDone: idC.text.isEmpty
+                          ? null
+                          : () async {
+                              bool valid = await getIt<HomeController>().validateEmployeeId(idC.text);
+                              if (valid) {
+                                Navigator.of(context).pop(idC.text);
+                              } else {
+                                invalidId = !valid;
+                                setState(() {});
+                              }
+
+                              //
+                            },
+                    ),
                   ],
                 ),
               ),

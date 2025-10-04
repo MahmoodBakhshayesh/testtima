@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:abds/widgets/MyButton.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -279,6 +280,7 @@ class _KeyGrid extends StatelessWidget {
 
     Widget buildDoneKey() {
       // iOS-like filled action key
+      return MyButton(label: "Done",onPressed: onDone,radius: 12,fontSize: 20,fontWeight: FontWeight.w700,height: 56,);
       return GestureDetector(
         onTap: onDone,
         child: Container(

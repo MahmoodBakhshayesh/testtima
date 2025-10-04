@@ -115,10 +115,13 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
               ...(segRes.result ?? []).map((sr) {
                 final sorted = sr.ruleSetEvaluations ?? [];
                 // sorted.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
-
-                return Column(children: [...(sorted).map((a) => RuleSetWidgetNew(ruleSet: a))]);
+                return Column(children: [
+                  ...(sorted).map((a) => RuleSetWidgetNew(ruleSet: a)),
+                 ]
+                );
               }),
-              // ...segRes.result.map((r)=>r.ruleSetEvaluations!.map((a)=>RuleSetWidgetNew(ruleSet: a))).toList()
+
+              // ...segRes.result.map((r)=>r.ruleSetEvaluations!.map((a)=>RuleSetWidgetNew(ruleSet: a))).toList(),
               // segRes.commonBorder == null ? const SizedBox() : CommonBorderWidgetNew(commonBorder: segRes.commonBorder!),
               // ...segRes.ruleSetEvaluations.map((rs) => RuleSetWidgetNew(ruleSet: rs)),
               const SizedBox(height: 12),
@@ -137,13 +140,15 @@ class RuleSetWidgetNew extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // log("rulse set ${ruleSet.title} ${ ruleSet.getRes.resultId} expanded =${ruleSet.getRes.resultId !=1}");
+
     return Padding(
       padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
       child: MyExpansionTile(
-        // initiallyExpanded: ruleSet.evaluationResult.index < 2,
+        // initiallyExpanded: (ruleSet.getRes.resultId??1)>1,
         showFooter: false,
-        initiallyExpanded: ruleSet.ruleSetResult !=1,
-        enabled: ruleSet.ruleSetResult ==1,
+        initiallyExpanded: ruleSet.getRes.resultId !=1,
+        enabled: ruleSet.getRes.resultId ==1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
@@ -213,6 +218,7 @@ class RuleSetWidgetNew extends StatelessWidget {
                   Expanded(
                     child: Text(
                       ruleSet.title ?? '',
+                      // "${ruleSet.regulations.length}",
                       style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: ruleSet.getColor),
                     ),
                     // child: Text(ruleSet.getRes.resultId.toString() ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
@@ -260,6 +266,7 @@ class RegulationWidgetNew extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8.0,right: 8,bottom: 8),
       child: MyExpansionTile(
         showFooter: false,
+        initiallyExpanded: regulation.getRes.resultId!=1,
         collapsedShape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(12),
           side: BorderSide(color: Colors.white, width: 2),
@@ -313,7 +320,11 @@ class RegulationWidgetNew extends StatelessWidget {
                         log(innerText.toString());
                         final regex = RegExp(r'<[^>]*>');
                         final plainText = e.replaceAll(regex, '').trim();
-                        showModalBottomSheet(context: context,isScrollControlled: true, builder: (c)=>PartialTranslateSheet(languages: langs, text: plainText??''));
+                        final allLangs = BasicClass.getAllSupportedLanguages();
+                        allLangs.sort((a,b)=>langs.map((l)=>l.country).toList().indexOf(a.country).compareTo(langs.map((l)=>l.country).toList().indexOf(b.country)));
+                        showModalBottomSheet(context: context,isScrollControlled: true, builder: (c)=>PartialTranslateSheet(
+                            allLangs : allLangs,
+                            languages: langs, text: plainText??''));
 
                         // Output: Passengers with a re-entry permit or a residence permit issued by Algeria do not need a visa.
                       }

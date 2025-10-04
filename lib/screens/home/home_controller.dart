@@ -28,6 +28,7 @@ import 'package:abds/screens/home/usecases/timatic_get_locations_usecase.dart';
 import 'package:abds/screens/home/usecases/timatic_get_parameters_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_text_usecase.dart';
 import 'package:abds/screens/home/usecases/translate_timatic_response_usecase.dart';
+import 'package:abds/screens/home/usecases/validate_employee_id_usecase.dart';
 import 'package:abds/screens/home/widgets/logs_and_attachments.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
@@ -147,12 +148,12 @@ class HomeController extends ControllerInterface {
     if (doc.isPassport) {
       int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
       if (emptyIndex == -1) {
-        if (ref.read(passportsProvider).isEmpty) {
+        // if (ref.read(passportsProvider).isEmpty) {
           ref.read(passportsProvider.notifier).add(doc);
-        } else {
-          int lastIndex = ref.read(passportsProvider).length - 1;
-          ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
-        }
+        // } else {
+        //   int lastIndex = ref.read(passportsProvider).length - 1;
+        //   ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
+        // }
       } else {
         ref.read(passportsProvider.notifier).updateAt(emptyIndex, doc);
       }
@@ -676,12 +677,11 @@ class HomeController extends ControllerInterface {
               .read(segmentsProvider.notifier)
               .updateAt(
                 index,
-                    currentSeg
-                    .copyWith(
-                      arrival: ItinPoint(point: history.to!,dateTime: currentSeg.arrival.dateTime??DateTime.now()),
-                      departure: ItinPoint(point: history.from!,dateTime: currentSeg.departure.dateTime??DateTime.now()),
-                      operatingCarrier: BasicClass.getAirlineWithCode(history.airline!),
-                    ),
+                currentSeg.copyWith(
+                  arrival: ItinPoint(point: history.to!, dateTime: currentSeg.arrival.dateTime ?? DateTime.now()),
+                  departure: ItinPoint(point: history.from!, dateTime: currentSeg.departure.dateTime ?? DateTime.now()),
+                  operatingCarrier: BasicClass.getAirlineWithCode(history.airline!),
+                ),
               );
         }
     }
@@ -732,23 +732,50 @@ class HomeController extends ControllerInterface {
     }
   }
 
-    Future<String?> translateText({required String lang,required List<String> texts}) async {
-        String? translated;
-        TranslateTextUseCase translateTextUseCase = TranslateTextUseCase();
-        TranslateTextRequest translateTextRequest = TranslateTextRequest(lang: lang, texts: texts);
-        final result = await translateTextUseCase(request: translateTextRequest);
+  Future<String?> translateText({required String lang, required List<String> texts}) async {
+    String? translated;
+    TranslateTextUseCase translateTextUseCase = TranslateTextUseCase();
+    TranslateTextRequest translateTextRequest = TranslateTextRequest(lang: lang, texts: texts);
+    final result = await translateTextUseCase(request: translateTextRequest);
 
-        switch (result) {
-          case Err<TranslateTextResponse>():
-            FailureHandler.handle(result.error);
+    switch (result) {
+      case Err<TranslateTextResponse>():
+        FailureHandler.handle(result.error);
 
-          case Ok<TranslateTextResponse>():
-            final r = result.value;
-            translated = r.translate;
-        }
+      case Ok<TranslateTextResponse>():
+        final r = result.value;
+        translated = r.translate;
+    }
 
-        return translated;
-      }
+    return translated;
+  }
+
+  Future<bool> validateEmployeeId(String id) async {
+    bool valid = false;
+    ValidateEmployeeIdUseCase validateEmployeeIdUseCase = ValidateEmployeeIdUseCase();
+    ValidateEmployeeIdRequest validateEmployeeIdRequest = ValidateEmployeeIdRequest(id: id);
+    final result = await validateEmployeeIdUseCase(request: validateEmployeeIdRequest);
+
+    switch (result) {
+      case Err<ValidateEmployeeIdResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<ValidateEmployeeIdResponse>():
+        final r = result.value;
+        valid = r.valid;
+
+    }
+
+    return valid;
+  }
+
+  refreshResults() {
+    String? refCode = ref.read(refCodeProvider);
+    if(refCode == null){
+      return;
+    }
+    getRefHistoryLog(refCode);
+  }
 
   // UseCase UseCase = UseCase(repository: Repository());
 }

@@ -143,7 +143,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     ItinerarySegment seg = widget.item;
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
-
+    final bool hasTransit = segments.length>1;
+    String fName ="Segment${hasTransit?" ${widget.index+1}":""}";
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),
@@ -158,7 +159,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           children: [
             MyButton(
               height: 30,
-              label: "Transit",
+              label: "Segment",
               icon: Icons.add_circle_outline,
               onPressed: () {
                 var beforeSeg = seg;
@@ -171,11 +172,20 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               textColor: Colors.blueAccent,
               color: Colors.blueAccent.withOpacity(0.1),
             ),
-            SizedBox(),
+            SizedBox(
+              width: 165,
+              child: MySwitchButton(
+                value: seg.luggageCollected ?? false,
+                onChanged: (a) {
+                  seg = seg.copyWith(luggageCollected: a);
+                  ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                },
+                label: "Luggage Collect",
+              ),
+            ),
           ],
         ),
         title: Column(
-          spacing: 12,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             widget.index == 0
@@ -185,7 +195,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       Expanded(
                         child: Row(
                           children: [
-                            Text("Transit ${widget.index+1}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                            Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                             airlineLogoBuild(widget.item.operatingCarrier),
                           ],
                         ),
@@ -200,7 +210,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       DotButton(
                         icon: ArtemisIcons.eraser_1,
                         onPressed: () async {
-                          final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                          final confirm = await ConfirmOperation.getConfirm(Operation(message: '$fName\nSegAre you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                           if (!confirm) return;
                           if (segments.length == 1) {
                             ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
@@ -226,7 +236,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       Expanded(
                         child: Row(
                           children: [
-                            Text("Transit ${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                            Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                             airlineLogoBuild(widget.item.operatingCarrier),
                           ],
                         ),
@@ -234,7 +244,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       DotButton(
                         icon: ArtemisIcons.trash,
                         onPressed: () async {
-                          final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                          final confirm = await ConfirmOperation.getConfirm(Operation(message: '$fName\nAre you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
                           if (!confirm) return;
                           final prev = segments[widget.index-1];
                           ref.read(segmentsProvider.notifier).updateAt(index-1,prev.copyWith(segmentType: SegmentType.entry,luggageCollected: true));
@@ -252,7 +262,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       DotButton(
                         icon: ArtemisIcons.eraser_1,
                         onPressed: () async {
-                          final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                          final confirm = await ConfirmOperation.getConfirm(Operation(message: '$fName\nAre you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
                           if (!confirm) return;
                           ref.read(segmentsProvider.notifier).updateAt(widget.index, ItinerarySegment.empty());
                         },
@@ -264,6 +274,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       ),
                     ],
                   ),
+            const SizedBox(height: 12),
             widget.index == 0
                 ? Row(
                     children: [
@@ -313,7 +324,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     ],
                   )
                 : SizedBox(),
-            // const SizedBox(height: 12),
+            const SizedBox(height: 12),
             Row(
               spacing: 12,
               children: [
@@ -383,10 +394,54 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 ),
               ],
             ),
+            hasTransit?Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: Row(
+                spacing: 12,
+                children: [
+
+
+                  Expanded(
+                    child: MyFieldPicker<SegmentType>(
+                      label: "Type",
+                      placeholder: "Type",
+                      rowLabelRatio: [3, 5],
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      items: SegmentType.values,
+                      hasSearch: false,
+                      value: seg.segmentType,
+
+                      onChange: (a) {
+                        seg = seg.copyWith(segmentType: a);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                        // log(jsonEncode(seg.toJson()));
+                        // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyDurationOfStayPicker(
+                      label: "DOS",
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      placeholder: "Duration Of Stay",
+                      value: seg.durationOfStay,
+                      onChange: (a) {
+                        seg = seg.copyWith(durationOfStay: a);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ):SizedBox()
           ],
         ),
         // childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
+          const SizedBox(height: 4),
           widget.index != 0
               ? Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
@@ -439,6 +494,89 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   ),
                 )
               : SizedBox(),
+          // Row(
+          //   spacing: 12,
+          //   children: [
+          //
+          //
+          //     Expanded(
+          //       child: MyFieldPicker<SegmentType>(
+          //         label: "Type",
+          //         placeholder: "Type",
+          //         rowLabelRatio: [3, 5],
+          //         headerBgColor: Color(0xffECECEC),
+          //         bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+          //         items: SegmentType.values,
+          //         hasSearch: false,
+          //         value: seg.segmentType,
+          //
+          //         onChange: (a) {
+          //           seg = seg.copyWith(segmentType: a);
+          //           ref.read(segmentsProvider.notifier).updateAt(index, seg);
+          //
+          //           // log(jsonEncode(seg.toJson()));
+          //           // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+          //         },
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: MyDurationOfStayPicker(
+          //         label: "DOS",
+          //         headerBgColor: Color(0xffECECEC),
+          //         bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+          //         placeholder: "Duration Of Stay",
+          //         value: seg.durationOfStay,
+          //         onChange: (a) {
+          //           seg = seg.copyWith(durationOfStay: a);
+          //           ref.read(segmentsProvider.notifier).updateAt(index, seg);
+          //         },
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          !hasTransit?Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Row(
+              spacing: 12,
+              children: [
+
+
+                Expanded(
+                  child: MyFieldPicker<SegmentType>(
+                    label: "Type",
+                    placeholder: "Type",
+                    rowLabelRatio: [3, 5],
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    items: SegmentType.values,
+                    hasSearch: false,
+                    value: seg.segmentType,
+
+                    onChange: (a) {
+                      seg = seg.copyWith(segmentType: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // log(jsonEncode(seg.toJson()));
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyDurationOfStayPicker(
+                    label: "DOS",
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    placeholder: "Duration Of Stay",
+                    value: seg.durationOfStay,
+                    onChange: (a) {
+                      seg = seg.copyWith(durationOfStay: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ):SizedBox(),
           Row(
             spacing: 12,
             children: [
@@ -470,16 +608,15 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 ),
               ),
               Expanded(
-                child: MyDatePicker(
-                  label: "Arrival",
-                  placeholder: "Date",
+                child: MyTimePicker(
+                  label: "STD",
+                  placeholder: "Time",
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  min: seg.departure.dateTime,
-                  value: seg.arrival.dateTime,
+                  value: seg.departure.time,
                   onChanged: (a) {
-                    seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
+                    seg = seg.copyWith(departure: seg.departure.copyWith(time: a));
                     ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
@@ -493,15 +630,16 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
             spacing: 12,
             children: [
               Expanded(
-                child: MyTimePicker(
-                  label: "STD",
-                  placeholder: "Time",
+                child: MyDatePicker(
+                  label: "Arrival",
+                  placeholder: "Date",
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  value: seg.departure.time,
+                  min: seg.departure.dateTime,
+                  value: seg.arrival.dateTime,
                   onChanged: (a) {
-                    seg = seg.copyWith(departure: seg.departure.copyWith(time: a));
+                    seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
                     ref.read(segmentsProvider.notifier).updateAt(index, seg);
 
                     // ref.read(segmentsProvider.notifier).update((s) => [...s]);
@@ -526,93 +664,9 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               ),
             ],
           ),
+
           const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: MyFieldPicker<PurposeOfStayType>(
-                  label: "POS",
-                  placeholder: "Purpose Of Stay",
-                  rowLabelRatio: [3, 5],
-                  headerBgColor: Color(0xffECECEC),
-                  bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  items: PurposeOfStayType.values,
-                  hasSearch: false,
-                  value: seg.purposeOfStay,
-                  onChange: (a) {
-                    seg = seg.copyWith(purposeOfStay: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
-
-                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                  },
-                ),
-              ),
-
-              const SizedBox(width: 12),
-              Expanded(
-                child: MyDurationOfStayPicker(
-                  label: "DOS",
-                  headerBgColor: Color(0xffECECEC),
-                  bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  placeholder: "Duration Of Stay",
-                  value: seg.durationOfStay,
-                  onChange: (a) {
-                    seg = seg.copyWith(durationOfStay: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: MyFieldPicker<TicketStatus>(
-                  label: "Ticket",
-                  placeholder: "Ticket Status",
-                  rowLabelRatio: [3, 5],
-                  headerBgColor: Color(0xffECECEC),
-                  bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  items: TicketStatus.values,
-                  hasSearch: false,
-                  value: seg.returnOnwardTicket,
-
-                  onChange: (a) {
-                    seg = seg.copyWith(returnOnwardTicket: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
-
-                    // log(jsonEncode(seg.toJson()));
-                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: MyFieldPicker<SegmentType>(
-                  label: "Type",
-                  placeholder: "Type",
-                  rowLabelRatio: [3, 5],
-                  headerBgColor: Color(0xffECECEC),
-                  bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  items: SegmentType.values,
-                  hasSearch: false,
-                  value: seg.segmentType,
-
-                  onChange: (a) {
-                    seg = seg.copyWith(segmentType: a);
-                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
-
-                    // log(jsonEncode(seg.toJson()));
-                    // ref.read(segmentsProvider.notifier).update((s) => [...s]);
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
+          widget.isFirst?SizedBox():Row(
             spacing: 12,
             children: [
               Expanded(

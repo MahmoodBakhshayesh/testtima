@@ -57,6 +57,7 @@ class _NumericInputSheetState extends State<NumericInputSheet> {
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: CupertinoTextField(
+                        enabled: false,
                         maxLength: widget.maxLength,
                         textAlign: TextAlign.center,
                         decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(8), color: MyColors.lineColor),

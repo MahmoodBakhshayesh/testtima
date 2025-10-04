@@ -68,6 +68,7 @@ class VersionedData {
   final List<Airport> city;
   final List<Country> country;
   final List<Airport> airport;
+  final List<AvailableLanguage> languages;
   final MandatoryFields? mandatory;
   final List<TimaticResult>? timaticResult;
 
@@ -94,6 +95,7 @@ class VersionedData {
     required this.airport,
     required this.mandatory,
     required this.timaticResult,
+    required this.languages,
   });
 
   VersionedData copyWith({
@@ -117,6 +119,7 @@ class VersionedData {
     List<Airport>? city,
     List<Country>? country,
     List<Airport>? airport,
+    List<AvailableLanguage>? languages,
     MandatoryFields? mandatory,
     List<TimaticResult>? timaticResult,
   }) =>
@@ -141,6 +144,7 @@ class VersionedData {
         city: city ?? this.city,
         country: country ?? this.country,
         airport: airport ?? this.airport,
+        languages: languages ?? this.languages,
         mandatory: mandatory ?? this.mandatory,
         timaticResult: timaticResult ?? this.timaticResult,
       );
@@ -150,7 +154,7 @@ class VersionedData {
     textMessage: List<String>.from((json["textMessage"]??[]).map((x) => x)),
     documentType: List<DocumentType>.from(json["documentType"].map((x) => DocumentType.fromJson(x))),
     documentDetailType: List<DocumentDetailType>.from(json["documentDetailType"].map((x) => DocumentDetailType.fromJson(x))),
-    permission: PermissionCatalog.fromJson(json["permission"]),
+    permission: PermissionCatalog.fromJson(json["permission"]??{}),
     attribute: List<Attribute>.from(json["attribute"].map((x) => Attribute.fromJson(x))),
     documentModel: List<ParameterValue>.from(json["documentModel"].map((x) => ParameterValue.fromJson(x))),
     product: List<ParameterValue>.from(json["product"].map((x) => ParameterValue.fromJson(x))),
@@ -166,6 +170,7 @@ class VersionedData {
     city: List<Airport>.from(json["city"].map((x) => Airport.fromJson(x))),
     country: List<Country>.from(json["country"].map((x) => Country.fromJson(x))),
     airport: List<Airport>.from(json["airport"].map((x) => Airport.fromJson(x))),
+    languages: List<AvailableLanguage>.from(json["languages"].map((x) => AvailableLanguage.fromJson(x))),
     mandatory: json["mandatory"] == null ? null : MandatoryFields.fromJson(json["mandatory"]),
     timaticResult: json["timaticResult"] == null ? [] : List<TimaticResult>.from(json["timaticResult"]!.map((x) => TimaticResult.fromJson(x))),
 
@@ -192,9 +197,56 @@ class VersionedData {
     "city": List<dynamic>.from(city.map((x) => x.toJson())),
     "country": List<dynamic>.from(country.map((x) => x.toJson())),
     "airport": List<dynamic>.from(airport.map((x) => x.toJson())),
-
+    "languages": List<dynamic>.from(languages.map((x) => x.toJson())),
     "mandatory": mandatory?.toJson(),
     "timaticResult": timaticResult == null ? [] : List<dynamic>.from(timaticResult!.map((x) => x.toJson())),
+  };
+}
+
+class AvailableLanguage {
+  final String? country;
+  final String? title;
+  final String? dir;
+  final String? name;
+  final String? language;
+
+  AvailableLanguage({
+    this.country,
+    this.title,
+    this.dir,
+    this.name,
+    this.language,
+  });
+
+  AvailableLanguage copyWith({
+    String? country,
+    String? title,
+    String? dir,
+    String? name,
+    String? language,
+  }) =>
+      AvailableLanguage(
+        country: country ?? this.country,
+        title: title ?? this.title,
+        dir: dir ?? this.dir,
+        name: name ?? this.name,
+        language: language ?? this.language,
+      );
+
+  factory AvailableLanguage.fromJson(Map<String, dynamic> json) => AvailableLanguage(
+    country: json["country"],
+    title: json["title"],
+    dir: json["dir"],
+    name: json["name"],
+    language: json["language"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "country": country,
+    "title": title,
+    "dir": dir,
+    "name": name,
+    "language": language,
   };
 }
 
@@ -241,6 +293,7 @@ class Attribute {
   final String name;
   final String type;
   final bool onlyOwner;
+  final bool mandatory;
   final String defaultValue;
 
   Attribute({
@@ -248,6 +301,7 @@ class Attribute {
     required this.name,
     required this.type,
     required this.onlyOwner,
+    required this.mandatory,
     required this.defaultValue,
   });
 
@@ -256,6 +310,7 @@ class Attribute {
     String? name,
     String? type,
     bool? onlyOwner,
+    bool? mandatory,
     String? defaultValue,
   }) =>
       Attribute(
@@ -263,14 +318,16 @@ class Attribute {
         name: name ?? this.name,
         type: type ?? this.type,
         onlyOwner: onlyOwner ?? this.onlyOwner,
+        mandatory: mandatory ?? this.mandatory,
         defaultValue: defaultValue ?? this.defaultValue,
       );
 
   factory Attribute.fromJson(Map<String, dynamic> json) => Attribute(
     defaultList: List<String>.from(json["defaultList"].map((x) => x)),
     name: json["name"],
-    type: json["type"],
+    type: json["type"].toString().toLowerCase(),
     onlyOwner: json["onlyOwner"],
+    mandatory: json["mandatory"]??false,
     defaultValue: json["defaultValue"],
   );
 
@@ -279,6 +336,7 @@ class Attribute {
     "name": name,
     "type": type,
     "onlyOwner": onlyOwner,
+    "mandatory": mandatory,
     "defaultValue": defaultValue,
   };
 }

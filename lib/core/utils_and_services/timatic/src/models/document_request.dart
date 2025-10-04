@@ -221,7 +221,7 @@ class DocumentDetail {
     // log("${res.documentCode} -- ${documentCode?.code}");
     // log("${res.documentNumber} -- ${documentNumber}");
 
-    return (shortType == res.getShortType) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty && !notThis.contains(documentNumber);
+    return (documentExpiryDate.format_yyyyMMdd == res.expiryDate.format_yyyyMMdd) && (shortType == res.getShortType) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 
   DocumentType? getMatch() {
@@ -438,6 +438,14 @@ class ItinerarySegment {
 
     return (from && to && fling && flightType && al && pos && dos && ticket);
   }
+
+  bool hasRoute() {
+
+    final from = departure.point.isNotEmpty;
+    final to = arrival.point.isNotEmpty;
+    return (from && to);
+  }
+
 }
 
 // ---------------- ItinPoint ----------------

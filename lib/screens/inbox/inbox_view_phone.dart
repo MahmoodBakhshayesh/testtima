@@ -26,10 +26,15 @@ class InboxViewPhone extends StatefulWidget {
 class _InboxViewPhoneState extends State<InboxViewPhone> {
   static InboxController myInboxController = getIt<InboxController>();
   TextEditingController codeC = TextEditingController();
+  bool loading = true;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((a) {
-      myInboxController.getInboxMessages();
+      myInboxController.getInboxMessages().then((a) {
+        loading = false;
+        setState(() {});
+      });
     });
     super.initState();
   }
@@ -42,34 +47,46 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(children: [
-              Expanded(child: SizedBox(height:40,child: CupertinoTextField(controller: codeC,keyboardType: TextInputType.numberWithOptions(signed: true),))),
-              MyButton(label: "Get",onPressed: () async {
-                await myInboxController.goMessageDetails(codeC.text);
-              })
-            ],),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: CupertinoTextField(controller: codeC, keyboardType: TextInputType.numberWithOptions(signed: true)),
+                  ),
+                ),
+                MyButton(
+                  label: "Get",
+                  onPressed: () async {
+                    await myInboxController.goMessageDetails(codeC.text);
+                  },
+                ),
+              ],
+            ),
           ),
           Expanded(
-            child: Consumer(
-              builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                final messages = ref.watch(inboxMessagesProvider);
+            child: loading
+                ? SpinKitChasingDots(size: 50, color: context.mainColor)
+                : Consumer(
+                    builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                      final messages = ref.watch(inboxMessagesProvider);
 
-                return ListView.builder(
-                  itemBuilder: (c, i) {
-                    final message = messages[i];
-                    return InboxMessageWidget(
-                      key: Key(message.code!),
-                      onTap: () async {
-                        await myInboxController.goMessageDetails(message.code!);
-                      },
-                      message: message,
-                      index: i,
-                    );
-                  },
-                  itemCount: messages.length,
-                );
-              },
-            ),
+                      return ListView.builder(
+                        itemBuilder: (c, i) {
+                          final message = messages[i];
+                          return InboxMessageWidget(
+                            key: Key(message.code!),
+                            onTap: () async {
+                              await myInboxController.goMessageDetails(message.code!);
+                            },
+                            message: message,
+                            index: i,
+                          );
+                        },
+                        itemCount: messages.length,
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -130,6 +147,7 @@ class InboxMessageWidget extends StatefulWidget {
 
 class _InboxMessageWidgetState extends State<InboxMessageWidget> {
   bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -137,9 +155,9 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
     final response = widget.message.supervisor?.lastOrNull?.getRes;
     return Container(
-      margin: const EdgeInsets.only(left: 12.0,right: 12,top: 12),
+      margin: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
       child: Material(
-        color: response?.getColor.withOpacity(0.12)??Colors.white,
+        color: response?.getColor.withOpacity(0.12) ?? Colors.white,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -147,14 +165,14 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () async {
-              if(loading){
+              if (loading) {
                 return;
               }
               loading = true;
-              setState((){});
+              setState(() {});
               await widget.onTap?.call();
               loading = false;
-              setState((){});
+              setState(() {});
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -164,24 +182,28 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text("From: ${widget.message.user?.username??widget.message.user?.email??""}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),)),
-                      loading?SpinKitThreeBounce(color: Colors.black,size: 20,):SizedBox(),
+                      Expanded(
+                        child: Text("From: ${widget.message.user?.username ?? widget.message.user?.email ?? ""}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                      loading ? SpinKitThreeBounce(color: Colors.black, size: 20) : SizedBox(),
                       const SizedBox(width: 4),
-                      response == null?SizedBox():
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
-                            decoration: BoxDecoration(
-                              color: response.getColor.withOpacity(0.08),
-                              borderRadius: BorderRadiusGeometry.circular(12),
-                              border: Border.all(color: Colors.white)
+                      response == null
+                          ? SizedBox()
+                          : Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: response.getColor.withOpacity(0.08),
+                                borderRadius: BorderRadiusGeometry.circular(12),
+                                border: Border.all(color: Colors.white),
+                              ),
+                              child: Text(response!.name2 ?? '', style: TextStyle(color: response.getColor, fontSize: 12)),
                             ),
-                            child: Text(response!.name2??'',style: TextStyle(color: response.getColor,fontSize: 12),),),
+
                       // Expanded(child: Text(widget.message.code ?? '')),
                       // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
                       // Text("${widget.message.user?.username ?? widget.message?.user?.email}"),
-
                       const SizedBox(width: 4),
-                      Icon(Icons.arrow_forward_ios_rounded,size: 15,)
+                      Icon(Icons.arrow_forward_ios_rounded, size: 15),
                     ],
                   ),
                   Row(
@@ -189,8 +211,8 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                       Expanded(
                         child: Row(
                           children: [
-                            Text("Flight",style: TextStyle(color: Colors.grey),),
-                            AirlineLogo(widget.message.airline ?? '--',size: 30,),
+                            Text("Flight", style: TextStyle(color: Colors.grey)),
+                            AirlineLogo(widget.message.airline ?? '--', size: 30),
                             Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 14)),
                             const SizedBox(width: 12),
                             Text("${widget.message.from ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
@@ -199,31 +221,32 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                           ],
                         ),
                       ),
-
                     ],
                   ),
-                  Row(children: [
-                    Icon(ArtemisIcons.send_2,color: Colors.grey,size: 10,),
-                    const SizedBox(width: 4),
-                    Text(
-                      "Employee ID: ",
-                      style: TextStyle(fontSize: 10, color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      widget.message.employeeId??"",
-                      style: TextStyle(fontSize: 10, color: Colors.black),
-                      textAlign: TextAlign.center,
-                    ),
-                    Spacer(),
-                    Icon(ArtemisIcons.eye,color: Colors.grey,size: 10,),
-                    const SizedBox(width: 4),
-                    Text(
-                      DateFormat("dd MMM, hh:mm").format(widget.message.createdAt!.toLocal()),
-                      style: TextStyle(fontSize: 10, color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],)
+                  Row(
+                    children: [
+                      Icon(ArtemisIcons.send_2, color: Colors.grey, size: 10),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Employee ID: ",
+                        style: TextStyle(fontSize: 10, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        widget.message.employeeId ?? "",
+                        style: TextStyle(fontSize: 10, color: Colors.black),
+                        textAlign: TextAlign.center,
+                      ),
+                      Spacer(),
+                      Icon(ArtemisIcons.eye, color: Colors.grey, size: 10),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormat("dd MMM, hh:mm").format(widget.message.createdAt!.toLocal()),
+                        style: TextStyle(fontSize: 10, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

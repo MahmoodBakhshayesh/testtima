@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.3.8+13817
+version: 1.3.9+13903
 
 
 
@@ -21,6 +21,7 @@ dependency_overrides:
   get_it: ^8.0.3
   dropdown_search: ^6.0.2
   permission_handler: ^12.0.1
+  win32: ^5.5.3
 
 
 
@@ -31,8 +32,10 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-#  wakelock_plus: ^1.4.0
+  wakelock_plus: ^1.4.0
+#  wakelock_fixed: ^0.6.3
   html_parser_plus: ^0.1.4
+
   easy_animated_indexed_stack: ^0.1.0
   record: ^6.1.1
   audioplayers: ^6.5.1

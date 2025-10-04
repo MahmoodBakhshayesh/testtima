@@ -123,6 +123,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   @override
   void initState() {
     setup(widget.dateState);
+
     super.initState();
   }
 
@@ -133,6 +134,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   }
 
   void changeListener() {
+    dateC.text = dateState.value.format_yyyyMMdd.replaceAll("-", "/");
     setState(() => judgeDay());
   }
 
@@ -150,11 +152,11 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     final now = DateTime.now();
     isToday = dateState.value.compareDate(now);
     isTomorrow = dateState.value.compareDate(now.addDay(1));
-    dateC.addListener((){
-     if(dateC.text.length==10){
-       DateTime date = DateFormat('yyyy/MM/dd').parse(dateC.text);
-       widget.onChangeDate(date);
-     }
+    dateC.addListener(() {
+      if (dateC.text.length == 10) {
+        DateTime date = DateFormat('yyyy/MM/dd').parse(dateC.text);
+        widget.onChangeDate(date);
+      }
     });
   }
 
@@ -163,10 +165,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     final child = Container(
       height: widget.wide ? 64 : 52,
       margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: widget.foregroundColor.withOpacity(0.99),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: widget.foregroundColor.withOpacity(0.99)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
@@ -211,17 +210,16 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     final tomorrow = today.addDay(1);
     return [
       Expanded(
-          child: MyTextField(
-            height: widget.wide ? 64 : 52,
-            keyboardType: TextInputType.datetime,
-            placeholder: "yyyy/mm/dd",
-            // maxLength: 10,
-            controller: dateC,
-            inputFormatters: [DateTextFormatter(minDate: widget.minimumDate,maxDate: widget.maximumDate)],
-            style: TextStyle(height: 2,fontSize: 16),
-          ))
-
-
+        child: MyTextField(
+          height: widget.wide ? 64 : 52,
+          keyboardType: TextInputType.datetime,
+          placeholder: "yyyy/mm/dd",
+          // maxLength: 10,
+          controller: dateC,
+          inputFormatters: [DateTextFormatter(minDate: widget.minimumDate, maxDate: widget.maximumDate)],
+          style: TextStyle(height: 2, fontSize: 16),
+        ),
+      ),
     ];
     return [
       if (widget.wide)
@@ -231,33 +229,16 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           opacity: 0.6,
           child: IconButton(
             onPressed: widget.onCalendar,
-            icon: Transform.rotate(
-              angle: pi * 4 * widget.calendarAnimation.value,
-              child: Icon(
-                widget.calendarAnimation.value > 0.5 ? Icons.view_day_rounded : Icons.calendar_month_rounded,
-                size: 20,
-              ),
-            ),
+            icon: Transform.rotate(angle: pi * 4 * widget.calendarAnimation.value, child: Icon(widget.calendarAnimation.value > 0.5 ? Icons.view_day_rounded : Icons.calendar_month_rounded, size: 20)),
             color: widget.textColor,
           ),
         ),
-      if (today.isWithinRange(widget.minimumDate, widget.maximumDate))
-        _textButton(
-          context,
-          widget.languages.today,
-          () => widget.onChangeDate(DateTime.now()),
-          selected: isToday,
-        ),
+      if (today.isWithinRange(widget.minimumDate, widget.maximumDate)) _textButton(context, widget.languages.today, () => widget.onChangeDate(DateTime.now()), selected: isToday),
       if (tomorrow.isWithinRange(widget.minimumDate, widget.maximumDate)) ...[
         SizedBox(width: widget.wide ? 20 : 12),
-        _textButton(
-          context,
-          widget.languages.tomorrow,
-          () {
-            widget.onChangeDate(DateTime.now().addDayWithTime(1));
-          },
-          selected: isTomorrow,
-        ),
+        _textButton(context, widget.languages.tomorrow, () {
+          widget.onChangeDate(DateTime.now().addDayWithTime(1));
+        }, selected: isTomorrow),
       ],
     ];
   }
@@ -287,43 +268,18 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       //     ),
       //   ),
       if (now.isWithinRange(widget.minimumDate, widget.maximumDate)) const SizedBox(width: 8),
-      _textButton(
-        context,
-        "-1 H",
-        () => widget.onChangTime(pastHour),
-        selected: false,
-      ),
+      _textButton(context, "-1 H", () => widget.onChangTime(pastHour), selected: false),
       if (now.isWithinRange(widget.minimumDate, widget.maximumDate)) const SizedBox(width: 8),
-      _textButton(
-        context,
-        "-1 M",
-        () => widget.onChangTime(pastMin),
-        selected: false,
-      ),
+      _textButton(context, "-1 M", () => widget.onChangTime(pastMin), selected: false),
       if (now.isWithinRange(widget.minimumDate, widget.maximumDate)) const SizedBox(width: 8),
-      _textButton(
-        context,
-        "Now",
-        () => widget.onChangTime(DateTime.now()),
-        selected: false,
-      ),
+      _textButton(context, "Now", () => widget.onChangTime(DateTime.now()), selected: false),
       if (now.isWithinRange(widget.minimumDate, widget.maximumDate)) const SizedBox(width: 8),
-      _textButton(
-        context,
-        "+1 M",
-        () => widget.onChangTime(laterMin),
-        selected: false,
-      ),
+      _textButton(context, "+1 M", () => widget.onChangTime(laterMin), selected: false),
       if (laterHour.isWithinRange(widget.minimumDate, widget.maximumDate)) ...[
         const SizedBox(width: 8),
-        _textButton(
-          context,
-          "+1 H",
-          () {
-            widget.onChangTime(laterHour);
-          },
-          selected: false,
-        ),
+        _textButton(context, "+1 H", () {
+          widget.onChangTime(laterHour);
+        }, selected: false),
         const SizedBox(width: 8),
       ],
     ];
@@ -341,12 +297,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     // ];
   }
 
-  Widget _textButton(
-    BuildContext context,
-    String title,
-    void Function() callback, {
-    bool selected = false,
-  }) {
+  Widget _textButton(BuildContext context, String title, void Function() callback, {bool selected = false}) {
     return Material(
       color: selected ? widget.activeColor : widget.backgroundColor.withOpacity(0.8),
       clipBehavior: Clip.antiAlias,
@@ -357,12 +308,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           height: 32,
           padding: EdgeInsets.symmetric(horizontal: widget.wide ? 24 : 12),
           child: Center(
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: selected ? widget.activeTextColor : widget.textColor?.withOpacity(0.9),
-                  ),
-            ),
+            child: Text(title, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: selected ? widget.activeTextColor : widget.textColor?.withOpacity(0.9))),
           ),
         ),
       ),
@@ -439,13 +385,7 @@ class _BoardDateTimeNoneButtonHeaderState extends State<BoardDateTimeNoneButtonH
               fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
               onTap: widget.onCalendar,
               buttonSize: buttonSize,
-              child: Transform.rotate(
-                angle: pi * 4 * widget.calendarAnimation.value,
-                child: Icon(
-                  widget.calendarAnimation.value > 0.5 ? Icons.view_day_rounded : Icons.calendar_month_rounded,
-                  size: 20,
-                ),
-              ),
+              child: Transform.rotate(angle: pi * 4 * widget.calendarAnimation.value, child: Icon(widget.calendarAnimation.value > 0.5 ? Icons.view_day_rounded : Icons.calendar_month_rounded, size: 20)),
             ),
           ] else ...[
             SizedBox(width: buttonSize),
@@ -453,10 +393,7 @@ class _BoardDateTimeNoneButtonHeaderState extends State<BoardDateTimeNoneButtonH
           if (widget.keyboardHeightRatio == 0) SizedBox(width: buttonSize + 8),
           Expanded(
             child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: _title(),
-              ),
+              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: _title()),
             ),
           ),
           ..._rightButton(),
@@ -479,11 +416,7 @@ class _BoardDateTimeNoneButtonHeaderState extends State<BoardDateTimeNoneButtonH
     return FittedBox(
       child: Text(
         widget.options.boardTitle ?? '',
-        style: widget.options.boardTitleTextStyle ??
-            Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: widget.options.getTextColor(context),
-                  fontWeight: FontWeight.bold,
-                ),
+        style: widget.options.boardTitleTextStyle ?? Theme.of(context).textTheme.titleMedium?.copyWith(color: widget.options.getTextColor(context), fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -505,20 +438,8 @@ class _BoardDateTimeNoneButtonHeaderState extends State<BoardDateTimeNoneButtonH
     // }
 
     Widget child = widget.modal
-        ? CustomIconButton(
-            icon: Icons.check_circle_rounded,
-            bgColor: widget.options.getActiveColor(context),
-            fgColor: widget.options.getActiveTextColor(context),
-            onTap: widget.onClose,
-            buttonSize: buttonSize,
-          )
-        : CustomIconButton(
-            icon: Icons.close_rounded,
-            bgColor: widget.options.getForegroundColor(context),
-            fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
-            onTap: widget.onClose,
-            buttonSize: buttonSize,
-          );
+        ? CustomIconButton(icon: Icons.check_circle_rounded, bgColor: widget.options.getActiveColor(context), fgColor: widget.options.getActiveTextColor(context), onTap: widget.onClose, buttonSize: buttonSize)
+        : CustomIconButton(icon: Icons.close_rounded, bgColor: widget.options.getForegroundColor(context), fgColor: widget.options.getTextColor(context)?.withOpacity(0.8), onTap: widget.onClose, buttonSize: buttonSize);
 
     return [
       // if (closeKeyboard != null) ...[
@@ -543,22 +464,36 @@ class TopTitleWidget extends StatelessWidget {
       alignment: Alignment.center,
       child: Row(
         children: [
-          Expanded(child: Opacity(opacity: 0, child: MyButton(label: "Submit"))),
-          Expanded(
-            child: Center(
-              child: Text(
-                options.boardTitle ?? '',
-                style: options.boardTitleTextStyle ??
-                    Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: options.getTextColor(context),
-                          fontWeight: FontWeight.bold,
-                        ),
-                maxLines: 1,
-              ),
+          Opacity(
+            opacity: 1,
+            child: Row(
+              children: [
+                MyButton(
+                  height: 35,
+                  label: "Cancel",
+                  color: Colors.grey,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
             ),
           ),
           Expanded(
+            child: Center(
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    options.boardTitle ?? '',
+                    style: options.boardTitleTextStyle ?? Theme.of(context).textTheme.titleMedium?.copyWith(color: options.getTextColor(context), fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               MyButton(
@@ -570,7 +505,7 @@ class TopTitleWidget extends StatelessWidget {
                 fontSize: 12,
               ),
             ],
-          )),
+          ),
         ],
       ),
     );

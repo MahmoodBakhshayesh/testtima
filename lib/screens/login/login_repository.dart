@@ -9,6 +9,7 @@ import 'interfaces/login_repository_interface.dart';
 import 'data_sources/login_local_ds.dart';
 import 'data_sources/login_remote_ds.dart';
 import 'usecases/get_cons_data_usecase.dart';
+import 'usecases/get_publish_server_usecase.dart';
 import 'usecases/login_usecase.dart';
 import 'usecases/reset_password_usecase.dart';
 import 'usecases/send_forget_password_code_usecase.dart';
@@ -107,6 +108,21 @@ class LoginRepository implements LoginRepositoryInterface {
         getConsDataResponse = await loginLocalDataSource.getConsData(request: request);
       }
       return Result.ok(getConsDataResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<GetPublishServerResponse>> getPublishServer(GetPublishServerRequest request) async {
+    try {
+      GetPublishServerResponse getPublishServerResponse;
+      if (await networkInfo.isConnected) {
+        getPublishServerResponse = await loginRemoteDataSource.getPublishServer(request: request);
+      } else {
+        getPublishServerResponse = await loginLocalDataSource.getPublishServer(request: request);
+      }
+      return Result.ok(getPublishServerResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

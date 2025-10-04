@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
+import 'package:abds/screens/outbox/outbox_state.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -99,6 +100,18 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             myHomeController.goNamed(Routes.inbox);
                           },
                           leadingIcon: Icons.inbox,
+                          trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
+                        ),
+                        DrawerAction(
+                          title: 'Outbox',
+                          // permission: LogUiPermission.read(),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            ref.read(outboxMessagesProvider.notifier).update((s) => []);
+                            ref.read(outboxNextMessageId.notifier).update((s) => null);
+                            myHomeController.goNamed(Routes.outbox);
+                          },
+                          leadingIcon: Icons.outbox,
                           trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
                         CheckPermission(

@@ -8,12 +8,15 @@ import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:abds/screens/logs/logs_controller.dart';
 import 'package:abds/screens/message_details/message_details_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
+import 'package:abds/screens/outbox/outbox_controller.dart';
 import 'package:abds/screens/profile/profile_controller.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+// import 'package:wakelock_fixed/wakelock_fixed.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 // import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/interfaces/network_info_int.dart';
 import '../../core/utils_and_services/app_config.dart';
@@ -232,6 +235,7 @@ Future<void> initNavigation() async {
   PerformanceController performanceController = PerformanceController();
   InboxController inboxController = InboxController();
   MessageDetailsController messageDetailsController = MessageDetailsController();
+  OutboxController outboxController = OutboxController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -245,6 +249,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(performanceController);
   getIt.registerSingleton(inboxController);
   getIt.registerSingleton(messageDetailsController);
+  getIt.registerSingleton(outboxController);
 
   TreeNavigation.navigator.registerAllControllers({
     Routes.login: loginController,
@@ -286,5 +291,7 @@ Future<void> _initPackages() async {
   // getIt.registerLazySingleton(() => api);
 
   await FastCachedImageConfig.init();
-  // await WakelockPlus.enable();
+  await WakelockPlus.enable();
+  // await Wakelock.enable();
+
 }

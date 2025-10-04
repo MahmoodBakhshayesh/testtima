@@ -82,6 +82,11 @@ abstract class Routes {
     name: 'inbox',
     isShellRoute: false,
   );
+  static MyRouteInfo outbox = MyRouteInfo(
+    path: '/outbox',
+    name: 'outbox',
+    isShellRoute: false,
+  );
   static MyRouteInfo messageDetails = MyRouteInfo(
     path: 'messageDetails',
     name: 'messageDetails',
@@ -96,6 +101,7 @@ abstract class Routes {
     logs,
     profile,
     inbox,
+    outbox,
     messageDetails,
   ];
 }

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:abds/core/interfaces/failures_int.dart';
+import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -54,7 +56,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
   // late List<UserPermission> addingUserPermission = [];
 
   late UserPermission aup;
-  Map<String,dynamic> attributes = {};
+  Map<String, dynamic> attributes = {};
 
   // List<AirportUserPermission> includedAirports = [];
   // List<HandlingUserPermission> includedHandlings = [];
@@ -70,19 +72,21 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
     passwordConfirmC.addListener(() => setState(() {}));
 
     UserPermission addingP = UserPermission({});
-    BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).forEach((att){
-      if(att.type == "string"){
-        attributes.putIfAbsent(att.name, ()=>TextEditingController(text: ''));
-      }else if(att.type =="enum"){
-        attributes.putIfAbsent(att.name, ()=>null);
-      }else if(att.type =="date"){
-        attributes.putIfAbsent(att.name, ()=>null);
-      }else if(att.type =="boolean"){
-        attributes.putIfAbsent(att.name, ()=>false);
-      }else if(att.type =="number"){
-        attributes.putIfAbsent(att.name, ()=>TextEditingController());
-      }else if(att.type =="float"){
-        attributes.putIfAbsent(att.name, ()=>TextEditingController());
+    BasicClass.constData.data.attribute.where((a) => a.onlyOwner).forEach((att) {
+      if (att.type.toLowerCase() == "string") {
+        attributes.putIfAbsent(att.name, () => TextEditingController(text: ''));
+      } else if (att.type.toLowerCase() == "enum") {
+        attributes.putIfAbsent(att.name, () => null);
+      } else if (att.type.toLowerCase() == "date") {
+        attributes.putIfAbsent(att.name, () => null);
+      } else if (att.type.toLowerCase() == "boolean") {
+        attributes.putIfAbsent(att.name, () => false);
+      } else if (att.type.toLowerCase() == "number") {
+        attributes.putIfAbsent(att.name, () => TextEditingController());
+      } else if (att.type.toLowerCase() == "float") {
+        attributes.putIfAbsent(att.name, () => TextEditingController());
+      } else {
+        log(att.type);
       }
     });
     aup = addingP;
@@ -90,24 +94,30 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
   }
 
   addUser() async {
-    final attFix = <String,dynamic>{};
-    attributes.forEach((k,v){
-      final att = BasicClass.constData.data.attribute.firstWhere((a)=>a.name == k);
-      if(att.type == "string"){
-        attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
-      }else if(att.type =="enum"){
-        attFix.putIfAbsent(att.name, ()=>v);
-      }else if(att.type =="date"){
-        attFix.putIfAbsent(att.name, ()=>(v as DateTime?).format_yyMMdd);
-      }else if(att.type =="boolean"){
-        attFix.putIfAbsent(att.name, ()=>v);
-      }else if(att.type =="number"){
-        attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
-      }else if(att.type =="float"){
-        attFix.putIfAbsent(att.name,()=>(v as TextEditingController).text);
+    final attFix = <String, dynamic>{};
+    attributes.forEach((k, v) {
+      final att = BasicClass.constData.data.attribute.firstWhere((a) => a.name == k);
+      if (att.type.toLowerCase() == "string") {
+        attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+      } else if (att.type.toLowerCase() == "enum") {
+        attFix.putIfAbsent(att.name, () => v);
+      } else if (att.type.toLowerCase() == "date") {
+        attFix.putIfAbsent(att.name, () => (v as DateTime?).format_yyMMdd);
+      } else if (att.type.toLowerCase() == "boolean") {
+        attFix.putIfAbsent(att.name, () => v);
+      } else if (att.type.toLowerCase() == "number") {
+        attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+      } else if (att.type.toLowerCase() == "float") {
+        attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
       }
     });
-    await myAddUserController.addUser(username: usernameC.text, email: emailC.text, password: passwordC.text, firstname: firstNameC.text, lastname: lastNameC.text, permissions: aup, attributes: attFix);
+    List<String> requiredButNulls = attFix.keys.where((a) => BasicClass.constData.data.attribute.firstWhere((at) => at.name == a).mandatory && (attFix[a] == null || attFix[a].toString().isEmpty)).toList();
+    if (requiredButNulls.isEmpty) {
+      log("requiredButNulls is empty");
+      await myAddUserController.addUser(username: usernameC.text, email: emailC.text, password: passwordC.text, firstname: firstNameC.text, lastname: lastNameC.text, permissions: aup, attributes: attFix);
+    }else{
+      FailureHandler.handle(ValidationFailure(code: -1, msg: "Required Attributes : ${requiredButNulls.join(", ")}", traceMsg: "Required Attributes : ${requiredButNulls.join(", ")}"));
+    }
   }
 
   @override
@@ -193,86 +203,115 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                       ),
                       const SizedBox(height: 0),
                       MyExpansionTile(
-                          showFooter: false,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
-                          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
-                          childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                          backgroundColor: Colors.green.withOpacity(0.08),
-                          collapsedBackgroundColor: Colors.green.withOpacity(0.08),
-                          title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          children: BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).map((att){
-                            if(att.type == "string"){
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: MyTextFieldNew(
-                                  headerBgColor: Colors.black26,
-                                  bodyBgColor: Colors.black12,
-                                  label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
-                              );
-                            }else if(att.type == "enum"){
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: MyFieldPicker<dynamic>(
-                                  items: att.defaultList,
-                                  headerBgColor: Colors.black26,
-                                  bodyBgColor: Colors.black12,
-                                  value: attributes[att.name],
-                                  onChange: (a){
-                                    attributes[att.name] = a;
-                                    setState((){});
-                                  },
-                                  label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,),
-                              );
-                            }else if(att.type == "boolean"){
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: MyTextFieldNew(
-                                  headerBgColor: Colors.black26,
-                                  bodyBgColor: Colors.black12,
-                                  label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
-                              );
-                            }else if(att.type == "number"){
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: MyTextFieldNew(
-                                  headerBgColor: Colors.black26,
-                                  bodyBgColor: Colors.black12,
-                                  label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
-                              );
-                            }else if(att.type == "float"){
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: MyTextFieldNew(
-                                  headerBgColor: Colors.black26,
-                                  bodyBgColor: Colors.black12,
-                                  label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
-                              );
-                            }else if(att.type == "date"){
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12.0),
-                                child: MyDatePicker(
-                                  headerBgColor: Colors.black26,
-                                  bodyBgColor: Colors.black12,
-                                  value: attributes[att.name],
-                                  onChanged: (a){
-                                    attributes[att.name] = a;
-                                    setState((){});
-                                  },
-                                  label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,),
-                              );
-                            }
-                            return Container(
-                              child: Row(
-                                children: [
-                                  Text("${att.name.capitalizeFirst}"),
-                                ],
+                        showFooter: false,
+                        showTrailingIcon: true,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+                        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+                        childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                        backgroundColor: Colors.green.withOpacity(0.08),
+                        collapsedBackgroundColor: Colors.green.withOpacity(0.08),
+                        title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        children: BasicClass.constData.data.attribute.where((a) => a.onlyOwner).map((att) {
+                          final headerBg = MyColors.green2.withOpacity(0.26);
+                          final bodyBg = MyColors.green2.withOpacity(0.12);
+                          if (att.type == "string") {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyTextFieldNew(
+                                required: att.mandatory,
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                label: att.name.capitalizeFirst,
+                                placeholder: att.name.capitalizeFirst,
+                                controller: attributes[att.name],
                               ),
                             );
-                          }).toList()
+                          } else if (att.type == "enum") {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyFieldPicker<dynamic>(
+                                items: att.defaultList,
+                                required: att.mandatory,
+
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                value: attributes[att.name],
+                                onChange: (a) {
+                                  attributes[att.name] = a;
+                                  setState(() {});
+                                },
+                                label: att.name.capitalizeFirst,
+                                placeholder: att.name.capitalizeFirst,
+                              ),
+                            );
+                          } else if (att.type == "boolean") {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyTextFieldNew(
+                                required: att.mandatory,
+
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                label: att.name.capitalizeFirst,
+                                placeholder: att.name.capitalizeFirst,
+                                controller: attributes[att.name],
+                              ),
+                            );
+                          } else if (att.type == "number") {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyTextFieldNew(
+                                required: att.mandatory,
+
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                keyboardType: TextInputType.numberWithOptions(signed: true),
+                                inputFormatters: [MyInputFormatter.justNumber],
+                                label: att.name.capitalizeFirst,
+                                placeholder: att.name.capitalizeFirst,
+                                controller: attributes[att.name],
+                              ),
+                            );
+                          } else if (att.type == "float") {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyTextFieldNew(
+                                required: att.mandatory,
+
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                keyboardType: TextInputType.numberWithOptions(signed: true),
+                                inputFormatters: [MyInputFormatter.justNumber],
+                                label: att.name.capitalizeFirst,
+                                placeholder: att.name.capitalizeFirst,
+                                controller: attributes[att.name],
+                              ),
+                            );
+                          } else if (att.type == "date") {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyDatePicker(
+                                required: att.mandatory,
+
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                value: attributes[att.name],
+                                onChanged: (a) {
+                                  attributes[att.name] = a;
+                                  setState(() {});
+                                },
+                                label: att.name.capitalizeFirst,
+                                placeholder: att.name.capitalizeFirst,
+                              ),
+                            );
+                          }
+                          return Container(child: Row(children: [Text("${att.name.capitalizeFirst}")]));
+                        }).toList(),
                       ),
                       const SizedBox(height: 12),
                       MyExpansionTile(
                         showFooter: false,
+                        showTrailingIcon: true,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                         collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                         childrenPadding: EdgeInsets.symmetric(horizontal: 12),
@@ -281,82 +320,82 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                         title: Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         children: BasicClass.constData.data.permission.areas
                             .map((area, cat) {
-                          final perList = BasicClass.constData.data.permission[area];
-                          if (permissions.maskOf(area) == 0) {
-                            return MapEntry(area, SizedBox());
-                          }
-                          if (perList.isEmpty) {
-                            return MapEntry(area, SizedBox());
-                          }
-                          return MapEntry(
-                            area,
-                            Container(
-                              margin: EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.48),
-                                  border: Border.all(color: Colors.white),
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                              padding: EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text("${area.capitalizeFirst}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                        ),
-                                        DotButton(
-                                          icon: Icons.select_all,
-                                          onPressed: () {
-                                            for (var a in perList) {
-                                              if (permissions.hasFlag(area, a.flag)) {
-                                                aup = aup.grantFlag(area, a.flag);
-                                              }
-                                            }
-                                            setState(() {});
-                                          },
-                                          color: Colors.green,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        DotButton(
-                                          icon: Icons.deselect,
-                                          onPressed: () {
-                                            for (var a in perList) {
-                                              aup = aup.revokeFlag(area, a.flag);
-                                            }
-                                            setState(() {});
-                                          },
-                                          color: Colors.red,
-                                        ),
-                                      ],
-                                    ),
+                              final perList = BasicClass.constData.data.permission[area];
+                              if (permissions.maskOf(area) == 0) {
+                                return MapEntry(area, SizedBox());
+                              }
+                              if (perList.isEmpty) {
+                                return MapEntry(area, SizedBox());
+                              }
+                              return MapEntry(
+                                area,
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.48),
+                                    border: Border.all(color: Colors.white),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  Wrap(
+                                  padding: EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      ...perList.where((a) => permissions.hasFlag(area, a.flag)).map((ap) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(right: 4.0),
-                                          child: SelectionChip(
-                                            value: aup.hasFlag(area, ap.flag),
-                                            label: ap.value,
-                                            onSelected: (bool value) {
-                                              aup = aup.toggleFlag(area, ap.flag);
-                                              setState(() {});
-                                            },
-                                          ),
-                                        );
-                                      }),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 4),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text("${area.capitalizeFirst}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                            ),
+                                            DotButton(
+                                              icon: Icons.select_all,
+                                              onPressed: () {
+                                                for (var a in perList) {
+                                                  if (permissions.hasFlag(area, a.flag)) {
+                                                    aup = aup.grantFlag(area, a.flag);
+                                                  }
+                                                }
+                                                setState(() {});
+                                              },
+                                              color: Colors.green,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            DotButton(
+                                              icon: Icons.deselect,
+                                              onPressed: () {
+                                                for (var a in perList) {
+                                                  aup = aup.revokeFlag(area, a.flag);
+                                                }
+                                                setState(() {});
+                                              },
+                                              color: Colors.red,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Wrap(
+                                        children: [
+                                          ...perList.where((a) => permissions.hasFlag(area, a.flag)).map((ap) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(right: 4.0),
+                                              child: SelectionChip(
+                                                value: aup.hasFlag(area, ap.flag),
+                                                label: ap.value,
+                                                onSelected: (bool value) {
+                                                  aup = aup.toggleFlag(area, ap.flag);
+                                                  setState(() {});
+                                                },
+                                              ),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                      Divider(),
                                     ],
                                   ),
-                                  Divider(),
-                                ],
-                              ),
-                            ),
-                          );
-                        })
+                                ),
+                              );
+                            })
                             .values
                             .toList(),
                       ),

@@ -1,4 +1,5 @@
 import 'package:abds/screens/login/usecases/get_cons_data_usecase.dart';
+import 'package:abds/screens/login/usecases/get_publish_server_usecase.dart';
 import 'package:abds/screens/login/usecases/reset_password_usecase.dart';
 
 import 'package:abds/screens/login/usecases/send_forget_password_code_usecase.dart';
@@ -61,6 +62,12 @@ class LoginLocalDataSource implements LoginDataSourceInterface {
   @override
   Future<GetConsDataResponse> getConsData({required GetConsDataRequest request}) {
     // TODO: implement getConsData
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<GetPublishServerResponse> getPublishServer({required GetPublishServerRequest request}) {
+    // TODO: implement getPublishServer
     throw UnimplementedError();
   }
 }
