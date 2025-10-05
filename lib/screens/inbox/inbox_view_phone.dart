@@ -70,7 +70,7 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
                 ? SpinKitChasingDots(size: 50, color: context.mainColor)
                 : Consumer(
                     builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                      final messages = ref.watch(inboxMessagesProvider).where((a)=>a.validateSearch(searchC.text)).toList();
+                      final messages = ref.watch(inboxMessagesProvider).reversed.where((a)=>a.validateSearch(searchC.text)).toList();
 
                       return ListView.builder(
                         itemBuilder: (c, i) {
@@ -186,7 +186,15 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text("From: ${widget.message.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        child: Row(
+                          children: [
+                            !widget.message.read?
+                            Icon(Icons.circle,size: 10,color: Colors.red):
+                            Icon(Icons.check_outlined,size: 10,color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text("From: ${widget.message.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                          ],
+                        ),
                       ),
                       loading ? SpinKitThreeBounce(color: Colors.black, size: 20) : SizedBox(),
                       const SizedBox(width: 4),
@@ -199,7 +207,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                                 borderRadius: BorderRadiusGeometry.circular(12),
                                 border: Border.all(color: Colors.white),
                               ),
-                              child: Text(response.title ?? '', style: TextStyle(fontSize: 12)),
+                              child: Text(response.name2 ?? '', style: TextStyle(fontSize: 12)),
                             ),
 
                       // Expanded(child: Text(widget.message.code ?? '')),

@@ -4,6 +4,9 @@
 
 import 'dart:convert';
 
+import 'package:get/get_utils/get_utils.dart';
+
+import '../utils_and_services/timatic/src/models/auth_response.dart';
 import 'basic_class.dart';
 import 'constant_data_class.dart';
 
@@ -162,7 +165,7 @@ class OutboxSupervisor {
     name: json["name"],
   );
 
-  TimaticResult get getRes => BasicClass.getResultOfCode(action);
+  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == action);
 
   Map<String, dynamic> toJson() => {
     "id": id,

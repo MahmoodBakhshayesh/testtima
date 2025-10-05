@@ -68,7 +68,7 @@ class _OutboxViewPhoneState extends State<OutboxViewPhone> {
           Expanded(
             child:loading?SpinKitChasingDots(size: 50,color: context.mainColor,): Consumer(
               builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                final messages = ref.watch(outboxMessagesProvider).where((a)=>a.validateSearch(searchC.text)).toList();
+                final messages = ref.watch(outboxMessagesProvider).reversed.where((a)=>a.validateSearch(searchC.text)).toList();
 
                 return ListView.builder(
                   itemBuilder: (c, i) {
@@ -103,6 +103,7 @@ class OutboxAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       height: preferredSize.height,
       color: Colors.white,
@@ -183,7 +184,15 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text("To: ${widget.message.user}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),)),
+                      Expanded(child: Row(
+                        children: [
+                          !widget.message.read?
+                          Icon(Icons.circle,size: 10,color: Colors.red):
+                          Icon(Icons.check_outlined,size: 10,color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text("To: ${widget.message.user}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),),
+                        ],
+                      )),
                       loading?SpinKitThreeBounce(color: Colors.black,size: 20,):SizedBox(),
                       const SizedBox(width: 4),
                       response == null?SizedBox():
@@ -194,7 +203,7 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                             borderRadius: BorderRadiusGeometry.circular(12),
                             border: Border.all(color: Colors.white)
                         ),
-                        child: Text(response.title,style: TextStyle(color: response.getColor,fontSize: 12),),),
+                        child: Text(response.name2??'',style: TextStyle(color: response.getColor,fontSize: 12),),),
                       // Expanded(child: Text(widget.message.code ?? '')),
                       // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
                       // Text("${widget.message.user?.username ?? widget.message?.user?.email}"),

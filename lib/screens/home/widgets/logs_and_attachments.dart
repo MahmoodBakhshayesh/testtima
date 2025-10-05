@@ -30,7 +30,7 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(showingLogsProvider);
-    log(logs.map((a)=>"${a.type} ${a.id}").join("\n"));
+    logs.sort((a,b)=>['airlineApproval',"askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval',"askSupervisor"].indexOf(b.type!)));
     return Column(
       children: [
         ...logs.map((l) {
@@ -581,7 +581,8 @@ class ManagerApprovalWidget extends StatelessWidget {
                       //     );
                       //   },
                       // ),
-
+                      Text(his.payload?.name ?? '',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
+                      Text(his.payload?.message ?? '',style: TextStyle(fontSize: 12),),
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
@@ -638,8 +639,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                               ],
                             ),
 
-                      Text(his.payload?.message ?? '',style: TextStyle(fontSize: 12),),
-                      Text(his.payload?.name ?? '',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
+
                     ],
                   ),
                 ),

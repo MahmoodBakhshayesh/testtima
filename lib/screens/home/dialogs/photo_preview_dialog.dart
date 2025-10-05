@@ -67,7 +67,7 @@ class _PhotoPreviewDialogState extends ConsumerState<PhotoPreviewDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
                 child:Image.network(
                   "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${widget.address}",
-                  fit: BoxFit.fill,
+                  fit: BoxFit.fitWidth,
                   headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
                 ),
               ),

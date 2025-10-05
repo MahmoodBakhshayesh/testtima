@@ -6,6 +6,8 @@ import 'dart:convert';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/classes/constant_data_class.dart';
+import 'package:abds/core/interfaces/local_data_base_int.dart';
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 
 InboxMessage inboxMessageFromJson(String str) => InboxMessage.fromJson(json.decode(str));
 
@@ -163,7 +165,8 @@ class InboxSupervisor {
     name: json["name"],
   );
 
-  TimaticResult get getRes => BasicClass.getResultOfCode(action);
+  // TimaticResult get getRes => BasicClass.getResultOfCode(action);
+  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == action);
 
   Map<String, dynamic> toJson() => {
     "id": id,

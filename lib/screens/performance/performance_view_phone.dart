@@ -33,6 +33,13 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
 
   PerformanceLog? log;
 
+
+  @override
+  void initState() {
+    from = BasicClass.user?.attributes["defaultAirport"]??"";
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Color textFieldBG = Color(0xff6e6e6e).withOpacity(0.15);
@@ -40,7 +47,8 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
     Color redParts = Color(0xffFF3f42);
     Color blueParts = Color(0xff2A5CFF);
     Color orangeParts = Color(0xffFFA32C);
-
+    final headerBg = MyColors.green2.withOpacity(0.26);
+    final bodyBg = MyColors.green2.withOpacity(0.12);
     return Scaffold(
       appBar: PerformanceAppBar(),
       backgroundColor: Colors.white,
@@ -49,25 +57,25 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
         child: Column(
           spacing: 16,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: MyDatePicker(onChanged: (a) {
-                    fromDate = a;
-                    setState((){});
-                  }, label: "Date Range", rowLabelRatio: [2, 4], placeholder: "From", backgroundColor: textFieldBG,value: fromDate,),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: MyDatePicker(onChanged: (a) {
-                    toDate = a;
-                    setState((){});
-
-                  }, label: "", rowLabelRatio: [1, 100], placeholder: "Until", backgroundColor: textFieldBG,value: toDate,),
-                ),
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       flex: 3,
+            //       child: MyDatePicker(onChanged: (a) {
+            //         fromDate = a;
+            //         setState((){});
+            //       }, label: "Date Range", rowLabelRatio: [2, 4], placeholder: "From", backgroundColor: textFieldBG,value: fromDate,),
+            //     ),
+            //     Expanded(
+            //       flex: 2,
+            //       child: MyDatePicker(onChanged: (a) {
+            //         toDate = a;
+            //         setState((){});
+            //
+            //       }, label: "", rowLabelRatio: [1, 100], placeholder: "Until", backgroundColor: textFieldBG,value: toDate,),
+            //     ),
+            //   ],
+            // ),
             Row(
               children: [
                 Expanded(
@@ -75,7 +83,8 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
                   child: MyFieldPicker<Airport>(
                     searchAutoFocus: true,
                     backgroundColor: textFieldBG,
-
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
                     label: "Route",
                     placeholder: "City",
                     rowLabelRatio: [2, 4],
@@ -95,7 +104,8 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> {
                   child: MyFieldPicker<Airport>(
                     label: "",
                     backgroundColor: textFieldBG,
-
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
                     placeholder: "To",
                     searchAutoFocus: true,
                     rowLabelRatio: [1, 100],
