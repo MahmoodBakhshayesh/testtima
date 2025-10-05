@@ -44,11 +44,14 @@ class SubmitTimaticRequestResponse extends ResponseInterface {
   final TimaticResponseNew response;
   final CurrentStatus currentStatus;
   final String refCode;
+  final String showCode;
 
-  SubmitTimaticRequestResponse({required super.status, required super.message, required this.response, required this.refCode, required this.currentStatus}) : super(body: response.toJson());
+  SubmitTimaticRequestResponse({required super.status, required super.message, required this.response, required this.refCode,required this.showCode, required this.currentStatus}) : super(body: response.toJson());
 
   factory SubmitTimaticRequestResponse.fromResponse(ResponseInterface res) =>
-      SubmitTimaticRequestResponse(status: res.status, currentStatus: CurrentStatus.fromJson(res.body["result"]), message: res.message, refCode: res.body["refCode"],
-
+      SubmitTimaticRequestResponse(status: res.status, currentStatus: CurrentStatus.fromJson(res.body["result"]),
+          message: res.message,
+          refCode: res.body["refCode"].toString(),
+          showCode: res.body["showCode"].toString(),
           response: TimaticResponseNew.fromJson(jsonDecode(res.body["logs"][0]["payload"]["output"])));
 }

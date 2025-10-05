@@ -286,7 +286,7 @@ SPEC CHECKSUMS:
   DynamsoftCaptureVisionBundle: fc241cc8ea94be985767acecb7231862db7111de
   DynamsoftMRZScannerBundle: d210d2cda2a84337d785df3ef8c991b4073c3e01
   file_picker: b159e0c068aef54932bb15dc9fd1571818edaf49
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_image_compress_common: ec1d45c362c9d30a3f6a0426c297f47c52007e3e
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleMLKit: 97ac7af399057e99182ee8edfa8249e3226a4065

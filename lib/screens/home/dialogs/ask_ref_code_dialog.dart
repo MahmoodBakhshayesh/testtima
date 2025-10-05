@@ -80,11 +80,11 @@ class _AskRefCodeDialogState extends State<AskRefCodeDialog> {
                 reverse: true,
                 borderSide: BorderSide(color: context.mainColor),
                 onPressed:textEditingController.text.isEmpty?null: () async {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  final a = await getIt<HomeController>().getRefHistoryLog(textEditingController.text);
-                  if(a!=null){
-                    Navigator.of(context).pop();
-                  }
+                  // FocusScope.of(context).requestFocus(FocusNode());
+                  // final a = await getIt<HomeController>().getRefHistoryLog(textEditingController.text);
+                  // if(a!=null){
+                  //   Navigator.of(context).pop();
+                  // }
 
                   // Navigator.of(context).pop();
                 },

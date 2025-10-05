@@ -23,12 +23,13 @@ class SupervisorResponseUseCase extends UseCase<SupervisorResponseResponse, Supe
 class SupervisorResponseRequest extends RequestInterface {
   final String logId;
   final String msg;
+  final String askId;
   final SupervisorResponse supervisorResponse;
 
-  SupervisorResponseRequest({required this.logId, required this.msg, required this.supervisorResponse});
+  SupervisorResponseRequest({required this.logId, required this.msg, required this.supervisorResponse, required this.askId});
 
   @override
-  Map<String, dynamic> toJson() => {"actionId": supervisorResponse.actionId, "message": msg};
+  Map<String, dynamic> toJson() => {"actionId": supervisorResponse.actionId, "message": msg,"askId":askId};
 
   Failure? validate() {
     return null;

@@ -30,7 +30,7 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(showingLogsProvider);
-
+    log(logs.map((a)=>"${a.type} ${a.id}").join("\n"));
     return Column(
       children: [
         ...logs.map((l) {
@@ -38,15 +38,17 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
             case null:
               return SizedBox();
             case "askSupervisor":
+
               // return SizedBox();
               return Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: AskSupervisorWidget(his: l),
+                child: AskSupervisorWidget(his: l,answer: logs.firstWhereOrNull((a)=>l.id!=null && l.id == a.payload?.askId),),
               );
             case "airlineApproval":
               return ManagerApprovalWidget(his: l);
             case "supervisorResponse":
-              return SupervisorApprovalWidget(his: l);
+              return SizedBox();
+              return SupervisorApprovalWidget(his: l,ask: logs.firstWhere((a)=>a.id == l.payload?.askId),);
             default:
               return SizedBox();
           }
@@ -70,43 +72,44 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
   }
 }
 
-class HeaderAskSupervisorWidget extends ConsumerWidget {
-  const HeaderAskSupervisorWidget({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final logs = ref.watch(showingLogsProvider);
-    log(logs.map((a) => a.type ?? '').join("--"));
-    final asks = logs.where((a) => a.type == "askSupervisor");
-    final resps = logs.where((a) => a.type == "supervisorResponse");
-    final ask = asks.lastOrNull;
-    final resp = resps.lastOrNull;
-    if (ask == null || resps.length >= asks.length) {
-      return SizedBox();
-    }
-    return AskSupervisorWidget(his: ask);
-    return Column(
-      children: [
-        ...logs.map((l) {
-          switch (l.payload?.action) {
-            case null:
-              return SizedBox();
-            case "askSupervisor":
-              return AskSupervisorWidget(his: l);
-            default:
-              return SizedBox();
-          }
-        }),
-      ],
-    );
-    return Container();
-  }
-}
+// class HeaderAskSupervisorWidget extends ConsumerWidget {
+//   const HeaderAskSupervisorWidget({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final logs = ref.watch(showingLogsProvider);
+//     log(logs.map((a) => a.type ?? '').join("--"));
+//     final asks = logs.where((a) => a.type == "askSupervisor");
+//     final resps = logs.where((a) => a.type == "supervisorResponse");
+//     final ask = asks.lastOrNull;
+//     final resp = resps.lastOrNull;
+//     if (ask == null || resps.length >= asks.length) {
+//       return SizedBox();
+//     }
+//     return AskSupervisorWidget(his: ask);
+//     return Column(
+//       children: [
+//         ...logs.map((l) {
+//           switch (l.payload?.action) {
+//             case null:
+//               return SizedBox();
+//             case "askSupervisor":
+//               return AskSupervisorWidget(his: l);
+//             default:
+//               return SizedBox();
+//           }
+//         }),
+//       ],
+//     );
+//     return Container();
+//   }
+// }
 
 class AskSupervisorWidget extends ConsumerStatefulWidget {
   final RefHistoryLog his;
+  final RefHistoryLog? answer;
 
-  const AskSupervisorWidget({super.key, required this.his});
+  const AskSupervisorWidget({super.key, required this.his, required this.answer});
 
   @override
   ConsumerState<AskSupervisorWidget> createState() => _AskSupervisorWidgetState();
@@ -137,9 +140,14 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
     final resps = logs.where((a) => a.type == "supervisorResponse");
     final ask = asks.lastOrNull;
     final resp = resps.lastOrNull;
-    if (ask == null || resps.length >= asks.length) {
-      return SizedBox();
+    // if (ask == null || resps.length >= asks.length) {
+    //   return SizedBox();
+    // }
+    if(widget.answer != null){
+      log("with answer");
+      return SupervisorApprovalWidget(his: widget.answer!,ask: widget.his);
     }
+
     final superID = widget.his.payload?.supervisorId;
     final sup = ref.watch(supervisorsProvider).firstWhereOrNull((a) => a.id == superID);
     bool isMine = BasicClass.user?.profile.id == superID;
@@ -209,19 +217,6 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                     ],
                   ),
                 ),
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: MyTextFieldNew(headerBgColor: selectionColor.withOpacity(0.2),
-          //           bodyBgColor: Color(0xffF0F2F8),
-          //           radius: BorderRadius.circular(12),
-          //           label: "Comment",
-          //           controller: commentC,
-          //           placeholder: "Enter Comment"),
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(height: 12),
           Row(
             spacing: 12,
             children: (BasicClass.user?.setting?.supervisorResponse ?? []).map((re) {
@@ -353,7 +348,9 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             onPressed: response == null
                 ? null
                 : () async {
-                    await getIt<HomeController>().supervisorResponse(logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: commentC.text+ (msg??''), );
+                    await getIt<HomeController>().supervisorResponse(
+                      askId: widget.his.id??'',
+                      logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: commentC.text+ (msg??''), );
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -575,15 +572,15 @@ class ManagerApprovalWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Consumer(
-                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                          return Text(
-                            // his.user?.username??his.user?.email ?? '',
-                            "Employee ${ref.watch(currentStatusProvider).employeeId ?? ''}",
-                            style: TextStyle(color: Colors.black,fontSize: 12),
-                          );
-                        },
-                      ),
+                      // Consumer(
+                      //   builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                      //     return Text(
+                      //       // his.user?.username??his.user?.email ?? '',
+                      //       "Employee ${ref.watch(currentStatusProvider).employeeId ?? ''}",
+                      //       style: TextStyle(color: Colors.black,fontSize: 12),
+                      //     );
+                      //   },
+                      // ),
 
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
@@ -674,9 +671,10 @@ class ManagerApprovalWidget extends StatelessWidget {
 }
 
 class SupervisorApprovalWidget extends StatelessWidget {
+  final RefHistoryLog ask;
   final RefHistoryLog his;
 
-  const SupervisorApprovalWidget({super.key, required this.his});
+  const SupervisorApprovalWidget({super.key, required this.his, required this.ask});
 
   @override
   Widget build(BuildContext context) {
@@ -691,7 +689,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
     final color = res.getColor;
     final title = res.name2!;
     return Container(
-      margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+      // margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
       decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
       child: Column(
         children: [
@@ -720,6 +718,44 @@ class SupervisorApprovalWidget extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
+                    // color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  margin: EdgeInsets.only(left: 12,right: 12,top: 12),
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                            return  Row(
+                              children: [
+                                Text(
+                                  "Employee ID: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                                ),
+                                Text(
+                                  "${ref.watch(currentStatusProvider).employeeId}",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            );
+                          },),
+                          // Text(
+                          //   ask.user?.username ?? ask.user?.email ?? '',
+                          //   style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                          // ),
+                        ],
+                      ),
+                      Text(ask.payload?.message ?? ''),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  decoration: BoxDecoration(
                     // color: Colors.white.withOpacity(0.48),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white),
@@ -732,70 +768,16 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            his.user?.username ?? his.user?.email ?? '',
+                            "Supervisor: ${his.user?.username ?? his.user?.email ?? ''}",
                             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],
                       ),
                       Text(his.payload?.message ?? ''),
-                      (his.payload?.attachFiles ?? []).isEmpty
-                          ? SizedBox()
-                          : Row(
-                              children: [
-                                Expanded(
-                                  child: Wrap(
-                                    children: [
-                                      ...(his.payload?.attachFiles ?? []).map((img) {
-                                        String api = getIt<HomeController>().ref.read(selectedServerProvider)!.apiAddress;
-                                        String token = getIt<HomeController>().ref.read(userProvider)!.token;
-                                        bool isVoice = img.endsWith("m4a");
-                                        if (isVoice) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(left: 8.0),
-                                            child: DotButton(
-                                              size: 40,
-                                              icon: Icons.record_voice_over,
-                                              onPressed: () async {
-                                                String dlUrl = "${api}/logs/attach/${img}";
-                                                final f = await getIt<HomeController>().getFile(url: dlUrl);
-                                                log(f.path);
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return VoicePreviewDialog(address: f.path);
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        }
-                                        return GestureDetector(
-                                          onTap: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return PhotoPreviewDialog(address: img);
-                                              },
-                                            );
-                                          },
-                                          child: SizedBox(
-                                            width: 120,
-                                            height: 120,
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadiusGeometry.circular(5),
-                                              child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
-                                            ),
-                                          ),
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
                     ],
                   ),
                 ),
+
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.48),

@@ -193,10 +193,11 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final bool hasClear;
   final bool searchAutoFocus;
   final T? value;
+  final Widget? headerWidget;
   final Widget Function(T)? itemToWidget;
   final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items, required this.suggestion, required this.label, required this.hasClear, this.itemToWidget, required this.value, required this.searchAutoFocus, this.searchBuilder, required this.hasSearch});
+  const PickerSheetWidget({super.key, required this.items,this.headerWidget, required this.suggestion, required this.label, required this.hasClear, this.itemToWidget, required this.value, required this.searchAutoFocus, this.searchBuilder, required this.hasSearch});
 
   @override
   State<PickerSheetWidget<T>> createState() => _PickerSheetWidgetState<T>();
@@ -369,7 +370,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
                   ],
                 ),
               ),
-
+              ?widget.headerWidget,
               // Search
               if (widget.hasSearch)
                 CupertinoTextField(

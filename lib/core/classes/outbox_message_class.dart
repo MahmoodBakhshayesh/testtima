@@ -4,153 +4,169 @@
 
 import 'dart:convert';
 
-import 'package:abds/core/classes/basic_class.dart';
-import 'package:abds/core/utils_and_services/timatic/src/models/auth_response.dart';
-import 'package:get/get_navigation/src/root/parse_route.dart';
+import 'basic_class.dart';
+import 'constant_data_class.dart';
 
 OutboxMessage inboxMessageFromJson(String str) => OutboxMessage.fromJson(json.decode(str));
 
 String inboxMessageToJson(OutboxMessage data) => json.encode(data.toJson());
 
 class OutboxMessage {
-  final String? code;
-  final DateTime? createdAt;
-  final List<InboxSupervisor>? supervisor;
-  final bool? read;
-  final String? airline;
-  final DateTime? flightDt;
-  final String? flightNumber;
-  final String? from;
-  final String? to;
-  final String? employeeId;
-  final InboxMessageUser? user;
+  final String id;
+  final String type;
+  final bool read;
+  final DateTime createdAt;
+  final String user;
+  final String showCode;
+  final int status;
+  final String airline;
+  final String employeeId;
+  final DateTime flightDt;
+  final String flightNumber;
+  final String from;
+  final String nationality;
+  final String to;
+  final int totalResult;
+  final int? airlineApproval;
+  final List<OutboxSupervisor> supervisor;
 
   OutboxMessage({
-    this.code,
-    this.createdAt,
-    this.supervisor,
-    this.read,
-    this.airline,
-    this.flightDt,
-    this.flightNumber,
-    this.from,
-    this.to,
-    this.user,
-    this.employeeId,
+    required this.id,
+    required this.type,
+    required this.read,
+    required this.createdAt,
+    required this.user,
+    required this.showCode,
+    required this.status,
+    required this.airline,
+    required this.employeeId,
+    required this.flightDt,
+    required this.flightNumber,
+    required this.from,
+    required this.nationality,
+    required this.to,
+    required this.totalResult,
+    this.airlineApproval,
+    required this.supervisor,
   });
 
   OutboxMessage copyWith({
-    String? code,
-    DateTime? createdAt,
-    List<InboxSupervisor>? supervisor,
+    String? id,
+    String? type,
     bool? read,
+    DateTime? createdAt,
+    String? user,
+    String? showCode,
+    int? status,
     String? airline,
+    String? employeeId,
     DateTime? flightDt,
     String? flightNumber,
     String? from,
+    String? nationality,
     String? to,
-    String? employeeId,
-    InboxMessageUser? user,
+    int? totalResult,
+    int? airlineApproval,
+    List<OutboxSupervisor>? supervisor,
   }) =>
       OutboxMessage(
-        code: code ?? this.code,
-        createdAt: createdAt ?? this.createdAt,
-        supervisor: supervisor ?? this.supervisor,
+        id: id ?? this.id,
+        type: type ?? this.type,
         read: read ?? this.read,
+        createdAt: createdAt ?? this.createdAt,
+        user: user ?? this.user,
+        showCode: showCode ?? this.showCode,
+        status: status ?? this.status,
         airline: airline ?? this.airline,
+        employeeId: employeeId ?? this.employeeId,
         flightDt: flightDt ?? this.flightDt,
         flightNumber: flightNumber ?? this.flightNumber,
         from: from ?? this.from,
+        nationality: nationality ?? this.nationality,
         to: to ?? this.to,
-        employeeId: employeeId ?? this.employeeId,
-        user: user ?? this.user,
+        totalResult: totalResult ?? this.totalResult,
+        airlineApproval: airlineApproval ?? this.airlineApproval,
+        supervisor: supervisor ?? this.supervisor,
       );
 
   factory OutboxMessage.fromJson(Map<String, dynamic> json) => OutboxMessage(
-    code: json["code"],
-    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
-    supervisor: json["supervisor"] == null ? [] : List<InboxSupervisor>.from(json["supervisor"]!.map((x) => InboxSupervisor.fromJson(x))),
+    id: json["_id"],
+    type: json["type"],
     read: json["read"],
-    airline: json["airline"],
-    flightDt: json["flightDT"] == null ? null : DateTime.parse(json["flightDT"]),
-    flightNumber: json["flightNumber"],
-    from: json["from"],
-    to: json["to"],
+    createdAt: DateTime.parse(json["createdAt"]),
+    user: json["user"],
+    showCode: json["showCode"].toString(),
+    status: json["status"],
+    airline: json["airline"]??'',
     employeeId: json["employeeId"],
-    user: json["user_"] == null ? null : InboxMessageUser.fromJson(json["user_"]),
+    flightDt: DateTime.parse(json["flightDT"]),
+    flightNumber: json["flightNumber"]??'',
+    from: json["from"],
+    nationality: json["nationality"],
+    to: json["to"],
+    totalResult: json["totalResult"],
+    airlineApproval: json["airlineApproval"],
+    supervisor: List<OutboxSupervisor>.from(json["supervisor"].map((x) => OutboxSupervisor.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
-    "code": code,
-    "createdAt": createdAt?.toIso8601String(),
-    "supervisor": supervisor == null ? [] : List<dynamic>.from(supervisor!.map((x) => x.toJson())),
+    "_id": id,
+    "type": type,
     "read": read,
+    "createdAt": createdAt.toIso8601String(),
+    "user": user,
+    "showCode": showCode,
+    "status": status,
     "airline": airline,
-    "flightDT": flightDt?.toIso8601String(),
+    "employeeId": employeeId,
+    "flightDT": flightDt.toIso8601String(),
     "flightNumber": flightNumber,
     "from": from,
+    "nationality": nationality,
     "to": to,
-    "employeeId": employeeId,
-    "user_": user?.toJson(),
+    "totalResult": totalResult,
+    "airlineApproval": airlineApproval,
+    "supervisor": List<dynamic>.from(supervisor.map((x) => x.toJson())),
   };
-}
 
-class InboxSupervisor {
-  final InboxMessageUser? id;
-  final int? action;
+  bool validateSearch(String text) {
+    if(text.isEmpty) return true;
+    return "$showCode ${employeeId}".toLowerCase().contains(text.toLowerCase());
+  }}
 
-  InboxSupervisor({
-    this.id,
-    this.action,
+class OutboxSupervisor {
+  final String id;
+  final int action;
+  final String name;
+
+  OutboxSupervisor({
+    required this.id,
+    required this.action,
+    required this.name,
   });
 
-  InboxSupervisor copyWith({
-    InboxMessageUser? id,
+  OutboxSupervisor copyWith({
+    String? id,
     int? action,
+    String? name,
   }) =>
-      InboxSupervisor(
+      OutboxSupervisor(
         id: id ?? this.id,
         action: action ?? this.action,
+        name: name ?? this.name,
       );
 
-  factory InboxSupervisor.fromJson(Map<String, dynamic> json) => InboxSupervisor(
-    id: json["id"] == null ? null : InboxMessageUser.fromJson(json["id"]),
+  factory OutboxSupervisor.fromJson(Map<String, dynamic> json) => OutboxSupervisor(
+    id: json["id"],
     action: json["action"],
+    name: json["name"],
   );
 
+  TimaticResult get getRes => BasicClass.getResultOfCode(action);
+
   Map<String, dynamic> toJson() => {
-    "id": id?.toJson(),
+    "id": id,
     "action": action,
-  };
-
-  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == action);
-}
-
-class InboxMessageUser {
-  final String? username;
-  final String? email;
-
-  InboxMessageUser({
-    this.username,
-    this.email,
-  });
-
-  InboxMessageUser copyWith({
-    String? username,
-    dynamic email,
-  }) =>
-      InboxMessageUser(
-        username: username ?? this.username,
-        email: email ?? this.email,
-      );
-
-  factory InboxMessageUser.fromJson(Map<String, dynamic> json) => InboxMessageUser(
-    username: json["username"],
-    email: json["email"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "username": username,
-    "email": email,
+    "name": name,
   };
 }

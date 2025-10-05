@@ -96,4 +96,11 @@ class StringUtility {
     return result;
   }
 
+  static String to3Digit(String? days) {
+    if(days== null) return "";
+    String lenFix = days.padLeft(3,"0");
+    String result = lenFix.substring(lenFix.length-3,lenFix.length);
+    return result;
+  }
+
 }

@@ -154,12 +154,20 @@ class _MyTextFieldNewState extends State<MyTextFieldNew> {
       onTap:!widget.openNumberSheet?null: () async {
         showModalBottomSheet(context: context,
             isScrollControlled: true,
-            builder: (c)=>NumericInputSheet(label: widget.label??'',maxLength: widget.maxLength,)).then((a){
-          if(a is String){
-            widget.controller?.text = a;
-            widget.onSubmit?.call(a);
-            // widget.onChanged.call(a!);
-          }
+            builder: (c)=>NumericInputSheet(label: widget.label??'',maxLength: widget.maxLength,
+              onDone: (a){
+                if(a is String){
+                  widget.controller?.text = a;
+                  widget.onSubmit?.call(a);
+                  // widget.onChanged.call(a!);
+                }
+              },
+            )).then((a){
+          // if(a is String){
+          //   widget.controller?.text = a;
+          //   widget.onSubmit?.call(a);
+          //   // widget.onChanged.call(a!);
+          // }
         });
       },
       child: AbsorbPointer(

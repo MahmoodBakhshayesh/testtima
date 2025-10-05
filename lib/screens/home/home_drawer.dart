@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/outbox/outbox_state.dart';
@@ -99,9 +100,10 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             ref.read(nextMessageId.notifier).update((s) => null);
                             myHomeController.goNamed(Routes.inbox);
                           },
-                          leadingIcon: Icons.inbox,
+                          leading:  IcomoonLayeredCss.direct_inbox(),
                           trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
+
                         DrawerAction(
                           title: 'Outbox',
                           // permission: LogUiPermission.read(),
@@ -111,8 +113,8 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             ref.read(outboxNextMessageId.notifier).update((s) => null);
                             myHomeController.goNamed(Routes.outbox);
                           },
-                          leadingIcon: Icons.outbox,
-                          trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
+                          leading:  IcomoonLayeredCss.direct_send(),
+                          // trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
                         CheckPermission(
                           saveSpace: false,
@@ -123,7 +125,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             onTap: () {
                               myHomeController.goNamed(Routes.users);
                             },
-                            leadingIcon: Icons.people,
+                            leading:  IcomoonLayeredCss.profile_2user(),
                           ),
                         ),
                         DrawerAction(
@@ -140,7 +142,18 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           onTap: () {
                             myHomeController.goNamed(Routes.performance);
                           },
-                          leadingIcon: Icons.bar_chart,
+                          leading:  IcomoonLayeredCss.chart_2(),
+
+                        ),
+                        DrawerAction(
+                          title: 'Search Track ID',
+                          // permission: LogUiPermission.read(),
+                          onTap: () {
+                            Navigator.pop(context);
+                            myHomeController.searchTrackId();
+                          },
+                          leading:  IcomoonLayeredCss.search_normal(),
+
                         ),
 
                       ],
@@ -194,14 +207,15 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
 
 class DrawerAction extends StatefulWidget {
   final String title;
-  final IconData leadingIcon;
+  final IconData? leadingIcon;
+  final Widget? leading;
   final Callback? onTap;
   final bool dense;
   final Color? color;
   final Widget? trailing;
   final UiPermission? permission;
 
-  const DrawerAction({super.key, required this.title, required this.onTap, required this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission});
+  const DrawerAction({super.key, required this.title, this.leading, required this.onTap, this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission});
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -249,7 +263,7 @@ class _DrawerActionState extends State<DrawerAction> {
               : 0,
         ),
         dense: true,
-        leading: Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
+        leading:widget.leading?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
         title: Row(
           children: [
             Expanded(

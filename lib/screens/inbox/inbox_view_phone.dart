@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
@@ -25,7 +26,7 @@ class InboxViewPhone extends StatefulWidget {
 
 class _InboxViewPhoneState extends State<InboxViewPhone> {
   static InboxController myInboxController = getIt<InboxController>();
-  TextEditingController codeC = TextEditingController();
+  TextEditingController searchC = TextEditingController();
   bool loading = true;
 
   @override
@@ -36,6 +37,7 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
         setState(() {});
       });
     });
+    searchC.addListener(()=>setState((){}));
     super.initState();
   }
 
@@ -52,14 +54,13 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
                 Expanded(
                   child: SizedBox(
                     height: 40,
-                    child: CupertinoTextField(controller: codeC, keyboardType: TextInputType.numberWithOptions(signed: true)),
+                    child: CupertinoTextField(
+                        prefix: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(ArtemisIcons.search_normal),
+                        ),
+                        controller: searchC, keyboardType: TextInputType.numberWithOptions(signed: true)),
                   ),
-                ),
-                MyButton(
-                  label: "Get",
-                  onPressed: () async {
-                    await myInboxController.goMessageDetails(codeC.text);
-                  },
                 ),
               ],
             ),
@@ -69,15 +70,15 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
                 ? SpinKitChasingDots(size: 50, color: context.mainColor)
                 : Consumer(
                     builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                      final messages = ref.watch(inboxMessagesProvider);
+                      final messages = ref.watch(inboxMessagesProvider).where((a)=>a.validateSearch(searchC.text)).toList();
 
                       return ListView.builder(
                         itemBuilder: (c, i) {
                           final message = messages[i];
                           return InboxMessageWidget(
-                            key: Key(message.code!),
+                            key: Key(message.showCode!),
                             onTap: () async {
-                              await myInboxController.goMessageDetails(message.code!);
+                              await myInboxController.goMessageDetails(message.showCode!);
                             },
                             message: message,
                             index: i,
@@ -153,11 +154,13 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
     ThemeData theme = Theme.of(context);
     bool isOdd = widget.index % 2 != 0;
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
+    final supervisorResponse = BasicClass.getResultOfCode(widget.message.totalResult);
     final response = widget.message.supervisor?.lastOrNull?.getRes;
+
     return Container(
       margin: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
       child: Material(
-        color: response?.getColor.withOpacity(0.12) ?? Colors.white,
+        color: supervisorResponse?.getColor.withOpacity(0.12) ?? Colors.white,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -183,7 +186,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                   Row(
                     children: [
                       Expanded(
-                        child: Text("From: ${widget.message.user?.username ?? widget.message.user?.email ?? ""}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        child: Text("From: ${widget.message.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
                       loading ? SpinKitThreeBounce(color: Colors.black, size: 20) : SizedBox(),
                       const SizedBox(width: 4),
@@ -196,7 +199,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                                 borderRadius: BorderRadiusGeometry.circular(12),
                                 border: Border.all(color: Colors.white),
                               ),
-                              child: Text(response!.name2 ?? '', style: TextStyle(color: response.getColor, fontSize: 12)),
+                              child: Text(response.title ?? '', style: TextStyle(fontSize: 12)),
                             ),
 
                       // Expanded(child: Text(widget.message.code ?? '')),
@@ -234,6 +237,19 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                       ),
                       Text(
                         widget.message.employeeId ?? "",
+                        style: TextStyle(fontSize: 10, color: Colors.black),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(Icons.circle, color: Colors.grey, size: 5),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Tracking ID: ",
+                        style: TextStyle(fontSize: 10, color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        widget.message.showCode ?? "",
                         style: TextStyle(fontSize: 10, color: Colors.black),
                         textAlign: TextAlign.center,
                       ),

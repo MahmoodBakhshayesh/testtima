@@ -53,6 +53,7 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
   TextEditingController searchC = TextEditingController();
   TextEditingController textC = TextEditingController();
   String? translated;
+  bool allLangMode = false;
 
   @override
   void initState() {
@@ -63,7 +64,12 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final langs = widget.allLangs.where((a) => a.validateSearch(searchC.text)).toList();
+    // final langs = widget.allLangs.where((a) => a.validateSearch(searchC.text)).toList();
+    // var langs = widget.languages.where((a) => a.validateSearch(searchC.text)).toList();
+    var langs = widget.languages;
+    if(allLangMode){
+      langs = widget.allLangs.where((a) => a.validateSearch(searchC.text)).toList();
+    }
     return GestureDetector(
       onTap: (){
         FocusScope.of(context).requestFocus(FocusNode());
@@ -104,14 +110,14 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                 child: translated == null
                     ? Column(
                         children: [
-                          CupertinoTextField(
+                          allLangMode?CupertinoTextField(
                             decoration: BoxDecoration(border: Border.all(color: MyColors.lineColor)),
                             prefix: Padding(padding: const EdgeInsets.all(8.0), child: Icon(Icons.search)),
                             placeholder: "Search",
                             controller: searchC,
                             style: TextStyle(fontSize: 12),
-                          ),
-                          ClipRRect(
+                          ):SizedBox(),
+                          allLangMode?SizedBox():ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
                               margin: EdgeInsets.only(left: 8, right: 8, top: 12),
@@ -180,6 +186,13 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                               ),
                             ),
                           ),
+                          Row(children: [
+                            Spacer(),
+                            MyButton(label:allLangMode?"Suggested Languages": "All Languages",icon: allLangMode?Icons.arrow_left: Icons.arrow_right,onPressed: (){
+                              allLangMode = !allLangMode;
+                              setState((){});
+                            },flat: true,reverse: true,iconInRight: !allLangMode,),
+                          ],)
                         ],
                       )
                     : Column(children: [Expanded(child: SingleChildScrollView(

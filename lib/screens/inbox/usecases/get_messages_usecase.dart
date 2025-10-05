@@ -36,6 +36,7 @@ class GetMessagesResponse extends ResponseInterface {
   final List<InboxMessage> messages;
   final int? nextMessageId;
 
+
   GetMessagesResponse({required super.status, required super.message, required this.messages, required this.nextMessageId}) : super(body: {"messages": messages.map((e) => e.toJson()).toList(), "next": nextMessageId});
 
   factory GetMessagesResponse.fromResponse(ResponseInterface res) =>

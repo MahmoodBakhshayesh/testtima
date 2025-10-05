@@ -8,7 +8,8 @@ import 'numeric_keyboard.dart';
 class NumericInputSheet extends StatefulWidget {
   final String label;
   final int? maxLength;
-  const NumericInputSheet({super.key, required this.label, this.maxLength});
+  final Function onDone;
+  const NumericInputSheet({super.key, required this.label, this.maxLength, required this.onDone});
 
   @override
   State<NumericInputSheet> createState() => _NumericInputSheetState();
@@ -69,7 +70,8 @@ class _NumericInputSheetState extends State<NumericInputSheet> {
                     CupertinoNumericKeyboard(
                       maxLength: widget.maxLength,
                       controller: idC,
-                      onDone: () {
+                      onDone: () async{
+                        await widget.onDone(idC.text);
                         Navigator.of(context).pop(idC.text);
                       },
                     ),

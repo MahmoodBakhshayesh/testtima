@@ -21,8 +21,9 @@ class GetRefCodeLogUseCase extends UseCase<GetRefCodeLogResponse,GetRefCodeLogRe
 }
 
 class GetRefCodeLogRequest extends RequestInterface {
-  String code;
-  GetRefCodeLogRequest({required this.code});
+  final String? code;
+  final String? showCode;
+  GetRefCodeLogRequest({required this.code,required this.showCode});
 
   @override
   Map<String, dynamic> toJson() =>{

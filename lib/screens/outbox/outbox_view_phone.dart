@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../core/classes/basic_class.dart';
 import '../../core/classes/outbox_message_class.dart';
 import '../../core/constants/ui.dart';
 import 'outbox_controller.dart';
@@ -26,7 +27,7 @@ class OutboxViewPhone extends StatefulWidget {
 
 class _OutboxViewPhoneState extends State<OutboxViewPhone> {
   static OutboxController myOutboxController = getIt<OutboxController>();
-  TextEditingController codeC = TextEditingController();
+  TextEditingController searchC = TextEditingController();
   bool loading = true;
   @override
   void initState() {
@@ -36,6 +37,8 @@ class _OutboxViewPhoneState extends State<OutboxViewPhone> {
         setState((){});
       });
     });
+    searchC.addListener(()=>setState((){}));
+
     super.initState();
   }
 
@@ -48,24 +51,32 @@ class _OutboxViewPhoneState extends State<OutboxViewPhone> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(children: [
-              Expanded(child: SizedBox(height:40,child: CupertinoTextField(controller: codeC,keyboardType: TextInputType.numberWithOptions(signed: true),))),
-              MyButton(label: "Get",onPressed: () async {
-                await myOutboxController.goMessageDetails(codeC.text);
-              })
+              Expanded(
+                child: SizedBox(
+                  height: 40,
+                  child: CupertinoTextField(
+                      prefix: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(ArtemisIcons.search_normal),
+                      ),
+                      controller: searchC, keyboardType: TextInputType.numberWithOptions(signed: true)),
+                ),
+              ),
+
             ],),
           ),
           Expanded(
             child:loading?SpinKitChasingDots(size: 50,color: context.mainColor,): Consumer(
               builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                final messages = ref.watch(outboxMessagesProvider);
+                final messages = ref.watch(outboxMessagesProvider).where((a)=>a.validateSearch(searchC.text)).toList();
 
                 return ListView.builder(
                   itemBuilder: (c, i) {
                     final message = messages[i];
                     return OutboxMessageWidget(
-                      key: Key(message.code!),
+                      key: Key(message.showCode!),
                       onTap: () async {
-                        await myOutboxController.goMessageDetails(message.code!);
+                        await myOutboxController.goMessageDetails(message.showCode!);
                       },
                       message: message,
                       index: i,
@@ -140,12 +151,14 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
     ThemeData theme = Theme.of(context);
     bool isOdd = widget.index % 2 != 0;
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
-    log(jsonEncode(widget.message.toJson()));
     final response = widget.message.supervisor?.lastOrNull?.getRes;
+    final finalResult = BasicClass.getResultOfCode(widget.message.totalResult);
+
+
     return Container(
       margin: const EdgeInsets.only(left: 12.0,right: 12,top: 12),
       child: Material(
-        color: response?.getColor.withOpacity(0.12)??Colors.white,
+        color: finalResult?.getColor.withOpacity(0.12)??Colors.white,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -170,7 +183,7 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text("To: ${widget.message.user?.username??widget.message.user?.email??""}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),)),
+                      Expanded(child: Text("To: ${widget.message.user}",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12),)),
                       loading?SpinKitThreeBounce(color: Colors.black,size: 20,):SizedBox(),
                       const SizedBox(width: 4),
                       response == null?SizedBox():
@@ -181,7 +194,7 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                             borderRadius: BorderRadiusGeometry.circular(12),
                             border: Border.all(color: Colors.white)
                         ),
-                        child: Text(response!.name2??'',style: TextStyle(color: response.getColor,fontSize: 12),),),
+                        child: Text(response.title,style: TextStyle(color: response.getColor,fontSize: 12),),),
                       // Expanded(child: Text(widget.message.code ?? '')),
                       // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
                       // Text("${widget.message.user?.username ?? widget.message?.user?.email}"),
@@ -218,6 +231,19 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                     ),
                     Text(
                       widget.message.employeeId??"",
+                      style: TextStyle(fontSize: 10, color: Colors.black),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.circle, color: Colors.grey, size: 5),
+                    const SizedBox(width: 4),
+                    Text(
+                      "Tracking ID: ",
+                      style: TextStyle(fontSize: 10, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      widget.message.showCode ?? "",
                       style: TextStyle(fontSize: 10, color: Colors.black),
                       textAlign: TextAlign.center,
                     ),

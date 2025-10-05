@@ -80,7 +80,7 @@ class CurrentStatus {
   );
 
   bool get isLocked => status! >=1;
-  bool get canUnlock => status! <2;
+  bool get canUnlock => status! <3;
   bool get canAskSupervisor => status! <3;
   bool get canUseOption => status! <3;
 

@@ -26,7 +26,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<GetRefCodeLogResponse> getRefCodeLog({required GetRefCodeLogRequest request}) async {
-    String api = '/logs/${request.code}';
+    String api = '/logs/${request.code!=null?'refCode':'showCode'}/${request.code??request.showCode}';
     ResponseInterface res = await networkManager.get(api);
     GetRefCodeLogResponse response = await Parser().parse(GetRefCodeLogResponse.fromResponse, res, executionReq: request);
     return response;

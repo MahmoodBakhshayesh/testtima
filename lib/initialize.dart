@@ -108,7 +108,7 @@ initNetworkManager([String? baseUrl]) {
             return false;
           }
         }
-      } else if (res.responseBody?["response"] is List) {
+      } else if (res.responseBody?["response"] is List && (res.responseBody?["response"] as List).isNotEmpty) {
         if(res.responseBody?["response"][0] is String){
           return true;
         }

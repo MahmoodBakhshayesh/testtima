@@ -867,7 +867,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
                       Row(
                         children: [
                           Text("Tracking: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          Text((ref.watch(refCodeProvider) ?? '').padLeft(3,"0").substring(0,3), style: TextStyle(color: Colors.black)),
+                          Text(ref.watch(refCodeShowProvider)??'', style: TextStyle(color: Colors.black)),
                           // timaticRes.getRes.getIconWidget,
                           // Text("${timaticRes.getRes.title}",style: TextStyle(fontSize: 12,color: timaticRes.getRes.getColor),),
                           // Container(

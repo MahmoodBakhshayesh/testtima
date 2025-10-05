@@ -32,6 +32,7 @@ import 'package:abds/screens/home/usecases/validate_employee_id_usecase.dart';
 import 'package:abds/screens/home/widgets/logs_and_attachments.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/users/users_controller.dart';
+import 'package:abds/widgets/number_input_sheet.dart';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -228,10 +229,10 @@ class HomeController extends ControllerInterface {
     navigation.openDialog(dialog: AskRefCodeDialog());
   }
 
-  Future<RefHistory?> getRefHistoryLog(String code) async {
+  Future<RefHistory?> getRefHistoryLog({required String? code,required String? showCode}) async {
     RefHistory? historyLog;
     GetRefCodeLogUseCase getRefHistoryLogUseCase = GetRefCodeLogUseCase();
-    GetRefCodeLogRequest getRefCodeLogRequest = GetRefCodeLogRequest(code: code);
+    GetRefCodeLogRequest getRefCodeLogRequest = GetRefCodeLogRequest(code: code,showCode: showCode);
     final result = await getRefHistoryLogUseCase(request: getRefCodeLogRequest);
 
     switch (result) {
@@ -242,13 +243,13 @@ class HomeController extends ControllerInterface {
         final r = result.value;
         historyLog = r.history;
         ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
-        fillWithRefHistory(r.history, code);
+        fillWithRefHistory(r.history, code,showCode);
     }
 
     return historyLog;
   }
 
-  fillWithRefHistory(RefHistory his, String code) {
+  fillWithRefHistory(RefHistory his, String? code,String? showCode) {
     final timaticReqLog = (his.logs ?? []).firstWhereOrNull((a) => (a.type ?? '') == ("timaticCheck"));
     final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') != ("timaticCheck")).toList();
     ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
@@ -296,8 +297,6 @@ class HomeController extends ControllerInterface {
       final visas = allDocs.where((a) => a.getMatch()?.type == "V").toList();
       final residents = allDocs.where((a) => a.getMatch()?.type == "I").toList();
 
-      log("AllDoces ${allDocs.map((a) => a.getMatch()?.type)}");
-      log("Passes ${passes.length} -- Visas${visas.length} -- Residents${residents.length}");
       final others = allDocs.where((a) => !["V", "I", "P"].contains(a.getMatch()?.type)).toList();
       final allSegs = List<ItinerarySegment>.from(
         (input["itineraryDetails"]['segments']).map((s) {
@@ -312,9 +311,12 @@ class HomeController extends ControllerInterface {
       ref.read(segmentsProvider.notifier).setAll(allSegs);
       ref.read(passengerProvider.notifier).update((s) => pd);
 
-      output["refCode"] = code;
+      ref.read(refCodeProvider.notifier).update((s)=>his.refCode);
+      ref.read(refCodeShowProvider.notifier).update((s)=>his.showCode);
+
+      // output["refCode"] = code;
       // output["status"] = locked ? 1 : 0;
-      output["status"] = 1;
+      // output["status"] = 1;
       // DocumentResponse result = DocumentResponse.fromJson(output);
       TimaticResponseNew result = TimaticResponseNew.fromJson(output);
 
@@ -498,7 +500,8 @@ class HomeController extends ControllerInterface {
 
     switch (result) {
       case Err<GetNotifCountResponse>():
-        FailureHandler.handle(result.error);
+        // FailureHandler.handle(result.error);
+        return null;
 
       case Ok<GetNotifCountResponse>():
         final r = result.value;
@@ -524,6 +527,7 @@ class HomeController extends ControllerInterface {
         final r = result.value;
         response = r.response;
         ref.read(refCodeProvider.notifier).update((s) => r.refCode);
+        ref.read(refCodeShowProvider.notifier).update((s) => r.showCode);
         ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
     }
 
@@ -642,9 +646,9 @@ class HomeController extends ControllerInterface {
     return false;
   }
 
-  Future<void> supervisorResponse({required SupervisorResponse response, required String msg, required String logId}) async {
+  Future<void> supervisorResponse({required SupervisorResponse response, required String msg, required String logId,required String askId}) async {
     SupervisorResponseUseCase supervisorResponseUseCase = SupervisorResponseUseCase();
-    SupervisorResponseRequest supervisorResponseRequest = SupervisorResponseRequest(logId: logId, msg: msg, supervisorResponse: response);
+    SupervisorResponseRequest supervisorResponseRequest = SupervisorResponseRequest(logId: logId, msg: msg, supervisorResponse: response, askId: askId);
     final result = await supervisorResponseUseCase(request: supervisorResponseRequest);
 
     switch (result) {
@@ -702,6 +706,7 @@ class HomeController extends ControllerInterface {
       final code = await navigation.openBottomSheet(
         isScrollControlled: true,
         bottomSheet: PickerSheetWidget(
+          headerWidget: added.mrz!=null?added.getMrzWidget:null,
           suggestion: BasicClass.constData.data.documentCode.where((a) => added.suggestionCodes.contains(a.code)).toList(),
           value: null,
           searchAutoFocus: false,
@@ -771,10 +776,21 @@ class HomeController extends ControllerInterface {
 
   refreshResults() {
     String? refCode = ref.read(refCodeProvider);
+    log("refreshResults");
+
     if(refCode == null){
       return;
     }
-    getRefHistoryLog(refCode);
+    getRefHistoryLog(code: refCode,showCode: null);
+  }
+
+  Future<void> searchTrackId() async {
+    final code = await navigation.openBottomSheet(bottomSheet: NumericInputSheet(label: "Track ID", onDone: (a)async{
+      if(a is String && a.isNotEmpty) {
+        await getRefHistoryLog(code: null, showCode: a);
+      }
+    },),isScrollControlled: true);
+    log("");
   }
 
   // UseCase UseCase = UseCase(repository: Repository());

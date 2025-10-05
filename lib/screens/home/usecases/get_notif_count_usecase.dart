@@ -42,14 +42,14 @@ class GetNotifCountResponse extends ResponseInterface {
   GetNotifCountResponse({required super.status, required super.message, required this.notifCount})
       : super(
           body: {
-            "newMessage" : notifCount,
+            "count" : notifCount,
           },
         );
 
     factory GetNotifCountResponse.fromResponse(ResponseInterface res) => GetNotifCountResponse(
         status: res.status,
         message: res.message,
-      notifCount :res.body["newMessage"],
+      notifCount :res.body["count"],
       );
 
 }

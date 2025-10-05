@@ -66,7 +66,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<GetConsDataResponse> getConsData({required GetConsDataRequest request}) async {
-    String api = "/constant/${request.constVersion}";
+    String api = "/constant${request.constVersion.isEmpty?'':"/${request.constVersion}"}";
     ResponseInterface res = await networkManager.get(api);
     GetConsDataResponse response = await Parser().parse(GetConsDataResponse.fromResponse, res, executionReq: request);
     return response;

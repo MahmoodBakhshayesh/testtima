@@ -14,7 +14,7 @@ class InboxRemoteDataSource implements InboxDataSourceInterface {
 
   @override
   Future<GetMessagesResponse> getMessages({required GetMessagesRequest request}) async {
-    String api = "/inbox/detail/:${request.nextMessageId == null ? '' : "${request.nextMessageId}"}";
+    String api = "/inbox/detail${request.nextMessageId == null ? '' : "/:${request.nextMessageId}"}";
     ResponseInterface res = await networkManager.get(api);
     GetMessagesResponse response = await Parser().parse(GetMessagesResponse.fromResponse, res, executionReq: request);
     return response;

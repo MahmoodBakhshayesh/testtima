@@ -36,9 +36,9 @@ class InboxController extends ControllerInterface {
   }
 
   goMessageDetails(String messageCode) async {
-    final refHistory = await getIt<HomeController>().getRefHistoryLog(messageCode);
+    final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: messageCode,code: null);
     if(refHistory!=null){
-      ref.read(refCodeProvider.notifier).update((s)=>messageCode);
+      // ref.read(refCodeProvider.notifier).update((s)=>messageCode);
       // ref.read(inboxMessageDetailsProvider.notifier).update((s)=>refHistory.logs??[]);
       // goNamed(Routes.messageDetails);
       navigation.pop();

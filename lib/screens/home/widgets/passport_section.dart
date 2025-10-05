@@ -1,4 +1,6 @@
 // Row (with its own controller)
+import 'dart:developer';
+
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:ferry/typed_links.dart';
@@ -97,7 +99,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     bool isLast = widget.isLast;
     bool isFirst = widget.isFirst;
     int index = widget.index;
-    DocumentDetail d = widget.item;
+    DocumentDetail d = ref.watch(passportsProvider)[widget.index];
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF0F2Fa);
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
@@ -249,7 +251,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                           d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry??a);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: s.nationality ?? a));
+                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                         },
                       ),
                     ),
@@ -296,6 +298,8 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             onChanged: (a) {
               d = d.copyWith(birthDate: a);
               ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+              ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+
             },
           ),
           const SizedBox(height: 12),

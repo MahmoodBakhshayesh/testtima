@@ -14,7 +14,8 @@ class OutboxRemoteDataSource implements OutboxDataSourceInterface {
 
   @override
   Future<GetOutboxMessagesResponse> getOutboxMessages({required GetOutboxMessagesRequest request}) async {
-    String api = "/outbox/detail/:${request.nextMessageId == null ? '' : "${request.nextMessageId}"}";
+    String api = "/outbox/detail${request.nextMessageId == null ? '' : "/:${request.nextMessageId}"}";
+
     ResponseInterface res = await networkManager.get(api);
     GetOutboxMessagesResponse response = await Parser().parse(GetOutboxMessagesResponse.fromResponse, res, executionReq: request);
     return response;

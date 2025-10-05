@@ -36,4 +36,5 @@ final confirmingDocumentProvider = StateProvider<DocumentDetail?>((ref) => null)
 final showingLogsProvider =  StateProvider<List<RefHistoryLog>>((ref) => []);
 final notifCountProvider =  StateProvider<int>((ref) => 0);
 final refCodeProvider =  StateProvider<String?>((ref) => null);
+final refCodeShowProvider =  StateProvider<String?>((ref) => null);
 final currentStatusProvider =  StateProvider<CurrentStatus>((ref) => CurrentStatus());

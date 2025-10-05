@@ -322,8 +322,9 @@ class LoginController extends ControllerInterface {
     if (ref.read(userProvider) == null) {
       return;
     }
+    // log("refreshInboxTimer $refreshInboxTimer" );
     getIt<HomeController>().getNotifCount().then((a) {
-      Future.delayed(Duration(microseconds: refreshInboxTimer), () {
+      Future.delayed(Duration(milliseconds: refreshInboxTimer), () {
         checkNotifCount(refreshInboxTimer);
       });
     });
@@ -421,7 +422,8 @@ class LoginController extends ControllerInterface {
         String address = apiAddress + apiVersion;
         log("setting address ${address}");
         Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false);
-        saveServer(pubServer);
+        initNetworkManager(pubServer.apiAddress);
+        ref.read(selectedServerProvider.notifier).update((s)=>pubServer);
     }
 
     return apiAddress;
