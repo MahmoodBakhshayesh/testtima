@@ -105,7 +105,7 @@ class OutboxMessage {
     flightDt: DateTime.parse(json["flightDT"]),
     flightNumber: json["flightNumber"]??'',
     from: json["from"],
-    nationality: json["nationality"],
+    nationality: json["nationality"]??'',
     to: json["to"],
     totalResult: json["totalResult"],
     airlineApproval: json["airlineApproval"],

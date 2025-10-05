@@ -156,7 +156,11 @@ class HomeController extends ControllerInterface {
         //   ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
         // }
       } else {
-        ref.read(passportsProvider.notifier).updateAt(emptyIndex, doc);
+        ref.read(passportsProvider.notifier).removeAt(emptyIndex);
+        Future((){
+          ref.read(passportsProvider.notifier).add(doc);
+        });
+
       }
     } else if (doc.isVisa) {
       int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
@@ -706,7 +710,7 @@ class HomeController extends ControllerInterface {
       final code = await navigation.openBottomSheet(
         isScrollControlled: true,
         bottomSheet: PickerSheetWidget(
-          headerWidget: added.mrz!=null?added.getMrzWidget:null,
+          // headerWidget: added.mrz!=null?added.getMrzWidget:null,
           suggestion: BasicClass.constData.data.documentCode.where((a) => added.suggestionCodes.contains(a.code)).toList(),
           value: null,
           searchAutoFocus: false,

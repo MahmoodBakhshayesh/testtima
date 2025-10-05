@@ -161,7 +161,7 @@ class DocumentDetail {
     return DocumentDetail(shortType: "V");
   }
   factory DocumentDetail.passport() {
-    return DocumentDetail(shortType: "P");
+    return DocumentDetail(shortType: "P",birthDate: DateTime(2000,1,1));
   }
   factory DocumentDetail.resident() {
     return DocumentDetail(shortType: "I");

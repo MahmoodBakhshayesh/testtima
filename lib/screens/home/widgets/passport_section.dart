@@ -41,14 +41,17 @@ class PassportItemRow extends ConsumerStatefulWidget {
 
 class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   late final TextEditingController controller;
-
+  ExpansibleController expansibleController = ExpansibleController();
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.item.documentNumber);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.addListener(() {
-        ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+        Future((){
+          ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
+
+        });
       });
     });
   }
@@ -61,7 +64,11 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     if (controller.text != widget.item.documentNumber) {
       controller.text = widget.item.documentNumber ?? '';
     }
+    if(widget.item.isScanned){
+      expansibleController.expand();
+    }
   }
+
 
   @override
   void dispose() {
@@ -114,6 +121,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin: EdgeInsets.only(top: 12),
       child: MyExpansionTile(
+        controller: expansibleController,
         tapOnTitleActive: false,
         initiallyExpanded: d.isScanned,
         // backgroundColor: MyColors.scaffoldBg,
