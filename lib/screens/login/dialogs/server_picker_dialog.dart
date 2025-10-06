@@ -56,17 +56,20 @@ class _ServerPickerDialogState extends State<ServerPickerDialog> {
                   if (!e.active) {
                     return SizedBox();
                   }
-                  return RadioListTile<String>(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                    groupValue: (tmpServer?.apiAddress)?.toLowerCase(),
-                    activeColor: theme.primaryColor,
-                    title: Text(e.title),
-                    value: (e.apiAddress).toLowerCase(),
-                    onChanged: (String? value) {
-                      setState(() {
-                        tmpServer = widget.servers.firstWhereOrNull((a) => a.apiAddress == value);
-                      });
-                    },
+                  return Container(
+                    color: e.getColor.withOpacity(0.08),
+                    child: RadioListTile<String>(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                      groupValue: (tmpServer?.apiAddress)?.toLowerCase(),
+                      activeColor: theme.primaryColor,
+                      title: Text(e.title),
+                      value: (e.apiAddress).toLowerCase(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          tmpServer = widget.servers.firstWhereOrNull((a) => a.apiAddress == value);
+                        });
+                      },
+                    ),
                   );
                 }).toList(),
               ),

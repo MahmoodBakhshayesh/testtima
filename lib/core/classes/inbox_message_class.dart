@@ -104,9 +104,10 @@ class InboxMessage {
     flightDt: DateTime.parse(json["flightDT"]),
     flightNumber: json["flightNumber"]??'',
     from: json["from"],
-    nationality: json["nationality"],
+    nationality: json["nationality"]??'',
+
     to: json["to"],
-    totalResult: json["totalResult"],
+    totalResult: json["totalResult"]??1,
     airlineApproval: json["airlineApproval"],
     supervisor: List<InboxSupervisor>.from(json["supervisor"].map((x) => InboxSupervisor.fromJson(x))),
   );

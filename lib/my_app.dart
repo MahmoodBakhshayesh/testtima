@@ -7,6 +7,7 @@ import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
 import 'package:abds/screens/outbox/outbox_view.dart';
 import 'package:abds/screens/users/users_view.dart';
+import 'package:abds/widgets/global_wrapper.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -37,7 +38,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     // final router = ref.watch(routerProvider);
-    return TreeNavigation.makeMaterialApp(
+    return GlobalWrapper(child: TreeNavigation.makeMaterialApp(
       theme: MyTheme.lightAbomis(context),
       debugLogDiagnostics: true,
       routeInfoList: Routes.allRoutes,
@@ -70,6 +71,6 @@ class _MyAppState extends ConsumerState<MyApp> {
       navigatorKey: topKey,
       observers: [BotToastNavigatorObserver()],
       globalKeyList: [topKey, shellKey],
-    );
+    ));
   }
 }

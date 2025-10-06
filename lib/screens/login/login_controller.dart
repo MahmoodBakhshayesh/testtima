@@ -421,7 +421,7 @@ class LoginController extends ControllerInterface {
         apiAddress = r.apiAddress;
         String address = apiAddress + apiVersion;
         log("setting address ${address}");
-        Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false);
+        Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false, color: null, name: null);
         initNetworkManager(pubServer.apiAddress);
         ref.read(selectedServerProvider.notifier).update((s)=>pubServer);
     }

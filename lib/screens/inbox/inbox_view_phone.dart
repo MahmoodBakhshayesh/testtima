@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
@@ -156,7 +157,8 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
     final supervisorResponse = BasicClass.getResultOfCode(widget.message.totalResult);
     final response = widget.message.supervisor?.lastOrNull?.getRes;
-
+    log("actionId ${response?.actionId.toString()} ${widget.message.supervisor.lastOrNull?.action}");
+    log(jsonEncode(widget.message.toJson()));
     return Container(
       margin: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
       child: Material(
