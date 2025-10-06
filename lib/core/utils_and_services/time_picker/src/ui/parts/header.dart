@@ -134,7 +134,9 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   }
 
   void changeListener() {
-    dateC.text = dateState.value.format_yyyyMMdd.replaceAll("-", "/");
+    if(widget.pickerType == DateTimePickerType.date) {
+      dateC.text = dateState.value.format_yyyyMMdd.replaceAll("-", "/");
+    }
     setState(() => judgeDay());
   }
 

@@ -80,6 +80,14 @@ class LockedDocumentItemRow extends StatelessWidget {
               ],
             ),
           ):null,
+          ?d.gender!=null?LockedFieldWidget(
+            label: "Gender",
+            value: Row(
+              children: [
+                Text(d.gender!.title)
+              ],
+            ),
+          ):null,
           ?(d.documentNumber??'').isNotEmpty?LockedFieldWidget(label: "Document #", value: Text(d.documentNumber ?? '')):null,
         ],
       ),

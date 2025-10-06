@@ -151,7 +151,9 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                 DotButton(
                   icon: ArtemisIcons.eraser_1,
                   onPressed: () async {
-                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    final confirm = await ConfirmOperation.getConfirm(
+                      Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to delete ${"ID / Residency Card #${widget.index + 1}"}. Are you sure?', title: "Clear", actions: ["Cancel", "Confirm"]),
+                    );
                     if (!confirm) return;
                     ref.read(residentsProvider.notifier).updateAt(index,DocumentDetail());
                   },
@@ -165,7 +167,9 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                 DotButton(
                   icon: ArtemisIcons.trash,
                   onPressed: () async {
-                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    final confirm = await ConfirmOperation.getConfirm(
+                      Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete ${"ID / Residency Card #${widget.index + 1}"}. Are you sure?', title: "Delete", actions: ["Cancel", "Confirm"]),
+                    );
                     if (!confirm) return;
                     ref.read(residentsProvider.notifier).removeAt(index);
                   },

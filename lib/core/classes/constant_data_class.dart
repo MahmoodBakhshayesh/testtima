@@ -670,8 +670,10 @@ class TimaticResult {
 
     if(resultId == 1){
       text = "Travel Allowed";
-      borderColor = Colors.white;
-      iconColor = Colors.transparent;
+      // borderColor = Colors.white;
+      // iconColor = Colors.transparent;
+      borderColor = getColor;
+      iconColor = getColor;
     }else if(resultId ==2){
       text = "View Requirements";
       borderColor = getColor;
@@ -694,6 +696,8 @@ class TimaticResult {
             Expanded(child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                text == "Travel Allowed"?
+              IcomoonLayeredCss.tick_square(colors: [iconColor.withOpacity(0.4),iconColor],size: 16):
               IcomoonLayeredCss.danger(colors: [iconColor.withOpacity(0.4),iconColor],size: 16),
               Text(
                 text,
@@ -712,7 +716,60 @@ class TimaticResult {
     // );
     // return getEvalRes.getSubtitleWidget;
   }
+  Widget getSubtitleWidgetArrow(bool opened) {
+    String text = "";
+    Color iconColor = Colors.black;
+    Color borderColor = Colors.transparent;
 
+    if(resultId == 1){
+      text = "Travel Allowed";
+      // borderColor = Colors.white;
+      // iconColor = Colors.transparent;
+      borderColor = getColor;
+      iconColor = getColor;
+    }else if(resultId ==2){
+      text = "View Requirements";
+      borderColor = getColor;
+      iconColor = getColor;
+    }else if(resultId ==3){
+      text = "View Requirements";
+      borderColor = getColor;
+      iconColor = getColor;
+    }
+    return Container(
+      height: 40,
+      margin: EdgeInsets.only(top: 12),
+      decoration: BoxDecoration(border: Border.all(color: borderColor), borderRadius: BorderRadius.circular(12)),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+            const SizedBox(width: 8),
+            Icon(opened? Icons.arrow_drop_down:Icons.arrow_drop_up_outlined,color: Colors.transparent,),
+            Expanded(child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                text == "Travel Allowed"?
+              IcomoonLayeredCss.tick_square(colors: [iconColor.withOpacity(0.4),iconColor],size: 16):
+              IcomoonLayeredCss.danger(colors: [iconColor.withOpacity(0.4),iconColor],size: 16),
+              Text(
+                text,
+                style: TextStyle(color: getColor, fontWeight: FontWeight.w500, fontSize: 15),
+              ),
+            ],)),
+            Icon(!opened? Icons.arrow_drop_down:Icons.arrow_drop_up_outlined,color: iconColor,),
+            const SizedBox(width: 8),
+          ],
+        ),
+      ),
+    );
+    // return SizedBox();
+    // return Container(
+    //   child: Text("View Requirement"),
+    // );
+    // return getEvalRes.getSubtitleWidget;
+  }
   Widget get getIconWidget {
     if(resultId ==1){
       return IcomoonLayeredCss.tick_square(colors: [getColor.withOpacity(0.3), getColor], size: 20);

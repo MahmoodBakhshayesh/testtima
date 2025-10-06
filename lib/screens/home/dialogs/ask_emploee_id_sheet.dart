@@ -104,6 +104,7 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                       padding: const EdgeInsets.only(top: 12.0,left: 12,right: 12),
                       child: CupertinoTextField(
                         maxLength: 6,
+                        enabled: false,
                         textAlign: TextAlign.center,
                         decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(8), color: invalidId ? Colors.red.withOpacity(0.12) : MyColors.lineColor),
                         style: TextStyle(fontSize: 40),

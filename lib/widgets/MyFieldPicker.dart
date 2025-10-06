@@ -62,7 +62,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.placeholder,
     required this.items,
     this.onChange,
-    this.suggestion=const [],
+    this.suggestion = const [],
     this.labelStyle,
     this.hasSearch = true,
     this.searchAutoFocus = false,
@@ -106,7 +106,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
   @override
   void didUpdateWidget(covariant MyFieldPicker<T> oldWidget) {
     if (widget.value != oldWidget.value && mounted) {
-      controller.text = widget.value == null ? "" :widget.valueToString?.call(widget.value!)?? widget.value.toString();
+      controller.text = widget.value == null ? "" : widget.valueToString?.call(widget.value!) ?? widget.value.toString();
       value.value = widget.value;
       setState(() {});
     }
@@ -121,44 +121,46 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
       valueListenable: value,
       builder: (context, v, _) {
         return GestureDetector(
-          onTap:widget.locked ?null: () {
-            dev.log("pick item");
-            showModalBottomSheet(
-              isScrollControlled: true,
-              context: context,
-              builder: (BuildContext context) {
-                return Padding(
-                  // This moves content above the keyboard
-                  // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  padding: EdgeInsets.only(top: 0),
-                  child: PickerSheetWidget(
-                    suggestion: widget.suggestion,
-                    value: widget.value,
-                    searchAutoFocus: widget.searchAutoFocus,
-                    hasClear: widget.showClearButton,
-                    searchBuilder: widget.searchBuilder,
-                    items: widget.items,
-                    label: widget.placeholder ?? widget.label ?? '',
-                    itemToWidget: widget.itemToWidget,
-                    hasSearch: widget.hasSearch,
-                  ),
-                );
-                // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
-              },
-              elevation: 2,
-            ).then((v) {
-              if (v == Null) {
-                dev.log("should null value");
-                value.value = null;
-                widget.onChange?.call(null);
-                setState(() {});
-              } else if (v != null) {
-                dev.log(v.toString());
-                value.value = v;
-                setState(() {});
-              }
-            });
-          },
+          onTap: widget.locked
+              ? null
+              : () {
+                  dev.log("pick item");
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Padding(
+                        // This moves content above the keyboard
+                        // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                        padding: EdgeInsets.only(top: 0),
+                        child: PickerSheetWidget(
+                          suggestion: widget.suggestion,
+                          value: widget.value,
+                          searchAutoFocus: widget.searchAutoFocus,
+                          hasClear: widget.showClearButton,
+                          searchBuilder: widget.searchBuilder,
+                          items: widget.items,
+                          label: widget.placeholder ?? widget.label ?? '',
+                          itemToWidget: widget.itemToWidget,
+                          hasSearch: widget.hasSearch,
+                        ),
+                      );
+                      // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
+                    },
+                    elevation: 2,
+                  ).then((v) {
+                    if (v == Null) {
+                      dev.log("should null value");
+                      value.value = null;
+                      widget.onChange?.call(null);
+                      setState(() {});
+                    } else if (v != null) {
+                      dev.log(v.toString());
+                      value.value = v;
+                      setState(() {});
+                    }
+                  });
+                },
           child: MyTextFieldNew(
             showError: false,
             headerBgColor: widget.headerBgColor,
@@ -167,7 +169,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             backgroundColor: widget.backgroundColor,
             labelStyle: widget.labelStyle,
             required: widget.required,
-            prefix:widget.prefix ,
+            prefix: widget.prefix,
             prefixIcon: widget.prefixIcon,
             rowLabelRatio: widget.rowLabelRatio,
             labelInRow: true,
@@ -177,7 +179,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             label: widget.label,
             fontSize: 12,
             placeholder: widget.placeholder,
-            suffixIcon:widget.suffixIcon?? SizedBox(height:25,child: Icon(Icons.arrow_drop_down,size: 20,)),
+            suffixIcon: widget.suffixIcon ?? SizedBox(height: 25, child: Icon(Icons.arrow_drop_down, size: 20)),
           ),
         );
       },
@@ -197,23 +199,35 @@ class PickerSheetWidget<T> extends StatefulWidget {
   final Widget Function(T)? itemToWidget;
   final String Function(T)? searchBuilder;
 
-  const PickerSheetWidget({super.key, required this.items,this.headerWidget, required this.suggestion, required this.label, required this.hasClear, this.itemToWidget, required this.value, required this.searchAutoFocus, this.searchBuilder, required this.hasSearch});
+  const PickerSheetWidget({
+    super.key,
+    required this.items,
+    this.headerWidget,
+    required this.suggestion,
+    required this.label,
+    required this.hasClear,
+    this.itemToWidget,
+    required this.value,
+    required this.searchAutoFocus,
+    this.searchBuilder,
+    required this.hasSearch,
+  });
 
   @override
   State<PickerSheetWidget<T>> createState() => _PickerSheetWidgetState<T>();
 }
-
 
 class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   final TextEditingController searchC = TextEditingController();
   final ItemScrollController _itemScrollController = ItemScrollController();
   final ItemPositionsListener _positionsListener = ItemPositionsListener.create();
   bool autoPop = false;
+
   @override
   void initState() {
     super.initState();
     searchC.addListener(() {
-      if(searchC.text.isNotEmpty){
+      if (searchC.text.isNotEmpty) {
         _scrollToTop();
       }
       setState(() {});
@@ -241,14 +255,13 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
     // dev.log(widget.searchBuilder!(widget.items.first));
     // dev.log((widget.searchBuilder?.call(widget.items.first) ?? widget.items.first.toString()).toLowerCase().indexOf(query).toString());
 
-    final filtered = widget.items.where((a) => query.isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().split(' ').any((sp)=>sp.startsWith(query))).toList();
-
+    final filtered = widget.items.where((a) => query.isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().split(' ').any((sp) => sp.startsWith(query))).toList();
 
     // same sort rule you had: by match position
-    if(query.isNotEmpty) {
+    if (query.isNotEmpty) {
       filtered.sort((a, b) {
-        var comp =  (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(query).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(query));
-        if(comp == 0){
+        var comp = (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().indexOf(query).compareTo((widget.searchBuilder?.call(b) ?? b.toString()).toLowerCase().indexOf(query));
+        if (comp == 0) {
           return (widget.searchBuilder?.call(a) ?? a.toString()).compareTo((widget.searchBuilder?.call(b) ?? b.toString()));
         }
         return comp;
@@ -257,7 +270,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
     // dev.log(filtered.first.toString());
     // dev.log(widget.searchBuilder!(filtered.first));
     // dev.log((widget.searchBuilder?.call(filtered.first) ?? filtered.first.toString()).toLowerCase().indexOf(query).toString());
-    return filtered.where((a)=>!widget.suggestion.contains(a)).toList();
+    return filtered.where((a) => !widget.suggestion.contains(a)).toList();
     return filtered;
   }
 
@@ -291,7 +304,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
     if (!mounted || widget.value == null) return;
 
     final items = _filteredSorted(); // <- your filtered list
-    final idx =0;
+    final idx = 0;
     // Defer until laid out so positions are available
     if (!_itemScrollController.isAttached || _positionsListener.itemPositions.value.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
@@ -337,10 +350,19 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
   @override
   Widget build(BuildContext context) {
     final items = _filteredSorted();
-    if(items.length==1 && !autoPop){
+    if (items.length == 1 && !autoPop) {
       autoPop = true;
-      Future.delayed(Duration(milliseconds: 300),(){
+      Future.delayed(Duration(milliseconds: 300), () {
         Navigator.of(context).pop(items.first);
+      });
+    }
+    if (widget.suggestion.isNotEmpty &&
+        items.isEmpty &&
+        widget.suggestion.where((a) => searchC.text.toLowerCase().isEmpty || (widget.searchBuilder?.call(a) ?? a.toString()).toLowerCase().split(' ').any((sp) => sp.startsWith(searchC.text.toLowerCase()))).toList().length == 1 &&
+        !autoPop) {
+      autoPop = true;
+      Future.delayed(Duration(milliseconds: 300), () {
+        Navigator.of(context).pop(widget.suggestion.first);
       });
     }
     return SafeArea(
@@ -381,19 +403,26 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
                 ),
 
               // List
-              Column(children: widget.suggestion.map((s){
-                return InkWell(
-                  onTap: () => Navigator.of(context).pop(s),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: MyColors.mainGreen.withOpacity(0.18),
-                      border: const Border(bottom: BorderSide(color: Colors.white)),
+              Column(
+                children: widget.suggestion.map((s) {
+                  return InkWell(
+                    onTap: () => Navigator.of(context).pop(s),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: MyColors.mainGreen.withOpacity(0.18),
+                        border: const Border(bottom: BorderSide(color: Colors.white)),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
+                      child: Row(
+                        children: [
+                          Expanded(child: widget.itemToWidget?.call(s) ?? Text(s.toString())),
+                          Text("Suggestion", style: TextStyle(color: Colors.black45, fontSize: 10)),
+                        ],
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
-                    child: Row(children: [Expanded(child: widget.itemToWidget?.call(s) ?? Text(s.toString())),Text("Suggestion",style: TextStyle(color: Colors.black45,fontSize: 10),)]),
-                  ),
-                );
-              }).toList(),),
+                  );
+                }).toList(),
+              ),
               Expanded(
                 child: ScrollablePositionedList.builder(
                   itemScrollController: _itemScrollController,

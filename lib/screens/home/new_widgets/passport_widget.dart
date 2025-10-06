@@ -58,6 +58,7 @@ class PassportWidget extends ConsumerWidget {
         bool isLocked = true;
         return Column(
           children: [
+
             PassportItemRow(index: index, item: d, isLast: isLast, isFirst: isFirst),
             // const SizedBox(height: 12),
           ],

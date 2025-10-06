@@ -174,7 +174,11 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: [Text(widget.his.user?.username ?? '-', style: TextStyle(fontWeight: FontWeight.bold))],
+                    children: [
+                      Expanded(child: Text(widget.his.user?.username ?? '-', style: TextStyle(fontWeight: FontWeight.bold))),
+                      Text(widget.his.at.format_HHmm, style: TextStyle(color: Colors.grey, fontSize: 12)),
+
+                    ],
                   ),
                   Text(widget.his.payload!.message!),
                 ],
@@ -189,7 +193,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
         ),
       );
     }
-    log(widget.his.payload!.actionId.toString());
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),

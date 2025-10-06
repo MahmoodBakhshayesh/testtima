@@ -207,7 +207,7 @@ class DocumentDetail {
   Gender? get gender => Gender.values.firstWhereOrNull((a)=>a.value == sex);
 
 
-  Widget get getMrzWidget => (mrz ?? "").isEmpty
+  Widget get getMrzWidget => (mrz ?? "").isEmpty || true
       ? SizedBox()
       : Container(
           padding: EdgeInsets.all(4),

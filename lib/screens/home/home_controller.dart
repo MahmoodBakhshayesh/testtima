@@ -511,7 +511,6 @@ class HomeController extends ControllerInterface {
         final r = result.value;
         count = r.notifCount;
         ref.read(notifCountProvider.notifier).update((s) => r.notifCount);
-        log("update notif count =>${r.notifCount}");
     }
 
     return count;
@@ -713,7 +712,7 @@ class HomeController extends ControllerInterface {
           // headerWidget: added.mrz!=null?added.getMrzWidget:null,
           suggestion: BasicClass.constData.data.documentCode.where((a) => added.suggestionCodes.contains(a.code)).toList(),
           value: null,
-          searchAutoFocus: false,
+          searchAutoFocus: true,
           hasClear: false,
           items: BasicClass.constData.data.documentCode.where((a) => a.type == added.shortType).toList(),
           label: "Type",

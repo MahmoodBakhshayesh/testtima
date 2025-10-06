@@ -42,15 +42,15 @@ class PassportItemRow extends ConsumerStatefulWidget {
 class _PassportItemRowState extends ConsumerState<PassportItemRow> {
   late final TextEditingController controller;
   ExpansibleController expansibleController = ExpansibleController();
+
   @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.item.documentNumber);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.addListener(() {
-        Future((){
+        Future(() {
           ref.read(passportsProvider.notifier).updateAt(widget.index, widget.item.copyWith(documentNumber: controller.text));
-
         });
       });
     });
@@ -64,11 +64,10 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     if (controller.text != widget.item.documentNumber) {
       controller.text = widget.item.documentNumber ?? '';
     }
-    if(widget.item.isScanned){
+    if (widget.item.isScanned) {
       expansibleController.expand();
     }
   }
-
 
   @override
   void dispose() {
@@ -162,10 +161,13 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                 Expanded(
                   child: Text("Passport #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
+
                 DotButton(
                   icon: ArtemisIcons.eraser_1,
                   onPressed: () async {
-                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    final confirm = await ConfirmOperation.getConfirm(
+                      Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear ${"Passport #${widget.index + 1}"}. Are you sure?', title: "Clear", actions: ["Cancel", "Confirm"]),
+                    );
                     if (!confirm) return;
                     ref.read(passportsProvider.notifier).updateAt(index, DocumentDetail());
                   },
@@ -176,10 +178,13 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   flat: true,
                   border: BorderSide(width: 1, color: context.mainColor),
                 ),
+                // ?widget.index == 0?null:
                 DotButton(
                   icon: ArtemisIcons.trash,
                   onPressed: () async {
-                    final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]));
+                    final confirm = await ConfirmOperation.getConfirm(
+                      Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete ${"Passport #${widget.index + 1}"}. Are you sure?', title: "Delete", actions: ["Cancel", "Confirm"]),
+                    );
                     if (!confirm) return;
                     ref.read(passportsProvider.notifier).removeAt(index);
                   },
@@ -200,11 +205,13 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   label: "Code",
                   placeholder: "Code",
                   required: requiredFields.code,
-                  suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
+                  hasSearch: true,
+                  searchAutoFocus: true,
+                  suffixIcon: d.verifiedDocCode ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
                   rowLabelRatio: [12, 33],
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  valueToString: (v)=>v.name,
+                  valueToString: (v) => v.name,
                   items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
@@ -224,7 +231,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         bodyBgColor: bodyBg,
                         rowLabelRatio: [5, 4],
                         placeholder: "Country",
-                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
+                        suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
 
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
@@ -249,7 +256,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         bodyBgColor: bodyBg,
                         label: "Nationality",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
-                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
+                        suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.documentIssueCountry?.code3).toList(),
                         placeholder: "Country",
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                         itemToWidget: countryBuilder,
@@ -257,9 +264,9 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry??a);
+                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                          // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                         },
                       ),
                     ),
@@ -288,7 +295,6 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
         ),
         childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
         children: [
-
           MyDatePicker(
             // required: true,
             // rowLabelRatio: [3, 7],
@@ -307,7 +313,6 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
               d = d.copyWith(birthDate: a);
               ref.read(passportsProvider.notifier).updateAt(widget.index, d);
               ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-
             },
           ),
           const SizedBox(height: 12),
@@ -316,7 +321,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             placeholder: "Gender",
-            valueToString: (a)=>a.title,
+            valueToString: (a) => a.title,
             items: Gender.values,
             hasSearch: false,
             value: passengerDetails.gender,

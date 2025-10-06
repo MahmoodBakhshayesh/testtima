@@ -200,7 +200,7 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                         textDirection: BasicClass.getLanguageByCode(selected!.language!).dir =="ltr"?TextDirection.ltr:TextDirection.rtl,
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
-                          child: Text(translated!,style: TextStyle(fontSize: 18),),
+                          child: Text(translated!,style: TextStyle(fontSize: 18,fontFamily: BasicClass.getLanguageByCode(selected!.language!).dir !="ltr"?null:"Signika" ),),
                         ),
                       ),
                     ))]),

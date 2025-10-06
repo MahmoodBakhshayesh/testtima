@@ -349,8 +349,9 @@ class MrzReaderController extends ControllerInterface {
       final gender = Gender.values.firstWhereOrNull((a) => a.title.startsWith(res.sex));
       final passNumbers = ref.read(passportsProvider).map((a)=>a.documentNumber).toList();
 
-      if (ref.read(visasProvider).any((a) => a.isSameAs(res))  ||ref.read(visasProvider).any((a) => a.isSameAs(res,notThis: passNumbers) || ref.read(residentsProvider).any((a) => a.isSameAs(res,notThis: passNumbers)))){
+      if (ref.read(passportsProvider).any((a) => a.isSameAs(res))  || ref.read(visasProvider).any((a) => a.isSameAs(res))  ||ref.read(visasProvider).any((a) => a.isSameAs(res,notThis: passNumbers) || ref.read(residentsProvider).any((a) => a.isSameAs(res,notThis: passNumbers)))){
         log("was isSameAs");
+
         navigation.pop();
         Future.delayed(Duration(seconds: 1), () {
           FailureHandler.handle(ServerFailure(code: -1, msg: 'Duplicate Document', traceMsg: 'Duplicate Document'));

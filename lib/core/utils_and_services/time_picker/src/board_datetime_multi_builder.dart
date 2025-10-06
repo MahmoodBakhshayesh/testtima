@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../board_datetime_picker.dart';
 import '../src/ui/board_datetime_contents_state.dart';
 import '../src/ui/picker_calendar_widget.dart';
@@ -104,12 +106,13 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   }
 
   @override
-  void setNewValue(DateTime val, {bool byPicker = false}) {
+  void setNewValue(DateTime val, {bool byPicker = false,String from = ""}) {
     if (currentDateType.value == MultiCurrentDateType.start) {
       startDate.value = val;
     } else {
       endDate.value = val;
     }
+    // log("set new value ${val.toString()}== ${from}");
     _setFocusNode(byPicker);
   }
 

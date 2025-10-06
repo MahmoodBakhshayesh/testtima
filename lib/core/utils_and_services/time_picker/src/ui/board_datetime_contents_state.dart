@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:abds/core/utils_and_services/time_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
+import 'dart:developer' as dev;
 import '../board_datetime_options.dart';
 import '../options/board_item_option.dart';
 import '../utils/board_datetime_result.dart';
@@ -112,7 +113,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   DateTime? get maximumDate => widget.maximumDate;
 
   /// Set new value
-  void setNewValue(DateTime val, {bool byPicker = false});
+  void setNewValue(DateTime val, {bool byPicker = false,String from  = ""});
 
   /// on change date and datetime result
   void onChanged(DateTime date, T result);
@@ -397,7 +398,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         maximumDate,
       );
     }
-    setNewValue(opt.calcDate(newVal));
+    setNewValue(opt.calcDate(newVal),from: "change by pciker");
   }
 
   /// Process date changes from calendar or header
@@ -415,9 +416,17 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         x.changeDate(newVal);
       } else if (x.type == DateType.day && x.value != newVal.day) {
         x.changeDate(newVal);
+      } else if (x.type == DateType.hour && x.value != newVal.hour) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.minute && x.value != newVal.minute) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.second && x.value != newVal.second) {
+        x.changeDate(newVal);
       }
     }
-    setNewValue(newVal);
+    // if(pickerType == DateTimePickerType.date) {
+      setNewValue(newVal, from: "change date");
+    // }
   }
 
   /// Process time changes from header
@@ -437,7 +446,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         x.changeDate(newVal);
       }
     }
-    setNewValue(newVal);
+    setNewValue(newVal,from: "change time");
   }
 
   void changeDateTime(DateTime val) {
@@ -462,6 +471,6 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         x.changeDate(newVal);
       }
     }
-    setNewValue(newVal);
+    setNewValue(newVal,from: "change date time");
   }
 }

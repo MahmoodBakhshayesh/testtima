@@ -32,12 +32,22 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
   ExpansibleController expansibleController = ExpansibleController();
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      expansibleController.addListener(()=>setState((){}));
+    });
+    //
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ...widget.res.segments.map((segRes) {
           int index = widget.res.segments.indexOf(segRes);
           return MyExpansionTile(
+            controller: expansibleController,
             initiallyExpanded: segRes.result!.first.ruleSetEvaluations!.any((a) => a.getRes.resultId!=1),
             tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
@@ -93,7 +103,8 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                                 ),
                               ],
                             ),
-                            segRes.getRes.getSubtitleWidget,
+
+                            segRes.getRes.getSubtitleWidgetArrow(expansibleController.isExpanded),
                           ],
                         ),
                       ),

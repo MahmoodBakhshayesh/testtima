@@ -4,13 +4,15 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../core/constants/ui.dart';
 import '../core/utils_and_services/keyboard/lib/keyboard_actions.dart';
 import '../core/utils_and_services/keyboard/lib/keyboard_actions_item.dart';
 import 'number_input_sheet.dart';
+final globalFormValidationMode =  StateProvider<bool>((ref) => false);
 
-class MyTextFieldNew extends StatefulWidget {
+class MyTextFieldNew extends ConsumerStatefulWidget {
   final FocusNode? focusNode;
   final FocusNode? nextFn;
   final FocusNode? prevFn;
@@ -115,10 +117,10 @@ class MyTextFieldNew extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<MyTextFieldNew> createState() => _MyTextFieldNewState();
+  ConsumerState<MyTextFieldNew> createState() => _MyTextFieldNewState();
 }
 
-class _MyTextFieldNewState extends State<MyTextFieldNew> {
+class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
   String? _errorMsg;
   bool obscureText = false;
 
@@ -150,6 +152,8 @@ class _MyTextFieldNewState extends State<MyTextFieldNew> {
     bool hasError = (widget.validator?.call(widget.controller?.text ?? '') ?? '').isNotEmpty;
     bool requiredError = widget.required && (widget.controller?.text ?? '').isEmpty;
     Color validationColor = widget.validationColor ?? Colors.red;
+    bool validationMode = ref.watch(globalFormValidationMode) && widget.required && widget.controller!.text.isEmpty;
+    InputBorder? border = validationMode?OutlineInputBorder(borderSide: BorderSide(color: Colors.red,),borderRadius: BorderRadius.circular(8)): InputBorder.none;
     return GestureDetector(
       onTap:!widget.openNumberSheet?null: () async {
         showModalBottomSheet(context: context,
@@ -244,12 +248,15 @@ class _MyTextFieldNewState extends State<MyTextFieldNew> {
                               decoration: InputDecoration(
                                 contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
                                 filled: false,
+
                                 fillColor: widget.bodyBgColor,
                                 hintText: widget.placeholder,
                                 prefix: widget.prefix,
                                 counter: widget.showLimit ? null : SizedBox(),
                                 hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                                border: InputBorder.none,
+                                border: border,
+                                enabledBorder: border,
+                                disabledBorder: border,
                                 prefixIcon: widget.prefixIcon,
                                 suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200,maxHeight: 40),
                                 suffixIcon:

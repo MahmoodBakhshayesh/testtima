@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
@@ -171,6 +173,7 @@ class _MyTimePickerState extends State<MyTimePicker> {
             options: BoardDateTimeOptions(boardTitle: widget.label),
           ).then((v) {
             final newVal = v??widget.value.toDateTime();
+            log("new val ${v.format_HHmm}");
             if(newVal == null){
               widget.onChanged(null);
               return;

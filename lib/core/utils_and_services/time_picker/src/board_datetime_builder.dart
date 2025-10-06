@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/utils_and_services/time_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -260,7 +262,8 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   }
 
   @override
-  void setNewValue(DateTime val, {bool byPicker = false}) {
+  void setNewValue(DateTime val, {bool byPicker = false,String from = ""}) {
+    // log("set new val here $val ${from}");
     dateState.value = val;
     if (byPicker && widget.pickerFocusNode != null) {
       final fn = widget.pickerFocusNode!;

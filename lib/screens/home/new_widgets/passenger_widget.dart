@@ -64,7 +64,9 @@ class PassengerWidget extends ConsumerWidget {
                 iconSize: 20,
 
                 onPressed: () async {
-                  final confirm = await ConfirmOperation.getConfirm(Operation(message: 'Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]));
+                  final confirm = await ConfirmOperation.getConfirm(
+                    Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear passenger information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+                  );
                   if (!confirm) return;
                   ref.read(passengerProvider.notifier).update((s) => PassengerDetails());
                 },
@@ -165,60 +167,38 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     final headerBgColor = Color(0xffECECEC);
     final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
     final passNat = ref.watch(passportsProvider).firstOrNull?.nationality;
+    final mandatories = BasicClass.constData.data.mandatory?.passenger;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 12),
-        // Row(
-        //   spacing: 12,
-        //   children: [
-        //     Expanded(
-        //       child: MyFieldPicker<Country>(
-        //         hasSearch: true,
-        //         searchAutoFocus: true,
-        //         label: "Nationality",
-        //         required: true,
-        //         headerBgColor: headerBgColor,
-        //         bodyBgColor: bodyBgColor,
-        //         placeholder: "Country",
-        //         prefixIcon: countryPrefixBuilder(details.nationality?.code3),
-        //
-        //         rowLabelRatio: [5, 4],
-        //         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-        //         itemToWidget: countryBuilder,
-        //         items: BasicClass.constData.data.country,
-        //         value: details.nationality,
-        //         onChange: (a) {
-        //           details = details.copyWith(nationality: a);
-        //           ref.read(passengerProvider.notifier).update((s) => details);
-        //         },
-        //       ),
-        //     ),
-        //     Expanded(
-        //       child: MyFieldPicker<Country>(
-        //         hasSearch: true,
-        //         searchAutoFocus: true,
-        //         label: "Resident",
-        //         required: true,
-        //         headerBgColor: headerBgColor,
-        //         bodyBgColor: bodyBgColor,
-        //         rowLabelRatio: [5, 4],
-        //         placeholder: "Country",
-        //         prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
-        //
-        //         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-        //         itemToWidget: countryBuilder,
-        //         items: BasicClass.constData.data.country,
-        //         value: details.residentCountryCode,
-        //         onChange: (a) {
-        //           details = details.copyWith(residentCountryCode: a);
-        //           ref.read(passengerProvider.notifier).update((s) => details);
-        //         },
-        //       ),
-        //     ),
-        //   ],
-        // ),
-        // const SizedBox(height: 12),
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: MyFieldPicker<Country>(
+                hasSearch: true,
+                searchAutoFocus: true,
+                label: "Nationality",
+                required:mandatories?.notionality??false,
+                headerBgColor: headerBgColor,
+                bodyBgColor: bodyBgColor,
+                placeholder: "Country",
+                prefixIcon: countryPrefixBuilder(details.nationality?.code3),
+
+                searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                itemToWidget: countryBuilder,
+                items: BasicClass.constData.data.country,
+                value: details.nationality,
+                onChange: (a) {
+                  details = details.copyWith(nationality: a);
+                  ref.read(passengerProvider.notifier).update((s) => details);
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         Row(
           spacing: 12,
           children: [
@@ -227,7 +207,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                 hasSearch: true,
                 searchAutoFocus: true,
                 label: "Resident",
-                required: true,
+                required:mandatories?.resident??false,
                 headerBgColor: headerBgColor,
                 bodyBgColor: bodyBgColor,
                 rowLabelRatio: [5, 4],
@@ -266,6 +246,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
               label: "Birth Place",
               hasSearch: true,
               rowLabelRatio: [5, 4],
+              required:mandatories?.birthPlace??false,
               suggestion:  BasicClass.constData.data.country.where((a)=>a.code3 == passNat?.code3).toList(),
               searchAutoFocus: true,
               placeholder: "Country",
