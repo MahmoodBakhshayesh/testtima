@@ -18,10 +18,10 @@ class ProfileController extends ControllerInterface {
     navigation.openDialog(dialog: EditProfileDialog(profile: profile));
   }
 
-  Future<Profile?> editProfile(Profile current,Map<String,dynamic> updating) async {
+  Future<Profile?> editProfile(Profile current,Map<String,dynamic> updating,Map<String,dynamic> attributes) async {
     Profile? profile;
     EditProfileUseCase editProfileUseCase = EditProfileUseCase();
-    EditProfileRequest editProfileRequest = EditProfileRequest(profile: updating);
+    EditProfileRequest editProfileRequest = EditProfileRequest(profile: updating,attributes:attributes);
     final result = await editProfileUseCase(request: editProfileRequest);
 
     switch (result) {
@@ -36,7 +36,7 @@ class ProfileController extends ControllerInterface {
         });
         profile = Profile.fromJson(json);
         log("updated ${jsonEncode(profile.toJson())}");
-        ref.read(userProvider.notifier).update((s)=>s?.copyWith(profile: profile));
+        ref.read(userProvider.notifier).update((s)=>s?.copyWith(profile: profile,attributes: attributes));
     }
 
     return profile;

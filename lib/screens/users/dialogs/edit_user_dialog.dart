@@ -176,10 +176,12 @@ class _EditUserDialogState extends State<EditUserDialog> {
                               label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
                           );
                         }else if(att.type == "enum"){
+                          final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyFieldPicker<dynamic>(
-                              items: att.defaultList,
+                              items:(overrideList is List)?overrideList: att.defaultList,
                               headerBgColor:headerBg,
                               bodyBgColor: bodyBg,
                               value: attributes[att.name],

@@ -124,17 +124,17 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 const SizedBox(width: 8),
                 MyButton(
                   onPressed: () async {
-                    final res = await myProfilesController.editProfile(widget.profile,{
-                      "firstname": firstNameC.text,
-                      "middlename": middleNameC.text,
-                      "lastname": lastNameC.text,
-                    });
-                    if (res != null) {
-                      Navigator.of(context).pop();
-                      Future.delayed(Duration(milliseconds: 500), () {
-                        SuccessHandler.handle(ServerSuccess(code: 1, msg: "Profile Updated Successfully"));
-                      });
-                    }
+                    // final res = await myProfilesController.editProfile(widget.profile,{
+                    //   "firstname": firstNameC.text,
+                    //   "middlename": middleNameC.text,
+                    //   "lastname": lastNameC.text,
+                    // });
+                    // if (res != null) {
+                    //   Navigator.of(context).pop();
+                    //   Future.delayed(Duration(milliseconds: 500), () {
+                    //     SuccessHandler.handle(ServerSuccess(code: 1, msg: "Profile Updated Successfully"));
+                    //   });
+                    // }
                   },
                   label: "Save",
                   color: theme.primaryColor,

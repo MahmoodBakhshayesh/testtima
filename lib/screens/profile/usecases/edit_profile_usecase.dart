@@ -20,11 +20,16 @@ class EditProfileUseCase extends UseCase<EditProfileResponse, EditProfileRequest
 
 class EditProfileRequest extends RequestInterface {
   final Map<String,dynamic> profile;
+  final Map<String,dynamic> attributes;
 
-  EditProfileRequest({required this.profile});
+  EditProfileRequest({required this.profile, required this.attributes});
 
   @override
-  Map<String, dynamic> toJson() => profile;
+  Map<String, dynamic> toJson() {
+    var j =  profile;
+    j.putIfAbsent("attributes", ()=>attributes);
+    return j;
+  }
 
   Failure? validate() {
     return null;

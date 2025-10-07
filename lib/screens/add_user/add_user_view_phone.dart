@@ -227,7 +227,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               ),
                             );
                           } else if (att.type == "enum") {
-                            log(att.listItemName.toString());
+                            // log(att.listItemName.toString());
                             // log(BasicClass.constData.data.toJson()["${att.listItemName}"].toString());
                             final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
                             return Padding(

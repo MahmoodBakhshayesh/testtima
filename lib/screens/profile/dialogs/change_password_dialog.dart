@@ -107,7 +107,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 const SizedBox(width: 8),
                 MyButton(
                   onPressed: () async {
-                    final res = await myProfilesController.editProfile(widget.profile,{"oldPassword":passwordC.text,"newPassword":newPassC.text});
+                    final res = await myProfilesController.editProfile(widget.profile,{"oldPassword":passwordC.text,"newPassword":newPassC.text},myProfilesController.ref.read(userProvider)!.attributes);
                     if (res != null) {
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
