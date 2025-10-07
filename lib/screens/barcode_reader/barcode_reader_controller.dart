@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_state.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:logging/logging.dart';
@@ -27,11 +28,15 @@ class BarcodeReaderController extends ControllerInterface {
       log("bpl => ${bpl.length}");
       if (bpl.isNotEmpty) {
         for (var bp in bpl) {
-          final segment = bp.getFlightLeg;
+          var segment = bp.getFlightLeg;
+          if(bpl.indexOf(bp)== bpl.length-1){
+            segment = segment.copyWith(segmentType: SegmentType.entry,luggageCollected: true);
+          }else{
+            segment = segment.copyWith(segmentType: SegmentType.transit,luggageCollected: false);
+          }
           int emptyIndex = ref.read(segmentsProvider).indexWhere((s) => s.isEmpty);
           bool isSamePerson = bp.fullname == ref.read(scannedBpProvider)?.fullname;
 
-          log("empty index ${emptyIndex}");
           if (emptyIndex == -1 && isSamePerson) {
             ref.read(segmentsProvider.notifier).add(segment);
           } else {

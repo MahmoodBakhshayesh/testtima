@@ -171,33 +171,33 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
-        Row(
-          spacing: 12,
-          children: [
-            Expanded(
-              child: MyFieldPicker<Country>(
-                hasSearch: true,
-                searchAutoFocus: true,
-                label: "Nationality",
-                required:mandatories?.notionality??false,
-                headerBgColor: headerBgColor,
-                bodyBgColor: bodyBgColor,
-                placeholder: "Country",
-                prefixIcon: countryPrefixBuilder(details.nationality?.code3),
-
-                searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                itemToWidget: countryBuilder,
-                items: BasicClass.constData.data.country,
-                value: details.nationality,
-                onChange: (a) {
-                  details = details.copyWith(nationality: a);
-                  ref.read(passengerProvider.notifier).update((s) => details);
-                },
-              ),
-            ),
-          ],
-        ),
+        // const SizedBox(height: 12),
+        // Row(
+        //   spacing: 12,
+        //   children: [
+        //     Expanded(
+        //       child: MyFieldPicker<Country>(
+        //         hasSearch: true,
+        //         searchAutoFocus: true,
+        //         label: "Nationality",
+        //         required:mandatories?.notionality??false,
+        //         headerBgColor: headerBgColor,
+        //         bodyBgColor: bodyBgColor,
+        //         placeholder: "Country",
+        //         prefixIcon: countryPrefixBuilder(details.nationality?.code3),
+        //
+        //         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+        //         itemToWidget: countryBuilder,
+        //         items: BasicClass.constData.data.country,
+        //         value: details.nationality,
+        //         onChange: (a) {
+        //           details = details.copyWith(nationality: a);
+        //           ref.read(passengerProvider.notifier).update((s) => details);
+        //         },
+        //       ),
+        //     ),
+        //   ],
+        // ),
         const SizedBox(height: 12),
         Row(
           spacing: 12,

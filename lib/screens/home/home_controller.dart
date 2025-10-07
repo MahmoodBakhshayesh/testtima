@@ -621,7 +621,7 @@ class HomeController extends ControllerInterface {
         DocumentRequest(
           documentDetails: ddl,
           itineraryDetails: ItineraryDetails(segments: ref.read(segmentsProvider)),
-          passengerDetails: ref.read(passengerProvider),
+          passengerDetails: ref.read(passengerProvider).copyWith(nationality: ref.read(passportsProvider).firstOrNull?.nationality??ref.read(passengerProvider).nationality),
         ),
         employeeId: id,
       );
@@ -766,6 +766,7 @@ class HomeController extends ControllerInterface {
 
     switch (result) {
       case Err<ValidateEmployeeIdResponse>():
+        return false;
         FailureHandler.handle(result.error);
 
       case Ok<ValidateEmployeeIdResponse>():

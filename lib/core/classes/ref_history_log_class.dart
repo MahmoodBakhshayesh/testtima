@@ -44,7 +44,7 @@ class RefHistory {
 }
 
 class RefHistoryLog {
-  final RefHistoryUser? user;
+  final String? user;
   final String? type;
   final String? id;
   final DateTime? at;
@@ -59,7 +59,7 @@ class RefHistoryLog {
   });
 
   RefHistoryLog copyWith({
-    RefHistoryUser? user,
+    String? user,
     String? type,
     String? id,
     DateTime? at,
@@ -74,7 +74,7 @@ class RefHistoryLog {
       );
 
   factory RefHistoryLog.fromJson(Map<String, dynamic> json) => RefHistoryLog(
-    user: json["user_"] == null ? null : RefHistoryUser.fromJson(json["user_"]),
+    user: json["user_"]??"",
     type: json["type"],
     id: json["_id"],
     at: json["at"] == null ? null : DateTime.parse(json["at"]),
@@ -82,7 +82,7 @@ class RefHistoryLog {
   );
 
   Map<String, dynamic> toJson() => {
-    "user_": user?.toJson(),
+    "user_": user,
     "type": type,
     "_id": id,
     "at": at?.toIso8601String(),

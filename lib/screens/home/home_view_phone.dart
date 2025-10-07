@@ -850,6 +850,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
                             Row(
                               children: [
                                 Text("Flight: ", style: TextStyle(color: Colors.grey)),
+                                AirlineLogo(segments.first.operatingCarrier?.code ?? '',key: Key(segments.first.operatingCarrier?.code ?? ''),size: 25,),
                                 Text("${segments.first.operatingCarrier?.code ?? ''} ${segments.first.flnb ?? ''}"),
                               ],
                             ),
@@ -921,7 +922,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
                             Row(
                               children: [
                                 Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                countryBuilderHeader(passengerDetails.nationality),
+                                countryBuilderHeader(passengerDetails.nationality??passports.firstOrNull?.nationality),
                               ],
                             ),
                             Row(

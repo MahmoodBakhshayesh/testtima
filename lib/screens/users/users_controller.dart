@@ -77,7 +77,9 @@ class UsersController extends ControllerInterface {
         final r = result.value;
         updated = People.fromJson(user.toJson());
         updated.enable = enable;
+
         updated.userPermission = permission;
+        updated.userAttribute = attributes;
 
         int index = ref.read(peopleListProvider).indexWhere((a) => a.uId == updated!.uId);
         final copy = [...ref.read(peopleListProvider)];

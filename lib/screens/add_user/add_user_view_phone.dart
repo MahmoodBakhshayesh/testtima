@@ -227,10 +227,14 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               ),
                             );
                           } else if (att.type == "enum") {
+                            log(att.listItemName.toString());
+                            // log(BasicClass.constData.data.toJson()["${att.listItemName}"].toString());
+                            final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: MyFieldPicker<dynamic>(
-                                items: att.defaultList,
+                                items:(overrideList is List)?overrideList: att.defaultList,
+                                // items: att.defaultList,
                                 required: att.mandatory,
 
                                 headerBgColor: headerBg,

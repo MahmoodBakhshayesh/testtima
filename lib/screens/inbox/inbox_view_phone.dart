@@ -6,6 +6,7 @@ import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/drawer_action.dart';
 import 'package:artemis_utils/artemis_utils.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -79,7 +80,7 @@ class _InboxViewPhoneState extends State<InboxViewPhone> {
                           return InboxMessageWidget(
                             key: Key(message.showCode!),
                             onTap: () async {
-                              await myInboxController.goMessageDetails(message.showCode!);
+                              await myInboxController.readMsg(message);
                             },
                             message: message,
                             index: i,
@@ -155,14 +156,16 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
     ThemeData theme = Theme.of(context);
     bool isOdd = widget.index % 2 != 0;
     const TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, color: MyColors.black, fontSize: 11);
-    final supervisorResponse = BasicClass.getResultOfCode(widget.message.totalResult);
-    final response = widget.message.supervisor?.lastOrNull?.getRes;
-    log("actionId ${response?.actionId.toString()} ${widget.message.supervisor.lastOrNull?.action}");
-    log(jsonEncode(widget.message.toJson()));
+    final currentStatus = BasicClass.getResultOfCode(widget.message.totalResult);
+    final airlineResponse =widget.message.airlineApproval==null?null: BasicClass.getResultOfCode(widget.message.airlineApproval);
+    final response = widget.message.supervisor?.firstOrNull?.getRes;
+    final superResponse = airlineResponse?? BasicClass.getResultOfCode(widget.message.supervisor.firstOrNull?.action??1)!;
+    // log("actionId ${response?.actionId.toString()} ${widget.message.supervisor.lastOrNull?.action}");
+    // log(jsonEncode(widget.message.toJson()));
     return Container(
       margin: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
       child: Material(
-        color: supervisorResponse?.getColor.withOpacity(0.12) ?? Colors.white,
+        color: superResponse?.getColor.withOpacity(0.12) ?? Colors.white,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -198,18 +201,18 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                           ],
                         ),
                       ),
-                      loading ? SpinKitThreeBounce(color: Colors.black, size: 20) : SizedBox(),
+                      loading ? SpinKitThreeBounce(color: Colors.black, size: 12) : SizedBox(),
                       const SizedBox(width: 4),
                       response == null
                           ? SizedBox()
                           : Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                               decoration: BoxDecoration(
-                                color: response.getColor.withOpacity(0.08),
+                                color: Colors.white.withOpacity(0.12),
                                 borderRadius: BorderRadiusGeometry.circular(12),
                                 border: Border.all(color: Colors.white),
                               ),
-                              child: Text(response.name2 ?? '', style: TextStyle(fontSize: 12)),
+                              child: Text(response.name2 ?? '', style: TextStyle(fontSize: 12,color: superResponse.getColor)),
                             ),
 
                       // Expanded(child: Text(widget.message.code ?? '')),
@@ -219,16 +222,28 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                       Icon(Icons.arrow_forward_ios_rounded, size: 15),
                     ],
                   ),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       Expanded(
                         child: Row(
                           children: [
-                            Text("Flight", style: TextStyle(color: Colors.grey)),
-                            AirlineLogo(widget.message.airline ?? '--', size: 30),
-                            Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 14)),
-                            const SizedBox(width: 12),
-                            Text("${widget.message.from ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
+                            // AirlineLogo(widget.message.airline ?? '--', size: 30),
+                            Text("Flight: ", style: TextStyle(color: Colors.grey,fontSize: 10)),
+                            Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 10)),
+                            Text(" / "),
+                            Text("Nationality: ", style: TextStyle(color: Colors.grey,fontSize: 10)),
+                            CountryFlag.fromCountryCode(widget.message.nationality,shape: RoundedRectangle(3),width: 15,height: 10,),
+                            Text(" ${widget.message.nationality}", style: TextStyle(fontSize: 10)),
+                            Text(" / "),
+                            Text("Route: ", style: TextStyle(color: Colors.grey,fontSize: 10)),
+                            Text("${widget.message.from ?? ''}- ", style: TextStyle(fontSize: 10)),
+                            CountryFlag.fromCountryCode(BasicClass.getAirportByCode(widget.message.to)?.country??'',shape: RoundedRectangle(3),width: 15,height: 10,),
+                            Text(" ${widget.message.to ?? ''}", style: TextStyle(fontSize: 10)),
+
+
+
+
                             // Text("Nationality",style: TextStyle(color: Colors.grey),),
                             // Text("${widget.message. ?? ''}-${widget.message.to ?? ''}", style: TextStyle(fontSize: 12)),
                           ],
@@ -238,8 +253,6 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                   ),
                   Row(
                     children: [
-                      Icon(ArtemisIcons.send_2, color: Colors.grey, size: 10),
-                      const SizedBox(width: 4),
                       Text(
                         "Employee ID: ",
                         style: TextStyle(fontSize: 10, color: Colors.grey),
@@ -263,9 +276,11 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                         style: TextStyle(fontSize: 10, color: Colors.black),
                         textAlign: TextAlign.center,
                       ),
+                      const SizedBox(width: 2),
+                      Text(currentStatus.title,style: TextStyle(color: currentStatus.getColor,fontSize: 10),),
+                      const SizedBox(width: 2),
+                      currentStatus.getIconWidgetMini,
                       Spacer(),
-                      Icon(ArtemisIcons.eye, color: Colors.grey, size: 10),
-                      const SizedBox(width: 4),
                       Text(
                         DateFormat("dd MMM, hh:mm").format(widget.message.createdAt!.toLocal()),
                         style: TextStyle(fontSize: 10, color: Colors.grey),

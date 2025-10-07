@@ -7,6 +7,7 @@ import 'interfaces/inbox_repository_interface.dart';
 import 'data_sources/inbox_local_ds.dart';
 import 'data_sources/inbox_remote_ds.dart';
 import 'usecases/get_messages_usecase.dart';
+import 'usecases/read_msg_usecase.dart';
 
 class InboxRepository implements InboxRepositoryInterface {
   final InboxRemoteDataSource inboxRemoteDataSource = InboxRemoteDataSource();
@@ -25,6 +26,21 @@ class InboxRepository implements InboxRepositoryInterface {
         getMessagesResponse = await inboxLocalDataSource.getMessages(request: request);
       }
       return Result.ok(getMessagesResponse);
+    } on AppException catch (e) {
+      return Result.error(ServerFailure.fromAppException(e));
+    }
+  }
+
+  @override
+  Future<Result<ReadMsgResponse>> readMsg(ReadMsgRequest request) async {
+    try {
+      ReadMsgResponse readMsgResponse;
+      if (await networkInfo.isConnected) {
+        readMsgResponse = await inboxRemoteDataSource.readMsg(request: request);
+      } else {
+        readMsgResponse = await inboxLocalDataSource.readMsg(request: request);
+      }
+      return Result.ok(readMsgResponse);
     } on AppException catch (e) {
       return Result.error(ServerFailure.fromAppException(e));
     }

@@ -177,9 +177,9 @@ class LoginController extends ControllerInterface {
     log(serverJson ?? '');
     if (serverJson == null) {
       serverSelect(showDialog: false).then((a) {
-        log("we found default server ${a.map((s) => s.toJson())}");
-        Server server = a.firstWhere((a) => a.active, orElse: () => a.first);
+        Server server = a.firstWhere((a) => a.serverDefault, orElse: () => a.first);
         // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
+        log("we found default server ${server.toJson()}");
 
         server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
         ref.read(selectedServerProvider.notifier).update((s) => server);
@@ -366,7 +366,8 @@ class LoginController extends ControllerInterface {
     String key = "${ref.read(selectedServerProvider).id}/${getIt<AppDeviceNetworkData>().app.versionKey}/constantData";
     log("CachedConstData key $key");
     final String? constJson = await sharedPref.getVariable(key: key);
-    if (constJson != null) {
+    if (constJson != null && false) {
+
       VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
       return constantData;
     }

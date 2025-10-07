@@ -145,6 +145,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     final bool hasTransit = segments.length > 1;
+    final mandatories = BasicClass.constData.data.mandatory!.flight;
     String fName = "Segment${hasTransit ? " ${widget.index + 1}" : ""}";
     return Container(
       decoration: BoxDecoration(
@@ -292,7 +293,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                           bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                           controller: controller,
                           label: "Flight#",
-                          required: true,
+                          required: mandatories!.flightNumber && isFirst,
                           openNumberSheet: true,
                           keyboardType: TextInputType.numberWithOptions(signed: true),
                           placeholder: "Number",
@@ -309,7 +310,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       Expanded(
                         child: MyFieldPicker<ParameterValue>(
                           label: "Airline",
-                          required: true,
+                          required: mandatories!.airline && isFirst,
                           placeholder: "Airline",
                           searchAutoFocus: true,
                           rowLabelRatio: [3, 5],
@@ -338,7 +339,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               children: [
                 Expanded(
                   child: MyFieldPicker<Airport>(
-                    required: true,
+                    required: mandatories!.from,
                     searchAutoFocus: true,
                     label: "From",
                     placeholder: "City",
@@ -378,7 +379,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     rowLabelRatio: [3, 5],
                     // labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
-                    required: true,
+                    required: mandatories!.to,
                     items: BasicClass.constData.data.airport,
                     searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
                     value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.arrival.point),
@@ -417,6 +418,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                             bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                             items: SegmentType.values,
                             hasSearch: false,
+                            required: mandatories!.flightType && isFirst,
                             value: seg.segmentType,
 
                             onChange: (a) {
@@ -435,6 +437,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                             bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                             placeholder: "Duration Of Stay",
                             value: seg.durationOfStay,
+                            required: mandatories!.dos && isFirst,
+
                             onChange: (a) {
                               seg = seg.copyWith(durationOfStay: a);
                               ref.read(segmentsProvider.notifier).updateAt(index, seg);
@@ -461,7 +465,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                           bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                           controller: controller,
                           label: "Flight#",
-                          required: true,
+                          required: mandatories!.flightNumber && isFirst,
                           openNumberSheet: true,
                           keyboardType: TextInputType.numberWithOptions(signed: true),
                           placeholder: "Number",
@@ -478,7 +482,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       Expanded(
                         child: MyFieldPicker<ParameterValue>(
                           label: "Airline",
-                          required: true,
+                          required: mandatories!.flightNumber && isFirst,
                           placeholder: "Airline",
                           searchAutoFocus: true,
                           rowLabelRatio: [3, 5],
@@ -552,6 +556,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                         child: MyFieldPicker<SegmentType>(
                           label: "Type",
                           placeholder: "Type",
+                          required: mandatories!.flightType && isFirst,
+
                           rowLabelRatio: [3, 5],
                           headerBgColor: Color(0xffECECEC),
                           bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
@@ -571,6 +577,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       Expanded(
                         child: MyDurationOfStayPicker(
                           label: "DOS",
+                          required: mandatories!.dos && isFirst,
+
                           headerBgColor: Color(0xffECECEC),
                           bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                           placeholder: "Duration Of Stay",
@@ -593,6 +601,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyFieldPicker<TicketStatus>(
                   label: "Ticket",
                   placeholder: "Ticket",
+                  required: mandatories!.ticket && isFirst,
+
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
@@ -607,6 +617,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               Expanded(
                 child: MyFieldPicker<ParameterValue>(
                   label: "POS",
+                  required: mandatories!.pos && isFirst,
+
                   placeholder: "POS",
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
@@ -629,6 +641,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyDatePicker(
                   label: "Departure",
                   placeholder: "Date",
+                  required: mandatories!.departure && isFirst,
+
                   rowLabelRatio: [3, 5],
                   value: seg.departure.dateTime,
                   headerBgColor: Color(0xffECECEC),
@@ -656,6 +670,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 child: MyTimePicker(
                   label: "STD",
                   placeholder: "Time",
+                  required: mandatories!.std && isFirst,
+
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
@@ -677,6 +693,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               Expanded(
                 child: MyDatePicker(
                   label: "Arrival",
+                  required: mandatories!.arrival && isFirst,
+
                   placeholder: "Date",
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
@@ -694,6 +712,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               Expanded(
                 child: MyTimePicker(
                   label: "STA",
+                  required: mandatories!.sta && isFirst,
+
                   placeholder: "Time",
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),

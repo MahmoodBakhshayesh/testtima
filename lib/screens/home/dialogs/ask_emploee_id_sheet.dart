@@ -115,7 +115,12 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                     IndexedStack(
                       index: invalidId ? 0 : 1,
                       children: [
-                        Container(padding: EdgeInsets.symmetric(horizontal: 12),child: Text("Invalid Employee ID",style: TextStyle(color: Colors.red),)),
+                        Container(padding: EdgeInsets.symmetric(horizontal: 12),child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Invalid Employee ID",style: TextStyle(color: Colors.red),),
+                          ],
+                        )),
                         SizedBox(),
                       ],
                     ),

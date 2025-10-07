@@ -31,6 +31,9 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(showingLogsProvider);
     logs.sort((a,b)=>['airlineApproval',"askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval',"askSupervisor"].indexOf(b.type!)));
+    for (var l in logs) {
+      log(jsonEncode(l.toJson()));
+    }
     return Column(
       children: [
         ...logs.map((l) {
@@ -175,7 +178,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(widget.his.user?.username ?? '-', style: TextStyle(fontWeight: FontWeight.bold))),
+                      Expanded(child: Text(widget.his.user ?? '-', style: TextStyle(fontWeight: FontWeight.bold))),
                       Text(widget.his.at.format_HHmm, style: TextStyle(color: Colors.grey, fontSize: 12)),
 
                     ],
@@ -215,7 +218,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: [Text(widget.his.user?.username ?? '-', style: TextStyle(fontWeight: FontWeight.bold))],
+                        children: [Text(widget.his.user ?? '-', style: TextStyle(fontWeight: FontWeight.bold))],
                       ),
                       Text(widget.his.payload!.message!),
                     ],
@@ -772,7 +775,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            "Supervisor: ${his.user?.username ?? his.user?.email ?? ''}",
+                            "Supervisor: ${his.user}",
                             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ],

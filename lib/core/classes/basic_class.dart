@@ -72,7 +72,7 @@ class BasicClass {
     return Colors.grey;
   }
 
-  static TimaticResult getResultOfCode(int code) {
+  static TimaticResult getResultOfCode(int? code) {
     return constData.data.timaticResult!.firstWhere((a) => a.resultId == code);
   }
 
@@ -87,10 +87,17 @@ class BasicClass {
     // return timData.params.of(ParameterType.carrier).firstWhereOrNull((a) => a.code == code);
   }
 
+  static Airport? getAirportByCode(String code) {
+    return constData.data.airport.firstWhereOrNull((a) => a.code3 == code);
+
+    // return timData.params.of(ParameterType.carrier).firstWhereOrNull((a) => a.code == code);
+  }
+
   static bool validatePermission(UiPermission? permission) {
     if (permission == null) return true;
     // if (instance._userPermission!.isEmpty) return true;
     final up = instance._userPermission!;
+
 
     if (permission is UserUiPermission) {
       return up.maskOf("user") > 0;

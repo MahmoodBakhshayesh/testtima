@@ -3,6 +3,7 @@ import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/inbox/usecases/get_messages_usecase.dart';
+import 'package:abds/screens/inbox/usecases/read_msg_usecase.dart';
 import 'package:json_view/json_view.dart';
 import 'package:logging/logging.dart';
 import '../../core/classes/inbox_message_class.dart';
@@ -27,21 +28,41 @@ class InboxController extends ControllerInterface {
       case Ok<GetMessagesResponse>():
         final r = result.value;
         messages = r.messages;
-        ref.read(nextMessageId.notifier).update((s)=>r.nextMessageId);
-        ref.read(inboxMessagesProvider.notifier).update((s)=>[...r.messages,...s]);
-
+        ref.read(nextMessageId.notifier).update((s) => r.nextMessageId);
+        ref.read(inboxMessagesProvider.notifier).update((s) => [...r.messages, ...s]);
     }
 
     return messages;
   }
 
-  goMessageDetails(String messageCode) async {
-    final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: messageCode,code: null);
-    if(refHistory!=null){
-      // ref.read(refCodeProvider.notifier).update((s)=>messageCode);
-      // ref.read(inboxMessageDetailsProvider.notifier).update((s)=>refHistory.logs??[]);
-      // goNamed(Routes.messageDetails);
-      navigation.pop();
+  // goMessageDetails(String messageCode, String id) async {
+  //   final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: messageCode, code: null);
+  //   await readMsg(id);
+  //   if (refHistory != null) {
+  //     // ref.read(refCodeProvider.notifier).update((s)=>messageCode);
+  //     // ref.read(inboxMessageDetailsProvider.notifier).update((s)=>refHistory.logs??[]);
+  //     // goNamed(Routes.messageDetails);
+  //     navigation.pop();
+  //   }
+  // }
+
+  Future<bool> readMsg(InboxMessage msg) async {
+    bool read = false;
+    ReadMsgUseCase readMsgUseCase = ReadMsgUseCase();
+    ReadMsgRequest readMsgRequest = ReadMsgRequest(id: msg.id);
+    final result = await readMsgUseCase(request: readMsgRequest);
+
+    switch (result) {
+      case Err<ReadMsgResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<ReadMsgResponse>():
+        final r = result.value;
+        ref.read(currentStatusProvider.notifier).update((s)=>r.currentStatus);
+        getIt<HomeController>().fillWithRefHistory(r.history, null, msg.showCode);
+        navigation.pop();
     }
+
+    return read;
   }
 }

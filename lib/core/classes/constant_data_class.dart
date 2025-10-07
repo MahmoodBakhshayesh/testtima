@@ -71,6 +71,10 @@ class VersionedData {
   final List<AvailableLanguage> languages;
   final MandatoryFields? mandatory;
   final List<TimaticResult>? timaticResult;
+  final List<String> customerTypeEnum;
+  final List<String> userTypeEnum;
+  final List<String> customerNameEnum;
+  final List<String> customerAirportEnum;
 
   VersionedData({
     required this.logNoteType,
@@ -96,6 +100,10 @@ class VersionedData {
     required this.mandatory,
     required this.timaticResult,
     required this.languages,
+    required this.customerTypeEnum,
+    required this.userTypeEnum,
+    required this.customerNameEnum,
+    required this.customerAirportEnum,
   });
 
   VersionedData copyWith({
@@ -122,6 +130,11 @@ class VersionedData {
     List<AvailableLanguage>? languages,
     MandatoryFields? mandatory,
     List<TimaticResult>? timaticResult,
+    List<String>? customerTypeEnum,
+    List<String>? userTypeEnum,
+    List<String>? customerNameEnum,
+    List<String>? customerAirportEnum,
+
   }) =>
       VersionedData(
         logNoteType: logNoteType ?? this.logNoteType,
@@ -147,6 +160,10 @@ class VersionedData {
         languages: languages ?? this.languages,
         mandatory: mandatory ?? this.mandatory,
         timaticResult: timaticResult ?? this.timaticResult,
+        customerTypeEnum: customerTypeEnum ?? this.customerTypeEnum,
+        userTypeEnum: userTypeEnum ?? this.userTypeEnum,
+        customerNameEnum: customerNameEnum ?? this.customerNameEnum,
+        customerAirportEnum: customerAirportEnum ?? this.customerAirportEnum,
       );
 
   factory VersionedData.fromJson(Map<String, dynamic> json) => VersionedData(
@@ -173,6 +190,10 @@ class VersionedData {
     languages: List<AvailableLanguage>.from(json["languages"].map((x) => AvailableLanguage.fromJson(x))),
     mandatory: json["mandatory"] == null ? null : MandatoryFields.fromJson(json["mandatory"]),
     timaticResult: json["timaticResult"] == null ? [] : List<TimaticResult>.from(json["timaticResult"]!.map((x) => TimaticResult.fromJson(x))),
+    customerTypeEnum: List<String>.from((json["customerTypeEnum"]??[]).map((x) => x)),
+    userTypeEnum: List<String>.from((json["userTypeEnum"]??[]).map((x) => x)),
+    customerNameEnum: List<String>.from((json["customerNameEnum"]??[]).map((x) => x)),
+    customerAirportEnum: List<String>.from((json["customerAirportEnum"]??[]).map((x) => x)),
 
   );
 
@@ -200,6 +221,10 @@ class VersionedData {
     "languages": List<dynamic>.from(languages.map((x) => x.toJson())),
     "mandatory": mandatory?.toJson(),
     "timaticResult": timaticResult == null ? [] : List<dynamic>.from(timaticResult!.map((x) => x.toJson())),
+    "customerTypeEnum": List<dynamic>.from(customerTypeEnum.map((x) => x)),
+    "userTypeEnum": List<dynamic>.from(userTypeEnum.map((x) => x)),
+    "customerNameEnum": List<dynamic>.from(customerNameEnum.map((x) => x)),
+    "customerAirportEnum": List<dynamic>.from(customerAirportEnum.map((x) => x)),
   };
 }
 
@@ -254,34 +279,40 @@ class Airport {
   final String type;
   final String code3;
   final String name;
+  final String? country;
 
   Airport({
     required this.type,
     required this.code3,
     required this.name,
+    required this.country,
   });
 
   Airport copyWith({
     String? type,
     String? code3,
     String? name,
+    String? country,
   }) =>
       Airport(
         type: type ?? this.type,
         code3: code3 ?? this.code3,
         name: name ?? this.name,
+        country: country ?? this.country,
       );
 
   factory Airport.fromJson(Map<String, dynamic> json) => Airport(
     type: json["type"],
     code3: json["code3"],
     name: json["name"],
+    country: json["country"],
   );
 
   Map<String, dynamic> toJson() => {
     "type": type,
     "code3": code3,
     "name": name,
+    "country": country,
   };
 
   @override
@@ -295,6 +326,8 @@ class Attribute {
   final bool onlyOwner;
   final bool mandatory;
   final String defaultValue;
+  final String? listItemName;
+
 
   Attribute({
     required this.defaultList,
@@ -303,6 +336,8 @@ class Attribute {
     required this.onlyOwner,
     required this.mandatory,
     required this.defaultValue,
+    required this.listItemName,
+
   });
 
   Attribute copyWith({
@@ -312,6 +347,7 @@ class Attribute {
     bool? onlyOwner,
     bool? mandatory,
     String? defaultValue,
+    String? listItemName,
   }) =>
       Attribute(
         defaultList: defaultList ?? this.defaultList,
@@ -320,15 +356,17 @@ class Attribute {
         onlyOwner: onlyOwner ?? this.onlyOwner,
         mandatory: mandatory ?? this.mandatory,
         defaultValue: defaultValue ?? this.defaultValue,
+        listItemName: listItemName ?? this.listItemName,
       );
 
   factory Attribute.fromJson(Map<String, dynamic> json) => Attribute(
-    defaultList: List<String>.from(json["defaultList"].map((x) => x)),
+    defaultList: List<String>.from((json["defaultList"]??[]).map((x) => x)),
     name: json["name"],
     type: json["type"].toString().toLowerCase(),
     onlyOwner: json["onlyOwner"],
     mandatory: json["mandatory"]??false,
     defaultValue: json["defaultValue"],
+    listItemName: json["listItemName"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -338,6 +376,7 @@ class Attribute {
     "onlyOwner": onlyOwner,
     "mandatory": mandatory,
     "defaultValue": defaultValue,
+    "listItemName": listItemName,
   };
 }
 

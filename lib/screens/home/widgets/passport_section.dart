@@ -178,7 +178,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   flat: true,
                   border: BorderSide(width: 1, color: context.mainColor),
                 ),
-                // ?widget.index == 0?null:
+                ?widget.index == 0?null:
                 DotButton(
                   icon: ArtemisIcons.trash,
                   onPressed: () async {
@@ -300,7 +300,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             // rowLabelRatio: [3, 7],
             label: "Birth Date",
             required: requiredFields.birthDate,
-
+            // rowLabelRatio: [5, 4],
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             placeholder: "Birth Date",
@@ -316,24 +316,35 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             },
           ),
           const SizedBox(height: 12),
-          MyFieldPicker<Gender>(
-            label: "Gender",
-            headerBgColor: headerBg,
-            bodyBgColor: bodyBg,
-            placeholder: "Gender",
-            valueToString: (a) => a.title,
-            items: Gender.values,
-            hasSearch: false,
-            value: passengerDetails.gender,
-            onChange: (a) {
-              var pd = passengerDetails.copyWith(gender: a);
-              ref.read(passengerProvider.notifier).update((s) => pd);
-              // d = d.copyWith(birthDate: a);
-              // ref.read(confirmingDocumentProvider.notifier).update((s) => d);
-            },
+
+          Row(
+            spacing: 12,
+            children: [
+
+              Expanded(child: MyTextFieldNew(
+                  rowLabelRatio: [5, 4],
+                  required: requiredFields.documentNumber, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg)),
+              Expanded(
+                child: MyFieldPicker<Gender>(
+                  label: "Gender",
+                  rowLabelRatio: [5, 4],
+                  headerBgColor: headerBg,
+                  bodyBgColor: bodyBg,
+                  placeholder: "Gender",
+                  valueToString: (a) => a.title,
+                  items: Gender.values,
+                  hasSearch: false,
+                  value: passengerDetails.gender,
+                  onChange: (a) {
+                    var pd = passengerDetails.copyWith(gender: a);
+                    ref.read(passengerProvider.notifier).update((s) => pd);
+                    // d = d.copyWith(birthDate: a);
+                    // ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          MyTextFieldNew(required: requiredFields.documentNumber, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg),
           const SizedBox(height: 12),
           d.getMrzWidget,
         ],
