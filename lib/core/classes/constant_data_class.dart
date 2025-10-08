@@ -322,6 +322,7 @@ class Airport {
 class Attribute {
   final List<String> defaultList;
   final String name;
+  final String title;
   final String type;
   final bool onlyOwner;
   final bool mandatory;
@@ -332,6 +333,7 @@ class Attribute {
   Attribute({
     required this.defaultList,
     required this.name,
+    required this.title,
     required this.type,
     required this.onlyOwner,
     required this.mandatory,
@@ -343,6 +345,7 @@ class Attribute {
   Attribute copyWith({
     List<String>? defaultList,
     String? name,
+    String? title,
     String? type,
     bool? onlyOwner,
     bool? mandatory,
@@ -352,6 +355,7 @@ class Attribute {
       Attribute(
         defaultList: defaultList ?? this.defaultList,
         name: name ?? this.name,
+        title: title ?? this.title,
         type: type ?? this.type,
         onlyOwner: onlyOwner ?? this.onlyOwner,
         mandatory: mandatory ?? this.mandatory,
@@ -362,6 +366,7 @@ class Attribute {
   factory Attribute.fromJson(Map<String, dynamic> json) => Attribute(
     defaultList: List<String>.from((json["defaultList"]??[]).map((x) => x)),
     name: json["name"],
+    title: json["title"]??json["name"],
     type: json["type"].toString().toLowerCase(),
     onlyOwner: json["onlyOwner"],
     mandatory: json["mandatory"]??false,

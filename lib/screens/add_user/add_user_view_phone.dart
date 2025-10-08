@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
+import 'package:abds/widgets/MyMultiFieldPicker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -85,6 +86,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
         attributes.putIfAbsent(att.name, () => TextEditingController());
       } else if (att.type.toLowerCase() == "float") {
         attributes.putIfAbsent(att.name, () => TextEditingController());
+      } else if (att.type.toLowerCase() == "multiselectlist") {
+        attributes.putIfAbsent(att.name, () => []);
       } else {
         log(att.type);
       }
@@ -109,6 +112,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
         attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
       } else if (att.type.toLowerCase() == "float") {
         attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+      }else if (att.type.toLowerCase() == "multiselectlist") {
+        attFix.putIfAbsent(att.name, () => v);
       }
     });
     List<String> requiredButNulls = attFix.keys.where((a) => BasicClass.constData.data.attribute.firstWhere((at) => at.name == a).mandatory && (attFix[a] == null || attFix[a].toString().isEmpty)).toList();
@@ -221,8 +226,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                 required: att.mandatory,
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
-                                label: att.name.capitalizeFirst,
-                                placeholder: att.name.capitalizeFirst,
+                                label: att.title,
+                                placeholder: att.title,
                                 controller: attributes[att.name],
                               ),
                             );
@@ -244,8 +249,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                   attributes[att.name] = a;
                                   setState(() {});
                                 },
-                                label: att.name.capitalizeFirst,
-                                placeholder: att.name.capitalizeFirst,
+                                label: att.title,
+                                placeholder: att.title,
                               ),
                             );
                           } else if (att.type == "boolean") {
@@ -256,8 +261,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
 
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
-                                label: att.name.capitalizeFirst,
-                                placeholder: att.name.capitalizeFirst,
+                                label: att.title,
+                                placeholder: att.title,
                                 controller: attributes[att.name],
                               ),
                             );
@@ -271,8 +276,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                 bodyBgColor: bodyBg,
                                 keyboardType: TextInputType.numberWithOptions(signed: true),
                                 inputFormatters: [MyInputFormatter.justNumber],
-                                label: att.name.capitalizeFirst,
-                                placeholder: att.name.capitalizeFirst,
+                                label: att.title,
+                                placeholder: att.title,
                                 controller: attributes[att.name],
                               ),
                             );
@@ -286,8 +291,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                 bodyBgColor: bodyBg,
                                 keyboardType: TextInputType.numberWithOptions(signed: true),
                                 inputFormatters: [MyInputFormatter.justNumber],
-                                label: att.name.capitalizeFirst,
-                                placeholder: att.name.capitalizeFirst,
+                                label: att.title,
+                                placeholder: att.title,
                                 controller: attributes[att.name],
                               ),
                             );
@@ -304,12 +309,32 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                   attributes[att.name] = a;
                                   setState(() {});
                                 },
-                                label: att.name.capitalizeFirst,
-                                placeholder: att.name.capitalizeFirst,
+                                label: att.title,
+                                placeholder: att.title,
+                              ),
+                            );
+                          }else if (att.type == "multiselectlist") {
+                            final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
+
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: MyMultiFieldPicker(
+                                required: att.mandatory,
+                                headerBgColor: headerBg,
+                                bodyBgColor: bodyBg,
+                                values:  attributes[att.name],
+                                onChange: (a) {
+                                  log(a.runtimeType.toString());
+                                  attributes[att.name] = a;
+                                  setState(() {});
+                                },
+                                label: att.title,
+                                placeholder: att.title,
+                                items: overrideList,
                               ),
                             );
                           }
-                          return Container(child: Row(children: [Text("${att.name.capitalizeFirst}")]));
+                          return Container(child: Row(children: [Text("${att.title}")]));
                         }).toList(),
                       ),
                       const SizedBox(height: 12),

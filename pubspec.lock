@@ -245,10 +245,10 @@ packages:
     dependency: "direct main"
     description:
       name: camera_kit_plus
-      sha256: d1ff0f4735475e523485e0db6a7a8417ab0a73d63fdd30730f0d51dc297e399a
+      sha256: "92f334525c20ec48c7358c10564802046fd3d78be67195086c0718018ec91760"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.32"
+    version: "0.0.34"
   characters:
     dependency: transitive
     description:

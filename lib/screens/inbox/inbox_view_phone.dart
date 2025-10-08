@@ -165,7 +165,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
     return Container(
       margin: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
       child: Material(
-        color: superResponse?.getColor.withOpacity(0.12) ?? Colors.white,
+        color:airlineResponse?.getColor.withOpacity(0.12)?? superResponse?.getColor.withOpacity(0.12) ?? Colors.black12,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -203,16 +203,14 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                       ),
                       loading ? SpinKitThreeBounce(color: Colors.black, size: 12) : SizedBox(),
                       const SizedBox(width: 4),
-                      response == null
-                          ? SizedBox()
-                          : Container(
+                      Container(
                               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.12),
                                 borderRadius: BorderRadiusGeometry.circular(12),
                                 border: Border.all(color: Colors.white),
                               ),
-                              child: Text(response.name2 ?? '', style: TextStyle(fontSize: 12,color: superResponse.getColor)),
+                              child: Text(airlineResponse?.title??response?.name2 ?? '', style: TextStyle(fontSize: 12,color: superResponse.getColor)),
                             ),
 
                       // Expanded(child: Text(widget.message.code ?? '')),

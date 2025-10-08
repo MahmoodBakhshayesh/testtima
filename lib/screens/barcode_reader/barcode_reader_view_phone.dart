@@ -15,7 +15,9 @@ class BarcodeReaderViewPhone extends StatelessWidget {
     return Scaffold(
       appBar: BarcodeReaderAppBar(),
       body: Column(
-        children: [Expanded(child: CameraKitPlusView(onBarcodeRead: myBarcodeReaderController.onBarcodeRead))],
+        children: [Expanded(child: CameraKitPlusView(
+            showZoomSlider: true,
+            onBarcodeRead: myBarcodeReaderController.onBarcodeRead))],
       ),
     );
   }

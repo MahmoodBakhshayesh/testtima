@@ -20,6 +20,7 @@ import '../../../widgets/MyButton.dart';
 
 import '../../../core/constants/ui.dart';
 import '../../../core/navigation/navigation_service.dart';
+import '../../../widgets/MyMultiFieldPicker.dart';
 import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
 import '../../../widgets/SelectionChip.dart';
@@ -79,6 +80,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
         }else if(att.type.toLowerCase() =="float"){
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
+        }else if(att.type.toLowerCase() =="multiselectlist"){
+          attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute[att.name]??[]);
         }
       });
       // tmp = permissions.where((p) => widget.user.permission.map((pp) => pp.id).contains(p.id)).map((a) {
@@ -173,7 +176,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             child: MyTextFieldNew(
                               headerBgColor:headerBg,
                               bodyBgColor: bodyBg,
-                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
                           );
                         }else if(att.type == "enum"){
                           final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
@@ -189,7 +192,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                 attributes[att.name] = a;
                                 setState((){});
                               },
-                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,),
+                              label: att.title,placeholder: att.title,),
                           );
                         }else if(att.type == "boolean"){
                           return Padding(
@@ -197,7 +200,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             child: MyTextFieldNew(
                               headerBgColor:headerBg,
                               bodyBgColor: bodyBg,
-                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
                           );
                         }else if(att.type == "number"){
                           return Padding(
@@ -205,7 +208,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             child: MyTextFieldNew(
                               headerBgColor:headerBg,
                               bodyBgColor: bodyBg,
-                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
                           );
                         }else if(att.type == "float"){
                           return Padding(
@@ -213,7 +216,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             child: MyTextFieldNew(
                               headerBgColor:headerBg,
                               bodyBgColor: bodyBg,
-                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,controller: attributes[att.name],),
+                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
                           );
                         }else if(att.type == "date"){
                           return Padding(
@@ -226,13 +229,33 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                 attributes[att.name] = a;
                                 setState((){});
                               },
-                              label: att.name.capitalizeFirst,placeholder: att.name.capitalizeFirst,),
+                              label: att.title,placeholder: att.title,),
+                          );
+                        }else if (att.type == "multiselectlist") {
+                          final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: MyMultiFieldPicker(
+                              required: att.mandatory,
+                              headerBgColor: headerBg,
+                              bodyBgColor: bodyBg,
+                              values:  attributes[att.name],
+                              onChange: (a) {
+                                log(a.runtimeType.toString());
+                                attributes[att.name] = a;
+                                setState(() {});
+                              },
+                              label: att.title,
+                              placeholder: att.title,
+                              items: overrideList,
+                            ),
                           );
                         }
                         return Container(
                           child: Row(
                             children: [
-                              Text("${att.name.capitalizeFirst}"),
+                              Text("${att.title}"),
                             ],
                           ),
                         );
@@ -358,6 +381,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
                       }else if(att.type =="float"){
                         attFix.putIfAbsent(att.name,()=>(v as TextEditingController).text);
+                      }else if(att.type =="multiselectlist"){
+                        attFix.putIfAbsent(att.name,()=>v);
                       }
                     });
                     final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: aup,attributes:attFix);

@@ -150,17 +150,16 @@ class HomeController extends ControllerInterface {
       int emptyIndex = ref.read(passportsProvider).indexWhere((s) => s.isEmpty);
       if (emptyIndex == -1) {
         // if (ref.read(passportsProvider).isEmpty) {
-          ref.read(passportsProvider.notifier).add(doc);
+        ref.read(passportsProvider.notifier).add(doc);
         // } else {
         //   int lastIndex = ref.read(passportsProvider).length - 1;
         //   ref.read(passportsProvider.notifier).updateAt(lastIndex, doc);
         // }
       } else {
         ref.read(passportsProvider.notifier).removeAt(emptyIndex);
-        Future((){
+        Future(() {
           ref.read(passportsProvider.notifier).add(doc);
         });
-
       }
     } else if (doc.isVisa) {
       int emptyIndex = ref.read(visasProvider).indexWhere((s) => s.isEmpty);
@@ -233,10 +232,10 @@ class HomeController extends ControllerInterface {
     navigation.openDialog(dialog: AskRefCodeDialog());
   }
 
-  Future<RefHistory?> getRefHistoryLog({required String? code,required String? showCode}) async {
+  Future<RefHistory?> getRefHistoryLog({required String? code, required String? showCode}) async {
     RefHistory? historyLog;
     GetRefCodeLogUseCase getRefHistoryLogUseCase = GetRefCodeLogUseCase();
-    GetRefCodeLogRequest getRefCodeLogRequest = GetRefCodeLogRequest(code: code,showCode: showCode);
+    GetRefCodeLogRequest getRefCodeLogRequest = GetRefCodeLogRequest(code: code, showCode: showCode);
     final result = await getRefHistoryLogUseCase(request: getRefCodeLogRequest);
 
     switch (result) {
@@ -247,13 +246,13 @@ class HomeController extends ControllerInterface {
         final r = result.value;
         historyLog = r.history;
         ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
-        fillWithRefHistory(r.history, code,showCode);
+        fillWithRefHistory(r.history, code, showCode);
     }
 
     return historyLog;
   }
 
-  fillWithRefHistory(RefHistory his, String? code,String? showCode) {
+  fillWithRefHistory(RefHistory his, String? code, String? showCode) {
     final timaticReqLog = (his.logs ?? []).firstWhereOrNull((a) => (a.type ?? '') == ("timaticCheck"));
     final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') != ("timaticCheck")).toList();
     ref.read(showingLogsProvider.notifier).update((s) => showingLogs);
@@ -315,8 +314,8 @@ class HomeController extends ControllerInterface {
       ref.read(segmentsProvider.notifier).setAll(allSegs);
       ref.read(passengerProvider.notifier).update((s) => pd);
 
-      ref.read(refCodeProvider.notifier).update((s)=>his.refCode);
-      ref.read(refCodeShowProvider.notifier).update((s)=>his.showCode);
+      ref.read(refCodeProvider.notifier).update((s) => his.refCode);
+      ref.read(refCodeShowProvider.notifier).update((s) => his.showCode);
 
       // output["refCode"] = code;
       // output["status"] = locked ? 1 : 0;
@@ -621,7 +620,9 @@ class HomeController extends ControllerInterface {
         DocumentRequest(
           documentDetails: ddl,
           itineraryDetails: ItineraryDetails(segments: ref.read(segmentsProvider)),
-          passengerDetails: ref.read(passengerProvider).copyWith(nationality: ref.read(passportsProvider).firstOrNull?.nationality??ref.read(passengerProvider).nationality),
+          passengerDetails: ref
+              .read(passengerProvider)
+              .copyWith(gender: ref.read(passportsProvider).firstOrNull?.gender, nationality: ref.read(passportsProvider).firstOrNull?.nationality ?? ref.read(passengerProvider).nationality),
         ),
         employeeId: id,
       );
@@ -649,7 +650,7 @@ class HomeController extends ControllerInterface {
     return false;
   }
 
-  Future<void> supervisorResponse({required SupervisorResponse response, required String msg, required String logId,required String askId}) async {
+  Future<void> supervisorResponse({required SupervisorResponse response, required String msg, required String logId, required String askId}) async {
     SupervisorResponseUseCase supervisorResponseUseCase = SupervisorResponseUseCase();
     SupervisorResponseRequest supervisorResponseRequest = SupervisorResponseRequest(logId: logId, msg: msg, supervisorResponse: response, askId: askId);
     final result = await supervisorResponseUseCase(request: supervisorResponseRequest);
@@ -772,7 +773,6 @@ class HomeController extends ControllerInterface {
       case Ok<ValidateEmployeeIdResponse>():
         final r = result.value;
         valid = r.valid;
-
     }
 
     return valid;
@@ -782,18 +782,24 @@ class HomeController extends ControllerInterface {
     String? refCode = ref.read(refCodeProvider);
     log("refreshResults");
 
-    if(refCode == null){
+    if (refCode == null) {
       return;
     }
-    getRefHistoryLog(code: refCode,showCode: null);
+    getRefHistoryLog(code: refCode, showCode: null);
   }
 
   Future<void> searchTrackId() async {
-    final code = await navigation.openBottomSheet(bottomSheet: NumericInputSheet(label: "Track ID", onDone: (a)async{
-      if(a is String && a.isNotEmpty) {
-        await getRefHistoryLog(code: null, showCode: a);
-      }
-    },),isScrollControlled: true);
+    final code = await navigation.openBottomSheet(
+      bottomSheet: NumericInputSheet(
+        label: "Track ID",
+        onDone: (a) async {
+          if (a is String && a.isNotEmpty) {
+            await getRefHistoryLog(code: null, showCode: a);
+          }
+        },
+      ),
+      isScrollControlled: true,
+    );
     log("");
   }
 

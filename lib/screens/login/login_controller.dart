@@ -366,8 +366,7 @@ class LoginController extends ControllerInterface {
     String key = "${ref.read(selectedServerProvider).id}/${getIt<AppDeviceNetworkData>().app.versionKey}/constantData";
     log("CachedConstData key $key");
     final String? constJson = await sharedPref.getVariable(key: key);
-    if (constJson != null && false) {
-
+    if (constJson != null) {
       VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
       return constantData;
     }
@@ -424,7 +423,7 @@ class LoginController extends ControllerInterface {
         log("setting address ${address}");
         Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false, color: null, name: null);
         initNetworkManager(pubServer.apiAddress);
-        ref.read(selectedServerProvider.notifier).update((s)=>pubServer);
+        ref.read(selectedServerProvider.notifier).update((s) => pubServer);
     }
 
     return apiAddress;

@@ -266,7 +266,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                           d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
                           ref.read(passportsProvider.notifier).updateAt(widget.index, d);
-                          // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                          ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
                         },
                       ),
                     ),
@@ -321,24 +321,31 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             spacing: 12,
             children: [
 
-              Expanded(child: MyTextFieldNew(
-                  rowLabelRatio: [5, 4],
+              Expanded(
+                  flex: 3,
+                  child: MyTextFieldNew(
+                  rowLabelRatio: [4, 5],
+                  style: TextStyle(fontSize: 12),
                   required: requiredFields.documentNumber, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg)),
               Expanded(
+                flex: 2,
                 child: MyFieldPicker<Gender>(
                   label: "Gender",
-                  rowLabelRatio: [5, 4],
+                  rowLabelRatio: [5, 9],
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
                   placeholder: "Gender",
+                  labelStyle: TextStyle(fontSize: 9),
                   valueToString: (a) => a.title,
                   items: Gender.values,
                   hasSearch: false,
                   value: passengerDetails.gender,
                   onChange: (a) {
-                    var pd = passengerDetails.copyWith(gender: a);
-                    ref.read(passengerProvider.notifier).update((s) => pd);
-                    // d = d.copyWith(birthDate: a);
+                    // var pd = d.copyWith(sex: a?.value);
+                    // ref.read(passengerProvider.notifier).update((s) => pd);
+                    d = d.copyWith(sex: a?.value);
+                    ref.read(passportsProvider.notifier).updateAt(widget.index, d);
+
                     // ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                   },
                 ),

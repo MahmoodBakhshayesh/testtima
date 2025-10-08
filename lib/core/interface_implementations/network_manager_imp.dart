@@ -59,7 +59,11 @@ class NetworkManagerImp implements NetworkManagerInterface {
       if (networkResponse.responseCode == -404) {
         String? msg;
         if (networkResponse.responseDetails is http.Response) {
-          msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+          try {
+            msg = jsonDecode((networkResponse.responseDetails as http.Response).body)["message"];
+          }catch(e){
+
+          }
         }
         throw ServerException(code: networkResponse.responseCode, message: msg ?? "404 Not Found\n${apiAddress}", trace: StackTrace.fromString("NetworkManagerImp.post"), data: networkResponse.responseBody);
       }

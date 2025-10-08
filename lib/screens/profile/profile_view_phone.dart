@@ -63,6 +63,8 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: user.attributes[att.name]?.toString()));
         }else if(att.type.toLowerCase() =="float"){
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: user.attributes[att.name]?.toString()));
+        }else if(att.type.toLowerCase() =="multiselectlist"){
+          attributes.putIfAbsent(att.name, ()=>user.attributes[att.name]??[]);
         }
       });
       firstNameC.text = user.profile.firstname ?? '';
@@ -159,7 +161,10 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                                 if (att.type == "string") {
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
-                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.name.capitalizeFirst, placeholder: att.name.capitalizeFirst, controller: attributes[att.name]),
+                                    child: MyTextFieldNew(
+                                        rowLabelRatio: [4,7],
+                                        headerBgColor: headerBg, bodyBgColor: bodyBg,
+                                        label: att.title, placeholder: att.title, controller: attributes[att.name]),
                                   );
                                 } else if (att.type == "enum") {
                                   final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
@@ -175,24 +180,24 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                                         attributes[att.name] = a;
                                         setState(() {});
                                       },
-                                      label: att.name.capitalizeFirst,
-                                      placeholder: att.name.capitalizeFirst,
+                                      label: att.title,
+                                      placeholder: att.title,
                                     ),
                                   );
                                 } else if (att.type == "boolean") {
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
-                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.name.capitalizeFirst, placeholder: att.name.capitalizeFirst, controller: attributes[att.name]),
+                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                                   );
                                 } else if (att.type == "number") {
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
-                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.name.capitalizeFirst, placeholder: att.name.capitalizeFirst, controller: attributes[att.name]),
+                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                                   );
                                 } else if (att.type == "float") {
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
-                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.name.capitalizeFirst, placeholder: att.name.capitalizeFirst, controller: attributes[att.name]),
+                                    child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                                   );
                                 } else if (att.type == "date") {
                                   return Padding(
@@ -205,12 +210,12 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                                         attributes[att.name] = a;
                                         setState(() {});
                                       },
-                                      label: att.name.capitalizeFirst,
-                                      placeholder: att.name.capitalizeFirst,
+                                      label: att.title,
+                                      placeholder: att.title,
                                     ),
                                   );
                                 }
-                                return Container(child: Row(children: [Text("${att.name.capitalizeFirst}")]));
+                                return Container(child: Row(children: [Text("${att.title}")]));
                               }).toList(),
                             ),
                             MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: "Firstname", controller: firstNameC, focusNode: firstNameFN, labelInRow: true),
@@ -269,6 +274,8 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                           attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
                         } else if (att.type.toLowerCase() == "float") {
                           attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+                        } else if (att.type.toLowerCase() == "multiselectlist") {
+                          attFix.putIfAbsent(att.name, () => v);
                         }
                       });
                       await myProfileController.editProfile(profile, {"firstname": firstNameC.text, "middlename": middleNameC.text, "lastname": lastNameC.text}, attFix);

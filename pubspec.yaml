@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.0+14010
+version: 1.4.0+14013
 
 
 
@@ -90,7 +90,7 @@ dependencies:
   ferry_hive_store: ^0.6.0
   logging: ^1.3.0
   dartx: ^1.2.0
-  camera_kit_plus: ^0.0.31
+  camera_kit_plus: ^0.0.34
 #  artemis_timatic: ^0.0.12
   dropdown_textfield: ^1.2.0
   flutter_widget_from_html: ^0.17.0
