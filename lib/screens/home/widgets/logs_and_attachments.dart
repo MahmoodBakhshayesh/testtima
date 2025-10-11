@@ -30,6 +30,7 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(showingLogsProvider);
+    logs.sort((a,b)=>b.at!.compareTo(a.at!));
     logs.sort((a,b)=>['airlineApproval',"askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval',"askSupervisor"].indexOf(b.type!)));
     for (var l in logs) {
       log(jsonEncode(l.toJson()));

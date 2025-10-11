@@ -41,6 +41,7 @@ extension StayTypeDetails on PurposeOfStayType {
   PurposeOfStayType? purposeOfStayTypeFromJson(String? v) => v == null ? null : PurposeOfStayType.values.firstWhere((e) => e.value == v.toUpperCase(), orElse: () => throw ArgumentError('Unknown PurposeOfStayType: $v'));
 
   String? purposeOfStayTypeToJson(PurposeOfStayType? t) => t?.value;
+
 }
 
 enum TicketStatus {

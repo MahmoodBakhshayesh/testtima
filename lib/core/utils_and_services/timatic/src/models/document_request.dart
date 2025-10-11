@@ -221,7 +221,7 @@ class DocumentDetail {
     // log("${res.documentCode} -- ${documentCode?.code}");
     // log("${res.documentNumber} -- ${documentNumber}");
 
-    return (documentExpiryDate.format_yyyyMMdd == res.expiryDate.format_yyyyMMdd) && (shortType == res.getShortType) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
+    return (documentExpiryDate.format_yyyyMMdd == res.expiryDate.format_yyyyMMdd) && (docCode == res.documentCode) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 
   DocumentType? getMatch() {
@@ -414,6 +414,7 @@ class ItinerarySegment {
     'arrival': arrival.toJson(),
     'departure': departure.toJson(),
     'processingEntity': processingEntity,
+
     'durationOfStay': durationOfStay?.toJson(),
     'luggageCollected': luggageCollected,
     'purposeOfStay': purposeOfStay?.value,

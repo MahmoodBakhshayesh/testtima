@@ -81,7 +81,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
         }else if(att.type.toLowerCase() =="float"){
           attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
         }else if(att.type.toLowerCase() =="multiselectlist"){
-          attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute[att.name]??[]);
+          attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute[att.name]??[]));
         }
       });
       // tmp = permissions.where((p) => widget.user.permission.map((pp) => pp.id).contains(p.id)).map((a) {
@@ -240,7 +240,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                               required: att.mandatory,
                               headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
-                              values:  attributes[att.name],
+                              values:  attributes[att.name]??[],
                               onChange: (a) {
                                 log(a.runtimeType.toString());
                                 attributes[att.name] = a;

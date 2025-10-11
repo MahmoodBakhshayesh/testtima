@@ -224,6 +224,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: MyTextFieldNew(
                                 required: att.mandatory,
+                                rowLabelRatio: [4,5],
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
                                 label: att.title,
@@ -241,6 +242,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                 items:(overrideList is List)?overrideList: att.defaultList,
                                 // items: att.defaultList,
                                 required: att.mandatory,
+                                rowLabelRatio: [4,5],
 
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
@@ -258,6 +260,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: MyTextFieldNew(
                                 required: att.mandatory,
+                                rowLabelRatio: [4,5],
 
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
@@ -271,6 +274,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: MyTextFieldNew(
                                 required: att.mandatory,
+                                rowLabelRatio: [4,5],
 
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
@@ -286,6 +290,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: MyTextFieldNew(
                                 required: att.mandatory,
+                                rowLabelRatio: [4,5],
 
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
@@ -301,6 +306,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: MyDatePicker(
                                 required: att.mandatory,
+                                rowLabelRatio: [4,5],
 
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
@@ -322,6 +328,8 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                                 required: att.mandatory,
                                 headerBgColor: headerBg,
                                 bodyBgColor: bodyBg,
+                                rowLabelRatio: [4,5],
+
                                 values:  attributes[att.name],
                                 onChange: (a) {
                                   log(a.runtimeType.toString());
@@ -488,7 +496,7 @@ class AddUserAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Row(
                     children: [
                       BackButton(),
-                      Text("AddUser", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      Text("Add User", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
                       SizedBox(width: 8),
                     ],

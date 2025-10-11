@@ -107,7 +107,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                     Row(
                       children: [
                         const SizedBox(width: 12),
-                        Expanded(child: Text("Station Manager Decision")),
+                        Expanded(child: Text("Airline Representative Decision")),
                         CloseButton(),
                       ],
                     ),

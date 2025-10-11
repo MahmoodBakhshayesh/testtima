@@ -260,6 +260,7 @@ class MrzReaderController extends ControllerInterface {
       // }
       popping = true;
       DocumentCode? docType;
+      DocumentDetailType? match;
       // log("*"*100);
       // log(jsonEncode(res.toJson()));
       // log("*"*100);
@@ -267,7 +268,7 @@ class MrzReaderController extends ControllerInterface {
       // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
       DocumentDetailType? suggest;
       if (BasicClass.constData.data.documentDetailType.isNotEmpty && res.countryCode.length > 1) {
-        final match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
+        match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
           // (a) => a.type == res.documentCode.characters.first && (a.subType == "*" || a.subType == res.documentCode.characters.last) && (a.country == "*" || a.country == res.countryCode),
           // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && (a.country == "*" || a.country == res.countryCode),
           // (a) => a.type == res.documentCode.characters.first && (a.subType == res.documentCode.characters.last || (res.documentCode.characters.last == "<" && a.subType=="*")) && ( a.country == res.countryCode),
@@ -285,7 +286,7 @@ class MrzReaderController extends ControllerInterface {
         );
 
         if (match != null) {
-          docType = BasicClass.constData.data.documentCode.firstWhereOrNull((a) => a.code.toUpperCase() == match.code);
+          docType = BasicClass.constData.data.documentCode.firstWhereOrNull((a) => a.code.toUpperCase() == match!.code);
         } else {
 
           log(BasicClass.constData.data.documentDetailType.map((a)=>"${a.type} ${a.subType} ${a.country}").join("\n"));
@@ -323,7 +324,7 @@ class MrzReaderController extends ControllerInterface {
       // log("res.countryCode ${res.countryCode}");
 
       DocumentDetail documentDetail = DocumentDetail(
-        shortType: res.getShortType,
+        shortType: match?.type??suggest?.type,
         documentExpiryDate: res.expiryDate,
 
         documentIssueCountry: issueCountry,

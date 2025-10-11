@@ -1,4 +1,6 @@
 // State + Actions
+import 'dart:developer';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../timatic/artemis_timatic.dart';
@@ -11,6 +13,8 @@ class ItemsController extends StateNotifier<List<ItinerarySegment>> {
   ItemsController(super.state);
 
   void add(ItinerarySegment item) {
+    log("${state.map((a)=>a.purposeOfStay?.name)}");
+    log("${[...state.map((a)=>a.purposeOfStay?.name)]}");
     state = [...state, item]; // add with instance
   }
 

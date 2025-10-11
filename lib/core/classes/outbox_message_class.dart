@@ -30,6 +30,7 @@ class OutboxMessage {
   final String nationality;
   final String to;
   final int totalResult;
+  final int timaticResult;
   final int? airlineApproval;
   final List<OutboxSupervisor> supervisor;
 
@@ -49,6 +50,7 @@ class OutboxMessage {
     required this.nationality,
     required this.to,
     required this.totalResult,
+    required this.timaticResult,
     this.airlineApproval,
     required this.supervisor,
   });
@@ -69,6 +71,7 @@ class OutboxMessage {
     String? nationality,
     String? to,
     int? totalResult,
+    int? timaticResult,
     int? airlineApproval,
     List<OutboxSupervisor>? supervisor,
   }) =>
@@ -88,6 +91,7 @@ class OutboxMessage {
         nationality: nationality ?? this.nationality,
         to: to ?? this.to,
         totalResult: totalResult ?? this.totalResult,
+        timaticResult: timaticResult ?? this.timaticResult,
         airlineApproval: airlineApproval ?? this.airlineApproval,
         supervisor: supervisor ?? this.supervisor,
       );
@@ -108,6 +112,7 @@ class OutboxMessage {
     nationality: json["nationality"]??'',
     to: json["to"],
     totalResult: json["totalResult"],
+    timaticResult: json["timaticResult"],
     airlineApproval: json["airlineApproval"],
     supervisor: List<OutboxSupervisor>.from(json["supervisor"].map((x) => OutboxSupervisor.fromJson(x))),
   );
@@ -129,6 +134,7 @@ class OutboxMessage {
     "to": to,
     "totalResult": totalResult,
     "airlineApproval": airlineApproval,
+    "timaticResult": timaticResult,
     "supervisor": List<dynamic>.from(supervisor.map((x) => x.toJson())),
   };
 

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:abds/core/interfaces/failures_int.dart';
+import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/screens/add_user/add_user_controller.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_controller.dart';
@@ -15,6 +17,7 @@ import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+import 'package:no_screenshot/no_screenshot.dart';
 // import 'package:wakelock_fixed/wakelock_fixed.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 // import 'package:wakelock_plus/wakelock_plus.dart';
@@ -46,6 +49,7 @@ import 'screens/performance/performance_controller.dart';
 
 final getIt = GetIt.instance;
 final String apiVersion = "/v1";
+final _noScreenshot = NoScreenshot.instance;
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -292,6 +296,25 @@ Future<void> _initPackages() async {
 
   await FastCachedImageConfig.init();
   await WakelockPlus.enable();
+  await disableScreenshot();
   // await Wakelock.enable();
 
+}
+
+
+Future<void> disableScreenshot() async {
+  bool result = await _noScreenshot.screenshotOff();
+  listenForScreenshot();
+  debugPrint('Screenshot Off: $result');
+}
+
+void listenForScreenshot() {
+  _noScreenshot.screenshotStream.listen((value) {
+    if (value.wasScreenshotTaken) showAlert(value.screenshotPath);
+  });
+}
+
+void showAlert(String screenshotPath) {
+  log("screenshot token");
+  // FailureHandler.handle(ServerFailure(code: -1, msg: msg, traceMsg: traceMsg))
 }

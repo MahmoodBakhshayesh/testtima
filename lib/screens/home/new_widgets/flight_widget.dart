@@ -142,6 +142,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     bool isFirst = widget.isFirst;
     int index = widget.index;
     ItinerarySegment seg = widget.item;
+    log(seg.purposeOfStay?.title??'---');
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     final bool hasTransit = segments.length > 1;
@@ -165,7 +166,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               icon: Icons.add_circle_outline,
               onPressed: () {
                 var beforeSeg = seg;
-                beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit);
+                beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit,purposeOfStay: beforeSeg.purposeOfStay,returnOnwardTicket: beforeSeg.returnOnwardTicket);
                 ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
                 var newSeg = ItinerarySegment.empty();
                 newSeg = newSeg.copyWith(departure: seg.arrival);
@@ -173,6 +174,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               },
               textColor: Colors.blueAccent,
               color: Colors.blueAccent.withOpacity(0.1),
+
             ),
             SizedBox(
               width: 165,
@@ -602,7 +604,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   label: "Ticket",
                   placeholder: "Ticket",
                   required: mandatories!.ticket && isFirst,
-
+                  value: seg.returnOnwardTicket,
                   rowLabelRatio: [3, 5],
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
@@ -615,15 +617,16 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 ),
               ),
               Expanded(
-                child: MyFieldPicker<ParameterValue>(
+                child: MyFieldPicker<PurposeOfStayType>(
                   label: "POS",
                   required: mandatories!.pos && isFirst,
-
+                  value: seg.purposeOfStay,
                   placeholder: "POS",
                   rowLabelRatio: [3, 5],
+
                   headerBgColor: Color(0xffECECEC),
                   bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
-                  items: BasicClass.constData.data.stayType,
+                  items: PurposeOfStayType.values,
                   onChange: (a) {
                     seg = seg.copyWith(purposeOfStay: a);
                     ref.read(segmentsProvider.notifier).updateAt(index, seg);

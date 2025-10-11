@@ -339,7 +339,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   valueToString: (a) => a.title,
                   items: Gender.values,
                   hasSearch: false,
-                  value: passengerDetails.gender,
+                  value: d.gender,
                   onChange: (a) {
                     // var pd = d.copyWith(sex: a?.value);
                     // ref.read(passengerProvider.notifier).update((s) => pd);

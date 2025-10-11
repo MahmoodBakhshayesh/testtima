@@ -425,6 +425,7 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
               ),
               Expanded(
                 child: ScrollablePositionedList.builder(
+                  padding: EdgeInsets.only(bottom: 400),
                   itemScrollController: _itemScrollController,
                   itemPositionsListener: _positionsListener,
                   itemCount: items.length,

@@ -240,7 +240,10 @@ class HomeController extends ControllerInterface {
 
     switch (result) {
       case Err<GetRefCodeLogResponse>():
-        FailureHandler.handle(result.error);
+        Future.delayed(Duration(milliseconds: 300),(){
+          FailureHandler.handle(result.error);
+        });
+        return null;
 
       case Ok<GetRefCodeLogResponse>():
         final r = result.value;
@@ -612,7 +615,9 @@ class HomeController extends ControllerInterface {
   }
 
   Future<TimaticResponseNew?> timatic() async {
+    String? userEmployeeId = ref.read(userProvider)?.attributes["employeeId"];
     String? id = ref.watch(currentStatusProvider).employeeId;
+    id ??= userEmployeeId;
     id ??= await navigation.openBottomSheet(bottomSheet: AskEmployeeIDSheet(), isScrollControlled: true);
     if (id != null) {
       List<DocumentDetail> ddl = [...ref.read(passportsProvider), ...ref.read(visasProvider), ...ref.read(residentsProvider)].where((a) => a.documentCode != null).toList();
@@ -715,14 +720,15 @@ class HomeController extends ControllerInterface {
           value: null,
           searchAutoFocus: true,
           hasClear: false,
-          items: BasicClass.constData.data.documentCode.where((a) => a.type == added.shortType).toList(),
+          items: BasicClass.constData.data.documentCode.where((a) =>added.shortType==null ||  a.type == added.shortType).toList(),
           label: "Type",
           hasSearch: true,
         ),
       );
       if (code is DocumentCode) {
         log("code ${code}");
-        ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true));
+        String shortType = added.shortType??BasicClass.constData.data.documentDetailType.firstWhere((a)=>a.code == code.code).type;
+        ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true,shortType: shortType));
         log(ref.read(confirmingDocumentProvider)!.documentCode.toString());
         final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
         if (addRes == true) {

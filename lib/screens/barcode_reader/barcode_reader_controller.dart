@@ -29,6 +29,9 @@ class BarcodeReaderController extends ControllerInterface {
       if (bpl.isNotEmpty) {
         for (var bp in bpl) {
           var segment = bp.getFlightLeg;
+          if(ref.read(segmentsProvider).any((ss)=>ss.operatingCarrier?.code == segment.operatingCarrier?.code &&   ss.flnb == segment.flnb)){
+            continue ;
+          }
           if(bpl.indexOf(bp)== bpl.length-1){
             segment = segment.copyWith(segmentType: SegmentType.entry,luggageCollected: true);
           }else{

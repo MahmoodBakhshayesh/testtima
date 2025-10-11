@@ -141,7 +141,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               ):null,
                               DrawerAction(
                                 tileColor: MyColors.mainBlue,
-                                title: "Station Manager Approval",
+                                title: "Airline Representative Decision",
                                 onTap: () async {
                                   String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                   if (logId != null) {

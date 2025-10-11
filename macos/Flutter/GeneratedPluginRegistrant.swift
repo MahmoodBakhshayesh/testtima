@@ -16,6 +16,7 @@ import flutter_image_compress_macos
 import just_audio
 import just_waveform
 import network_info_plus
+import no_screenshot
 import package_info_plus
 import path_provider_foundation
 import record_macos
@@ -38,6 +39,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
   JustWaveformPlugin.register(with: registry.registrar(forPlugin: "JustWaveformPlugin"))
   NetworkInfoPlusPlugin.register(with: registry.registrar(forPlugin: "NetworkInfoPlusPlugin"))
+  NoScreenshotPlugin.register(with: registry.registrar(forPlugin: "NoScreenshotPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   RecordMacOsPlugin.register(with: registry.registrar(forPlugin: "RecordMacOsPlugin"))

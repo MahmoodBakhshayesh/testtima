@@ -162,6 +162,10 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
     final airlineResponse =widget.message.airlineApproval==null?null: BasicClass.getResultOfCode(widget.message.airlineApproval);
     final response = widget.message.supervisor?.firstOrNull?.getRes;
     final superResponse = airlineResponse?? BasicClass.getResultOfCode(widget.message.supervisor.firstOrNull?.action??1)!;
+    final baseTimaticResult = BasicClass.getResultOfCode(widget.message.timaticResult);
+    // log("*"*200);
+    // log(jsonEncode(widget.message.toJson()));
+    // log("*"*200);
 
     return Container(
       margin: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
@@ -275,9 +279,9 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(width: 2),
-                      Text(currentStatus.title, style: TextStyle(color: currentStatus.getColor, fontSize: 10)),
+                      Text(baseTimaticResult.title, style: TextStyle(color: baseTimaticResult.getColor, fontSize: 10)),
                       const SizedBox(width: 2),
-                      currentStatus.getIconWidgetMini,
+                      baseTimaticResult.getIconWidgetMini,
                       Spacer(),
                       Text(
                         DateFormat("dd MMM, hh:mm").format(widget.message.createdAt!.toLocal()),

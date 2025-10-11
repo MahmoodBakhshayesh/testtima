@@ -1,4 +1,5 @@
 import 'package:abds/widgets/AirlineLogo.dart';
+import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -74,6 +75,36 @@ class LockedSegmentRow extends StatelessWidget {
               ),
               Expanded(
                 child: LockedFieldWidget(half: true, label: "Flight #", value: Text(seg.flnb ?? '')),
+              ),
+            ],
+          ):null,
+          ?(seg.departure.dateTime!=null)?Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: LockedFieldWidget(
+                  label: "Departure",
+                  value: Row(children: [
+                    Text(seg.departure.dateTime?.format_ddMMMEEE ?? ''),
+                    Text(" - "),
+                    Text(seg.departure.time?.format_HHmm ?? ''),
+                  ]),
+                ),
+              ),
+            ],
+          ):null,
+          ?(seg.arrival.dateTime!=null)?Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: LockedFieldWidget(
+                  label: "Arrival",
+                  value: Row(children: [
+                    Text(seg.arrival.dateTime?.format_ddMMMEEE ?? ''),
+                    Text(" - "),
+                    Text(seg.arrival.time?.format_HHmm ?? ''),
+                  ]),
+                ),
               ),
             ],
           ):null,
