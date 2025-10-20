@@ -87,6 +87,12 @@ class LoginController extends ControllerInterface {
         initData(user);
         // final tData = await getIt<HomeController>().preloadAll();
         checkNotifCount(user.setting?.refreshInboxTimer);
+        final bool canScreenShot = user.permission.hasFlag("user", 64);
+        if(canScreenShot){
+          enableScreenshot();
+        }else{
+          disableScreenshot();
+        }
         loadSupervisors();
         getIt<HomeController>().clear();
         if (user.setPassword) {

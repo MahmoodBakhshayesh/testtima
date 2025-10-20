@@ -628,3 +628,29 @@ class DateTextFormatter extends TextInputFormatter {
     return TextSelection.fromPosition(TextPosition(offset: text.length));
   }
 }
+
+
+class MaskMiddleFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    final text = newValue.text;
+    final masked = _mask(text);
+
+    // Keep cursor at end
+    return newValue.copyWith(
+      text: masked,
+      selection: TextSelection.collapsed(offset: masked.length),
+    );
+  }
+
+  String _mask(String input) {
+    if (input.length <= 4) return input;
+    final left = input.substring(0, 2);
+    final right = input.substring(input.length - 2);
+    final middle = '*' * (input.length - 4);
+    return '$left$middle$right';
+  }
+}

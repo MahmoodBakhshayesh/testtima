@@ -296,7 +296,7 @@ Future<void> _initPackages() async {
 
   await FastCachedImageConfig.init();
   await WakelockPlus.enable();
-  await disableScreenshot();
+  // await disableScreenshot();
   // await Wakelock.enable();
 
 }
@@ -304,7 +304,13 @@ Future<void> _initPackages() async {
 
 Future<void> disableScreenshot() async {
   bool result = await _noScreenshot.screenshotOff();
-  listenForScreenshot();
+  // listenForScreenshot();
+  debugPrint('Screenshot Off: $result');
+}
+
+Future<void> enableScreenshot() async {
+  bool result = await _noScreenshot.screenshotOn();
+  // listenForScreenshot();
   debugPrint('Screenshot Off: $result');
 }
 

@@ -103,4 +103,13 @@ class StringUtility {
     return result;
   }
 
+  static String maskString(String input) {
+    if (input.length <= 4) return input; // nothing to mask
+    final left = input.substring(0, 2);
+    final right = input.substring(input.length - 2);
+    final middle = '*' * (input.length - 4);
+    return '$left$middle$right';
+  }
+
+
 }

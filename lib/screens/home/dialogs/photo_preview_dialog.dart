@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pinch_zoom/pinch_zoom.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
@@ -63,12 +64,14 @@ class _PhotoPreviewDialogState extends ConsumerState<PhotoPreviewDialog> {
             SizedBox(
               height: MediaQuery.of(context).size.height *0.6,
               width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                child:Image.network(
-                  "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${widget.address}",
-                  fit: BoxFit.fitWidth,
-                  headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+              child: PinchZoom(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                  child: Image.network(
+                    "${ref.read(selectedServerProvider)!.apiAddress}/logs/attach/${widget.address}",
+                    fit: BoxFit.fitWidth,
+                    headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+                  ),
                 ),
               ),
             ),

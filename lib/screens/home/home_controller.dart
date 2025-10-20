@@ -311,6 +311,9 @@ class HomeController extends ControllerInterface {
         }),
       );
 
+      if(passes.isNotEmpty){
+        passes[0]= passes[0].copyWith(sex: pd.gender?.value);
+      }
       ref.read(passportsProvider.notifier).setAll(passes);
       ref.read(visasProvider.notifier).setAll(visas);
       ref.read(residentsProvider.notifier).setAll(residents);

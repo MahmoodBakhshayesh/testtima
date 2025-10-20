@@ -1,5 +1,6 @@
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
+import 'package:abds/core/utils_and_services/string_utility.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -88,7 +89,7 @@ class LockedDocumentItemRow extends StatelessWidget {
               ],
             ),
           ):null,
-          ?(d.documentNumber??'').isNotEmpty?LockedFieldWidget(label: "Document #", value: Text(d.documentNumber ?? '')):null,
+          ?(d.documentNumber??'').isNotEmpty?LockedFieldWidget(label: "Document #", value: Text(StringUtility.maskString(d.documentNumber??'My') ?? '')):null,
         ],
       ),
     );

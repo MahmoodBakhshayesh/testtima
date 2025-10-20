@@ -99,18 +99,18 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF4F8F7);
-    List<String> validCodes = BasicClass.constData.data.documentCode.where((a)=>a.type == "I").map((a)=>a.code!).toList();
+    List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == "I").map((a) => a.code!).toList();
     final requiredFields = BasicClass.constData.data.mandatory!.idCard!;
 
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadiusGeometry.circular(20),
         // color: Color(0xffE9F2EF),
-          color:d.isExpired?MyColors.mainRed.withOpacity(0.12): Color(0xffE9F2EF),
-          border:d.isExpired? Border.all(color: MyColors.mainRed):null
+        color: d.isExpired ? MyColors.mainRed.withOpacity(0.12) : Color(0xffE9F2EF),
+        border: d.isExpired ? Border.all(color: MyColors.mainRed) : null,
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
-      margin: EdgeInsets.only(top:12),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: EdgeInsets.only(top: 12),
       child: MyExpansionTile(
         tapOnTitleActive: false,
 
@@ -146,16 +146,22 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
               spacing: 12,
               children: [
                 Expanded(
-                  child: Text("ID / Residency Card #${widget.index+1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  child: Text("ID / Residency Card #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
                 DotButton(
                   icon: ArtemisIcons.eraser_1,
                   onPressed: () async {
                     final confirm = await ConfirmOperation.getConfirm(
-                      Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to delete ${"ID / Residency Card #${widget.index + 1}"}. Are you sure?', title: "Clear", actions: ["Cancel", "Confirm"]),
+                      Operation(
+                        type: OperationType.warning,
+                        icon: ArtemisIcons.eraser_1,
+                        message: 'You are about to delete ${"ID / Residency Card #${widget.index + 1}"}. Are you sure?',
+                        title: "Clear",
+                        actions: ["Cancel", "Confirm"],
+                      ),
                     );
                     if (!confirm) return;
-                    ref.read(residentsProvider.notifier).updateAt(index,DocumentDetail());
+                    ref.read(residentsProvider.notifier).updateAt(index, DocumentDetail());
                   },
                   size: 40,
                   radius: 8,
@@ -168,7 +174,13 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   icon: ArtemisIcons.trash,
                   onPressed: () async {
                     final confirm = await ConfirmOperation.getConfirm(
-                      Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete ${"ID / Residency Card #${widget.index + 1}"}. Are you sure?', title: "Delete", actions: ["Cancel", "Confirm"]),
+                      Operation(
+                        type: OperationType.error,
+                        icon: ArtemisIcons.trash,
+                        message: 'You are about to delete ${"ID / Residency Card #${widget.index + 1}"}. Are you sure?',
+                        title: "Delete",
+                        actions: ["Cancel", "Confirm"],
+                      ),
                     );
                     if (!confirm) return;
                     ref.read(residentsProvider.notifier).removeAt(index);
@@ -190,13 +202,13 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   label: "Code",
                   placeholder: "Code",
                   required: requiredFields.code,
-                  suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
+                  suffixIcon: d.verifiedDocCode ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
 
                   // valueToString: docCodeToString,
                   headerBgColor: headerBg,
                   bodyBgColor: bodyBg,
-                  valueToString: (v)=>v.name,
-                  items: BasicClass.constData.data.documentCode.where((a)=>validCodes.contains(a.code)).toList(),
+                  valueToString: (v) => v.name,
+                  items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
                   value: d.documentCode,
                   onChange: (a) {
                     d = d.copyWith(documentCode: a);
@@ -217,10 +229,10 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         placeholder: "Country",
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
-                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
+                        suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
 
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                        items:BasicClass.constData.data.country,
+                        items: BasicClass.constData.data.country,
                         value: d.documentIssueCountry,
                         onChange: (a) {
                           d = d.copyWith(documentIssueCountry: a);
@@ -238,7 +250,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         bodyBgColor: bodyBg,
                         placeholder: "Country",
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
-                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
+                        suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.documentIssueCountry?.code3).toList(),
 
                         rowLabelRatio: [5, 4],
                         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
@@ -247,7 +259,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry??a);
+                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
                           ref.read(residentsProvider.notifier).updateAt(widget.index, d);
                         },
                       ),
@@ -307,9 +319,15 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
 
           const SizedBox(height: 12),
           MyTextFieldNew(
-              required: requiredFields.documentNumber,
-
-              headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+            required: requiredFields.documentNumber,
+            inputFormatters: [MaskMiddleFormatter()],
+            headerBgColor: headerBg,
+            bodyBgColor: bodyBg,
+            controller: controller,
+            label: "Document #",
+            placeholder: "Number",
+            labelInRow: true,
+          ),
           const SizedBox(height: 12),
           d.getMrzWidget,
         ],
