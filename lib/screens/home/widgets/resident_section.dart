@@ -320,7 +320,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           const SizedBox(height: 12),
           MyTextFieldNew(
             required: requiredFields.documentNumber,
-            inputFormatters: [MaskMiddleFormatter()],
+            inputFormatters:d.isScanned? [MaskMiddleFormatter()]:[],
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             controller: controller,

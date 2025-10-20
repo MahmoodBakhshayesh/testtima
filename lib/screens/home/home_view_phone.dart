@@ -857,7 +857,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
                             Row(
                               children: [
                                 Text("Date: ", style: TextStyle(color: Colors.grey)),
-                                Text("${segments.first.departure.dateTime.format_ddMMM ?? ''}"),
+                                Text(segments.first.departure.dateTime.format_ddMMM ?? ''),
                               ],
                             ),
                             Row(
@@ -874,7 +874,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
                             Row(
                               children: [
                                 Text("Passport: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                Text("${passports.firstOrNull?.documentNumber ?? ''}", style: TextStyle(fontSize: 12)),
+                                Text(StringUtility.maskString(passports.firstOrNull?.documentNumber ?? ''), style: TextStyle(fontSize: 12)),
                               ],
                             ),
                             Row(
@@ -979,7 +979,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
               Row(
                 children: [
                   Text("Date: ", style: TextStyle(color: Colors.grey)),
-                  Text("${segments.first.departure.dateTime.format_ddMMM ?? ''}"),
+                  Text(segments.first.departure.dateTime.format_ddMMM ?? ''),
                 ],
               ),
               Row(
@@ -996,7 +996,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
               Row(
                 children: [
                   Text("Passport: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  Text("${passports.firstOrNull?.documentNumber ?? ''}", style: TextStyle(fontSize: 12)),
+                  Text(passports.firstOrNull?.documentNumber ?? '', style: TextStyle(fontSize: 12)),
                 ],
               ),
               Row(

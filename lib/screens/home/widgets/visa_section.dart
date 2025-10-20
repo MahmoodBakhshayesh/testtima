@@ -335,7 +335,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
             bodyBgColor: bodyBg,
             controller: controller,
             required: requiredFields.documentNumber,
-            inputFormatters: [MaskMiddleFormatter()],
+            inputFormatters:d.isScanned? [MaskMiddleFormatter()]:[],
             label: "Document # ${foundPassInVisa ? '✅' : ''}",
             placeholder: "Number",
             labelInRow: true,

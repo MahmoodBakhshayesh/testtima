@@ -326,7 +326,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
                   child: MyTextFieldNew(
                   rowLabelRatio: [4, 5],
                   style: TextStyle(fontSize: 12),
-                  inputFormatters: [MaskMiddleFormatter()],
+                  inputFormatters:d.isScanned? [MaskMiddleFormatter()]:[],
                   required: requiredFields.documentNumber, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true, headerBgColor: headerBg, bodyBgColor: bodyBg)),
               Expanded(
                 flex: 2,
