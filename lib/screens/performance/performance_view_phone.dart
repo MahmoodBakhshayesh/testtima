@@ -137,7 +137,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                 ),
               ],
             ),
-            overalls.isEmpty
+            overalls.isEmpty && reportDetails.isEmpty
                 ? Expanded(child: SizedBox())
                 : Expanded(
                     child: TabBarView(
@@ -594,8 +594,10 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                     onPressed: () async {
                       if (reportDetails.isEmpty) {
                         final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
+                        log("rdl ${rdl?.length}");
                         if (rdl != null) {
                           reportDetails = rdl;
+
                           setState(() {});
                           Future(() {
                             tabBarController.animateTo(2);
