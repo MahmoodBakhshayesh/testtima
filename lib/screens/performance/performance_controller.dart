@@ -73,9 +73,9 @@ class PerformanceController extends ControllerInterface {
     return overalls;
   }
 
-  goMessageDetails(String messageCode) async {
+  goMessageDetails(String refCode) async {
     try {
-      final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: messageCode, code: null);
+      final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: null, code: refCode);
       if (refHistory != null) {
         navigation.pop();
       }

@@ -800,7 +800,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                             }
                             loading = true;
                             setState(() {});
-                            await getIt<PerformanceController>().goMessageDetails(widget.log.showCode.toString());
+                            await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString());
                             loading = false;
                             setState(() {});
                           },
@@ -900,7 +900,7 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
               }
               loading = true;
               setState(() {});
-              await getIt<PerformanceController>().goMessageDetails(widget.log.showCode.toString());
+              await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString());
               loading = false;
               setState(() {});
             },
