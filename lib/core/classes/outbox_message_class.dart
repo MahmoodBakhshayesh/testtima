@@ -3,7 +3,10 @@
 //     final inboxMessage = inboxMessageFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:developer';
 
+import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 
 import '../utils_and_services/timatic/src/models/auth_response.dart';
@@ -32,6 +35,7 @@ class OutboxMessage {
   final int totalResult;
   final int timaticResult;
   final int? airlineApproval;
+  final int? agentDecision;
   final List<OutboxSupervisor> supervisor;
 
   OutboxMessage({
@@ -52,6 +56,7 @@ class OutboxMessage {
     required this.totalResult,
     required this.timaticResult,
     this.airlineApproval,
+    this.agentDecision,
     required this.supervisor,
   });
 
@@ -73,28 +78,29 @@ class OutboxMessage {
     int? totalResult,
     int? timaticResult,
     int? airlineApproval,
+    int? agentDecision,
     List<OutboxSupervisor>? supervisor,
-  }) =>
-      OutboxMessage(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        read: read ?? this.read,
-        createdAt: createdAt ?? this.createdAt,
-        user: user ?? this.user,
-        showCode: showCode ?? this.showCode,
-        status: status ?? this.status,
-        airline: airline ?? this.airline,
-        employeeId: employeeId ?? this.employeeId,
-        flightDt: flightDt ?? this.flightDt,
-        flightNumber: flightNumber ?? this.flightNumber,
-        from: from ?? this.from,
-        nationality: nationality ?? this.nationality,
-        to: to ?? this.to,
-        totalResult: totalResult ?? this.totalResult,
-        timaticResult: timaticResult ?? this.timaticResult,
-        airlineApproval: airlineApproval ?? this.airlineApproval,
-        supervisor: supervisor ?? this.supervisor,
-      );
+  }) => OutboxMessage(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    read: read ?? this.read,
+    createdAt: createdAt ?? this.createdAt,
+    user: user ?? this.user,
+    showCode: showCode ?? this.showCode,
+    status: status ?? this.status,
+    airline: airline ?? this.airline,
+    employeeId: employeeId ?? this.employeeId,
+    flightDt: flightDt ?? this.flightDt,
+    flightNumber: flightNumber ?? this.flightNumber,
+    from: from ?? this.from,
+    nationality: nationality ?? this.nationality,
+    to: to ?? this.to,
+    totalResult: totalResult ?? this.totalResult,
+    timaticResult: timaticResult ?? this.timaticResult,
+    airlineApproval: airlineApproval ?? this.airlineApproval,
+    agentDecision: agentDecision ?? this.agentDecision,
+    supervisor: supervisor ?? this.supervisor,
+  );
 
   factory OutboxMessage.fromJson(Map<String, dynamic> json) => OutboxMessage(
     id: json["_id"],
@@ -104,16 +110,17 @@ class OutboxMessage {
     user: json["user"],
     showCode: json["showCode"].toString(),
     status: json["status"],
-    airline: json["airline"]??'',
+    airline: json["airline"] ?? '',
     employeeId: json["employeeId"],
     flightDt: DateTime.parse(json["flightDT"]),
-    flightNumber: json["flightNumber"]??'',
+    flightNumber: json["flightNumber"] ?? '',
     from: json["from"],
-    nationality: json["nationality"]??'',
+    nationality: json["nationality"] ?? '',
     to: json["to"],
     totalResult: json["totalResult"],
     timaticResult: json["timaticResult"],
     airlineApproval: json["airlineApproval"],
+    agentDecision: json["agentDecision"],
     supervisor: List<OutboxSupervisor>.from(json["supervisor"].map((x) => OutboxSupervisor.fromJson(x))),
   );
 
@@ -135,47 +142,46 @@ class OutboxMessage {
     "totalResult": totalResult,
     "airlineApproval": airlineApproval,
     "timaticResult": timaticResult,
+    "agentDecision": agentDecision,
     "supervisor": List<dynamic>.from(supervisor.map((x) => x.toJson())),
   };
 
+  Widget get getFlowWidget {
+    log("${supervisor.lastOrNull?.action}");
+    return Row(
+    children: [
+      Row(spacing: 4, children: [BasicClass.getResultOfCode(timaticResult).getIconWidgetMini, Text(employeeId)]),
+      agentDecision == null
+          ? SizedBox()
+          : Row(spacing: 4, children: [Icon(ArtemisIcons.arrow_right_1, size: 15), BasicClass.getResultOfCode(agentDecision).getIconWidgetMini, Text("Agent")]),
+
+      supervisor.lastOrNull == null ? SizedBox() : Row(spacing: 4, children: [Icon(ArtemisIcons.arrow_right_1, size: 15), supervisor.lastOrNull!.getTimRes!.getIconWidgetMini, Text("Supervisor")]),
+      airlineApproval == null
+          ? SizedBox()
+          : Row(spacing: 4, children: [Icon(ArtemisIcons.arrow_right_1, size: 15), BasicClass.getResultOfCode(airlineApproval).getIconWidgetMini, Text("Airline")]),
+    ],
+  );
+  }
+
   bool validateSearch(String text) {
-    if(text.isEmpty) return true;
+    if (text.isEmpty) return true;
     return "$showCode ${employeeId}".toLowerCase().contains(text.toLowerCase());
-  }}
+  }
+}
 
 class OutboxSupervisor {
   final String id;
   final int action;
   final String name;
 
-  OutboxSupervisor({
-    required this.id,
-    required this.action,
-    required this.name,
-  });
+  OutboxSupervisor({required this.id, required this.action, required this.name});
 
-  OutboxSupervisor copyWith({
-    String? id,
-    int? action,
-    String? name,
-  }) =>
-      OutboxSupervisor(
-        id: id ?? this.id,
-        action: action ?? this.action,
-        name: name ?? this.name,
-      );
+  OutboxSupervisor copyWith({String? id, int? action, String? name}) => OutboxSupervisor(id: id ?? this.id, action: action ?? this.action, name: name ?? this.name);
 
-  factory OutboxSupervisor.fromJson(Map<String, dynamic> json) => OutboxSupervisor(
-    id: json["id"],
-    action: json["action"],
-    name: json["name"],
-  );
+  factory OutboxSupervisor.fromJson(Map<String, dynamic> json) => OutboxSupervisor(id: json["id"], action: json["action"], name: json["name"]);
 
-  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == action);
+  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a) => a.actionId == action);
+  TimaticResult? get getTimRes => BasicClass.getResultOfCode(action);
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "action": action,
-    "name": name,
-  };
+  Map<String, dynamic> toJson() => {"id": id, "action": action, "name": name};
 }

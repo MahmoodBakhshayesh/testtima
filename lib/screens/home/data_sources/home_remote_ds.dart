@@ -1,7 +1,9 @@
 import '../../../core/interface_implementations/network_manager_imp.dart';
 import '../../../core/interface_implementations/parser_imp.dart';
 import '../../../core/interfaces/response_int.dart';
+import '../../../initialize.dart';
 import '../interfaces/home_data_source_interface.dart';
+import '../usecases/agent_decision_usecase.dart';
 import '../usecases/ask_supervisor_usecase.dart';
 import '../usecases/flight_number_history_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
@@ -26,7 +28,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<GetRefCodeLogResponse> getRefCodeLog({required GetRefCodeLogRequest request}) async {
-    String api = '/logs/${request.code!=null?'refCode':'showCode'}/${request.code??request.showCode}';
+    String api = '$apiVersion/logs/${request.code!=null?'refCode':'showCode'}/${request.code??request.showCode}';
     ResponseInterface res = await networkManager.get(api);
     GetRefCodeLogResponse response = await Parser().parse(GetRefCodeLogResponse.fromResponse, res, executionReq: request);
     return response;
@@ -34,7 +36,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<GetSupervisorsResponse> getSupervisors({required GetSupervisorsRequest request}) async {
-    String api = '/userRole/supervisor';
+    String api = '$apiVersion/userRole/supervisor';
     ResponseInterface res = await networkManager.get(api);
     GetSupervisorsResponse response = await Parser().parse(GetSupervisorsResponse.fromResponse, res, executionReq: request);
     return response;
@@ -42,7 +44,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<GetNotifCountResponse> getNotifCount({required GetNotifCountRequest request}) async {
-    String api = '/inbox';
+    String api = '$apiVersion/inbox';
     ResponseInterface res = await networkManager.get(api);
     GetNotifCountResponse response = await Parser().parse(GetNotifCountResponse.fromResponse, res, executionReq: request);
     return response;
@@ -50,7 +52,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<SubmitTimaticRequestResponse> submitTimaticRequest({required SubmitTimaticRequestRequest request}) async {
-    String api = "/documentRequest";
+    String api = "$apiVersion/documentRequest";
     ResponseInterface res = await networkManager.post(request, api: api);
     SubmitTimaticRequestResponse response = await Parser().parse(SubmitTimaticRequestResponse.fromResponse, res, executionReq: request);
     return response;
@@ -63,7 +65,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
       if (request.name != null && request.name!.isNotEmpty) 'name': request.name,
     };
 
-    final api = Uri.parse("/parameters").replace(queryParameters: qp).toString();
+    final api = Uri.parse("$apiVersion/parameters").replace(queryParameters: qp).toString();
     // String api = "/parameters";
     ResponseInterface res = await networkManager.get(api);
     TimaticGetParametersResponse response = await Parser().parse(TimaticGetParametersResponse.fromResponse, res, executionReq: request);
@@ -83,7 +85,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<GetSupportedLanguageResponse> getSupportedLanguage({required GetSupportedLanguageRequest request}) async {
-    String api = "/logs/${request.logId}/supportLanguage";
+    String api = "$apiVersion/logs/${request.logId}/supportLanguage";
     ResponseInterface res = await networkManager.get(api);
     GetSupportedLanguageResponse response = await Parser().parse(GetSupportedLanguageResponse.fromResponse, res, executionReq: request);
     return response;
@@ -91,7 +93,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<TranslateTimaticResponseResponse> translateTimaticResponse({required TranslateTimaticResponseRequest request}) async {
-    final String api = "/logs/${request.logId}/translate/${request.language}/";
+    final String api = "$apiVersion/logs/${request.logId}/translate/${request.language}/";
     ResponseInterface res = await networkManager.get(api);
     TranslateTimaticResponseResponse response = await Parser().parse(TranslateTimaticResponseResponse.fromResponse, res, executionReq: request);
     return response;
@@ -99,7 +101,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<SetStatusResponseResponse> lockUnlockResponse({required SetStatusResponseRequest request}) async {
-    String api = "/logs/${request.logId}/status";
+    String api = "$apiVersion/logs/${request.logId}/status";
     ResponseInterface res = await networkManager.put(request, api: api);
     SetStatusResponseResponse response = await Parser().parse(SetStatusResponseResponse.fromResponse, res, executionReq: request);
     return response;
@@ -107,7 +109,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<AskSupervisorResponse> askSupervisor({required AskSupervisorRequest request}) async {
-    String api = "/logs/${request.logId}/askSupervisor";
+    String api = "$apiVersion/logs/${request.logId}/askSupervisor";
     ResponseInterface res = await networkManager.post(request, api: api);
     AskSupervisorResponse response = await Parser().parse(AskSupervisorResponse.fromResponse, res, executionReq: request);
     return response;
@@ -115,7 +117,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<SupervisorResponseResponse> supervisorResponse({required SupervisorResponseRequest request}) async {
-    String api = "/logs/${request.logId}/supervisorResponse";
+    String api = "$apiVersion/logs/${request.logId}/supervisorResponse";
     ResponseInterface res = await networkManager.post(request, api: api);
     SupervisorResponseResponse response = await Parser().parse(SupervisorResponseResponse.fromResponse, res, executionReq: request);
     return response;
@@ -123,7 +125,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request}) async {
-    String api = "/flightDetail/${request.flnb}";
+    String api = "$apiVersion/flightDetail/${request.flnb}";
     ResponseInterface res = await networkManager.get(api);
     FlightNumberHistoryResponse response = await Parser().parse(FlightNumberHistoryResponse.fromResponse, res, executionReq: request);
     return response;
@@ -131,7 +133,7 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<TranslateTextResponse> translateText({required TranslateTextRequest request}) async {
-    String api = "/translate/${request.lang}";
+    String api = "$apiVersion/translate/${request.lang}";
     ResponseInterface res = await networkManager.post(request, api: api);
     TranslateTextResponse response = await Parser().parse(TranslateTextResponse.fromResponse, res, executionReq: request);
     return response;
@@ -139,9 +141,17 @@ class HomeRemoteDataSource implements HomeDataSourceInterface {
 
   @override
   Future<ValidateEmployeeIdResponse> validateEmployeeId({required ValidateEmployeeIdRequest request}) async {
-    String api = "/employeeIdCheck/${request.id}";
+    String api = "$apiVersion/employeeIdCheck/${request.id}";
     ResponseInterface res = await networkManager.post(request,api: api);
     ValidateEmployeeIdResponse response = await Parser().parse(ValidateEmployeeIdResponse.fromResponse, res, executionReq: request);
     return response;
   }
+
+    @override
+      Future<AgentDecisionResponse> agentDecision({required AgentDecisionRequest request}) async {
+        ResponseInterface res = await networkManager.post(request);
+        AgentDecisionResponse response = await Parser().parse(AgentDecisionResponse.fromResponse, res,executionReq:request);
+        return response;
+      }
+
 }

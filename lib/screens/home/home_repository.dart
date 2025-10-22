@@ -8,6 +8,7 @@ import '../../initialize.dart';
 import 'interfaces/home_repository_interface.dart';
 import 'data_sources/home_local_ds.dart';
 import 'data_sources/home_remote_ds.dart';
+import 'usecases/agent_decision_usecase.dart';
 import 'usecases/ask_supervisor_usecase.dart';
 import 'usecases/flight_number_history_usecase.dart';
 import 'usecases/get_notif_count_usecase.dart';
@@ -239,4 +240,19 @@ class HomeRepository implements HomeRepositoryInterface {
       return Result.error(ServerFailure.fromAppException(e));
     }
   }
+
+    @override
+      Future<Result<AgentDecisionResponse>> agentDecision(AgentDecisionRequest request) async {
+        try {
+          AgentDecisionResponse agentDecisionResponse;
+          if (await networkInfo.isConnected) {
+            agentDecisionResponse = await homeRemoteDataSource.agentDecision(request: request);
+          } else {
+            agentDecisionResponse = await homeLocalDataSource.agentDecision(request: request);
+          }
+          return Result.ok(agentDecisionResponse);
+        } on AppException catch (e) {
+          return Result.error(ServerFailure.fromAppException(e));
+        }
+      }
 }

@@ -187,14 +187,28 @@ class LoginController extends ControllerInterface {
         // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
         log("we found default server ${server.toJson()}");
 
-        server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
+        server = server.copyWith(apiAddress: "${server!.apiAddress}");
         ref.read(selectedServerProvider.notifier).update((s) => server);
         initNetworkManager(server.apiAddress);
       });
     } else {
       Server s = Server.fromJson(jsonDecode(serverJson));
-      log("we found saved server ${s.toJson()}");
-      saveServer(s);
+
+      if(!s.apiAddress.contains("v1")){
+        log("we found saved server ${s.toJson()}");
+        saveServer(s);
+      }else{
+        serverSelect(showDialog: false).then((a) {
+          Server server = a.firstWhere((a) => a.serverDefault, orElse: () => a.first);
+          // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
+          log("we found default server ${server.toJson()}");
+
+          server = server.copyWith(apiAddress: "${server!.apiAddress}");
+          ref.read(selectedServerProvider.notifier).update((s) => server);
+          initNetworkManager(server.apiAddress);
+        });
+      }
+
     }
   }
 
@@ -221,7 +235,7 @@ class LoginController extends ControllerInterface {
   }
 
   serverSelectDialog(List<Server> servers) {
-    Server? current = servers.firstWhereOrNull((s) => (s.apiAddress + apiVersion).toLowerCase() == (ref.read(selectedServerProvider).apiAddress).toLowerCase());
+    Server? current = servers.firstWhereOrNull((s) => (s.apiAddress).toLowerCase() == (ref.read(selectedServerProvider).apiAddress).toLowerCase());
     log("ser ${(ref.read(selectedServerProvider).apiAddress).toLowerCase()}");
     log("current ${current?.toJson()}");
     navigation
@@ -425,7 +439,7 @@ class LoginController extends ControllerInterface {
       case Ok<GetPublishServerResponse>():
         final r = result.value;
         apiAddress = r.apiAddress;
-        String address = apiAddress + apiVersion;
+        String address = apiAddress ;
         log("setting address ${address}");
         Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false, color: null, name: null);
         initNetworkManager(pubServer.apiAddress);

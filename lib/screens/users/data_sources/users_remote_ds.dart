@@ -7,6 +7,7 @@ import '../../../core/data_base/local_data_base.dart';
 import '../../../core/interface_implementations/parser_imp.dart';
 import '../../../core/interface_implementations/response_imp.dart';
 import '../../../core/interfaces/response_int.dart';
+import '../../../initialize.dart';
 import '../interfaces/users_data_source_interface.dart';
 import '../usecases/edit_user_usecase.dart';
 import '../usecases/get_users_usecase.dart';
@@ -20,7 +21,7 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
 
   @override
   Future<GetUserListResponse> getUserList({required GetUserListRequest request}) async {
-    String api = '/user/myUsers';
+    String api = '$apiVersion/user/myUsers';
     try {
       ResponseInterface res = await networkManager.get(api);
       // List<dynamic> fixed = res.body;
@@ -73,14 +74,14 @@ class UsersRemoteDataSource implements UsersDataSourceInterface {
 
   @override
   Future<EditUserResponse> editUser({required EditUserRequest request}) async {
-    String api = '/user/myUsers/${request.people.uId}';
+    String api = '$apiVersion/user/myUsers/${request.people.uId}';
     ResponseInterface res = await networkManager.put(request, api: api);
     EditUserResponse response = await Parser().parse(EditUserResponse.fromResponse, res, executionReq: request);
     return response;
   }
   @override
   Future<UpdateUserResponse> updateUser({required UpdateUserRequest request}) async {
-    String api = '/user';
+    String api = '$apiVersion/user';
     ResponseInterface res = await networkManager.put(request, api: api);
     UpdateUserResponse response = await Parser().parse(UpdateUserResponse.fromResponse, res, executionReq: request);
     return response;

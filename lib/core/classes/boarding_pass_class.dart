@@ -190,14 +190,15 @@ class BoardingPass {
     final legRe = RegExp(
         r'([A-Z]{3})\s*'          // from
         r'([A-Z]{3})\s*'          // to
-        r'([A-Z0-9]{2,3})\s*'     // airline (e.g., LH, 6E)
+        r'([A-Z0-9]{2,3})\s*'     // airline
         r'([0-9]{3,4})\s*'        // flight
-        r'([0-9]{1,3})\s*'        // julian (e.g., 053)
+        r'([0-9]{1,3})\s*'        // julian
         r'([A-Z])\s*'             // class
-        r'([0-9]{2,3})'           // seat number (e.g., 42 or 042)
+        r'([0-9]{1,3})'           // CHANGED: seat number 1–3 digits (handles "1A")
         r'([A-Z]?)\s*'            // seat letter (optional)
-        r'([0-9]{3,5})'           // sequence (e.g., 0155)
+        r'([0-9]{1,5})'           // CHANGED: sequence 1–5 digits (handles "1")
     );
+
 
     final matches = legRe.allMatches(tail).toList();
 

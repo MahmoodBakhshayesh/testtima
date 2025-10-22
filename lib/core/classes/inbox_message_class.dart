@@ -8,6 +8,9 @@ import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:flutter/material.dart';
+
+import '../utils_and_services/artemis_icons_icons.dart';
 
 InboxMessage inboxMessageFromJson(String str) => InboxMessage.fromJson(json.decode(str));
 
@@ -31,6 +34,7 @@ class InboxMessage {
   final int totalResult;
   final int timaticResult;
   final int? airlineApproval;
+  final int? agentDecision;
   final List<InboxSupervisor> supervisor;
 
   InboxMessage({
@@ -51,6 +55,7 @@ class InboxMessage {
     required this.totalResult,
     required this.timaticResult,
     this.airlineApproval,
+    this.agentDecision,
     required this.supervisor,
   });
 
@@ -72,28 +77,29 @@ class InboxMessage {
     int? totalResult,
     int? timaticResult,
     int? airlineApproval,
+    int? agentDecision,
     List<InboxSupervisor>? supervisor,
-  }) =>
-      InboxMessage(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        read: read ?? this.read,
-        createdAt: createdAt ?? this.createdAt,
-        user: user ?? this.user,
-        showCode: showCode ?? this.showCode,
-        status: status ?? this.status,
-        airline: airline ?? this.airline,
-        employeeId: employeeId ?? this.employeeId,
-        flightDt: flightDt ?? this.flightDt,
-        flightNumber: flightNumber ?? this.flightNumber,
-        from: from ?? this.from,
-        nationality: nationality ?? this.nationality,
-        to: to ?? this.to,
-        totalResult: totalResult ?? this.totalResult,
-        timaticResult: timaticResult ?? this.timaticResult,
-        airlineApproval: airlineApproval ?? this.airlineApproval,
-        supervisor: supervisor ?? this.supervisor,
-      );
+  }) => InboxMessage(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    read: read ?? this.read,
+    createdAt: createdAt ?? this.createdAt,
+    user: user ?? this.user,
+    showCode: showCode ?? this.showCode,
+    status: status ?? this.status,
+    airline: airline ?? this.airline,
+    employeeId: employeeId ?? this.employeeId,
+    flightDt: flightDt ?? this.flightDt,
+    flightNumber: flightNumber ?? this.flightNumber,
+    from: from ?? this.from,
+    nationality: nationality ?? this.nationality,
+    to: to ?? this.to,
+    totalResult: totalResult ?? this.totalResult,
+    timaticResult: timaticResult ?? this.timaticResult,
+    airlineApproval: airlineApproval ?? this.airlineApproval,
+    agentDecision: agentDecision ?? this.agentDecision,
+    supervisor: supervisor ?? this.supervisor,
+  );
 
   factory InboxMessage.fromJson(Map<String, dynamic> json) => InboxMessage(
     id: json["_id"],
@@ -103,17 +109,18 @@ class InboxMessage {
     user: json["user"],
     showCode: json["showCode"].toString(),
     status: json["status"],
-    airline: json["airline"]??'',
+    airline: json["airline"] ?? '',
     employeeId: json["employeeId"],
     flightDt: DateTime.parse(json["flightDT"]),
-    flightNumber: json["flightNumber"]??'',
+    flightNumber: json["flightNumber"] ?? '',
     from: json["from"],
-    nationality: json["nationality"]??'',
+    nationality: json["nationality"] ?? '',
 
     to: json["to"],
-    totalResult: json["totalResult"]??1,
-    timaticResult: json["timaticResult"]??json["totalResult"]??1,
+    totalResult: json["totalResult"] ?? 1,
+    timaticResult: json["timaticResult"] ?? json["totalResult"] ?? 1,
     airlineApproval: json["airlineApproval"],
+    agentDecision: json["agentDecision"],
     supervisor: List<InboxSupervisor>.from(json["supervisor"].map((x) => InboxSupervisor.fromJson(x))),
   );
 
@@ -134,12 +141,29 @@ class InboxMessage {
     "to": to,
     "totalResult": totalResult,
     "airlineApproval": airlineApproval,
+    "agentDecision": agentDecision,
     "timaticResult": timaticResult,
     "supervisor": List<dynamic>.from(supervisor.map((x) => x.toJson())),
   };
 
+  Widget get getFlowWidget {
+    return Row(
+      children: [
+        Row(spacing: 4, children: [BasicClass.getResultOfCode(timaticResult).getIconWidgetMini, Text(employeeId)]),
+        agentDecision == null
+            ? SizedBox()
+            : Row(spacing: 4, children: [Icon(ArtemisIcons.arrow_right_1, size: 15), BasicClass.getResultOfCode(agentDecision).getIconWidgetMini, Text("Agent")]),
+
+        supervisor.lastOrNull == null ? SizedBox() : Row(spacing: 4, children: [Icon(ArtemisIcons.arrow_right_1, size: 15), supervisor.lastOrNull!.getTimRes!.getIconWidgetMini, Text("Supervisor")]),
+        airlineApproval == null
+            ? SizedBox()
+            : Row(spacing: 4, children: [Icon(ArtemisIcons.arrow_right_1, size: 15), BasicClass.getResultOfCode(airlineApproval).getIconWidgetMini, Text("Airline")]),
+      ],
+    );
+  }
+
   bool validateSearch(String text) {
-    if(text.isEmpty) return true;
+    if (text.isEmpty) return true;
     return "$showCode ${employeeId}".toLowerCase().contains(text.toLowerCase());
   }
 }
@@ -149,35 +173,16 @@ class InboxSupervisor {
   final int action;
   final String name;
 
-  InboxSupervisor({
-    required this.id,
-    required this.action,
-    required this.name,
-  });
+  InboxSupervisor({required this.id, required this.action, required this.name});
 
-  InboxSupervisor copyWith({
-    String? id,
-    int? action,
-    String? name,
-  }) =>
-      InboxSupervisor(
-        id: id ?? this.id,
-        action: action ?? this.action,
-        name: name ?? this.name,
-      );
+  InboxSupervisor copyWith({String? id, int? action, String? name}) => InboxSupervisor(id: id ?? this.id, action: action ?? this.action, name: name ?? this.name);
 
-  factory InboxSupervisor.fromJson(Map<String, dynamic> json) => InboxSupervisor(
-    id: json["id"],
-    action: json["action"],
-    name: json["name"],
-  );
+  factory InboxSupervisor.fromJson(Map<String, dynamic> json) => InboxSupervisor(id: json["id"], action: json["action"], name: json["name"]);
 
   // TimaticResult get getRes => BasicClass.getResultOfCode(action);
-  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a)=>a.actionId == action);
+  SupervisorResponse? get getRes => BasicClass.user?.setting?.supervisorResponse?.firstWhereOrNull((a) => a.actionId == action);
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "action": action,
-    "name": name,
-  };
+  TimaticResult? get getTimRes => BasicClass.getResultOfCode(action);
+
+  Map<String, dynamic> toJson() => {"id": id, "action": action, "name": name};
 }

@@ -22,6 +22,6 @@ final passwordProvider = StateProvider<String>((ref) => '');
 final profileProvider = StateProvider<Profile?>((ref) => null);
 final updatingAvatarProvider = StateProvider<bool>((ref) => false);
 
-final selectedServerProvider = StateProvider<Server>((ref) => Server.fromJson({"_id": "689cc9c518d9059a41d665a3", "title": "Main Server", "apiAddress": "https://timatic.multidcs.com/api$apiVersion", "active": true, "default": false}));
+final selectedServerProvider = StateProvider<Server>((ref) => Server.fromJson({"_id": "689cc9c518d9059a41d665a3", "title": "Main Server", "apiAddress": "https://timatic.multidcs.com/api", "active": true, "default": false}));
 final serverListProvider = StateProvider<List<Server>>((ref)=>[]);
 final supervisorsProvider = StateProvider<List<Supervisor>>((ref)=>[]);

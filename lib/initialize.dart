@@ -49,6 +49,7 @@ import 'screens/performance/performance_controller.dart';
 
 final getIt = GetIt.instance;
 final String apiVersion = "/v1";
+final String apiVersion2 = "/v2";
 final _noScreenshot = NoScreenshot.instance;
 
 Future<void> init() async {

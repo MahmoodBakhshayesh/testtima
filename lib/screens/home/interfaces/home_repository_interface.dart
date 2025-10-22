@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../core/interfaces/result_int.dart';
+import '../usecases/agent_decision_usecase.dart';
 import '../usecases/ask_supervisor_usecase.dart';
 import '../usecases/flight_number_history_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
@@ -30,4 +31,5 @@ abstract class HomeRepositoryInterface {
   Future<Result<FlightNumberHistoryResponse>> flightNumberHistory(FlightNumberHistoryRequest request);
   Future<Result<TranslateTextResponse>> translateText(TranslateTextRequest request);
   Future<Result<ValidateEmployeeIdResponse>> validateEmployeeId(ValidateEmployeeIdRequest request);
+  Future<Result<AgentDecisionResponse>> agentDecision(AgentDecisionRequest request);
 }

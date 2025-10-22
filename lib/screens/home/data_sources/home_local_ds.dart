@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:abds/screens/home/usecases/agent_decision_usecase.dart';
 import 'package:abds/screens/home/usecases/ask_supervisor_usecase.dart';
 import 'package:abds/screens/home/usecases/flight_number_history_usecase.dart';
 import 'package:abds/screens/home/usecases/get_notif_count_usecase.dart';
@@ -111,6 +112,12 @@ class HomeLocalDataSource implements HomeDataSourceInterface {
   @override
   Future<ValidateEmployeeIdResponse> validateEmployeeId({required ValidateEmployeeIdRequest request}) {
     // TODO: implement validateEmployeeId
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<AgentDecisionResponse> agentDecision({required AgentDecisionRequest request}) {
+    // TODO: implement agentDecision
     throw UnimplementedError();
   }
 

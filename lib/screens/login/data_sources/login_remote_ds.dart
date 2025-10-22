@@ -26,7 +26,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<LoginResponse> login({required LoginRequest request}) async {
-    String api = "/user/login";
+    String api = "$apiVersion/user/login";
     ResponseImplementation res = await networkManager.post(request, api: api);
     LoginResponse loginResponse = await parser.parse(LoginResponse.fromResponse, res, executionReq: request);
     return loginResponse;
@@ -34,7 +34,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<ServerSelectResponse> serverSelect({required ServerSelectRequest request}) async {
-    String api = "/server";
+    String api = "$apiVersion/server";
     ResponseImplementation res = await networkManager.get(api);
     ServerSelectResponse serverSelectResponse = await parser.parse(ServerSelectResponse.fromResponse, res, executionReq: request);
     return serverSelectResponse;
@@ -42,7 +42,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<SetFirstPasswordResponse> setFirstPassword({required SetFirstPasswordRequest request}) async {
-    String api = "/user";
+    String api = "$apiVersion/user";
     ResponseInterface res = await networkManager.put(request, api: api);
     SetFirstPasswordResponse response = await Parser().parse(SetFirstPasswordResponse.fromResponse, res, executionReq: request);
     return response;
@@ -50,7 +50,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<SendForgetPasswordCodeResponse> sendForgetPasswordCode({required SendForgetPasswordCodeRequest request}) async {
-    String api = "/user/forget";
+    String api = "$apiVersion/user/forget";
     ResponseInterface res = await networkManager.post(request, api: api);
     SendForgetPasswordCodeResponse response = await Parser().parse(SendForgetPasswordCodeResponse.fromResponse, res, executionReq: request);
     return response;
@@ -58,7 +58,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<ResetPasswordResponse> resetPassword({required ResetPasswordRequest request}) async {
-    String api = "/user/forget";
+    String api = "$apiVersion/user/forget";
     ResponseInterface res = await networkManager.put(request, api: api);
     ResetPasswordResponse response = await Parser().parse(ResetPasswordResponse.fromResponse, res, executionReq: request);
     return response;
@@ -66,7 +66,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<GetConsDataResponse> getConsData({required GetConsDataRequest request}) async {
-    String api = "/constant${request.constVersion.isEmpty?'':"/${request.constVersion}"}";
+    String api = "$apiVersion/constant${request.constVersion.isEmpty?'':"/${request.constVersion}"}";
     ResponseInterface res = await networkManager.get(api);
     GetConsDataResponse response = await Parser().parse(GetConsDataResponse.fromResponse, res, executionReq: request);
     return response;
@@ -74,7 +74,7 @@ class LoginRemoteDataSource implements LoginDataSourceInterface {
 
   @override
   Future<GetPublishServerResponse> getPublishServer({required GetPublishServerRequest request}) async {
-    String api = "/server/publish";
+    String api = "$apiVersion/server/publish";
     ResponseInterface res = await networkManager.get(api);
     GetPublishServerResponse response = await Parser().parse(GetPublishServerResponse.fromResponse, res, executionReq: request);
     return response;

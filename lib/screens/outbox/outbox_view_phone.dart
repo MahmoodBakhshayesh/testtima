@@ -224,6 +224,8 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                     ],
                   ),
                   const SizedBox(height: 4),
+                  widget.message.getFlowWidget,
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       Expanded(

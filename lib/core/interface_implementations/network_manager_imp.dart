@@ -87,6 +87,9 @@ class NetworkManagerImp implements NetworkManagerInterface {
         ? url
         : option.baseUrl! + url;
 
+    if(apiAddress.contains("/v1/v1/")){
+      apiAddress= apiAddress.replaceFirst("/v1/v1/", "/v1/");
+    }
     NetworkRequest networkRequest = NetworkRequest(api: apiAddress, data: '');
     String? token = getIt<WidgetRef>().read(userProvider)?.token;
     log(getIt<WidgetRef>().read(userProvider)?.token.toString() ?? '');

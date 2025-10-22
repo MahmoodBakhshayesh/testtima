@@ -352,7 +352,7 @@ class HomeController extends ControllerInterface {
       "images": imageFiles, // multiple images
       "data": jsonEncode({"logNoteType": noteType, "description": desc}),
     });
-    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId";
+    String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId";
 
     try {
       final response = await dio.post(
@@ -397,7 +397,7 @@ class HomeController extends ControllerInterface {
       "attachFiles": attachings, // multiple images
       "data": jsonEncode(data),
     });
-    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId/attach";
+    String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId/attach";
     try {
       final response = await dio.post(
         api,
@@ -423,6 +423,52 @@ class HomeController extends ControllerInterface {
     }
   }
 
+  Future<bool> agentDecision({required String logId, List<String> images = const [], List<String> voices = const [], Map<String, dynamic>? data}) async {
+    bool result = false;
+    final dio = Dio();
+
+    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    final attachings = [...imageFiles, ...voiceFiles];
+    log("\n${[...images, ...voices].join("\n")}\n to $logId");
+    final formData = FormData.fromMap({
+      "attachFiles": attachings, // multiple images
+      "data": jsonEncode(data),
+    });
+    String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId/agentDecision";
+    try {
+      final response = await dio.post(
+        api,
+        data: formData,
+        options: Options(headers: {"Content-Type": "multipart/form-data", "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
+      );
+      if (response.statusCode == 200) {
+        if(response.data["success"] == true){
+          result = true;
+          ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
+        }else{
+          FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.data["message"] ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
+          return false;
+        }
+
+      } else {
+        FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
+        return false;
+      }
+      log("Response: ${response.data}");
+      final logs = List<RefHistoryLog>.from((response.data["response"]["logs"].map((a) => RefHistoryLog.fromJson(a))));
+      ref.read(showingLogsProvider.notifier).update((s) => [...logs, ...s]);
+      final currentStatus = CurrentStatus.fromJson(response.data["response"]["result"]);
+      ref.read(currentStatusProvider.notifier).update((s) => currentStatus);
+      return result;
+    } catch (e) {
+      log("Error: $e");
+      FailureHandler.handle(ServerFailure(code: -1, msg: "$e", traceMsg: "$e"));
+      return false;
+    }
+  }
+
+
   Future<bool> airlineApproval({required String logId, required String sign, Map<String, dynamic>? data}) async {
     bool result = false;
     final dio = Dio();
@@ -436,7 +482,7 @@ class HomeController extends ControllerInterface {
       "sign": signFile, // multiple images
       "data": jsonEncode(data),
     });
-    String api = "${ref.read(selectedServerProvider).apiAddress}/logs/$logId/airlineApproval";
+    String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId/airlineApproval";
     try {
       final response = await dio.post(
         api,
@@ -729,7 +775,7 @@ class HomeController extends ControllerInterface {
         ),
       );
       if (code is DocumentCode) {
-        log("code ${code}");
+        log("code ${code.code}");
         String shortType = added.shortType??BasicClass.constData.data.documentDetailType.firstWhere((a)=>a.code == code.code).type;
         ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true,shortType: shortType));
         log(ref.read(confirmingDocumentProvider)!.documentCode.toString());

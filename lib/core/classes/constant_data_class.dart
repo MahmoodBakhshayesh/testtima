@@ -693,7 +693,7 @@ class TimaticResult {
     "color": color,
   };
 
-  Color get getColor => HexColor(color!);
+  Color get getColor =>color=="FFFFFF"?Colors.black: HexColor(color!);
 
   EvalResult get getEvalRes {
     log("or else not ${resultId}");
@@ -831,9 +831,21 @@ class TimaticResult {
     }else if(resultId ==2){
       return IcomoonLayeredCss.close_square(colors: [getColor.withOpacity(0.3), getColor], size: 15);
     }else if(resultId ==3){
-
       return IcomoonLayeredCss.danger(colors: [getColor.withOpacity(0.3), getColor], size: 15);
     }
+    return IcomoonLayeredCss.timer(colors: [Colors.black.withOpacity(0.3), Colors.black], size: 15);
+    return getEvalRes.getIconWidgetMini;
+  }
+
+  Widget get getIconWidgetMiniWhite {
+    if(resultId ==1){
+      return IcomoonLayeredCss.tick_square(colors: [Colors.white.withOpacity(0.3), Colors.white], size: 15);
+    }else if(resultId ==2){
+      return IcomoonLayeredCss.close_square(colors: [Colors.white.withOpacity(0.3), Colors.white], size: 15);
+    }else if(resultId ==3){
+      return IcomoonLayeredCss.danger(colors: [Colors.white.withOpacity(0.3), Colors.white], size: 15);
+    }
+    return IcomoonLayeredCss.timer(colors: [Colors.white.withOpacity(0.3), Colors.white], size: 15);
     return getEvalRes.getIconWidgetMini;
   }
 }

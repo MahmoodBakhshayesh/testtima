@@ -11,6 +11,7 @@ import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.da
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/initialize.dart';
+import 'package:abds/screens/home/dialogs/agent_decision_sheet.dart';
 import 'package:abds/screens/home/dialogs/ask_supervisor_dialog.dart';
 import 'package:abds/screens/home/dialogs/attach_evisa_sheet.dart';
 import 'package:abds/screens/home/dialogs/attach_photo_sheet.dart';
@@ -116,6 +117,27 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                           child: Column(
                             spacing: 8,
                             children: [
+                              DrawerAction(
+                                tileColor: MyColors.mainBlue,
+                                title: "Agent Decision",
+                                onTap: () async {
+                                  String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                                  if (logId != null) {
+                                    Navigator.pop(context);
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: false,
+                                      builder: (BuildContext context) {
+                                        return AgentDecisionSheet(logId: logId);
+                                      },
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+                                    );
+                                  }
+                                },
+                                leadingIcon: ArtemisIcons.message_question,
+                              ),
                               ?ref.watch(currentStatusProvider).canAskSupervisor?
                               DrawerAction(
                                 tileColor: MyColors.mainBlue,

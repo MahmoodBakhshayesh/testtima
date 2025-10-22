@@ -46,9 +46,10 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
       children: [
         ...widget.res.segments.map((segRes) {
           int index = widget.res.segments.indexOf(segRes);
+          log("seg res open ${segRes.open}");
           return MyExpansionTile(
             controller: expansibleController,
-            initiallyExpanded: segRes.result!.first.ruleSetEvaluations!.any((a) => a.getRes.resultId!=1),
+            initiallyExpanded: segRes.open,
             tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
             collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
@@ -158,7 +159,7 @@ class RuleSetWidgetNew extends StatelessWidget {
       child: MyExpansionTile(
         // initiallyExpanded: (ruleSet.getRes.resultId??1)>1,
         showFooter: false,
-        initiallyExpanded: ruleSet.getRes.resultId !=1,
+        initiallyExpanded: ruleSet.open,
         enabled: ruleSet.getRes.resultId ==1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -240,11 +241,11 @@ class RuleSetWidgetNew extends StatelessWidget {
                     child: Row(
                       children: [
                         ruleSet.getRes.getIconWidget,
-                        const SizedBox(width: 4),
-                        Text(
-                          ruleSet.getRes.title,
-                          style: TextStyle(color: ruleSet.getColor, fontSize: 12, fontWeight: FontWeight.bold),
-                        ),
+                        // const SizedBox(width: 4),
+                        // Text(
+                        //   ruleSet.getRes.title,
+                        //   style: TextStyle(color: ruleSet.getColor, fontSize: 12, fontWeight: FontWeight.bold),
+                        // ),
                       ],
                     ),
                   ),
@@ -277,7 +278,7 @@ class RegulationWidgetNew extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8.0,right: 8,bottom: 8),
       child: MyExpansionTile(
         showFooter: false,
-        initiallyExpanded: regulation.getRes.resultId!=1,
+        initiallyExpanded: regulation.open,
         collapsedShape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(12),
           side: BorderSide(color: Colors.white, width: 2),

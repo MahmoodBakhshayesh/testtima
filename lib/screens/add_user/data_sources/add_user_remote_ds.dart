@@ -1,3 +1,4 @@
+import 'package:abds/initialize.dart';
 import 'package:abds/screens/add_user/usecases/add_user_usecase.dart';
 
 import '../../../core/interface_implementations/network_manager_imp.dart';
@@ -14,7 +15,7 @@ class AddUserRemoteDataSource implements AddUserDataSourceInterface {
 
   @override
   Future<AddUserResponse> addUser({required AddUserRequest request}) async {
-    String api = '/user';
+    String api = '$apiVersion/user';
     ResponseInterface res = await networkManager.post(request,api: api);
     AddUserResponse response = await Parser().parse(AddUserResponse.fromResponse, res, executionReq: request);
     return response;

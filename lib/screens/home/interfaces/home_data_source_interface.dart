@@ -1,3 +1,4 @@
+import '../usecases/agent_decision_usecase.dart';
 import '../usecases/ask_supervisor_usecase.dart';
 import '../usecases/flight_number_history_usecase.dart';
 import '../usecases/get_notif_count_usecase.dart';
@@ -28,4 +29,5 @@ abstract class HomeDataSourceInterface {
   Future<FlightNumberHistoryResponse> flightNumberHistory({required FlightNumberHistoryRequest request});
   Future<TranslateTextResponse> translateText({required TranslateTextRequest request});
   Future<ValidateEmployeeIdResponse> validateEmployeeId({required ValidateEmployeeIdRequest request});
+  Future<AgentDecisionResponse> agentDecision({required AgentDecisionRequest request});
 }

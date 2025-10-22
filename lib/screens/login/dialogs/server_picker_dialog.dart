@@ -91,7 +91,7 @@ class _ServerPickerDialogState extends State<ServerPickerDialog> {
                   MyButton(
                     label: "Apply",
                     onPressed: () {
-                      tmpServer = tmpServer?.copyWith(apiAddress: "${tmpServer!.apiAddress}$apiVersion");
+                      tmpServer = tmpServer?.copyWith(apiAddress: "${tmpServer!.apiAddress}");
                       getIt<LoginController>().navigation.popAllBottomSheets(result: tmpServer);
                     },
                   ),
