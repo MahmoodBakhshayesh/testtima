@@ -281,9 +281,9 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(width: 2),
-                      Text(baseTimaticResult.title, style: TextStyle(color: baseTimaticResult.getColor, fontSize: 10)),
-                      const SizedBox(width: 2),
-                      baseTimaticResult.getIconWidgetMini,
+                      // Text(baseTimaticResult.title, style: TextStyle(color: baseTimaticResult.getColor, fontSize: 10)),
+                      // const SizedBox(width: 2),
+                      // baseTimaticResult.getIconWidgetMini,
                       Spacer(),
                       Text(
                         DateFormat("dd MMM, hh:mm").format(widget.message.createdAt!.toLocal()),

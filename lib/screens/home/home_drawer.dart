@@ -140,6 +140,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           title: 'Performance',
                           // permission: LogUiPermission.read(),
                           onTap: () {
+                            Navigator.of(context).pop();
                             myHomeController.goNamed(Routes.performance);
                           },
                           leading:  IcomoonLayeredCss.chart_2(),
