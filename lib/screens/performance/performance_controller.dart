@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:abds/core/classes/log_report_detail_class.dart';
 import 'package:abds/core/classes/overall_performance_class.dart';
+import 'package:abds/core/classes/overall_report_tabel_class.dart';
 import 'package:abds/screens/performance/usecases/get_report_usecase.dart';
 import 'package:logging/logging.dart';
 import '../../core/classes/performance_log_class.dart';
@@ -55,8 +56,8 @@ class PerformanceController extends ControllerInterface {
     return details;
   }
 
-  Future<List<OverallPerformance>?> getOverallPerformances({DateTime? fromDate, DateTime? toDate, String? from, String? to}) async {
-    List<OverallPerformance>? overalls;
+  Future<OverallReportTable?> getOverallPerformances({DateTime? fromDate, DateTime? toDate, String? from, String? to}) async {
+    OverallReportTable? table;
     GetOverallPerformancesUseCase getPerformanceLogUseCase = GetOverallPerformancesUseCase();
     GetOverallPerformancesRequest getReportRequest = GetOverallPerformancesRequest(from: from, to: to, fromDate: fromDate, toDate: toDate);
     final result = await getPerformanceLogUseCase(request: getReportRequest);
@@ -67,10 +68,11 @@ class PerformanceController extends ControllerInterface {
 
       case Ok<GetOverallPerformancesResponse>():
         final r = result.value;
-        overalls = r.overallPerformances;
+        table = r.reportTable;
+        // table = r.reportTable.copyWith(data: [...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data]);
     }
 
-    return overalls;
+    return table;
   }
 
   goMessageDetails(String refCode) async {

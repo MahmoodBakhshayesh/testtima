@@ -4,8 +4,11 @@ import 'dart:developer';
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/classes/log_report_detail_class.dart';
 import 'package:abds/core/classes/overall_performance_class.dart';
+import 'package:abds/core/classes/overall_report_tabel_class.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:abds/screens/performance/widgets/overall_report_table.dart';
+import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
@@ -15,6 +18,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/performance_log_class.dart';
@@ -39,8 +43,9 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
   DateTime? fromDate;
   DateTime? toDate;
 
-  // PerformanceLog? log;
-  List<OverallPerformance> overalls = [];
+  OverallReportTable? table;
+
+  // List<OverallPerformance> overalls = [];
   List<LogReportDetail> reportDetails = [];
   String? loadingKey;
   late TabController tabBarController;
@@ -62,36 +67,63 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
     final headerBg = MyColors.green2.withOpacity(0.26);
     final bodyBg = MyColors.green2.withOpacity(0.12);
 
-    List<OverallPerformance> timOk = overalls.where((a) => a.timaticResult == 1).toList();
-    List<OverallPerformance> timNotOk = overalls.where((a) => a.timaticResult == 2).toList();
-    List<OverallPerformance> timCon = overalls.where((a) => a.timaticResult == 3).toList();
+    // List<OverallPerformance> timOk = overalls.where((a) => a.timaticResult == 1).toList();
+    // List<OverallPerformance> timNotOk = overalls.where((a) => a.timaticResult == 2).toList();
+    // List<OverallPerformance> timCon = overalls.where((a) => a.timaticResult == 3).toList();
     return Scaffold(
-      appBar: PerformanceAppBar(),
+      appBar: PerformanceAppBar(
+        title: ["Overall", "Summary", "Details"][tabBarController.index],
+
+        onBack: () {
+          if (tabBarController.index != 0) {
+            tabBarController.animateTo(0);
+          } else {
+            Navigator.pop(context);
+          }
+        },
+      ),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
         child: Column(
           spacing: 16,
           children: [
-            // Row(
-            //   children: [
-            //     Expanded(
-            //       flex: 3,
-            //       child: MyDatePicker(onChanged: (a) {
-            //         fromDate = a;
-            //         setState((){});
-            //       }, label: "Date Range", rowLabelRatio: [2, 4], placeholder: "From", backgroundColor: textFieldBG,value: fromDate,),
-            //     ),
-            //     Expanded(
-            //       flex: 2,
-            //       child: MyDatePicker(onChanged: (a) {
-            //         toDate = a;
-            //         setState((){});
-            //
-            //       }, label: "", rowLabelRatio: [1, 100], placeholder: "Until", backgroundColor: textFieldBG,value: toDate,),
-            //     ),
-            //   ],
-            // ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: MyDatePicker(
+                    backgroundColor: textFieldBG,
+                    headerBgColor: headerBg,
+                    onChanged: (a) {
+                      fromDate = a;
+                      setState(() {});
+                    },
+                    label: "Date Range",
+                    rowLabelRatio: [2, 4],
+                    placeholder: "From",
+                    // backgroundColor: textFieldBG,
+                    value: fromDate,
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: MyDatePicker(
+                    backgroundColor: textFieldBG,
+                    headerBgColor: headerBg,
+                    onChanged: (a) {
+                      toDate = a;
+                      setState(() {});
+                    },
+                    label: "",
+                    rowLabelRatio: [1, 100],
+                    placeholder: "Until",
+                    // backgroundColor: textFieldBG,
+                    value: toDate,
+                  ),
+                ),
+              ],
+            ),
             Row(
               children: [
                 Expanded(
@@ -137,303 +169,14 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                 ),
               ],
             ),
-            overalls.isEmpty && reportDetails.isEmpty
+            table == null && reportDetails.isEmpty
                 ? Expanded(child: SizedBox())
                 : Expanded(
                     child: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       controller: tabBarController,
                       children: [
-                        Column(
-                          spacing: 12,
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  // spacing: 12,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () async {
-                                        if(loadingKey !=null){
-                                          return;
-                                        }
-                                        loadingKey ="";
-                                        setState((){});
-                                        final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
-                                        loadingKey =null;
-                                        setState((){});
-                                        if (rdl != null) {
-                                          reportDetails = rdl;
-
-                                          setState(() {});
-                                          Future(() {
-                                            tabBarController.animateTo(1);
-                                          });
-                                        }
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    "TOTAL CHECKS",
-                                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
-                                                  ),
-                                                ),
-
-                                                Icon(ArtemisIcons.user_octagon, size: 20),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                              child: Row(
-                                                children: [
-                                                  Expanded(child: Text("${overalls.map((a) => a.count).sum}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700))),
-                                                  loadingKey == ""?SpinKitThreeBounce(color: context.mainColor,size: 15):SizedBox(),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Column(
-                                      spacing: 12,
-                                      children: [1, 2, 3].map((i) {
-                                        TimaticResult r = BasicClass.getResultOfCode(i);
-                                        return Container(
-                                          decoration: BoxDecoration(color: r.getColor.withOpacity(0.2), borderRadius: BorderRadius.circular(15)),
-                                          padding: EdgeInsets.all(12),
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      BasicClass.getResultOfCode(i).title,
-                                                      style: TextStyle(color: r.getColor, fontWeight: FontWeight.bold, fontSize: 16),
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    overalls.where((a) => a.timaticResult == i).map((a) => a.count).sum.toString(),
-                                                    style: TextStyle(color: r.getColor, fontWeight: FontWeight.bold, fontSize: 16),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                spacing: 12,
-                                                children: [1, 2, 6].map((id) {
-                                                  final res = BasicClass.getResultOfCode(id);
-                                                  return Expanded(
-                                                    child: GestureDetector(
-                                                      onTap: () async {
-                                                        if(loadingKey != null){
-                                                          return;
-                                                        }
-                                                        loadingKey = "${i}-${id}";
-                                                        reportDetails.clear();
-                                                        setState(() {});
-                                                        final rdl = await getIt<PerformanceController>().getPerformanceLog(timaticResult: i, totalResult: id, fromDate: fromDate, toDate: toDate, from: from, to: to);
-                                                        loadingKey = null;
-                                                        setState((){});
-                                                        if (rdl != null) {
-                                                          reportDetails = rdl;
-
-                                                          setState(() {});
-                                                          Future(() {
-                                                            tabBarController.animateTo(1);
-                                                          });
-                                                        }
-                                                      },
-                                                      child: Container(
-                                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: res.getColor),
-                                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Expanded(
-                                                                  child: Text(
-                                                                    res.title,
-                                                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
-                                                                    overflow: TextOverflow.ellipsis,
-                                                                  ),
-                                                                ),
-                                                                res.getIconWidgetMiniWhite,
-                                                              ],
-                                                            ),
-                                                            Padding(
-                                                              padding: const EdgeInsets.symmetric(vertical: 0.0),
-                                                              child: Row(
-                                                                children: [
-                                                                  Expanded(
-                                                                    child: Text(
-                                                                      "${overalls.where((a) => a.timaticResult == i && a.totalResult == id).map((a) => a.count).sum}",
-                                                                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white),
-                                                                    ),
-                                                                  ),
-                                                                  loadingKey == "${i}-${id}"?SpinKitThreeBounce(color: Colors.white,size: 15):SizedBox(),
-                                                                  const SizedBox(width: 8),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                    //
-                                    // const SizedBox(height: 12),
-                                    // Row(
-                                    //   children: [
-                                    //     Expanded(
-                                    //       child: Container(
-                                    //         decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                                    //         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    //         child: Column(
-                                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                                    //           children: [
-                                    //             Row(
-                                    //               children: [
-                                    //                 Expanded(
-                                    //                   child: Text(
-                                    //                     "CONDITIONAL",
-                                    //                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
-                                    //                   ),
-                                    //                 ),
-                                    //                 Icon(ArtemisIcons.danger, color: orangeParts, size: 20),
-                                    //               ],
-                                    //             ),
-                                    //             Padding(
-                                    //               padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    //               child: Text(
-                                    //                 "{log!.conditional}",
-                                    //                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: orangeParts),
-                                    //               ),
-                                    //             ),
-                                    //           ],
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //     const SizedBox(width: 12),
-                                    //     Expanded(
-                                    //       child: Container(
-                                    //         decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: textFieldBG),
-                                    //         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    //         child: Column(
-                                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                                    //           children: [
-                                    //             Row(
-                                    //               children: [
-                                    //                 Expanded(
-                                    //                   child: Text(
-                                    //                     "FORCE APPROVED",
-                                    //                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xff858A99)),
-                                    //                   ),
-                                    //                 ),
-                                    //                 Icon(ArtemisIcons.tick_square, color: blueParts, size: 20),
-                                    //               ],
-                                    //             ),
-                                    //             Padding(
-                                    //               padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    //               child: Text(
-                                    //                 "{log!.forceApproved}",
-                                    //                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: blueParts),
-                                    //               ),
-                                    //             ),
-                                    //           ],
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-                                    // const SizedBox(height: 12),
-                                    // Container(
-                                    //   decoration: BoxDecoration(
-                                    //     color: MyColors.white3,
-                                    //     border: Border(
-                                    //       top: BorderSide(color: MyColors.lineColor),
-                                    //       left: BorderSide(color: MyColors.lineColor),
-                                    //       right: BorderSide(color: MyColors.lineColor),
-                                    //     ),
-                                    //     borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
-                                    //   ),
-                                    //   child: Row(
-                                    //     children: [
-                                    //       Expanded(
-                                    //         flex: 7,
-                                    //         child: Container(
-                                    //           padding: const EdgeInsets.symmetric(vertical: 12),
-                                    //           decoration: BoxDecoration(
-                                    //             border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                    //           ),
-                                    //           child: Center(child: Text("TIME", style: TextStyle(fontSize: 10, wordSpacing: 0))),
-                                    //         ),
-                                    //       ),
-                                    //       Expanded(
-                                    //         flex: 4,
-                                    //         child: Container(
-                                    //           padding: const EdgeInsets.symmetric(vertical: 12),
-                                    //           decoration: BoxDecoration(
-                                    //             border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                    //           ),
-                                    //           child: Center(child: Text("ROUTE", style: TextStyle(fontSize: 10))),
-                                    //         ),
-                                    //       ),
-                                    //       Expanded(
-                                    //         flex: 3,
-                                    //         child: Container(
-                                    //           padding: const EdgeInsets.symmetric(vertical: 12),
-                                    //           decoration: BoxDecoration(
-                                    //             border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                    //           ),
-                                    //
-                                    //           child: Center(child: Text("CODE", style: TextStyle(fontSize: 10))),
-                                    //         ),
-                                    //       ),
-                                    //       Expanded(
-                                    //         flex: 6,
-                                    //         child: Container(
-                                    //           padding: const EdgeInsets.symmetric(vertical: 12),
-                                    //           decoration: BoxDecoration(),
-                                    //           child: Center(child: Text("RESULT", style: TextStyle(fontSize: 10))),
-                                    //         ),
-                                    //       ),
-                                    //     ],
-                                    //   ),
-                                    // ),
-                                    // reportDetails.isEmpty
-                                    //     ? SizedBox()
-                                    //     : ListView.builder(
-                                    //         shrinkWrap: true,
-                                    //         physics: NeverScrollableScrollPhysics(),
-                                    //         itemCount: reportDetails.length,
-                                    //         itemBuilder: (c, i) {
-                                    //           LogReportDetail det = reportDetails[i];
-                                    //           return ReportDetailsSummaryWidget(index: i, log: det);
-                                    //         },
-                                    //       ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        OverallReportListView(model: table),
                         Column(
                           spacing: 12,
                           children: [
@@ -474,6 +217,16 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                             ),
                                           ),
                                           Expanded(
+                                            flex: 4,
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(vertical: 12),
+                                              decoration: BoxDecoration(
+                                                border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                              ),
+                                              child: Center(child: Text("FLNB", style: TextStyle(fontSize: 10))),
+                                            ),
+                                          ),
+                                          Expanded(
                                             flex: 2,
                                             child: Container(
                                               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -481,17 +234,17 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                                 border: Border(right: BorderSide(color: MyColors.lineColor)),
                                               ),
 
-                                              child: Center(child: Text("CODE", style: TextStyle(fontSize: 10))),
+                                              child: Center(child: Text("ID", style: TextStyle(fontSize: 10))),
                                             ),
                                           ),
                                           Expanded(
-                                            flex: 4,
+                                            flex: 2,
                                             child: Container(
                                               padding: const EdgeInsets.symmetric(vertical: 12),
                                               decoration: BoxDecoration(
                                                 border: Border(right: BorderSide(color: MyColors.lineColor)),
                                               ),
-                                              child: Center(child: Text("TIMATIC", style: TextStyle(fontSize: 10))),
+                                              child: Center(child: Text("TIM", style: TextStyle(fontSize: 10))),
                                             ),
                                           ),
                                           Expanded(
@@ -557,8 +310,9 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                   child: MyButton(
                     label: "Overall",
                     onPressed: () async {
-                      final overallList = await getIt<PerformanceController>().getOverallPerformances(fromDate: fromDate, toDate: toDate, from: from, to: to);
-                      overalls = overallList ?? overalls;
+                      final t = await getIt<PerformanceController>().getOverallPerformances(fromDate: fromDate, toDate: toDate, from: from, to: to);
+                      // overalls = overallList ?? overalls;
+                      table = t;
                       reportDetails.clear();
                       setState(() {});
                       Future(() {
@@ -622,9 +376,11 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
 }
 
 class PerformanceAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final void Function()? onBack;
+  final String title;
   static PerformanceController myPerformanceController = getIt<PerformanceController>();
 
-  const PerformanceAppBar({super.key});
+  const PerformanceAppBar({super.key, required this.onBack, required this.title});
 
   @override
   Size get preferredSize => const Size.fromHeight(108);
@@ -645,8 +401,12 @@ class PerformanceAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Row(
                     children: [
-                      BackButton(),
-                      Text("Performance", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      BackButton(
+                        onPressed: () {
+                          onBack?.call();
+                        },
+                      ),
+                      Text("$title", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
                       SizedBox(width: 8),
                     ],
@@ -771,7 +531,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text("${widget.log.createdAt.format_HHmm}", style: TextStyle(fontSize: 10, wordSpacing: 0))),
+                child: Center(child: Text("${widget.log.createdAt.format_HHmm}", style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
               ),
             ),
             Expanded(
@@ -781,41 +541,60 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text("${widget.log.to}", style: TextStyle(fontSize: 10))),
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: MyColors.lineColor)),
-                ),
-
-                child: Center(
-                  child: loading
-                      ? SpinKitThreeBounce(size: 12, color: Colors.blueAccent)
-                      : GestureDetector(
-                          onTap: () async {
-                            if (loading) {
-                              return;
-                            }
-                            loading = true;
-                            setState(() {});
-                            await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString());
-                            loading = false;
-                            setState(() {});
-                          },
-                          child: Text(
-                            ("${widget.log.showCode}"),
-                            style: TextStyle(fontSize: 10, color: Colors.blueAccent, decoration: TextDecoration.underline),
-                          ),
-                        ),
-                ),
+                child: Center(child: Text("${widget.log.to}", style: GoogleFonts.chivoMono(fontSize: 10))),
               ),
             ),
             Expanded(
               flex: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                ),
+                child: Center(
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 4),
+                      AirlineLogo(widget.log.airline, size: 15, padding: EdgeInsets.symmetric(horizontal: 0)),
+                      const SizedBox(width: 4),
+                      Text("${widget.log.airline}${widget.log.flightNumber}", style: GoogleFonts.chivoMono(fontSize: 10)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: GestureDetector(
+                onTap: () async {
+                  if (loading) {
+                    return;
+                  }
+                  loading = true;
+                  setState(() {});
+                  await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString());
+                  loading = false;
+                  setState(() {});
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border(right: BorderSide(color: MyColors.lineColor)),
+                  ),
+
+                  child: Center(
+                    child: loading
+                        ? SpinKitThreeBounce(size: 12, color: Colors.blueAccent)
+                        : Text(
+                            ("${widget.log.showCode}"),
+                            style: GoogleFonts.chivoMono(fontSize: 10, color: Colors.blueAccent, decoration: TextDecoration.underline),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -826,7 +605,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     BasicClass.getResultOfCode(widget.log.timaticResult).getIconWidgetMini,
-                    Text(BasicClass.getResultOfCode(widget.log.timaticResult).title, style: TextStyle(fontSize: 8, color: BasicClass.getResultOfCode(widget.log.timaticResult).getColor)),
+                    // Text(BasicClass.getResultOfCode(widget.log.timaticResult).title, style: TextStyle(fontSize: 8, color: BasicClass.getResultOfCode(widget.log.timaticResult).getColor)),
                   ],
                 ),
               ),
@@ -845,7 +624,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                     Expanded(
                       child: Text("${widget.log.totalResultRole ?? ''}", style: TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
                     ),
-                    BasicClass.getResultOfCode(widget.log.totalResult).getIconWidgetMini,
+                    // BasicClass.getResultOfCode(widget.log.totalResult).getIconWidgetMini,
                     Text(BasicClass.getResultOfCode(widget.log.totalResult).title, style: TextStyle(fontSize: 8, color: BasicClass.getResultOfCode(widget.log.totalResult).getColor)),
                     SizedBox(),
                   ],

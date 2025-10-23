@@ -179,7 +179,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text("TIMACHECK", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
+                    Text("TimaCheck", style: TextStyles.styleBold16Black.copyWith(fontSize: 36, height: 1, fontWeight: FontWeight.w800)),
                     const SizedBox(height: 24),
 
                     MyTextField(
@@ -204,7 +204,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                       children: [
                         MyButton(
                           padding: EdgeInsets.symmetric(horizontal: 0),
-                          label: "Forget Password",
+                          label: "Forgot Password",
                           onPressed: () {
                             viewIndex = 1;
                             unFocus();

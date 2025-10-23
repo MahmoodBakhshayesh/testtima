@@ -116,18 +116,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           leading:  IcomoonLayeredCss.direct_send(),
                           // trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
-                        CheckPermission(
-                          saveSpace: false,
-                          permission: UserUiPermission.edit(),
-                          otherPermission: [UserUiPermission.add(), UserUiPermission.activeDeactive(), UserUiPermission.delete()],
-                          child: DrawerAction(
-                            title: 'Users',
-                            onTap: () {
-                              myHomeController.goNamed(Routes.users);
-                            },
-                            leading:  IcomoonLayeredCss.profile_2user(),
-                          ),
-                        ),
+
                         DrawerAction(
                           title: 'Logs',
                           permission: LogUiPermission.read(),
@@ -137,7 +126,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           leadingIcon: Icons.history,
                         ),
                         DrawerAction(
-                          title: 'Performance',
+                          title: 'Reports',
                           // permission: LogUiPermission.read(),
                           onTap: () {
                             Navigator.of(context).pop();
@@ -155,6 +144,18 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                           },
                           leading:  IcomoonLayeredCss.search_normal(),
 
+                        ),
+                        CheckPermission(
+                          saveSpace: false,
+                          permission: UserUiPermission.edit(),
+                          otherPermission: [UserUiPermission.add(), UserUiPermission.activeDeactive(), UserUiPermission.delete()],
+                          child: DrawerAction(
+                            title: 'Users',
+                            onTap: () {
+                              myHomeController.goNamed(Routes.users);
+                            },
+                            leading:  IcomoonLayeredCss.profile_2user(),
+                          ),
                         ),
 
                       ],

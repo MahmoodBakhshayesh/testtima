@@ -16,6 +16,7 @@ class PerformanceRepository implements PerformanceRepositoryInterface {
 
   PerformanceRepository();
 
+
   @override
   Future<Result<GetReportResponse>> getReport(GetReportRequest request) async {
     try {

@@ -1,4 +1,5 @@
 import 'package:abds/core/classes/overall_performance_class.dart';
+import 'package:abds/core/classes/overall_report_tabel_class.dart';
 import 'package:abds/core/classes/performance_log_class.dart';
 import 'package:flutter/material.dart';
 import '../../../core/interfaces/failures_int.dart';
@@ -24,12 +25,8 @@ class GetOverallPerformancesRequest extends RequestInterface {
   final DateTime? toDate;
   final String? from;
   final String? to;
-  GetOverallPerformancesRequest({
-    required this.fromDate,
-    required this.toDate,
-    required this.from,
-    required this.to,
-  });
+
+  GetOverallPerformancesRequest({required this.fromDate, required this.toDate, required this.from, required this.to});
 
   @override
   Map<String, dynamic> toJson() => {
@@ -42,11 +39,11 @@ class GetOverallPerformancesRequest extends RequestInterface {
 }
 
 class GetOverallPerformancesResponse extends ResponseInterface {
-  // final PerformanceLog performanceLog;
-  final List<OverallPerformance> overallPerformances;
+  final OverallReportTable reportTable;
 
-  GetOverallPerformancesResponse({required super.status, required super.message, required this.overallPerformances}) : super(body: overallPerformances.map((a) => a.toJson()).toList());
+  // final List<OverallPerformance> overallPerformances;
 
-  factory GetOverallPerformancesResponse.fromResponse(ResponseInterface res) =>
-      GetOverallPerformancesResponse(status: res.status, message: res.message, overallPerformances: List<OverallPerformance>.from(res.body.map((a) => OverallPerformance.fromJson(a))));
+  GetOverallPerformancesResponse({required super.status, required super.message, required this.reportTable}) : super(body: reportTable.toJson());
+
+  factory GetOverallPerformancesResponse.fromResponse(ResponseInterface res) => GetOverallPerformancesResponse(status: res.status, message: res.message, reportTable: OverallReportTable.fromJson(res.body));
 }
