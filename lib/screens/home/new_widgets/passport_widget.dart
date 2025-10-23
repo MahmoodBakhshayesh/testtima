@@ -23,15 +23,30 @@ import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
+import '../../result_report/result_report_state.dart';
 import '../home_state.dart';
 import '../widgets/locked_document_widget.dart';
 import '../widgets/passport_section.dart';
 
 class PassportWidget extends ConsumerWidget {
-  const PassportWidget({super.key});
+  final bool report;
+  const PassportWidget({super.key,this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if(report){
+      final List<DocumentDetail> passports = ref.watch(reportPassportsProvider);
+      return Column(
+        children: [
+          Column(
+            children: passports.map((d) {
+              return LockedDocumentItemRow(d: d, tileColor:  Color(0xffE2E7F5),);
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+        ],
+      );
+    }
     final List<DocumentDetail> passports = ref.watch(passportsProvider);
     final bool locked = ref.watch(currentStatusProvider).isLocked;
     if(locked){

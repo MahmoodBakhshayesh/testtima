@@ -25,14 +25,25 @@ import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
+import '../../result_report/result_report_state.dart';
 import '../home_state.dart';
 import '../home_view_phone.dart';
 
 class PassengerWidget extends ConsumerWidget {
-  const PassengerWidget({super.key});
+  final bool report;
+  const PassengerWidget({super.key,this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if(report){
+      final PassengerDetails passengerDetails = ref.watch(reportPassengerProvider);
+      return Column(
+        children: [
+          LockedPassengerRow(passengerDetails: passengerDetails, tileColor: Colors.black.withOpacity(0.08)),
+          const SizedBox(height: 12),
+        ],
+      );
+    }
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     // final bool locked = ref.watch(timaticResultProvider)?.status == 1;
     final bool locked = ref.watch(currentStatusProvider).isLocked;

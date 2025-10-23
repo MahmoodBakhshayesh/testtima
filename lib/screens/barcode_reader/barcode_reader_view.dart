@@ -12,6 +12,7 @@ class BarcodeReaderView extends ConsumerWidget {
     const BarcodeReaderView({super.key});
     @override
     Widget build(BuildContext context,WidgetRef ref) {
+      return BarcodeReaderViewPhone();
       if(context.isDesktop){
         return BarcodeReaderViewDesktop();
       }else if(context.isMyTablet){

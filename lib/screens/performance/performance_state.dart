@@ -1,3 +1,4 @@
+import 'package:abds/core/utils_and_services/timatic/src/models/document_request.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -11,4 +12,7 @@ class PerformanceState extends ChangeNotifier {
 }
 
 
-///final userProvider = StateProvider<User?>((ref) => null);
+final reportsViewModeProvider = StateProvider<int>((ref) => 0);
+
+
+

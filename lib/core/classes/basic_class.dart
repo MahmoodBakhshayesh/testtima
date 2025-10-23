@@ -107,8 +107,12 @@ class BasicClass {
       // return up.user.isGreaterThan(0);
     }
 
-    if (permission is LogUiPermission) {
-      // return up.log.isGreaterThan(0);
+    if (permission is ReportUiPermission) {
+      return up.maskOf("report")>0;
+    }
+
+    if (permission is TimaticUiPermission) {
+      return up.maskOf("timatic")>0;
     }
 
     return false;

@@ -12,6 +12,7 @@ class MessageDetailsView extends ConsumerWidget {
     const MessageDetailsView({super.key});
     @override
     Widget build(BuildContext context,WidgetRef ref) {
+      return MessageDetailsViewPhone();
       if(context.isDesktop){
         return MessageDetailsViewDesktop();
       }else if(context.isMyTablet){

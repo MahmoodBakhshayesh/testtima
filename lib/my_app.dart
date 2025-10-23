@@ -6,6 +6,7 @@ import 'package:abds/screens/logs/logs_view.dart';
 import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
 import 'package:abds/screens/outbox/outbox_view.dart';
+import 'package:abds/screens/result_report/result_report_view.dart';
 import 'package:abds/screens/users/users_view.dart';
 import 'package:abds/widgets/global_wrapper.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -39,6 +40,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   Widget build(BuildContext context) {
     // final router = ref.watch(routerProvider);
     return GlobalWrapper(child: TreeNavigation.makeMaterialApp(
+
       theme: MyTheme.lightAbomis(context),
       debugLogDiagnostics: true,
       routeInfoList: Routes.allRoutes,
@@ -48,7 +50,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         TreeRoute(routeInfo: Routes.logs, pageWidget: LogsView()),
         TreeRoute(routeInfo: Routes.addUser, pageWidget: AddUserView()),
         TreeRoute(routeInfo: Routes.profile, pageWidget: ProfileView()),
-        TreeRoute(routeInfo: Routes.performance, pageWidget: PerformanceView()),
+        TreeRoute(routeInfo: Routes.performance, pageWidget: PerformanceView(),routes: [
+          TreeRoute(routeInfo: Routes.resultReport, pageWidget: ResultReportView()),
+        ]),
         TreeRoute(routeInfo: Routes.outbox, pageWidget: OutboxView()),
         TreeRoute(
           routeInfo: Routes.inbox,

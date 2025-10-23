@@ -33,6 +33,7 @@ class ControllerInterface extends tree.ControllerInterface {
         Object? extra,
       }) {
       return navigation.goNamed(route, pathParameters: pathParameters, queryParameters: queryParameters, extra: extra);
+
   }
 
   openDrawer(BuildContext context,Widget content){

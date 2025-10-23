@@ -53,6 +53,9 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
   @override
   void initState() {
     tabBarController = TabController(length: 3, vsync: this);
+    tabBarController.addListener((){
+      setState((){});
+    });
     from = BasicClass.user?.attributes["defaultAirport"] ?? "";
     super.initState();
   }
@@ -75,11 +78,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
         title: ["Overall", "Summary", "Details"][tabBarController.index],
 
         onBack: () {
-          if (tabBarController.index != 0) {
-            tabBarController.animateTo(0);
-          } else {
-            Navigator.pop(context);
-          }
+          Navigator.pop(context);
         },
       ),
       backgroundColor: Colors.white,
@@ -117,58 +116,58 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                     },
                     label: "",
                     rowLabelRatio: [1, 100],
-                    placeholder: "Until",
+                    placeholder: "To",
                     // backgroundColor: textFieldBG,
                     value: toDate,
                   ),
                 ),
               ],
             ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: MyFieldPicker<Airport>(
-                    searchAutoFocus: true,
-                    backgroundColor: textFieldBG,
-                    headerBgColor: headerBg,
-                    bodyBgColor: bodyBg,
-                    label: "Route",
-                    placeholder: "City",
-                    rowLabelRatio: [2, 4],
-                    itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
-                    searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
-                    items: BasicClass.constData.data.airport,
-                    value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == from),
-                    onChange: (a) {
-                      from = a?.code3;
-                      setState(() {});
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: MyFieldPicker<Airport>(
-                    label: "",
-                    backgroundColor: textFieldBG,
-                    headerBgColor: headerBg,
-                    bodyBgColor: bodyBg,
-                    placeholder: "To",
-                    searchAutoFocus: true,
-                    rowLabelRatio: [1, 100],
-                    itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
-                    items: BasicClass.constData.data.airport,
-                    searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
-                    value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == to),
-                    onChange: (a) {
-                      to = a?.code3;
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       flex: 3,
+            //       child: MyFieldPicker<Airport>(
+            //         searchAutoFocus: true,
+            //         backgroundColor: textFieldBG,
+            //         headerBgColor: headerBg,
+            //         bodyBgColor: bodyBg,
+            //         label: "Route",
+            //         placeholder: "City",
+            //         rowLabelRatio: [2, 4],
+            //         itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+            //         searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+            //         items: BasicClass.constData.data.airport,
+            //         value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == from),
+            //         onChange: (a) {
+            //           from = a?.code3;
+            //           setState(() {});
+            //         },
+            //       ),
+            //     ),
+            //     const SizedBox(width: 12),
+            //     Expanded(
+            //       flex: 2,
+            //       child: MyFieldPicker<Airport>(
+            //         label: "",
+            //         backgroundColor: textFieldBG,
+            //         headerBgColor: headerBg,
+            //         bodyBgColor: bodyBg,
+            //         placeholder: "To",
+            //         searchAutoFocus: true,
+            //         rowLabelRatio: [1, 100],
+            //         itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+            //         items: BasicClass.constData.data.airport,
+            //         searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+            //         value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == to),
+            //         onChange: (a) {
+            //           to = a?.code3;
+            //           setState(() {});
+            //         },
+            //       ),
+            //     ),
+            //   ],
+            // ),
             table == null && reportDetails.isEmpty
                 ? Expanded(child: SizedBox())
                 : Expanded(
@@ -339,6 +338,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                           tabBarController.animateTo(1);
                         });
                       }
+
                     },
                   ),
                 ),
@@ -351,6 +351,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                         log("rdl ${rdl?.length}");
                         if (rdl != null) {
                           reportDetails = rdl;
+
 
                           setState(() {});
                           Future(() {
@@ -406,7 +407,7 @@ class PerformanceAppBar extends StatelessWidget implements PreferredSizeWidget {
                           onBack?.call();
                         },
                       ),
-                      Text("$title", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      Text("Reports / $title", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
                       SizedBox(width: 8),
                     ],

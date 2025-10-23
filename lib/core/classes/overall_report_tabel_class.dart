@@ -42,16 +42,17 @@ class Header {
 class TableColumn {
   final String text;
   final String fontColor;
+  final String fontColorValue;
   final int width;
   final TableAlignment alignment;
 
-  TableColumn({required this.text, required this.fontColor, required this.width, required this.alignment});
+  TableColumn({required this.text, required this.fontColor, required this.width, required this.alignment, required this.fontColorValue});
 
-  TableColumn copyWith({String? text, String? fontColor, int? width}) => TableColumn(text: text ?? this.text, fontColor: fontColor ?? this.fontColor, width: width ?? this.width, alignment: alignment);
+  TableColumn copyWith({String? text, String? fontColor, int? width}) => TableColumn(text: text ?? this.text, fontColor: fontColor ?? this.fontColor, width: width ?? this.width, alignment: alignment,fontColorValue: fontColorValue);
 
-  factory TableColumn.fromJson(Map<String, dynamic> json) => TableColumn(text: json["text"], fontColor: json["fontColor"], width: json["width"], alignment: json["alignment"]==null?TableAlignment.center():TableAlignment.fromJson(json["alignment"]));
+  factory TableColumn.fromJson(Map<String, dynamic> json) => TableColumn(text: json["text"], fontColor: json["fontColor"], fontColorValue:json["fontColorValue"]?? json["fontColor"], width: json["width"], alignment: json["alignment"]==null?TableAlignment.center():TableAlignment.fromJson(json["alignment"]));
 
-  Map<String, dynamic> toJson() => {"text": text, "fontColor": fontColor, "width": width,"alignment":alignment.toJson()};
+  Map<String, dynamic> toJson() => {"text": text, "fontColor": fontColor,"fontColorValue": fontColorValue, "width": width,"alignment":alignment.toJson()};
 }
 
 class TableAlignment {

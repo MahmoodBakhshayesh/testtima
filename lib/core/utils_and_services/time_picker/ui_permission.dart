@@ -1,6 +1,7 @@
 
 enum UiPermissionGroup {
   user,
+  report,
 }
 
 
@@ -33,6 +34,30 @@ class LogUiPermission extends UiPermission {
 
   factory LogUiPermission.read() => LogUiPermission(UiPermissionGroup.user,1,"Read");
   factory LogUiPermission.execute() => LogUiPermission(UiPermissionGroup.user,2,"Execute");
+
+  @override
+  String getLabel() => label;
+}
+
+class ReportUiPermission extends UiPermission {
+  final int flag;
+  final String label;
+  final UiPermissionGroup group;
+  ReportUiPermission(this.group,this.flag,this.label);
+
+  factory ReportUiPermission.read() => ReportUiPermission(UiPermissionGroup.report,1,"Read");
+
+  @override
+  String getLabel() => label;
+}
+
+class TimaticUiPermission extends UiPermission {
+  final int flag;
+  final String label;
+  final UiPermissionGroup group;
+  TimaticUiPermission(this.group,this.flag,this.label);
+
+  factory TimaticUiPermission.read() => TimaticUiPermission(UiPermissionGroup.report,1,"Read");
 
   @override
   String getLabel() => label;

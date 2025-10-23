@@ -29,15 +29,25 @@ import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
+import '../../result_report/result_report_state.dart';
 import '../home_state.dart';
 import '../home_view_phone.dart';
 import '../widgets/locked_segment_widget.dart';
 
 class FlightWidget extends ConsumerWidget {
-  const FlightWidget({super.key});
+  final bool report;
+  const FlightWidget({super.key,this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if(report){
+      final List<ItinerarySegment> segments = ref.watch(reportSegmentsProvider);
+      return Column(
+        children: segments.map((d) {
+          return LockedSegmentRow(seg: d, tileColor: Colors.black.withOpacity(0.08), index: segments.indexOf(d));
+        }).toList(),
+      );
+    }
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     final bool locked = ref.watch(currentStatusProvider).isLocked;
     if (locked) {

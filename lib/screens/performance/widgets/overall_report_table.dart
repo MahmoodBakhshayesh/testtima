@@ -70,6 +70,7 @@ class _OverallReportListViewState extends State<OverallReportListView> {
 
                     // Per-cell text colors follow the stripe's fg
                     final fg = List<Color>.filled(header.column.length, _hex(stripe.fontColor));
+                    final fgD = header.column.map((a)=>_hex(a.fontColorValue)).toList();
 
                     return _RowStrip(
                       texts: List.generate(header.column.length, (i) => i < row.length ? (row[i] ?? '') : ''),

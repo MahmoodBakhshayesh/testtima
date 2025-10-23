@@ -12,6 +12,7 @@ class OutboxView extends ConsumerWidget {
     const OutboxView({super.key});
     @override
     Widget build(BuildContext context,WidgetRef ref) {
+      return OutboxViewPhone();
       if(context.isDesktop){
         return OutboxViewDesktop();
       }else if(context.isMyTablet){

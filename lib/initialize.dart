@@ -12,6 +12,8 @@ import 'package:abds/screens/message_details/message_details_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/outbox/outbox_controller.dart';
 import 'package:abds/screens/profile/profile_controller.dart';
+import 'package:abds/screens/result_report/result_report_controller.dart';
+import 'package:abds/screens/result_report/result_report_view.dart';
 import 'package:abds/screens/users/users_controller.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
@@ -241,6 +243,7 @@ Future<void> initNavigation() async {
   InboxController inboxController = InboxController();
   MessageDetailsController messageDetailsController = MessageDetailsController();
   OutboxController outboxController = OutboxController();
+  ResultReportController resultReportController = ResultReportController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -255,6 +258,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(inboxController);
   getIt.registerSingleton(messageDetailsController);
   getIt.registerSingleton(outboxController);
+  getIt.registerSingleton(resultReportController);
 
   TreeNavigation.navigator.registerAllControllers({
     Routes.login: loginController,

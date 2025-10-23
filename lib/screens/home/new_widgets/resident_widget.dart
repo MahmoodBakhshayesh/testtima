@@ -26,26 +26,37 @@ import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
+import '../../result_report/result_report_state.dart';
 import '../home_state.dart';
 import '../widgets/locked_document_widget.dart';
 import '../widgets/passport_section.dart';
 
 class ResidentWidget extends ConsumerWidget {
-  const ResidentWidget({super.key});
+  final bool report;
+
+  const ResidentWidget({super.key, this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<DocumentDetail> residents = ref.watch(residentsProvider);
-    final bool locked =  ref.watch(currentStatusProvider).isLocked;
-    if(locked){
+    if (report) {
+      final List<DocumentDetail> residents = ref.watch(reportResidentsProvider);
       return Column(
         children: residents.map((d) {
-          return LockedDocumentItemRow(d: d,tileColor:Color(0xffE9F2EF));
+          return LockedDocumentItemRow(d: d, tileColor: Color(0xffE9F2EF));
+        }).toList(),
+      );
+    }
+    final List<DocumentDetail> residents = ref.watch(residentsProvider);
+    final bool locked = ref.watch(currentStatusProvider).isLocked;
+    if (locked) {
+      return Column(
+        children: residents.map((d) {
+          return LockedDocumentItemRow(d: d, tileColor: Color(0xffE9F2EF));
         }).toList(),
       );
     }
     if (residents.isEmpty) {
-      return SizedBox(height: 12,);
+      return SizedBox(height: 12);
     }
     return Column(
       children: [

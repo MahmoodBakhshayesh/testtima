@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
+import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart' show UserUiPermission, LogUiPermission, UiPermission, ReportUiPermission;
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/outbox/outbox_state.dart';
@@ -127,7 +128,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                         ),
                         DrawerAction(
                           title: 'Reports',
-                          // permission: LogUiPermission.read(),
+                          permission: ReportUiPermission.read(),
                           onTap: () {
                             Navigator.of(context).pop();
                             myHomeController.goNamed(Routes.performance);
