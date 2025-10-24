@@ -609,7 +609,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                                               size: 40,
                                               icon: Icons.record_voice_over,
                                               onPressed: () async {
-                                                String dlUrl = "${api}/logs/attach/${img}";
+                                                String dlUrl = "${api}/v1/logs/attach/${img}";
                                                 final f = await getIt<HomeController>().getFile(url: dlUrl);
                                                 log(f.path);
                                                 showDialog(
@@ -636,7 +636,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                                             height: 120,
                                             child: ClipRRect(
                                               borderRadius: BorderRadiusGeometry.circular(5),
-                                              child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
+                                              child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
                                             ),
                                           ),
                                         );
@@ -890,7 +890,7 @@ class AttachmentsWidget extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.grey.withOpacity(0.3)
                                 ),
-                                child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"},)),
+                                child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"},)),
                           ),
                         );
                       }).toList(),
@@ -911,7 +911,7 @@ class AttachmentsWidget extends StatelessWidget {
                         radius: 12,
                         borderSide: BorderSide(color: context.mainColor),
                         onPressed: () async {
-                          String dlUrl = "${api}/logs/attach/${img}";
+                          String dlUrl = "${api}/v1/logs/attach/${img}";
                           final f = await getIt<HomeController>().getFile(url: dlUrl);
                           log(f.path);
                           showDialog(
@@ -997,7 +997,7 @@ class EVisaWidget extends StatelessWidget {
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(5),
-                            child: Image.network("${api}/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
+                            child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
                           ),
                         );
                       }).toList(),
