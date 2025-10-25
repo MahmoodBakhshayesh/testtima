@@ -1,3 +1,4 @@
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
@@ -44,6 +45,84 @@ class LockedSegmentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (context.isDesktop) {
+      return Container(
+        margin: EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: tileColor),
+        padding: EdgeInsets.all(12),
+        child: Column(
+          spacing: 12,
+          children: [
+            LockedFieldWidget(label: null, value: Text("Segment ${index + 1}")),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: LockedFieldWidget(half: true, label: "From", value: Text(seg.departure.point)),
+                ),
+                Expanded(
+                  child: LockedFieldWidget(half: true, label: "To", value: Text(seg.arrival.point)),
+                ),
+                Expanded(
+                  child: LockedFieldWidget(
+                    half: true,
+                    label: "Airline",
+                    value: Row(children: [AirlineLogo(seg.operatingCarrier?.code ?? '', size: 30), Text(seg.operatingCarrier?.code ?? '')]),
+                  ),
+                ),
+                Expanded(
+                  child: LockedFieldWidget(half: true, label: "Flight #", value: Text(seg.flnb ?? '')),
+                ),
+              ],
+            ),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: Row(
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        child: LockedFieldWidget(
+                          label: "Departure",
+                          value: Row(children: [Text(seg.departure.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.departure.time?.format_HHmm ?? '')]),
+                        ),
+                      ),
+                      Expanded(
+                        child: LockedFieldWidget(
+                          label: "Arrival",
+                          value: Row(children: [Text(seg.arrival.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.arrival.time?.format_HHmm ?? '')]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        child: LockedFieldWidget(label: "Type", value: Text(seg.segmentType?.title ?? '')),
+                      ),
+                      Expanded(
+                        child: LockedFieldWidget(label: "Ticket", value: Text(seg.returnOnwardTicket?.title ?? '')),
+                      ),
+                      Expanded(
+                        child: LockedFieldWidget(label: "POS", value: Text(seg.purposeOfStay?.title ?? "")),
+                      ),
+                      Expanded(
+                        child: LockedFieldWidget(label: "DOS", value: Text(seg.durationOfStay?.formatDurationUnit ?? '')),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            // ?seg.luggageCollected != null ? LockedFieldWidget(label: "Luggage Collected", value: Text(seg.luggageCollected!?"Yes":"No")) : null,
+          ],
+        ),
+      );
+    }
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: tileColor),
@@ -63,51 +142,49 @@ class LockedSegmentRow extends StatelessWidget {
               ),
             ],
           ),
-          ?(seg.operatingCarrier!=null && seg.flnb!=null)?Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: LockedFieldWidget(
-                  half: true,
-                  label: "Airline",
-                  value: Row(children: [AirlineLogo(seg.operatingCarrier?.code ?? '', size: 30), Text(seg.operatingCarrier?.code ?? '')]),
-                ),
-              ),
-              Expanded(
-                child: LockedFieldWidget(half: true, label: "Flight #", value: Text(seg.flnb ?? '')),
-              ),
-            ],
-          ):null,
-          ?(seg.departure.dateTime!=null)?Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: LockedFieldWidget(
-                  label: "Departure",
-                  value: Row(children: [
-                    Text(seg.departure.dateTime?.format_ddMMMEEE ?? ''),
-                    Text(" - "),
-                    Text(seg.departure.time?.format_HHmm ?? ''),
-                  ]),
-                ),
-              ),
-            ],
-          ):null,
-          ?(seg.arrival.dateTime!=null)?Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: LockedFieldWidget(
-                  label: "Arrival",
-                  value: Row(children: [
-                    Text(seg.arrival.dateTime?.format_ddMMMEEE ?? ''),
-                    Text(" - "),
-                    Text(seg.arrival.time?.format_HHmm ?? ''),
-                  ]),
-                ),
-              ),
-            ],
-          ):null,
+          ?(seg.operatingCarrier != null && seg.flnb != null)
+              ? Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: LockedFieldWidget(
+                        half: true,
+                        label: "Airline",
+                        value: Row(children: [AirlineLogo(seg.operatingCarrier?.code ?? '', size: 30), Text(seg.operatingCarrier?.code ?? '')]),
+                      ),
+                    ),
+                    Expanded(
+                      child: LockedFieldWidget(half: true, label: "Flight #", value: Text(seg.flnb ?? '')),
+                    ),
+                  ],
+                )
+              : null,
+          ?(seg.departure.dateTime != null)
+              ? Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: LockedFieldWidget(
+                        label: "Departure",
+                        value: Row(children: [Text(seg.departure.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.departure.time?.format_HHmm ?? '')]),
+                      ),
+                    ),
+                  ],
+                )
+              : null,
+          ?(seg.arrival.dateTime != null)
+              ? Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: LockedFieldWidget(
+                        label: "Arrival",
+                        value: Row(children: [Text(seg.arrival.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.arrival.time?.format_HHmm ?? '')]),
+                      ),
+                    ),
+                  ],
+                )
+              : null,
           ?seg.segmentType != null ? LockedFieldWidget(label: "Type", value: Text(seg.segmentType!.title)) : null,
           ?seg.returnOnwardTicket != null ? LockedFieldWidget(label: "Ticket", value: Text(seg.returnOnwardTicket!.title)) : null,
           ?seg.purposeOfStay != null ? LockedFieldWidget(label: "POS", value: Text(seg.purposeOfStay!.title)) : null,

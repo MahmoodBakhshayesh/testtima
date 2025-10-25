@@ -152,12 +152,448 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     bool isFirst = widget.isFirst;
     int index = widget.index;
     ItinerarySegment seg = widget.item;
-    log(seg.purposeOfStay?.title??'---');
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
     final bool hasTransit = segments.length > 1;
     final mandatories = BasicClass.constData.data.mandatory!.flight;
     String fName = "Segment${hasTransit ? " ${widget.index + 1}" : ""}";
+
+
+    if(context.isDesktop){
+      return Container(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.white)),
+        ),
+        child: MyExpansionTile(
+          footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+          shape: RoundedRectangleBorder(),
+          collapsedShape: RoundedRectangleBorder(),
+          tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          footerExtra: IndexedStack(
+            index: isLast ? 0 : 1,
+            children: [
+              MyButton(
+                height: 30,
+                label: "Segment",
+                icon: Icons.add_circle_outline,
+                onPressed: () {
+                  var beforeSeg = seg;
+                  beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit,purposeOfStay: beforeSeg.purposeOfStay,returnOnwardTicket: beforeSeg.returnOnwardTicket);
+                  ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
+                  var newSeg = ItinerarySegment.empty();
+                  newSeg = newSeg.copyWith(departure: seg.arrival);
+                  ref.read(segmentsProvider.notifier).add(newSeg);
+                },
+                textColor: Colors.blueAccent,
+                color: Colors.blueAccent.withOpacity(0.1),
+
+              ),
+              SizedBox(
+                width: 165,
+                child: MySwitchButton(
+                  value: seg.luggageCollected ?? false,
+                  onChanged: (a) {
+                    seg = seg.copyWith(luggageCollected: a);
+                    ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                  },
+                  label: "Luggage Collect",
+                ),
+              ),
+            ],
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              widget.index == 0
+                  ? Row(
+                spacing: 8,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        airlineLogoBuild(widget.item.operatingCarrier),
+                      ],
+                    ),
+                  ),
+                  MyButton(
+                    label: "Scan Boarding Pass",
+                    onPressed: () {
+                      getIt<HomeController>().goNamed(Routes.barcodeReader);
+                    },
+                    radius: 8,
+                  ),
+                  DotButton(
+                    icon: ArtemisIcons.eraser_1,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(
+                        Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear "$fName" in flight information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+                      );
+                      if (!confirm) return;
+                      if (segments.length == 1) {
+                        ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
+                      } else {
+                        ref
+                            .read(segmentsProvider.notifier)
+                            .updateAt(ref.read(segmentsProvider).length - 2, ref.read(segmentsProvider)[ref.read(segmentsProvider).length - 2].copyWith(segmentType: SegmentType.entry, luggageCollected: true));
+                        ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
+                      }
+                    },
+                    size: 40,
+                    iconSize: 20,
+
+                    radius: 8,
+                    flat: true,
+                    border: BorderSide(width: 1, color: context.mainColor),
+                  ),
+                ],
+              )
+                  : Row(
+                spacing: 12,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                        airlineLogoBuild(widget.item.operatingCarrier),
+                      ],
+                    ),
+                  ),
+                  DotButton(
+                    icon: ArtemisIcons.trash,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(
+                        Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete "$fName" in flight information. Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]),
+                      );
+                      if (!confirm) return;
+                      if (widget.isLast) {
+                        final prev = segments[widget.index - 1];
+                        ref.read(segmentsProvider.notifier).updateAt(index - 1, prev.copyWith(segmentType: SegmentType.entry, luggageCollected: true));
+                      }
+
+                      ref.read(segmentsProvider.notifier).removeAt(widget.index);
+                    },
+                    size: 40,
+                    iconSize: 20,
+                    radius: 8,
+                    flat: true,
+                    color: Colors.red,
+                    border: BorderSide(width: 1, color: Colors.red),
+                  ),
+                  DotButton(
+                    icon: ArtemisIcons.eraser_1,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(
+                        Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear "$fName" in flight information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+                      );
+                      if (!confirm) return;
+                      ref.read(segmentsProvider.notifier).updateAt(widget.index, ItinerarySegment.empty());
+                    },
+                    size: 40,
+                    iconSize: 20,
+                    radius: 8,
+                    flat: true,
+                    border: BorderSide(width: 1, color: context.mainColor),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+               Row(
+                spacing: 12,
+                children: [
+                  Expanded(
+                    child: MyTextFieldNew(
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      controller: controller,
+                      label: "Flight#",
+                      required: mandatories!.flightNumber && isFirst,
+                      openNumberSheet: true,
+                      keyboardType: TextInputType.numberWithOptions(signed: true),
+                      placeholder: "Number",
+                      labelInRow: true,
+                      onSubmit: (a) async {
+                        log("get history for $a");
+                        await getIt<HomeController>().getFlightNumberHistory(a, index: widget.index);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<ParameterValue>(
+                      label: "Airline",
+                      required: mandatories!.airline && isFirst,
+                      placeholder: "Airline",
+                      searchAutoFocus: true,
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+
+                      items: BasicClass.constData.data.carrier,
+                      value: seg.operatingCarrier,
+                      // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
+                      valueToString: (a) => a.code,
+                      onChange: (a) {
+                        seg = seg.copyWith(operatingCarrier: a);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                        // log(jsonEncode(seg.toJson()));
+                        // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<Airport>(
+                      required: mandatories!.from,
+                      searchAutoFocus: true,
+                      label: "From",
+                      placeholder: "City",
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      // labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+                      searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                      items: BasicClass.constData.data.airport,
+                      value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.departure.point),
+                      onChange: (a) {
+                        final update = seg.departure.copyWith(point: a?.code3 ?? '');
+                        seg = seg.copyWith(departure: update);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                        if (!isFirst && seg.departure.point.isNotEmpty) {
+                          int prevIndex = index - 1;
+                          var prevSeg = ref.read(segmentsProvider)[prevIndex];
+                          prevSeg = prevSeg.copyWith(arrival: seg.departure);
+                          ref.read(segmentsProvider.notifier).updateAt(prevIndex, prevSeg);
+                        }
+
+                        // final ul = [...segments];
+                        // ul[index] = seg;
+                        // ref.read(segmentsProvider.notifier).update((s) => ul);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<Airport>(
+                      label: "To",
+                      placeholder: "City",
+                      searchAutoFocus: true,
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      // labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+                      required: mandatories!.to,
+                      items: BasicClass.constData.data.airport,
+                      searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                      value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.arrival.point),
+                      onChange: (a) {
+                        final update = seg.arrival.copyWith(point: a?.code3 ?? '');
+                        seg = seg.copyWith(arrival: update);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                        if (!isLast) {
+                          int nextIndex = index + 1;
+                          var nextSeg = ref.read(segmentsProvider)[nextIndex];
+                          nextSeg = nextSeg.copyWith(departure: seg.arrival);
+                          ref.read(segmentsProvider.notifier).updateAt(nextIndex, nextSeg);
+                        }
+
+                        // final ul = [...segments];
+                        // ul[index] = seg;
+                        // ref.read(segmentsProvider.notifier).update((s) => ul);
+                      },
+                    ),
+                  ),
+                ],
+              )
+
+            ],
+          ),
+          // childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+          children: [
+            const SizedBox(height: 4),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: MyFieldPicker<SegmentType>(
+                    label: "Type",
+                    placeholder: "Type",
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    items: SegmentType.values,
+                    hasSearch: false,
+                    required: mandatories!.flightType && isFirst,
+                    value: seg.segmentType,
+
+                    onChange: (a) {
+                      seg = seg.copyWith(segmentType: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // log(jsonEncode(seg.toJson()));
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyDurationOfStayPicker(
+                    label: "DOS",
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    placeholder: "Duration Of Stay",
+                    value: seg.durationOfStay,
+                    required: mandatories!.dos && isFirst,
+
+                    onChange: (a) {
+                      seg = seg.copyWith(durationOfStay: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyFieldPicker<TicketStatus>(
+                    label: "Ticket",
+                    placeholder: "Ticket",
+                    required: mandatories!.ticket && isFirst,
+                    value: seg.returnOnwardTicket,
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    items: TicketStatus.values,
+                    onChange: (a) {
+                      seg = seg.copyWith(returnOnwardTicket: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyFieldPicker<PurposeOfStayType>(
+                    label: "POS",
+                    required: mandatories!.pos && isFirst,
+                    value: seg.purposeOfStay,
+                    placeholder: "POS",
+
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    items: PurposeOfStayType.values,
+                    onChange: (a) {
+                      seg = seg.copyWith(purposeOfStay: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: MyDatePicker(
+                    label: "Departure",
+                    placeholder: "Date",
+                    required: mandatories!.departure && isFirst,
+
+                    value: seg.departure.dateTime,
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    onChanged: (a) {
+                      if (a!.isAfter(seg.arrival.dateTime!)) {
+                        seg = seg.copyWith(
+                          departure: seg.departure.copyWith(dateTime: a),
+                          arrival: seg.arrival.copyWith(dateTime: a),
+                        );
+                      } else {
+                        seg = seg.copyWith(departure: seg.departure.copyWith(dateTime: a));
+                      }
+                      // seg = seg.copyWith(departure: seg.departure.copyWith(dateTime: a));
+                      // seg = seg.copyWith(arrival: seg.departure.copyWith(dateTime: a));
+                      // log(jsonEncode(seg.toJson()));
+
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyTimePicker(
+                    label: "STD",
+                    placeholder: "Time",
+                    required: mandatories!.std && isFirst,
+
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    value: seg.departure.time,
+                    onChanged: (a) {
+                      seg = seg.copyWith(departure: seg.departure.copyWith(time: a));
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyDatePicker(
+                    label: "Arrival",
+                    required: mandatories!.arrival && isFirst,
+
+                    placeholder: "Date",
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    min: seg.departure.dateTime,
+                    value: seg.arrival.dateTime,
+                    onChanged: (a) {
+                      seg = seg.copyWith(arrival: seg.arrival.copyWith(dateTime: a));
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyTimePicker(
+                    label: "STA",
+                    required: mandatories!.sta && isFirst,
+
+                    placeholder: "Time",
+                    headerBgColor: Color(0xffECECEC),
+                    bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                    value: seg.arrival.time,
+                    onChanged: (a) {
+                      seg = seg.copyWith(arrival: seg.arrival.copyWith(time: a));
+                      log(a.format_HHmm);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+
+                      // ref.read(segmentsProvider.notifier).update((s) => [...s]);
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+            widget.isLast
+                ? Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: MySwitchButton(
+                    value: seg.luggageCollected ?? false,
+                    onChanged: (a) {
+                      seg = seg.copyWith(luggageCollected: a);
+                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                    },
+                    label: "Luggage Collect",
+                  ),
+                ),
+                Expanded(child: SizedBox()),
+              ],
+            )
+                : SizedBox(),
+          ],
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white)),

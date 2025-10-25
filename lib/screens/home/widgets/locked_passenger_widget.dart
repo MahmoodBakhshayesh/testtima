@@ -1,3 +1,4 @@
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,6 +42,27 @@ class LockedPassengerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(context.isDesktop){
+      return Container(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: tileColor),
+        padding: EdgeInsets.all(12),
+        child: Column(
+          spacing: 12,
+          children: [
+            LockedFieldWidget(label: null, value: Text("Passenger")),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: LockedFieldWidget(label: "Resident", value: countryPrefixBuilder(passengerDetails.residentCountryCode?.code3)),
+                ),
+                Expanded(child: LockedFieldWidget(label: "Birth Place", value:  countryPrefixBuilder(passengerDetails.birthCountry?.code3)))
+              ],
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: tileColor),
       padding: EdgeInsets.all(12),

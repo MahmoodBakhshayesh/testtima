@@ -179,36 +179,63 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
     final bodyBgColor = Color(0xffE9E9E9).withOpacity(0.48);
     final passNat = ref.watch(passportsProvider).firstOrNull?.nationality;
     final mandatories = BasicClass.constData.data.mandatory?.passenger;
+
+    if(context.isDesktop){
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 12),
+          Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: MyFieldPicker<Country>(
+                  hasSearch: true,
+                  searchAutoFocus: true,
+                  label: "Resident",
+                  required:mandatories?.resident??false,
+                  headerBgColor: headerBgColor,
+                  bodyBgColor: bodyBgColor,
+                  placeholder: "Country",
+                  prefixIcon: countryPrefixBuilder(details.residentCountryCode?.code3),
+                  suggestion:  BasicClass.constData.data.country.where((a)=>a.code3 == passNat?.code3).toList(),
+                  searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                  itemToWidget: countryBuilder,
+                  items: BasicClass.constData.data.country,
+                  value: details.residentCountryCode,
+                  onChange: (a) {
+                    details = details.copyWith(residentCountryCode: a);
+                    ref.read(passengerProvider.notifier).update((s) => details);
+                  },
+                ),
+              ),
+              Expanded(child:   MyFieldPicker<Country>(
+                label: "Birth Place",
+                hasSearch: true,
+                required:mandatories?.birthPlace??false,
+                suggestion:  BasicClass.constData.data.country.where((a)=>a.code3 == passNat?.code3).toList(),
+                searchAutoFocus: true,
+                placeholder: "Country",
+                headerBgColor: headerBgColor,
+                bodyBgColor: bodyBgColor,
+                prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
+
+                searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                items: BasicClass.constData.data.country,
+                itemToWidget: countryBuilder,
+                value: details.birthCountry,
+                onChange: (a) {
+                  ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+                },
+              ),)
+            ],
+          ),
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // const SizedBox(height: 12),
-        // Row(
-        //   spacing: 12,
-        //   children: [
-        //     Expanded(
-        //       child: MyFieldPicker<Country>(
-        //         hasSearch: true,
-        //         searchAutoFocus: true,
-        //         label: "Nationality",
-        //         required:mandatories?.notionality??false,
-        //         headerBgColor: headerBgColor,
-        //         bodyBgColor: bodyBgColor,
-        //         placeholder: "Country",
-        //         prefixIcon: countryPrefixBuilder(details.nationality?.code3),
-        //
-        //         searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-        //         itemToWidget: countryBuilder,
-        //         items: BasicClass.constData.data.country,
-        //         value: details.nationality,
-        //         onChange: (a) {
-        //           details = details.copyWith(nationality: a);
-        //           ref.read(passengerProvider.notifier).update((s) => details);
-        //         },
-        //       ),
-        //     ),
-        //   ],
-        // ),
         const SizedBox(height: 12),
         Row(
           spacing: 12,
@@ -275,46 +302,9 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
             ),)
           ],
         ),
-        // const SizedBox(height: 12),
-        // MyDatePicker(
-        //   required: true,
-        //   label: "Birth Date",
-        //   placeholder: "Birth Date",
-        //   headerBgColor: headerBgColor,
-        //   bodyBgColor: bodyBgColor,
-        //   validator: (a) => birthDateValidator(a, details.birthDate),
-        //   validationColor: birthDateValidationColor(details.birthDate),
-        //   max: DateTime.now(),
-        //   validationIcon: ArtemisIcons.user_square,
-        //   value: details.birthDate,
-        //   onChanged: (a) {
-        //     ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-        //   },
-        // ),
-
       ],
     );
   }
 }
 
-// String? birthDateValidator(String v, DateTime? bDate) {
-//   if (bDate == null) return null;
-//   int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-//   String s = StringUtility.formatDaysToAge(bDate.difference(DateTime.now()).inDays.abs());
-//   return s;
-// }
-
-// Color? birthDateValidationColor(DateTime? bDate) {
-//   if (bDate == null) return null;
-//   int years = (bDate.difference(DateTime.now()).inDays / 365).floor().abs();
-//   double realYears = (bDate.difference(DateTime.now()).inDays / 365).abs();
-//   // log("realYears $realYears");
-//   if (realYears < 2) {
-//     return Colors.orange;
-//   }
-//   if (realYears <= 12) {
-//     return Colors.orange;
-//   }
-//   return MyColors.green2;
-// }
 

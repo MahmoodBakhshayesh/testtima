@@ -109,6 +109,226 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
     // log(d.ocrText??'-');
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffFCF7F0);
+    if(context.isDesktop){
+      return Container(
+        decoration:
+        BoxDecoration(borderRadius: BorderRadiusGeometry.circular(20),
+            color:d.isExpired?MyColors.mainRed.withOpacity(0.12): Color(0xffFAF0E3),
+            border:d.isExpired? Border.all(color: MyColors.mainRed):null
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        margin: EdgeInsets.only(top: 12),
+        child: MyExpansionTile(
+          tapOnTitleActive: false,
+          initiallyExpanded: d.isScanned,
+          footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+          shape: RoundedRectangleBorder(),
+          collapsedShape: RoundedRectangleBorder(),
+          tilePadding: EdgeInsets.symmetric(horizontal: 0),
+          footerExtra: IndexedStack(
+            index: isLast ? 0 : 1,
+            children: [
+              MyButton(
+                height: 30,
+                label: "Visa",
+                icon: Icons.add_circle_outline,
+                onPressed: () {
+                  ref.read(visasProvider.notifier).add(DocumentDetail.visa());
+                },
+                textColor: Colors.blueAccent,
+                color: Colors.blueAccent.withOpacity(0.1),
+              ),
+              SizedBox(),
+            ],
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                spacing: 12,
+                children: [
+                  Expanded(
+                    child: Text("Visa #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  ),
+                  DotButton(
+                    icon: ArtemisIcons.eraser_1,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(
+                        Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear ${"Visa #${widget.index + 1}"}. Are you sure?', title: "Clear", actions: ["Cancel", "Confirm"]),
+                      );
+                      if (!confirm) return;
+                      ref.read(visasProvider.notifier).updateAt(index,DocumentDetail());
+                    },
+                    size: 40,
+                    radius: 8,
+                    iconSize: 20,
+                    color: context.mainColor,
+                    flat: true,
+                    border: BorderSide(width: 1, color: context.mainColor),
+                  ),
+                  DotButton(
+                    icon: ArtemisIcons.trash,
+                    onPressed: () async {
+                      final confirm = await ConfirmOperation.getConfirm(
+                        Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete ${"Visa #${widget.index + 1}"}. Are you sure?', title: "Delete", actions: ["Cancel", "Confirm"]),
+                      );
+                      if (!confirm) return;
+                      ref.read(visasProvider.notifier).removeAt(index);
+                    },
+                    size: 40,
+                    radius: 8,
+                    iconSize: 20,
+                    color: Colors.red,
+                    flat: true,
+                    border: BorderSide(width: 1, color: Colors.red),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                spacing: 12,
+                children: [
+                  Expanded(
+                    child: MyFieldPicker<DocumentCode>(
+                      label: "Code",
+                      required: requiredFields.code,
+                      suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
+                      placeholder: "Code",
+                      headerBgColor: headerBg,
+                      bodyBgColor: bodyBg,
+                      valueToString: (v)=>v.name,
+                    
+                      // valueToString: docCodeToString,
+                      items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
+                      value: d.documentCode,
+                      onChange: (a) {
+                        d = d.copyWith(documentCode: a);
+                        ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<Country>(
+                      label: "Issued In",
+                      required: requiredFields.issuedIn,
+                      placeholder: "Country",
+                      headerBgColor: headerBg,
+                      bodyBgColor: bodyBg,
+                      searchAutoFocus: true,
+                      prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+                      suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
+
+                      itemToWidget: countryBuilder,
+                      searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                      items: BasicClass.constData.data.country,
+                      value: d.documentIssueCountry,
+                      onChange: (a) {
+                        d = d.copyWith(documentIssueCountry: a);
+                        ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<Country>(
+                      hasSearch: true,
+                      searchAutoFocus: true,
+                      required: requiredFields.notionality,
+
+                      label: "Nationality",
+                      headerBgColor: headerBg,
+                      bodyBgColor: bodyBg,
+                      placeholder: "Country",
+                      prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+                      suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
+
+                      searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                      itemToWidget: countryBuilder,
+                      items: BasicClass.constData.data.country,
+                      value: d.nationality,
+                      onChange: (a) {
+                        // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                        d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry??a);
+                        ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyDatePicker(
+                      label: "Expiry",
+                      required: requiredFields.expiryDate,
+
+                      headerBgColor: headerBg,
+                      bodyBgColor: bodyBg,
+                      // required: true,
+                      validator: (a) => expiryValidator(a, d.documentExpiryDate),
+                      validationColor: visaExpiryValidationColor(d.documentExpiryDate),
+                      validationIcon: visaExpiryValidationIcon(d.documentExpiryDate),
+                      placeholder: "Date",
+                      value: d.documentExpiryDate,
+                      onChanged: (a) {
+                        d = d.copyWith(documentExpiryDate: a);
+                        ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          childrenPadding: EdgeInsets.only(left: 0, right: 0, top: 4, bottom: 0),
+          children: [
+
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: MyTextFieldNew(
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
+                    controller: controller,
+                    required: requiredFields.documentNumber,
+                    inputFormatters:d.isScanned? [MaskMiddleFormatter()]:[],
+                    label: "Document # ${foundPassInVisa ? '✅' : ''}",
+                    placeholder: "Number",
+                    labelInRow: true,
+                    validationIcon: d.verifiedDocNum ? ArtemisIcons.tick_square : null,
+                    validationColor: d.verifiedDocNum ? Colors.green : null,
+                    validator: d.verifiedDocNum ? (a) => "Verified" : null,
+                  ),
+                ),
+                Expanded(
+                  child: MyDatePicker(
+                    // required: true,
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
+                    label: "Birth Date",
+                    placeholder: "Birth Date",
+                    required: requiredFields.birthDate,
+
+                    validator: (a) => birthDateValidator(a, d.birthDate),
+                    validationColor: birthDateValidationColor(d.birthDate),
+                    validationIcon: ArtemisIcons.user_square,
+                    value: d.birthDate,
+                    onChanged: (a) {
+                      // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                      d = d.copyWith(birthDate: a);
+                      ref.read(visasProvider.notifier).updateAt(widget.index, d);
+                    },
+                  ),
+                ),
+
+
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // const SizedBox(height: 12),
+
+
+          ],
+        ),
+      );
+    }
     return Container(
       decoration:
       BoxDecoration(borderRadius: BorderRadiusGeometry.circular(20),
@@ -121,12 +341,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
       margin: EdgeInsets.only(top: 12),
       child: MyExpansionTile(
         tapOnTitleActive: false,
-
         initiallyExpanded: d.isScanned,
-        // backgroundColor: MyColors.scaffoldBg,
-        // collapsedBackgroundColor: MyColors.scaffoldBg,
-        // backgroundColor: Colors.orange.withOpacity(0.2),
-        // collapsedBackgroundColor: Colors.orange.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),

@@ -76,7 +76,6 @@ import '../../widgets/glass_widget.dart';
 import '../mrz_reader/dialogs/support_warning_dialog.dart';
 import 'home_controller.dart';
 import 'home_state.dart';
-import 'home_view_phone_old.dart';
 import 'widgets/passport_section.dart';
 import 'widgets/resident_section.dart';
 import 'widgets/timatic_response_widget.dart';

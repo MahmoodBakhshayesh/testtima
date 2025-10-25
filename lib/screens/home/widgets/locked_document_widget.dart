@@ -1,4 +1,5 @@
 import 'package:abds/core/classes/basic_class.dart';
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/string_utility.dart';
 import 'package:country_flags/country_flags.dart';
@@ -43,6 +44,84 @@ class LockedDocumentItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(context.isDesktop){
+      return Container(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: tileColor),
+        padding: EdgeInsets.all(12),
+        child: Column(
+          spacing: 12,
+          children: [
+            LockedFieldWidget(label: null, value: Text(BasicClass.constData.data.documentCode.firstWhereOrNull((a)=>a.code == d.documentCode?.code)?.toString()??'',style: TextStyle(fontSize: 12,height: 1),)),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(
+                  child: Row(
+                    spacing: 12,
+                    children: [
+                    Expanded(
+                      child: LockedFieldWidget(half: true, label: "Issued In", value: countryPrefixBuilder(d.documentIssueCountry?.code3)),
+                    ),
+                    Expanded(
+                      child: LockedFieldWidget(half: true, label: "Nationality", value: countryPrefixBuilder(d.nationality?.code3)),
+                    ),
+
+                    Expanded(
+                      child: LockedFieldWidget(
+                        half: true,
+                        label: "Gender",
+                        value: Row(
+                          children: [
+                            Text(d.gender?.title??'')
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(child: LockedFieldWidget(
+                        half: true,
+                        label: "Document #", value: Text(StringUtility.maskString(d.documentNumber??'') ?? ''))),
+                  ],),
+                ),
+                Expanded(
+                  child: Row(
+                    spacing: 12,
+                    children: [
+
+                    Expanded(
+                      flex: 2,
+                      child: LockedFieldWidget(
+                        label: "Expiry Date",
+                        value: Row(
+                          children:d.documentExpiryDate==null?[]: [
+                            Expanded(child: Text(DateFormat("dd MMM yyyy").format(d.documentExpiryDate!))),
+                            Icon(expiryValidationIcon(d.documentExpiryDate), size: 10, color: expiryValidationColor(d.documentExpiryDate)),
+                            Text(expiryValidator("", d.documentExpiryDate) ?? '', style: TextStyle(fontSize: 10, color: expiryValidationColor(d.documentExpiryDate))),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: LockedFieldWidget(
+                        label: "Birth Date",
+                        value: Row(
+                          children:d.birthDate==null?[]: [
+                            Expanded(child: Text(DateFormat("dd MMM yyyy").format(d.birthDate!))),
+                            Icon(Icons.date_range, size: 10, color: birthDateValidationColor(d.birthDate)),
+                            Text(birthDateValidator("", d.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(d.birthDate))),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],),
+                )
+              ],
+            ),
+
+          ],
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: tileColor),
       padding: EdgeInsets.all(12),
