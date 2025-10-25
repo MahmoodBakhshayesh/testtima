@@ -90,7 +90,7 @@ class _MyOcrSettingDialogState extends State<AgentDecisionSheet> {
                   Row(
                     children: [
                       const SizedBox(width: 12),
-                      Expanded(child: Text("Airline Representative Decision")),
+                      Expanded(child: Text("Agent Decision")),
                       CloseButton(),
                     ],
                   ),

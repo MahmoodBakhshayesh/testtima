@@ -225,7 +225,7 @@ class ConfirmOperationSheet extends StatelessWidget {
                       ),
                       Expanded(
                         child: MyButton(
-                          label: "I'm Sure, ${operation.title}",
+                          label: "Yes, ${operation.title}",
                           icon: operation.icon,
                           onPressed: () {
                             Navigator.pop(context,true);

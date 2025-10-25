@@ -7,6 +7,7 @@ import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/screens/result_report/result_report_state.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:artemis_utils/artemis_utils.dart';
@@ -25,11 +26,15 @@ import '../home_controller.dart';
 import '../home_state.dart';
 
 class LogsAndAttachmentsWidget extends ConsumerWidget {
-  const LogsAndAttachmentsWidget({super.key});
+  final bool report;
+  const LogsAndAttachmentsWidget({super.key,this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final logs = ref.watch(showingLogsProvider);
+    var logs = ref.watch(showingLogsProvider);
+    if(report){
+      logs = ref.watch(reportShowingLogsProvider);
+    }
     logs.sort((a,b)=>b.at!.compareTo(a.at!));
     logs.sort((a,b)=>['airlineApproval',"askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval',"askSupervisor"].indexOf(b.type!)));
     for (var l in logs) {

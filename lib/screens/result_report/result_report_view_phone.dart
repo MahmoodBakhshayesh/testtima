@@ -122,8 +122,9 @@ class _ResultReportViewPhoneState extends ConsumerState<ResultReportViewPhone> {
                           child: Column(
                             children: [
                               SizedBox(height: 124 + (resultMode ? additionalHeight : 0)),
-                              LogsAndAttachmentsWidget(),
+                              LogsAndAttachmentsWidget(report: true,),
                               Padding(
+
                                 padding: const EdgeInsets.all(12.0),
                                 child: MyExpansionTile(
                                   controller: flightPaxController,
