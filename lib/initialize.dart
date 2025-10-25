@@ -308,21 +308,27 @@ Future<void> _initPackages() async {
 
 
 Future<void> disableScreenshot() async {
-  bool result = await _noScreenshot.screenshotOff();
-  // listenForScreenshot();
-  debugPrint('Screenshot Off: $result');
+  if(Platform.isAndroid || Platform.isIOS) {
+    bool result = await _noScreenshot.screenshotOff();
+    // listenForScreenshot();
+    debugPrint('Screenshot Off: $result');
+  }
 }
 
 Future<void> enableScreenshot() async {
-  bool result = await _noScreenshot.screenshotOn();
-  // listenForScreenshot();
-  debugPrint('Screenshot Off: $result');
+  if(Platform.isAndroid || Platform.isIOS) {
+    bool result = await _noScreenshot.screenshotOn();
+    // listenForScreenshot();
+    debugPrint('Screenshot Off: $result');
+  }
 }
 
 void listenForScreenshot() {
-  _noScreenshot.screenshotStream.listen((value) {
-    if (value.wasScreenshotTaken) showAlert(value.screenshotPath);
-  });
+  if(Platform.isAndroid || Platform.isIOS) {
+    _noScreenshot.screenshotStream.listen((value) {
+      if (value.wasScreenshotTaken) showAlert(value.screenshotPath);
+    });
+  }
 }
 
 void showAlert(String screenshotPath) {
