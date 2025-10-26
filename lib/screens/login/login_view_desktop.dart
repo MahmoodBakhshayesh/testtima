@@ -17,6 +17,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../widgets/DotButton.dart';
 import '../../widgets/MyButton.dart';
 import '../../widgets/MyTextField.dart';
+import '../../widgets/native_drop_down.dart';
 import 'login_controller.dart';
 import 'login_state.dart';
 
@@ -72,9 +73,10 @@ class _LoginViewDesktopState extends State<LoginViewDesktop> {
             color: Colors.white,
             child: Center(child: SizedBox(
                 width: 500,
-                height: 500,
+                  height: 500,
 
-                child: LoginPanel()))),
+                child: LoginPanel()
+            ))),
       ),
     );
   }

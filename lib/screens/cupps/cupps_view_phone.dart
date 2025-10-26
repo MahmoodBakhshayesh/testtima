@@ -88,7 +88,9 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
                         // String test = "�0P<BRASILVA<COSTA<<JOANA<<<<<<<<<<<<<<<<<<<<<AA000000<0BRA8101109F2508142<<<<<<<<<<<<<<02";
                         // String test = "�0P<BRASILVA<COSTA<<JOANA<<<<<<<<<<<<<<<<<<<<<AA000000<0BRA8101109F2508142<<<<<<<<<<<<<<02";
                         // String test = "0IDD<<T010084778<<<<<<<<<<<<<<<\n6408125<2010315D<<<<<<<<<<<<<4\nMUSTERMANN<<ERIKA<<<<<<<<<<<<<";
-                        String test = "0IDFRAN0L0DJG530<<<<<<<<<<<<<<<\n0507130F3108011FRA<<<<<<<<<<<0\nSPECIMEN<MARTIN<<GAELLE<MA<C<L";
+                        // String test = "0IDFRAN0L0DJG530<<<<<<<<<<<<<<<\n0507130F3108011FRA<<<<<<<<<<<0\nSPECIMEN<MARTIN<<GAELLE<MA<C<L";
+                        // String test = "0V<JPNABCDEFGHIJKLMNOPQRSTUVWXYZ<<OCUDOCUD<<<PA12345673JPN6004251M981210598H10668001<D014";
+                        String test = "0V<CANSAMPLE<D<<<<<<<<<<<<<<<<<<<<<<<D0211083<9AUS7312139F0607247<<<<<<<<";
                         CuppsUtils.ocDataHandlerText(test);
                     },
                   ),

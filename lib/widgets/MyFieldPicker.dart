@@ -15,6 +15,7 @@ import 'DotButton.dart';
 import 'dart:developer' as dev;
 
 import 'MyTextFieldNew.dart';
+import 'native_drop_down.dart';
 
 class MyFieldPicker<T> extends StatefulWidget {
   final String Function(T)? itemToString;
@@ -122,15 +123,18 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
       return ValueListenableBuilder<T?>(
         valueListenable: value,
         builder: (context, v, _) {
-          return MyDropDown(
+          return MyFieldPickerDesktop(
             headerBgColor: widget.headerBgColor,
             bodyBgColor: widget.bodyBgColor,
             rowLabelRatio: widget.rowLabelRatio,
             items: widget.items,
-            autoFocus: widget.searchAutoFocus,
+            supportNull: false,
+            hasSearch: widget.hasSearch,
+            // autoFocus: widget.searchAutoFocus,
             required: widget.required,
             label: widget.label,
-            builder: widget.itemToWidget,
+            itemToWidget: widget.itemToWidget,
+            // builder: widget.itemToWidget,
             placeholder: widget.placeholder,
             onChange:(v){
               if (v == Null) {

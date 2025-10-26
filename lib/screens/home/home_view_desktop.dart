@@ -470,6 +470,29 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                                           await getIt<HomeController>().setStatus(1);
                                                                         },
                                                                       ),
+                                                                      const SizedBox(width: 8),
+                                                                      MyButton(
+                                                                        label: "TIMATIC",
+                                                                        iconSize: 12,
+                                                                        fontSize: 12,
+                                                                        icon: ArtemisIcons.user_square,
+                                                                        onPressed: !canCheck
+                                                                            ? () {
+                                                                          ref.read(globalFormValidationMode.notifier).update((s) => true);
+                                                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please fill all required data!"), showCloseIcon: true));
+                                                                        }
+                                                                            : () async {
+                                                                          ref.read(globalFormValidationMode.notifier).update((s) => false);
+                                                                          final timResult = await getIt<HomeController>().timatic();
+                                                                          if (timResult != null) {
+                                                                            ref.read(timaticResultNewProvider.notifier).update((s) => timResult);
+                                                                            timaticController.expand();
+
+                                                                            scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                                                                          }
+                                                                        },
+                                                                        radius: 12,
+                                                                      ),
                                                                     ],
                                                                   )
                                                                       : MyButton(
