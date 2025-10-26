@@ -456,6 +456,7 @@ class CuppsUtils {
     // log("*"*100);
 
     // docType = BasicClass.timData.params.of(ParameterType.documentCode).firstWhereOrNull((a) => a.code.toUpperCase() == mapMrzDocCodeToTimatic(res.documentCode));
+    log(ocD);
     log(jsonEncode(dd.toJson()));
 
     DocumentDetailType? suggest;
@@ -482,7 +483,7 @@ class CuppsUtils {
   static void ocDataHandler(List<OcData> data) {
     RouteInfo currentRoute = getIt<HomeController>().navigation.currentRoute!;
 
-    String ocD = data.map((e) => e.toString()).toList().join();
+    String ocD = data.map((e) => e.toString()).toList().join("\n");
     ocDataHandlerText(ocD);
 
   }
@@ -566,7 +567,7 @@ extension CuppsPlatformStatusDetails on CuppsPlatformStatus {
   String get getConnectLabel {
     switch (this) {
       case CuppsPlatformStatus.connected:
-        return "Disconnected";
+        return "Disconnect";
       default:
         return 'Connect';
     }
@@ -577,21 +578,77 @@ extension CuppsPlatformStatusDetails on CuppsPlatformStatus {
 
 // ======================= PUBLIC ENTRY =======================
 
+/// Prefer TD1 using the "digits on first line" rule.
+/// Removes at most [maxPrefixDrop] leading chars; keeps everything else intact (except \r/\n).
 DocumentDetail parseMrzToDocumentDetail(String raw) {
-  final lines = _normalizeAndSplitLines(raw);
-
-  // Try direct line detection if we already have 2 or 3 lines.
-  if (lines.length == 2 || lines.length == 3) {
-    final fixed = _fixLeadingZeroOnFirstLine(lines);
-    return _parseByShapeOrFallback(fixed);
+  final td1 = extractTd1Enhanced(raw, maxPrefixDrop: 2);
+  if (td1.isNotEmpty) {
+    return _parseTD1(td1[0], td1[1], td1[2]); // your TD1 parser from earlier
   }
 
-  // Otherwise, reconstruct from a flat string.
-  final flat = _sanitizeMrz(raw); // flat, no newlines
-  final reconstructed = _reconstructFromFlat(flat);
-  final fixed = _fixLeadingZeroOnFirstLine(reconstructed);
-  return _parseByShapeOrFallback(fixed);
+  // Fallbacks (non-destructive): try TD3 then TD2 from the tail, as usual.
+  final cleaned = raw.replaceAll('\r', '').replaceAll('\n', '');
+  if (cleaned.length >= 88) {
+    final last88 = cleaned.substring(cleaned.length - 88);
+    final l1 = last88.substring(0, 44), l2 = last88.substring(44, 88);
+    return _parseTD3(l1, l2);
+  }
+  if (cleaned.length >= 72) {
+    final last72 = cleaned.substring(cleaned.length - 72);
+    final l1 = last72.substring(0, 36), l2 = last72.substring(36, 72);
+    return _parseTD2(l1, l2);
+  }
+
+  // Unknown: return as-is so you can inspect
+  return DocumentDetail(mrz: raw);
 }
+
+/// TD1 extractor that (1) drops ≤2 prefix chars, (2) uses "digit on first line" rule, (3) requires name marker on L3.
+List<String> extractTd1Enhanced(String raw, {int maxPrefixDrop = 2}) {
+  const docTypeSet = {'I','P','V','A','C','D','R'};
+
+  // try with 0, 1, or 2 chars dropped — nothing more
+  final limit = (maxPrefixDrop + 1).clamp(1, 3);
+  for (int drop = 0; drop < limit; drop++) {
+    if (drop >= raw.length) break;
+
+    // Must start on a plausible doc-type
+    final ch = raw[drop].toUpperCase();
+    if (!docTypeSet.contains(ch)) continue;
+
+    // Strip only newlines; keep every other character intact
+    String s = raw.substring(drop).replaceAll('\r', '').replaceAll('\n', '');
+    if (s.length < 90) continue;
+
+    // First 90 chars only (strict TD1)
+    s = s.substring(0, 90);
+    final l1 = s.substring(0, 30);
+    final l2 = s.substring(30, 60);
+    final l3 = s.substring(60, 90);
+
+    // Heuristics:
+    // 1) First line must contain at least one digit (TD1 has document number on L1).
+    if (!_hasDigit(l1)) continue;
+
+    // 2) Third line should contain the MRZ name separator.
+    if (!l3.contains('<<')) continue;
+
+    // Looks like TD1
+    return [l1, l2, l3];
+  }
+
+  // Could not validate TD1 without dropping >2 chars
+  return [];
+}
+
+bool _hasDigit(String s) {
+  for (int i = 0; i < s.length; i++) {
+    final c = s.codeUnitAt(i);
+    if (c >= 0x30 && c <= 0x39) return true; // '0'..'9'
+  }
+  return false;
+}
+
 
 // =================== NORMALIZATION HELPERS ===================
 
@@ -711,6 +768,8 @@ DocumentDetail _parseByShapeOrFallback(List<String> lines) {
 
 /// TD3 / MRV-A (2×44). Works for Passports 'P<' and Visas 'V<' in 2x44 layout.
 DocumentDetail _parseTD3(String l1, String l2) {
+  log("_parseTD3");
+
   final docCode = l1.substring(0, 2);           // 'P<' or 'V<'
   final issuing = l1.substring(2, 5);
   final namesField = l1.substring(5);
@@ -737,6 +796,7 @@ DocumentDetail _parseTD3(String l1, String l2) {
 
 /// TD2 / MRV-B (2×36)
 DocumentDetail _parseTD2(String l1, String l2) {
+  log("_parseTD2");
   final docCode = l1.substring(0, 2);          // 'I<', 'V<', 'P<', etc.
   final issuing = l1.substring(2, 5);
   final namesField = l1.substring(5, 36);
@@ -762,27 +822,38 @@ DocumentDetail _parseTD2(String l1, String l2) {
 }
 
 /// TD1 (3×30)
+/// TD1 (3×30) — set docCode from the *first char only* and read name from last line.
 DocumentDetail _parseTD1(String l1, String l2, String l3) {
-  final docCode = l1.substring(0, 2);
-  final issuing = l1.substring(2, 5);
-  final docNum = l1.substring(5, 14).replaceAll('<', ''); // 9 chars
-  final birthYYMMDD = l2.substring(0, 6);
-  final expiryYYMMDD = l2.substring(7, 13);
-  final nationality = l2.substring(14, 17);
+  final shortType = l1.substring(0, 1);          // "I"
+  final docCode   = shortType;                   // per your rule: just "I"
+  final issuing   = l1.substring(2, 5);          // e.g., "FRA"
+  final docNum    = l1.substring(5, 14).replaceAll('<', '');
+
+  final birthYYMMDD   = l2.substring(0, 6);
+  final birthCheck    = l2.substring(6, 7);      // unused here
+  final sex           = l2.substring(7, 8).replaceAll('<', '');
+  final expiryYYMMDD  = l2.substring(8, 14);     // <-- correct slice
+  final expiryCheck   = l2.substring(14, 15);    // unused here
+  final nationality   = l2.substring(15, 18);
+
   final namesField = l3.substring(0, 30);
+  final fullName   = _fullNameFromNamesField(namesField);
 
   return DocumentDetail(
     documentNumber: _nz(docNum),
-    fullName: _nz(_fullNameFromNamesField(namesField)),
+    fullName: _nz(fullName),
     documentIssueCountry: BasicClass.getLocationWithCode(issuing),
     nationality: BasicClass.getLocationWithCode(nationality),
     birthDate: _parseMrzDate(birthYYMMDD),
-    documentExpiryDate: _parseMrzDate(expiryYYMMDD),
-    shortType: _shortTypeFromDocCode(docCode),
+    documentExpiryDate: parseMrzExpiryDate(expiryYYMMDD),
+    sex: _nz(sex),
+    shortType: shortType,
     docCode: docCode,
     mrz: '$l1\n$l2\n$l3',
   );
 }
+
+
 
 // ========================= HELPERS =========================
 
@@ -815,4 +886,108 @@ DateTime? _parseMrzDate(String yymmdd) {
 }
 
 String? _nz(String s) => s.isEmpty ? null : s;
+
+
+/// Parses MRZ date (YYMMDD) as a birth date:
+/// - Valid window: now-120y .. now
+/// - Chooses the candidate in range; if both are in range, picks the one closer to "now"
+DateTime? parseMrzBirthDate(String yymmdd, {DateTime? now}) {
+  return _parseMrzDateWindowed(
+    yymmdd,
+    now: now??DateTime.now(),
+    min: _yearsAgo(120, now: now),
+    max: (now ?? DateTime.now()),
+    preferFuture: false, // never prefer future for birth
+  );
+}
+
+/// Parses MRZ date (YYMMDD) as an expiry date:
+/// - Valid window: now-20y .. now+20y
+/// - Prefers future dates (>= now) if both candidates are valid
+DateTime? parseMrzExpiryDate(String yymmdd, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  return _parseMrzDateWindowed(
+    yymmdd,
+    now: n,
+    min: _yearsAgo(20, now: n),
+    max: _yearsFromNow(20, now: n),
+    preferFuture: true, // lean to future for expiry
+  );
+}
+
+/// -------------- Internals --------------
+
+DateTime? _parseMrzDateWindowed(
+    String yymmdd, {
+      required DateTime min,
+      required DateTime max,
+      required DateTime now,
+      required bool preferFuture,
+    }) {
+  if (yymmdd.length != 6 || yymmdd.contains('<')) return null;
+
+  final yy = int.tryParse(yymmdd.substring(0, 2));
+  final mm = int.tryParse(yymmdd.substring(2, 4));
+  final dd = int.tryParse(yymmdd.substring(4, 6));
+  if (yy == null || mm == null || dd == null) return null;
+
+  // Build two century candidates: 19yy and 20yy
+  final cand1900 = _safeDate(1900 + yy, mm, dd);
+  final cand2000 = _safeDate(2000 + yy, mm, dd);
+
+  DateTime? best;
+
+  bool inRange(DateTime d) => !d.isBefore(min) && !d.isAfter(max);
+
+  final c1Valid = cand1900 != null && inRange(cand1900);
+  final c2Valid = cand2000 != null && inRange(cand2000);
+
+  if (c1Valid && !c2Valid) return cand1900;
+  if (!c1Valid && c2Valid) return cand2000;
+
+  if (c1Valid && c2Valid) {
+    // Both in range: choose by preference
+    final c1IsFuture = !cand1900!.isBefore(now);
+    final c2IsFuture = !cand2000!.isBefore(now);
+
+    if (preferFuture) {
+      if (c2IsFuture && !c1IsFuture) return cand2000;
+      if (c1IsFuture && !c2IsFuture) return cand1900;
+    } else {
+      if (!c1IsFuture && c2IsFuture) return cand1900;
+      if (!c2IsFuture && c1IsFuture) return cand2000;
+    }
+
+    // Otherwise, pick the closer to now
+    final d1 = (cand1900.difference(now)).abs();
+    final d2 = (cand2000.difference(now)).abs();
+    best = d1 <= d2 ? cand1900 : cand2000;
+    return best;
+  }
+
+  // Neither candidate in window → null
+  return null;
+}
+
+DateTime? _safeDate(int y, int m, int d) {
+  // Reject impossible month/day early
+  if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+  try {
+    final dt = DateTime(y, m, d);
+    // Guard against overflow like 2025-02-30 rolling into March
+    if (dt.year == y && dt.month == m && dt.day == d) return dt;
+  } catch (_) {}
+  return null;
+}
+
+DateTime _yearsAgo(int years, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  return DateTime(n.year - years, n.month, n.day);
+}
+
+DateTime _yearsFromNow(int years, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  return DateTime(n.year + years, n.month, n.day);
+}
+
 

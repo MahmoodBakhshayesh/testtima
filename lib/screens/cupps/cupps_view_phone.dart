@@ -71,7 +71,7 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
                     label: cuppsPlatform.getConnectLabel,
                     onPressed: () async {
                       if (cuppsPlatform == CuppsPlatformStatus.connected) {
-                        return;
+                        CuppsUtils.disconnectCupps();
                       }
                       await CuppsViewPhone.myCuppsController.connectCupps(ipC.text, portC.text);
                     },
@@ -85,7 +85,11 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
                     label: cuppsPlatform.label,
                     onPressed: () async {
                         // String test = "�0P<BRASILVA<COSTA<<JOANA<<<<<<<<<<<<<<<<<<<<<AA000000<0BRA8101109F2508142<<<<<<<<<<<<<<02";
-                        // CuppsUtils.ocDataHandlerText(test);
+                        // String test = "�0P<BRASILVA<COSTA<<JOANA<<<<<<<<<<<<<<<<<<<<<AA000000<0BRA8101109F2508142<<<<<<<<<<<<<<02";
+                        // String test = "�0P<BRASILVA<COSTA<<JOANA<<<<<<<<<<<<<<<<<<<<<AA000000<0BRA8101109F2508142<<<<<<<<<<<<<<02";
+                        // String test = "0IDD<<T010084778<<<<<<<<<<<<<<<\n6408125<2010315D<<<<<<<<<<<<<4\nMUSTERMANN<<ERIKA<<<<<<<<<<<<<";
+                        String test = "0IDFRAN0L0DJG530<<<<<<<<<<<<<<<\n0507130F3108011FRA<<<<<<<<<<<0\nSPECIMEN<MARTIN<<GAELLE<MA<C<L";
+                        CuppsUtils.ocDataHandlerText(test);
                     },
                   ),
                 ),

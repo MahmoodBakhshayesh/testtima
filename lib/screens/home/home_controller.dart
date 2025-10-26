@@ -776,7 +776,7 @@ class HomeController extends ControllerInterface {
       );
       if (code is DocumentCode) {
         log("code ${code.code}");
-        String shortType = added.shortType??BasicClass.constData.data.documentDetailType.firstWhere((a)=>a.code == code.code).type;
+        String shortType = added.shortType??BasicClass.constData.data.documentDetailType.firstWhereOrNull((a)=>a.code == code.code)?.type??"P";
         ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true,shortType: shortType));
         log(ref.read(confirmingDocumentProvider)!.documentCode.toString());
         final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
