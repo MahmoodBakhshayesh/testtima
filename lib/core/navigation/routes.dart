@@ -83,6 +83,11 @@ abstract class Routes {
     name: 'performance',
     isShellRoute: false,
   );
+  static MyRouteInfo cupps = MyRouteInfo(
+    path: '/cupps',
+    name: 'cupps',
+    isShellRoute: false,
+  );
   static MyRouteInfo inbox = MyRouteInfo(
     path: '/inbox',
     name: 'inbox',

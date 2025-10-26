@@ -1,5 +1,6 @@
 import 'package:abds/screens/add_user/add_user_view.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_view.dart';
+import 'package:abds/screens/cupps/cupps_view.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_view.dart';
 import 'package:abds/screens/inbox/inbox_view.dart';
 import 'package:abds/screens/logs/logs_view.dart';
@@ -58,6 +59,10 @@ class _MyAppState extends ConsumerState<MyApp> {
           routeInfo: Routes.inbox,
           pageWidget: InboxView(),
           routes: [TreeRoute(routeInfo: Routes.messageDetails, pageWidget: MessageDetailsView())],
+        ),
+        TreeRoute(
+          routeInfo: Routes.cupps,
+          pageWidget: CuppsView(),
         ),
         TreeRoute(
           routeInfo: Routes.home,

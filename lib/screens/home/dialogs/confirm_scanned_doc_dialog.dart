@@ -42,7 +42,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
     log(documentDetail.shortType?? '');
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
-      insetPadding: EdgeInsets.symmetric(horizontal: 12),
+      insetPadding: context.getDialogPadding,
       child: Container(
         width: double.infinity,
         child: Column(

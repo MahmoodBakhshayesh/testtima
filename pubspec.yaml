@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.2+14206
+version: 1.4.2+14208
 
 
 
@@ -107,6 +107,7 @@ dependencies:
   fast_cached_network_image: ^1.3.3+5
   flutter_linkify: ^6.0.0
   pinch_zoom: ^2.0.1
+  artemis_cupps: ^0.0.97
 
 dev_dependencies:
   flutter_test:

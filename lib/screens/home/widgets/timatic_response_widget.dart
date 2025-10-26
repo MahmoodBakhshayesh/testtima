@@ -43,12 +43,14 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 12,
       children: [
         ...widget.res.segments.map((segRes) {
           int index = widget.res.segments.indexOf(segRes);
           log("seg res open ${segRes.open}");
           return MyExpansionTile(
-            controller: expansibleController,
+            key: Key(segRes.route),
+            // controller: expansibleController,
             initiallyExpanded: segRes.open,
             tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
@@ -155,7 +157,7 @@ class RuleSetWidgetNew extends StatelessWidget {
     // log("rulse set ${ruleSet.title} ${ ruleSet.getRes.resultId} expanded =${ruleSet.getRes.resultId !=1}");
 
     return Padding(
-      padding: const EdgeInsets.only(left: 14, right: 14.0, top: 14),
+      padding: const EdgeInsets.only(left: 14, right: 14.0, top: 0),
       child: MyExpansionTile(
         // initiallyExpanded: (ruleSet.getRes.resultId??1)>1,
         showFooter: false,

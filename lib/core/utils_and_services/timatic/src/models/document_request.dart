@@ -110,6 +110,7 @@ class DocumentDetail {
     Object? sex = _unset,
     Object? verifiedDocNum = _unset,
     Object? verifiedDocCode = _unset,
+    Object? suggestionCodes = _unset,
   }) {
     return DocumentDetail(
       documentNumber: identical(documentNumber, _unset) ? this.documentNumber : documentNumber as String?,
@@ -128,6 +129,7 @@ class DocumentDetail {
       ocrText: identical(ocrText, _unset) ? this.ocrText : ocrText as String?,
       shortType: identical(shortType, _unset) ? this.shortType : shortType as String?,
       docCode: identical(docCode, _unset) ? this.docCode : docCode as String?,
+      suggestionCodes: identical(suggestionCodes, _unset) ? this.suggestionCodes : ((suggestionCodes??[]) as List).map((a)=>a.toString()).toList() as List<String>,
       sex: identical(sex, _unset) ? this.sex : sex as String?,
       verifiedDocNum: identical(verifiedDocNum, _unset) ? this.verifiedDocNum : verifiedDocNum as bool,
       verifiedDocCode: identical(verifiedDocCode, _unset) ? this.verifiedDocCode : verifiedDocCode as bool,
@@ -156,6 +158,7 @@ class DocumentDetail {
       verifiedDocNum: json["verifiedDocNum"],
     );
   }
+
 
   factory DocumentDetail.visa() {
     return DocumentDetail(shortType: "V");

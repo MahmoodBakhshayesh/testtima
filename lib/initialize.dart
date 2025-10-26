@@ -5,6 +5,7 @@ import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/screens/add_user/add_user_controller.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
+import 'package:abds/screens/cupps/cupps_controller.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_controller.dart';
 import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:abds/screens/logs/logs_controller.dart';
@@ -244,6 +245,7 @@ Future<void> initNavigation() async {
   MessageDetailsController messageDetailsController = MessageDetailsController();
   OutboxController outboxController = OutboxController();
   ResultReportController resultReportController = ResultReportController();
+  CuppsController cuppsController = CuppsController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -259,6 +261,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(messageDetailsController);
   getIt.registerSingleton(outboxController);
   getIt.registerSingleton(resultReportController);
+  getIt.registerSingleton(cuppsController);
 
   TreeNavigation.navigator.registerAllControllers({
     Routes.login: loginController,
