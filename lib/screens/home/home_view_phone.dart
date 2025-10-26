@@ -393,6 +393,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
                                             ),
                                             childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                                            tilePadding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
                                             title: Padding(
                                               padding: const EdgeInsets.symmetric(vertical: 8.0),
                                               child: Row(

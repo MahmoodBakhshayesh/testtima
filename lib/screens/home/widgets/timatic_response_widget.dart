@@ -157,7 +157,7 @@ class RuleSetWidgetNew extends StatelessWidget {
     // log("rulse set ${ruleSet.title} ${ ruleSet.getRes.resultId} expanded =${ruleSet.getRes.resultId !=1}");
 
     return Padding(
-      padding: const EdgeInsets.only(left: 14, right: 14.0, top: 0),
+      padding: const EdgeInsets.only(left: 14, right: 14.0, top: 12),
       child: MyExpansionTile(
         // initiallyExpanded: (ruleSet.getRes.resultId??1)>1,
         showFooter: false,
@@ -173,7 +173,7 @@ class RuleSetWidgetNew extends StatelessWidget {
         ),
         backgroundColor: ruleSet.getColor.withOpacity(0.08),
         collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
-        tilePadding: EdgeInsets.symmetric(horizontal: 8),
+        tilePadding: EdgeInsets.symmetric(horizontal: 8,vertical: 8),
 
         // childPreview: ruleSet.getRes.resultId! <2
         //     ? null
@@ -292,7 +292,7 @@ class RegulationWidgetNew extends StatelessWidget {
         collapsedBackgroundColor: Colors.white.withOpacity(0.48),
         backgroundColor: Colors.white.withOpacity(0.58),
         showLeadingIcon: true,
-        tilePadding: EdgeInsets.zero,
+        tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 8),
         title: Padding(
           padding: const EdgeInsets.only(right: 8,bottom: 4,top: 4,left: 0),
           child: Container(

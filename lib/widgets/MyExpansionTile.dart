@@ -696,7 +696,8 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
       alignment: widget.expandedAlignment ?? _expansionTileTheme.expandedAlignment ?? Alignment.center,
       child: Padding(
         padding: widget.childrenPadding ?? _expansionTileTheme.childrenPadding ?? EdgeInsets.zero,
-        child: Column(crossAxisAlignment: widget.expandedCrossAxisAlignment ?? CrossAxisAlignment.center, children: widget.children),
+        child: Column(
+            crossAxisAlignment: widget.expandedCrossAxisAlignment ?? CrossAxisAlignment.center, children: widget.children),
       ),
     );
   }
