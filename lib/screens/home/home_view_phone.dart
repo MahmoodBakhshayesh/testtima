@@ -366,6 +366,7 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                       ),
                                       childrenPadding: EdgeInsets.symmetric(horizontal: 12),
                                       showTrailingIcon: true,
+                                      tilePadding:  const EdgeInsets.symmetric(vertical: 8.0,horizontal: 12),
                                       title: Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                                         child: Text("Flight / Passenger", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),

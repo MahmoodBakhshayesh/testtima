@@ -600,27 +600,45 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
       child: ListTileTheme.merge(
         iconColor: _iconColor.value ?? _expansionTileTheme.iconColor,
         textColor: _headerColor.value,
-        child: ListTile(
-
-          enabled: widget.enabled,
-          onTap: !widget.tapOnTitleActive?null:_tileController.isExpanded ? _tileController.collapse : _tileController.expand,
-          dense: widget.dense,
-          visualDensity: widget.visualDensity,
-          enableFeedback: widget.enableFeedback,
-          contentPadding: widget.tilePadding ?? EdgeInsets.symmetric(horizontal: 12),
-          // leading: widget.leading ?? _buildLeadingIcon(context, animation),
-          title: widget.showLeadingIcon?Row(children: [
-            _buildLeadingIcon(context, animation)!,
-            Expanded(child: widget.title)
-          ],):widget.title,
-          subtitle: _tileController.isExpanded ?null : widget.childPreview,
-          trailing: widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation) : null,
-          // minTileHeight: widget.minTileHeight,
-          // leading: widget.showLeadingIcon?_buildLeadingIcon(context, animation) : null,
-
-
-          internalAddSemanticForOnTap: widget.internalAddSemanticForOnTap,
+        child:InkWell(
+          onTap: _tileController.isExpanded ? _tileController.collapse : _tileController.expand,
+          child: Container(
+            padding: widget.tilePadding,
+            child: Column(
+              children: [
+                Row(children: [
+                  Expanded(child: widget.showLeadingIcon?Row(children: [
+                    _buildLeadingIcon(context, animation)!,
+                    Expanded(child: widget.title)
+                  ],):widget.title,),
+                  widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation)??SizedBox() : SizedBox(),
+                ],),
+                _tileController.isExpanded ?SizedBox() : widget.childPreview??SizedBox(),
+              ],
+            ),
+          ),
         ),
+        // child: ListTile(
+        //
+        //   enabled: widget.enabled,
+        //   onTap: !widget.tapOnTitleActive?null:_tileController.isExpanded ? _tileController.collapse : _tileController.expand,
+        //   dense: widget.dense,
+        //   visualDensity: widget.visualDensity,
+        //   enableFeedback: widget.enableFeedback,
+        //   contentPadding: widget.tilePadding ?? EdgeInsets.symmetric(horizontal: 12),
+        //   // leading: widget.leading ?? _buildLeadingIcon(context, animation),
+        //   title: widget.showLeadingIcon?Row(children: [
+        //     _buildLeadingIcon(context, animation)!,
+        //     Expanded(child: widget.title)
+        //   ],):widget.title,
+        //   subtitle: _tileController.isExpanded ?null : widget.childPreview,
+        //   trailing: widget.showTrailingIcon ? widget.trailing ?? _buildTrailingIcon(context, animation) : null,
+        //   // minTileHeight: widget.minTileHeight,
+        //   // leading: widget.showLeadingIcon?_buildLeadingIcon(context, animation) : null,
+        //
+        //
+        //   internalAddSemanticForOnTap: widget.internalAddSemanticForOnTap,
+        // ),
         // child: ListTile()
       ),
     );

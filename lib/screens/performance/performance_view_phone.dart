@@ -12,11 +12,13 @@ import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
+import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -53,8 +55,8 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
   @override
   void initState() {
     tabBarController = TabController(length: 3, vsync: this);
-    tabBarController.addListener((){
-      setState((){});
+    tabBarController.addListener(() {
+      setState(() {});
     });
     from = BasicClass.user?.attributes["defaultAirport"] ?? "";
     super.initState();
@@ -70,6 +72,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
     final headerBg = MyColors.green2.withOpacity(0.26);
     final bodyBg = MyColors.green2.withOpacity(0.12);
 
+    List<String> detailsFrom = reportDetails.map((a)=>a.from).toSet().toList();
     // List<OverallPerformance> timOk = overalls.where((a) => a.timaticResult == 1).toList();
     // List<OverallPerformance> timNotOk = overalls.where((a) => a.timaticResult == 2).toList();
     // List<OverallPerformance> timCon = overalls.where((a) => a.timaticResult == 3).toList();
@@ -180,100 +183,123 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                           spacing: 12,
                           children: [
                             Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: MyColors.white3,
-                                        border: Border(
-                                          top: BorderSide(color: MyColors.lineColor),
-                                          left: BorderSide(color: MyColors.lineColor),
-                                          right: BorderSide(color: MyColors.lineColor),
-                                        ),
-                                        borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: MyColors.white3,
+                                      border: Border(
+                                        top: BorderSide(color: MyColors.lineColor),
+                                        left: BorderSide(color: MyColors.lineColor),
+                                        right: BorderSide(color: MyColors.lineColor),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 2,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                              decoration: BoxDecoration(
-                                                border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                              ),
-                                              child: Center(child: Text("TIME", style: TextStyle(fontSize: 9, wordSpacing: 0))),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                              decoration: BoxDecoration(
-                                                border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                              ),
-                                              child: Center(child: Text("DEST", style: TextStyle(fontSize: 10))),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 4,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                              decoration: BoxDecoration(
-                                                border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                              ),
-                                              child: Center(child: Text("FLNB", style: TextStyle(fontSize: 10))),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                              decoration: BoxDecoration(
-                                                border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                              ),
-
-                                              child: Center(child: Text("ID", style: TextStyle(fontSize: 10))),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                              decoration: BoxDecoration(
-                                                border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                              ),
-                                              child: Center(child: Text("TIM", style: TextStyle(fontSize: 10))),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 7,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                              decoration: BoxDecoration(),
-                                              child: Center(child: Text("RESULT", style: TextStyle(fontSize: 10))),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                      borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
                                     ),
-                                    reportDetails.isEmpty
-                                        ? SizedBox()
-                                        : ListView.builder(
-                                            shrinkWrap: true,
-                                            physics: NeverScrollableScrollPhysics(),
-                                            itemCount: reportDetails.length,
-                                            itemBuilder: (c, i) {
-                                              LogReportDetail det = reportDetails[i];
-                                              return ReportDetailsSummaryWidget(index: i, log: det);
-                                            },
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                            ),
+                                            child: Center(child: Text("TIME", style: TextStyle(fontSize: 9, wordSpacing: 0))),
                                           ),
-                                  ],
-                                ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                            ),
+                                            child: Center(child: Text("DEST", style: TextStyle(fontSize: 10))),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 4,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                            ),
+                                            child: Center(child: Text("FLNB", style: TextStyle(fontSize: 10))),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                            ),
+
+                                            child: Center(child: Text("ID", style: TextStyle(fontSize: 10))),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 2,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                            ),
+                                            child: Center(child: Text("TIM", style: TextStyle(fontSize: 10))),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 7,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(),
+                                            child: Center(child: Text("RESULT", style: TextStyle(fontSize: 10))),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  reportDetails.isEmpty
+                                      ? SizedBox()
+
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: detailsFrom.length,
+                                      itemBuilder: (c, i) {
+                                        String from = detailsFrom[i];
+                                        final items = reportDetails.where((a)=>a.from == from).toList();
+                                        return MyExpansionTile(
+                                          initiallyExpanded: true,
+                                          showFooter: false,
+                                          tilePadding: EdgeInsets.zero,
+                                          childrenPadding: EdgeInsets.zero,
+                                          showTrailingIcon: true,
+                                          backgroundColor: Colors.blueAccent.withOpacity(0.1),
+                                          collapsedBackgroundColor:  Colors.blueAccent.withOpacity(0.1),
+                                          collapsedShape: RoundedRectangleBorder(
+                                              side: BorderSide(color: MyColors.lineColor),
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                              side: BorderSide(color: MyColors.lineColor)
+                                          ),
+                                          title: Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
+                                              decoration: BoxDecoration(
+                                              ),
+                                              child: Text(from)),children: [
+                                          ...items.map((det)=>ReportDetailsSummaryWidget(index: items.indexOf(det), log: det))
+                                        ],);
+                                        LogReportDetail det = reportDetails[i];
+                                        return ReportDetailsSummaryWidget(index: i, log: det);
+                                      },
+                                    ),
+                                ],
                               ),
                             ),
                           ],
                         ),
+
                         Column(
                           spacing: 12,
                           children: [
@@ -338,7 +364,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                           tabBarController.animateTo(1);
                         });
                       }
-
                     },
                   ),
                 ),
@@ -351,7 +376,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                         log("rdl ${rdl?.length}");
                         if (rdl != null) {
                           reportDetails = rdl;
-
 
                           setState(() {});
                           Future(() {

@@ -35,6 +35,7 @@ dependencies:
   wakelock_plus: ^1.4.0
 #  wakelock_fixed: ^0.6.3
   html_parser_plus: ^0.1.4
+  flutter_sticky_header: ^0.8.0
   no_screenshot: ^0.3.2-beta.3
   easy_animated_indexed_stack: ^0.1.0
   record: ^6.1.1

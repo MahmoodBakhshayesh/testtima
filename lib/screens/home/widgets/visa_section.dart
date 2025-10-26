@@ -124,7 +124,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
           footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
           shape: RoundedRectangleBorder(),
           collapsedShape: RoundedRectangleBorder(),
-          tilePadding: EdgeInsets.symmetric(horizontal: 0),
+          tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 8),
           footerExtra: IndexedStack(
             index: isLast ? 0 : 1,
             children: [
@@ -345,7 +345,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
-        tilePadding: EdgeInsets.symmetric(horizontal: 0),
+        tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 8),
         footerExtra: IndexedStack(
           index: isLast ? 0 : 1,
           children: [

@@ -207,7 +207,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
 
-        tilePadding: EdgeInsets.symmetric(horizontal: 14),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
         footerExtra: IndexedStack(index: isLast ? 0 : 1, children: [SizedBox()]),
 
         title: Column(
