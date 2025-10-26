@@ -15,7 +15,7 @@ class InboxView extends ConsumerWidget {
       if(context.isDesktop){
         return InboxViewDesktop();
       }else if(context.isMyTablet){
-        return InboxViewTablet();
+        return InboxViewPhone();
       }else{
         return InboxViewPhone();
       }

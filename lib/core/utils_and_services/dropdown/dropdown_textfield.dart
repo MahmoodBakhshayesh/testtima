@@ -558,7 +558,7 @@ class _DropDownTextFieldState extends State<DropDownTextField>
             readOnly: widget.readOnly,
             onTapOutside: (event) {
               final RenderBox? renderBox =
-                  overlayKey.currentContext?.findRenderObject() as RenderBox;
+                  overlayKey.currentContext?.findRenderObject() as RenderBox?;
               if(renderBox == null) return;
               final overlayPosition = renderBox.localToGlobal(Offset.zero);
               final overlaySize = renderBox.size;

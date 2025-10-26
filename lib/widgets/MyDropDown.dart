@@ -10,7 +10,7 @@ class MyDropDown<T> extends StatefulWidget {
   final String? placeholder;
   final List<T> items;
   final T? value;
-  final Widget Function(dynamic t)? builder;
+  final Widget Function(T)? builder;
   final Function onChange;
   final double? height;
   final bool hasSearch;
@@ -19,14 +19,23 @@ class MyDropDown<T> extends StatefulWidget {
   final bool autoFocus;
   final bool required;
   final bool hasBorder;
+  final List<int> rowLabelRatio;
+  final Color? headerBgColor;
+  final Color? bodyBgColor;
+  final BorderRadius? radius;
+
 
   const MyDropDown({
     super.key,
     this.label,
+    this.radius,
+    this.headerBgColor,
+    this.bodyBgColor,
     this.placeholder,
     this.value,
     this.height = 45,
     this.builder,
+    this.rowLabelRatio = const [12,33],
     this.hasSearch = true,
     this.hasClear = true,
     this.locked = false,
@@ -72,20 +81,25 @@ class _MyDropDownState extends State<MyDropDown> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        widget.label == null
-            ? SizedBox()
-            : Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
+    return ClipRRect(
+      borderRadius: widget.radius??BorderRadiusGeometry.circular(5),
+      child: SizedBox(
+        height: widget.height,
+        child: Row(
+          children: [
+            Expanded(
+              flex: widget.rowLabelRatio[0],
+              child: Container(
+                padding: EdgeInsets.only(left: 8),
+                height: widget.height,
+                color: widget.headerBgColor,
                 child: Row(
                   children: [
                     Text(
                       widget.label ?? '',
                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: MyColors.black2),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 1),
                     widget.required?Padding(
                       padding: const EdgeInsets.only(bottom: 4.0),
                       child: const Icon(Icons.star_rate_rounded,color: Colors.red,size: 8,),
@@ -93,74 +107,89 @@ class _MyDropDownState extends State<MyDropDown> {
                   ],
                 ),
               ),
-        SizedBox(
-          height: widget.height,
-          child: DropDownTextField(
-
-            isEnabled: !widget.locked && widget.items.isNotEmpty,
-            textStyle: TextStyle(height: 1, fontSize: 13),
-            
-            padding: EdgeInsets.zero,
-            controller: controller,
-            dropDownItemCount: 2,
-            searchAutofocus: widget.autoFocus,
-            clearOption: widget.hasClear,
-
-            dropDownIconProperty: IconProperty(
-              icon: Icons.keyboard_arrow_down_sharp,
             ),
-            dropdownRadius: 4,
-            onChanged: (a) {
-              if (a is String) {
-                controller.dropDownValue = DropDownValueModel(name: a, value: widget.items.firstWhereOrNull((e) => e.toString() == a), builder: widget.builder ?? defaultBuilder);
-                widget.onChange(null);
-              } else {
-                controller.dropDownValue = DropDownValueModel(name: (a as DropDownValueModel).name, value: widget.items.firstWhereOrNull((e) => e.toString() == a), builder: widget.builder ?? defaultBuilder);
-                widget.onChange((a).value);
-              }
+            Expanded(
+              flex: widget.rowLabelRatio[1],
+              child: Container(
+                height: widget.height,
+                color: widget.bodyBgColor,
+                child: DropDownTextField(
+                  // isEnabled: !widget.locked && widget.items.isNotEmpty,
+                  textStyle: TextStyle(height: 1, fontSize: 13),
 
-              // print("setting value ${a.runtimeType} ${a}");
-              setState(() {});
-            },
-            enableSearch: widget.hasSearch,
-            searchDecoration: const InputDecoration(
-              hintText: "Search",
-              prefixIcon: Icon(
-                Icons.search,
-                color: Color(0xffb9b9b9),
-              ),
-              hintStyle: TextStyle(
-                color: Color(0xffb9b9b9),
-                fontWeight: FontWeight.w400,
+                  padding: EdgeInsets.zero,
+                  controller: controller,
+                  dropDownItemCount: 5,
+                  searchAutofocus: widget.autoFocus,
+                  clearOption: widget.hasClear,
+
+                  dropDownIconProperty: IconProperty(
+                    icon: Icons.keyboard_arrow_down_sharp,
+                  ),
+                  dropdownRadius: 4,
+                  onChanged: (a) {
+                    if (a is String) {
+                      controller.dropDownValue = DropDownValueModel(name: a, value: widget.items.firstWhereOrNull((e) => e.toString() == a), builder: widget.builder ?? defaultBuilder);
+                      widget.onChange(null);
+                    } else {
+                      controller.dropDownValue = DropDownValueModel(name: (a as DropDownValueModel).name, value: widget.items.firstWhereOrNull((e) => e.toString() == a), builder: widget.builder ?? defaultBuilder);
+                      widget.onChange((a).value);
+                    }
+
+                    // print("setting value ${a.runtimeType} ${a}");
+                    setState(() {});
+                  },
+                  enableSearch: widget.hasSearch,
+                  searchDecoration: const InputDecoration(
+                    hintText: "Search",
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Color(0xffb9b9b9),
+                    ),
+                    hintStyle: TextStyle(
+                      color: Color(0xffb9b9b9),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+
+                  textFieldDecoration: InputDecoration(
+                    // border: InputBorder.none,
+                    // focusedBorder: InputBorder.none,
+                    // enabledBorder: InputBorder.none,
+                    // disabledBorder: InputBorder.none,
+                    // fillColor: Colors.white,
+                    // filled: true,
+                    hintText: widget.items.isEmpty ? "No Item Available" : widget.placeholder,
+                    hintStyle: const TextStyle(
+                      color: Color(0xffb9b9b9),
+                      fontWeight: FontWeight.w400,
+                    ),
+                    // border: OutlineInputBorder(
+                    //   borderSide: BorderSide(
+                    //     color: Colors.red
+                    //   )
+                    // )
+                    // border: InputBorder.none,
+                    // enabledBorder: InputBorder.none,
+                    // focusedBorder: InputBorder.none,
+                    // disabledBorder: InputBorder.none,
+                    border: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.0)) : BorderSide(color: Colors.black.withOpacity(0.0))),
+                    enabledBorder: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.0)) : BorderSide(color: Colors.black.withOpacity(0.0))),
+                    focusedBorder: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.0)) : BorderSide(color: Colors.black.withOpacity(0.0))),
+                    disabledBorder: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.0)) : BorderSide(color: Colors.black.withOpacity(0.0))),
+                    // enabledBorder: OutlineInputBorder(borderSide: widget.hasBorder || true? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide.none),
+                    // focusedBorder: OutlineInputBorder(borderSide: widget.hasBorder || true? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide.none),
+                    // disabledBorder: OutlineInputBorder(borderSide: widget.hasBorder || true? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide.none),
+
+                  ),
+                  clearIconProperty: widget.locked ? IconProperty(icon: Icons.lock) : null,
+                  dropDownList: widget.items.map((e) => DropDownValueModel(name: e.toString(), value: e, builder:(a)=>Padding(padding: EdgeInsetsGeometry.symmetric(horizontal: 4,vertical: 4),child: ( widget.builder ?? defaultBuilder).call(a),))).toList(),
+                ),
               ),
             ),
-            textFieldDecoration: InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              hintText: widget.items.isEmpty ? "No Item Available" : widget.placeholder,
-              hintStyle: const TextStyle(
-                color: Color(0xffb9b9b9),
-                fontWeight: FontWeight.w400,
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.red
-                )
-              )
-              // border: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.12)) : BorderSide(color: Colors.black.withOpacity(0.12))),
-              // enabledBorder: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide(color: Colors.black.withOpacity(0.012))),
-              // focusedBorder: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide(color: Colors.black.withOpacity(0.012))),
-              // disabledBorder: OutlineInputBorder(borderSide: widget.hasBorder ? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide(color: Colors.black.withOpacity(0.012))),
-              // enabledBorder: OutlineInputBorder(borderSide: widget.hasBorder || true? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide.none),
-              // focusedBorder: OutlineInputBorder(borderSide: widget.hasBorder || true? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide.none),
-              // disabledBorder: OutlineInputBorder(borderSide: widget.hasBorder || true? BorderSide(color: Colors.red.withOpacity(0.012)) : BorderSide.none),
-
-            ),
-            clearIconProperty: widget.locked ? IconProperty(icon: Icons.lock) : null,
-            dropDownList: widget.items.map((e) => DropDownValueModel(name: e.toString(), value: e, builder: widget.builder ?? defaultBuilder)).toList(),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

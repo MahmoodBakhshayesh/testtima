@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/MyButton.dart';
+import 'package:abds/widgets/MyDropDown.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
@@ -117,6 +118,37 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    if(context.isDesktop){
+      return ValueListenableBuilder<T?>(
+        valueListenable: value,
+        builder: (context, v, _) {
+          return MyDropDown(
+            headerBgColor: widget.headerBgColor,
+            bodyBgColor: widget.bodyBgColor,
+            rowLabelRatio: widget.rowLabelRatio,
+            items: widget.items,
+            autoFocus: widget.searchAutoFocus,
+            required: widget.required,
+            label: widget.label,
+            builder: widget.itemToWidget,
+            placeholder: widget.placeholder,
+            onChange:(v){
+              if (v == Null) {
+                dev.log("should null value");
+                value.value = null;
+                widget.onChange?.call(null);
+                setState(() {});
+              } else if (v != null) {
+                dev.log(v.toString());
+                value.value = v;
+                setState(() {});
+              }
+            }
+          );
+        },
+      );
+    }
+
     return ValueListenableBuilder<T?>(
       valueListenable: value,
       builder: (context, v, _) {

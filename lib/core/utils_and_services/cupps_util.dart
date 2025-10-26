@@ -575,139 +575,185 @@ extension CuppsPlatformStatusDetails on CuppsPlatformStatus {
 
 }
 
-/// ======================= PUBLIC ENTRY =======================
+// ======================= PUBLIC ENTRY =======================
 
 DocumentDetail parseMrzToDocumentDetail(String raw) {
-  final cleaned = _sanitizeMrz(raw);
-  final lines = _reconstructMrzLines(cleaned);
+  final lines = _normalizeAndSplitLines(raw);
 
-  // TD3: 2 × 44 (passports)
-  if (lines.length == 2 && lines[0].length == 44 && lines[1].length == 44) {
-    return _parseTD3(lines[0], lines[1]);
+  // Try direct line detection if we already have 2 or 3 lines.
+  if (lines.length == 2 || lines.length == 3) {
+    final fixed = _fixLeadingZeroOnFirstLine(lines);
+    return _parseByShapeOrFallback(fixed);
   }
 
-  // TD2: 2 × 36 (some ID cards / visas)
-  if (lines.length == 2 && lines[0].length == 36 && lines[1].length == 36) {
-    return _parseTD2(lines[0], lines[1]);
-  }
-
-  // TD1: 3 × 30 (most ID cards)
-  if (lines.length == 3 && lines[0].length == 30 && lines[1].length == 30 && lines[2].length == 30) {
-    return _parseTD1(lines[0], lines[1], lines[2]);
-  }
-
-  // Fallback: unknown form; still return sanitized MRZ
-  return DocumentDetail(mrz: lines.join('\n'));
+  // Otherwise, reconstruct from a flat string.
+  final flat = _sanitizeMrz(raw); // flat, no newlines
+  final reconstructed = _reconstructFromFlat(flat);
+  final fixed = _fixLeadingZeroOnFirstLine(reconstructed);
+  return _parseByShapeOrFallback(fixed);
 }
 
-/// =================== SANITIZE & RECONSTRUCT ===================
+// =================== NORMALIZATION HELPERS ===================
 
-/// Keep only allowed MRZ characters (A–Z, 0–9, '<'), uppercase.
-String _sanitizeMrz(String raw) {
-  final upper = raw.toUpperCase();
-  final buf = StringBuffer();
+/// Keep raw line breaks if present; sanitize per line.
+/// Allowed MRZ chars: A–Z, 0–9, '<'
+List<String> _normalizeAndSplitLines(String raw) {
+  // Split by any newline-like whitespace first.
+  final rawLines = raw.split(RegExp(r'[\r\n]+')).where((s) => s.trim().isNotEmpty).toList();
+  if (rawLines.isEmpty) return [];
+
+  return rawLines.map(_sanitizeMrz).where((s) => s.isNotEmpty).toList();
+}
+
+/// Sanitizes a string into MRZ-safe chars ONLY (A–Z, 0–9, '<'), uppercase.
+String _sanitizeMrz(String s) {
+  final upper = s.toUpperCase();
+  final b = StringBuffer();
   for (final r in upper.runes) {
     final ch = String.fromCharCode(r);
     final c = ch.codeUnitAt(0);
     final isAZ = c >= 0x41 && c <= 0x5A;
     final is09 = c >= 0x30 && c <= 0x39;
-    if (isAZ || is09 || ch == '<') buf.write(ch);
+    if (isAZ || is09 || ch == '<') b.write(ch);
   }
-  return buf.toString();
+  return b.toString();
 }
 
-/// Try to split a flat string into TD3/TD2/TD1 lines; tolerate leading/trailing junk.
-/// Preference order: TD3, then TD2, then TD1.
-List<String> _reconstructMrzLines(String s) {
-  // If exact or longer, try from the end (common when junk prefixes MRZ).
-  if (s.length >= 88) {
-    final last88 = s.substring(s.length - 88);
-    if (last88.length == 88) return [last88.substring(0, 44), last88.substring(44, 88)];
-  }
-  if (s.length >= 72) {
-    final last72 = s.substring(s.length - 72);
-    if (last72.length == 72) return [last72.substring(0, 36), last72.substring(36, 72)];
-  }
-  if (s.length >= 90) {
-    final last90 = s.substring(s.length - 90);
-    if (last90.length == 90) {
-      return [last90.substring(0, 30), last90.substring(30, 60), last90.substring(60, 90)];
+/// If the first line has a known extra leading '0' (length = expected+1), strip it.
+/// Handles TD3/MRV-A (44), TD2/MRV-B (36), TD1 (30).
+List<String> _fixLeadingZeroOnFirstLine(List<String> lines) {
+  if (lines.isEmpty) return lines;
+
+  int? expectedFirstLen;
+  if (lines.length == 2) {
+    // Could be 2x44 (TD3/MRV-A) or 2x36 (TD2/MRV-B)
+    if (lines[1].length == 44 || lines[0].length == 44) {
+      expectedFirstLen = 44;
+    } else if (lines[1].length == 36 || lines[0].length == 36) {
+      expectedFirstLen = 36;
     }
+  } else if (lines.length == 3) {
+    expectedFirstLen = 30; // TD1
   }
 
-  // If it happens to be exactly the right lengths:
+  if (expectedFirstLen != null &&
+      lines[0].length == expectedFirstLen + 1 &&
+      lines[0].startsWith('0')) {
+    final fixed0 = lines[0].substring(1);
+    final copy = List<String>.from(lines);
+    copy[0] = fixed0;
+    return copy;
+  }
+
+  return lines;
+}
+
+/// If we have a flat sanitized string (no newlines), try to reconstruct likely shapes.
+List<String> _reconstructFromFlat(String s) {
+  // Prefer TD3/MRV-A (2x44) from end (common when leading junk was present).
+  if (s.length >= 88) {
+    final last88 = s.substring(s.length - 88);
+    return [last88.substring(0, 44), last88.substring(44, 88)];
+  }
+  // TD2/MRV-B (2x36)
+  if (s.length >= 72) {
+    final last72 = s.substring(s.length - 72);
+    return [last72.substring(0, 36), last72.substring(36, 72)];
+  }
+  // TD1 (3x30)
+  if (s.length >= 90) {
+    final last90 = s.substring(s.length - 90);
+    return [
+      last90.substring(0, 30),
+      last90.substring(30, 60),
+      last90.substring(60, 90),
+    ];
+  }
+
+  // Exact lengths
   if (s.length == 88) return [s.substring(0, 44), s.substring(44, 88)];
   if (s.length == 72) return [s.substring(0, 36), s.substring(36, 72)];
   if (s.length == 90) return [s.substring(0, 30), s.substring(30, 60), s.substring(60, 90)];
 
-  // Give up and return as a single "line".
+  // Unknown
   return [s];
 }
 
-/// ========================= TD3 (2×44) =========================
-/// ICAO 9303 TD3 (passports)
-DocumentDetail _parseTD3(String l1, String l2) {
-  final docCode = l1.substring(0, 2); // e.g., 'P<'
-  final issuing = l1.substring(2, 5); // e.g., 'BRA'
-  final namesField = l1.substring(5); // SURNAME<<GIVEN<NAMES
+// =================== SHAPE DISPATCH & PARSERS ===================
 
-  final documentNumber = l2.substring(0, 9).replaceAll('<', '');
-  // l2[9] check digit
-  final nationality = l2.substring(10, 13); // e.g., 'BRA'
-  final birthYYMMDD = l2.substring(13, 19);
-  // l2[19] check digit
-  final sex = l2.substring(20, 21).replaceAll('<', '');
-  final expiryYYMMDD = l2.substring(21, 27);
-  // l2[27] check digit
-  // l2[28..42] optional
-  // l2[43] final check digit
+DocumentDetail _parseByShapeOrFallback(List<String> lines) {
+  if (lines.length == 2) {
+    final l1 = lines[0], l2 = lines[1];
 
-  final fullName = _fullNameFromNamesField(namesField);
-  final birthDate = _parseMrzDate(birthYYMMDD);
-  final expiryDate = _parseMrzDate(expiryYYMMDD);
+    // TD3 / MRV-A: 2 × 44
+    if (l1.length == 44 && l2.length == 44) {
+      return _parseTD3(l1, l2);
+    }
+    // TD2 / MRV-B: 2 × 36
+    if (l1.length == 36 && l2.length == 36) {
+      return _parseTD2(l1, l2);
+    }
+  } else if (lines.length == 3) {
+    final l1 = lines[0], l2 = lines[1], l3 = lines[2];
+    // TD1: 3 × 30
+    if (l1.length == 30 && l2.length == 30 && l3.length == 30) {
+      return _parseTD1(l1, l2, l3);
+    }
+  }
 
-  return DocumentDetail(
-    documentNumber: _nz(documentNumber),
-    fullName: _nz(fullName),
-    documentIssueCountry: BasicClass.getLocationWithCode(issuing),
-    nationality: BasicClass.getLocationWithCode(nationality),
-    birthDate: birthDate,
-    documentExpiryDate: expiryDate,
-    sex: _nz(sex),
-    shortType: _shortTypeFromDocCode(docCode),
-    docCode: docCode,
-    mrz: '$l1\n$l2',
-  );
+  // Could be raw with minor corruption: try to trim a single leading '0' on first line then re-check.
+  final alt = _fixLeadingZeroOnFirstLine(lines);
+  if (alt != lines) return _parseByShapeOrFallback(alt);
+
+  // Fallback: just attach MRZ text.
+  return DocumentDetail(mrz: lines.join('\n'));
 }
 
-/// ========================= TD2 (2×36) =========================
-/// ICAO 9303 TD2 (ID/visas)
-DocumentDetail _parseTD2(String l1, String l2) {
-  final docCode = l1.substring(0, 2); // e.g., 'I<', 'V<', 'P<'
-  final issuing = l1.substring(2, 5); // e.g., 'IRN'
-  final namesField = l1.substring(5, 36); // SURNAME<<GIVEN<NAMES
+/// TD3 / MRV-A (2×44). Works for Passports 'P<' and Visas 'V<' in 2x44 layout.
+DocumentDetail _parseTD3(String l1, String l2) {
+  final docCode = l1.substring(0, 2);           // 'P<' or 'V<'
+  final issuing = l1.substring(2, 5);
+  final namesField = l1.substring(5);
 
   final documentNumber = l2.substring(0, 9).replaceAll('<', '');
-  // l2[9] check digit
   final nationality = l2.substring(10, 13);
   final birthYYMMDD = l2.substring(13, 19);
-  // l2[19] check
   final sex = l2.substring(20, 21).replaceAll('<', '');
   final expiryYYMMDD = l2.substring(21, 27);
-  // l2[27] check
-  // l2[28..35] optional + final check at [35] (varies; we ignore checks here)
-
-  final fullName = _fullNameFromNamesField(namesField);
-  final birthDate = _parseMrzDate(birthYYMMDD);
-  final expiryDate = _parseMrzDate(expiryYYMMDD);
 
   return DocumentDetail(
     documentNumber: _nz(documentNumber),
-    fullName: _nz(fullName),
+    fullName: _nz(_fullNameFromNamesField(namesField)),
     documentIssueCountry: BasicClass.getLocationWithCode(issuing),
     nationality: BasicClass.getLocationWithCode(nationality),
-    birthDate: birthDate,
-    documentExpiryDate: expiryDate,
+    birthDate: _parseMrzDate(birthYYMMDD),
+    documentExpiryDate: _parseMrzDate(expiryYYMMDD),
+    sex: _nz(sex),
+    shortType: _shortTypeFromDocCode(docCode), // 'P' (passport) or 'V' (visa)
+    docCode: docCode,
+    mrz: '$l1\n$l2',
+  );
+}
+
+/// TD2 / MRV-B (2×36)
+DocumentDetail _parseTD2(String l1, String l2) {
+  final docCode = l1.substring(0, 2);          // 'I<', 'V<', 'P<', etc.
+  final issuing = l1.substring(2, 5);
+  final namesField = l1.substring(5, 36);
+
+  final documentNumber = l2.substring(0, 9).replaceAll('<', '');
+  final nationality = l2.substring(10, 13);
+  final birthYYMMDD = l2.substring(13, 19);
+  final sex = l2.substring(20, 21).replaceAll('<', '');
+  final expiryYYMMDD = l2.substring(21, 27);
+
+  return DocumentDetail(
+    documentNumber: _nz(documentNumber),
+    fullName: _nz(_fullNameFromNamesField(namesField)),
+    documentIssueCountry: BasicClass.getLocationWithCode(issuing),
+    nationality: BasicClass.getLocationWithCode(nationality),
+    birthDate: _parseMrzDate(birthYYMMDD),
+    documentExpiryDate: _parseMrzDate(expiryYYMMDD),
     sex: _nz(sex),
     shortType: _shortTypeFromDocCode(docCode),
     docCode: docCode,
@@ -715,48 +761,31 @@ DocumentDetail _parseTD2(String l1, String l2) {
   );
 }
 
-/// ========================= TD1 (3×30) =========================
-/// ICAO 9303 TD1 (most ID cards)
+/// TD1 (3×30)
 DocumentDetail _parseTD1(String l1, String l2, String l3) {
-  // Line 1
-  final docCode = l1.substring(0, 2); // e.g., 'I<'
-  final issuing = l1.substring(2, 5); // e.g., 'DEU'
-  final docNumRaw = l1.substring(5, 14); // 9 chars
-  final docNum = docNumRaw.replaceAll('<', '');
-  // l1[14] check
-  // l1[15..29] optional
-
-  // Line 2
+  final docCode = l1.substring(0, 2);
+  final issuing = l1.substring(2, 5);
+  final docNum = l1.substring(5, 14).replaceAll('<', ''); // 9 chars
   final birthYYMMDD = l2.substring(0, 6);
-  // l2[6] check
   final expiryYYMMDD = l2.substring(7, 13);
-  // l2[13] check
   final nationality = l2.substring(14, 17);
-  // l2[17..29] optional
-
-  // Line 3
-  final namesField = l3.substring(0, 30); // SURNAME<<GIVEN<NAMES
-
-  final fullName = _fullNameFromNamesField(namesField);
-  final birthDate = _parseMrzDate(birthYYMMDD);
-  final expiryDate = _parseMrzDate(expiryYYMMDD);
+  final namesField = l3.substring(0, 30);
 
   return DocumentDetail(
     documentNumber: _nz(docNum),
-    fullName: _nz(fullName),
+    fullName: _nz(_fullNameFromNamesField(namesField)),
     documentIssueCountry: BasicClass.getLocationWithCode(issuing),
     nationality: BasicClass.getLocationWithCode(nationality),
-    birthDate: birthDate,
-    documentExpiryDate: expiryDate,
+    birthDate: _parseMrzDate(birthYYMMDD),
+    documentExpiryDate: _parseMrzDate(expiryYYMMDD),
     shortType: _shortTypeFromDocCode(docCode),
     docCode: docCode,
     mrz: '$l1\n$l2\n$l3',
   );
 }
 
-/// ========================= HELPERS =========================
+// ========================= HELPERS =========================
 
-/// Convert "SURNAME<<GIVEN<NAMES" -> "SURNAME GIVEN NAMES"
 String _fullNameFromNamesField(String field) {
   final parts = field.split('<<');
   final surname = parts.isNotEmpty ? parts.first.replaceAll('<', ' ').trim() : '';
@@ -764,14 +793,13 @@ String _fullNameFromNamesField(String field) {
   return [surname, given].where((s) => s.isNotEmpty).join(' ');
 }
 
-/// Map first char of doc code to short type ("P", "V", "I", etc.)
 String? _shortTypeFromDocCode(String docCode) {
   if (docCode.isEmpty) return null;
-  return docCode[0]; // 'P' from 'P<', 'I' from 'I<', etc.
+  return docCode[0]; // 'P', 'V', 'I', …
 }
 
-/// Parse YYMMDD to DateTime with century inference:
-/// 00..24 => 2000..2024, 25..99 => 1925..1999 (adjust if you prefer a rolling window)
+/// YYMMDD → DateTime with a practical century rule:
+/// 00..24 => 2000..2024, 25..99 => 1925..1999
 DateTime? _parseMrzDate(String yymmdd) {
   if (yymmdd.length != 6 || yymmdd.contains('<')) return null;
   final yy = int.tryParse(yymmdd.substring(0, 2));
@@ -786,5 +814,5 @@ DateTime? _parseMrzDate(String yymmdd) {
   }
 }
 
-/// Null-if-empty helper
 String? _nz(String s) => s.isEmpty ? null : s;
+

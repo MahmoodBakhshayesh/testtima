@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -130,6 +131,20 @@ class CupertinoNumericKeyboard extends StatefulWidget {
 
 class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
   Timer? _repeatTimer;
+  final FocusNode _focusNode = FocusNode(debugLabel: 'CupertinoNumericKeyboard');
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-focus on desktop so hardware keys work immediately.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final p = defaultTargetPlatform;
+      if (p == TargetPlatform.macOS || p == TargetPlatform.windows || p == TargetPlatform.linux) {
+        _focusNode.requestFocus();
+      }
+    });
+  }
 
   void _haptic() {
     if (widget.enableHaptics) HapticFeedback.lightImpact();
@@ -153,12 +168,41 @@ class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
     _haptic();
   }
 
+  void _insertMany(String raw) {
+    // Sanitize paste: keep digits + one optional decimal.
+    final existing = widget.controller.text;
+    final buf = StringBuffer();
+    bool sawDecimal = existing.contains('.');
+    for (final r in raw.runes) {
+      final ch = String.fromCharCode(r);
+      if (RegExp(r'[0-9]').hasMatch(ch)) {
+        buf.write(ch);
+      } else if (widget.allowDecimal && (ch == '.' || ch == ',') && !sawDecimal) {
+        buf.write('.');
+        sawDecimal = true;
+      }
+      if (widget.maxLength != null &&
+          (existing.length + buf.length) >= widget.maxLength!) {
+        break;
+      }
+    }
+    final toInsert = buf.toString();
+    if (toInsert.isEmpty) return;
+
+    if (!widget.allowLeadingZeros &&
+        existing.isEmpty &&
+        toInsert.startsWith('0') &&
+        !(widget.allowDecimal && toInsert.startsWith('0.'))) {
+      return;
+    }
+    _insert(toInsert);
+  }
+
   void _maybeInsertDecimal() {
     if (!widget.allowDecimal) return;
     final t = widget.controller.text;
     if (t.contains('.')) return;
     if (t.isEmpty) {
-      // start with "0."
       _insert('0.');
     } else {
       _insert('.');
@@ -170,7 +214,6 @@ class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
     final sel = widget.controller.selection;
 
     if (sel.isValid && sel.start != sel.end) {
-      // Delete selection
       final newText = text.replaceRange(sel.start, sel.end, '');
       widget.controller.value = TextEditingValue(
         text: newText,
@@ -190,6 +233,46 @@ class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
     _haptic();
   }
 
+  void _deleteForward() {
+    final text = widget.controller.text;
+    final sel = widget.controller.selection;
+
+    if (sel.isValid && sel.start != sel.end) {
+      final newText = text.replaceRange(sel.start, sel.end, '');
+      widget.controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: sel.start),
+      );
+      _haptic();
+      return;
+    }
+
+    final cursor = sel.isValid ? sel.start : text.length;
+    if (cursor >= text.length) return;
+    final newText = text.replaceRange(cursor, cursor + 1, '');
+    widget.controller.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: cursor),
+    );
+    _haptic();
+  }
+
+  void _moveCaret(int delta, {bool extend = false}) {
+    final text = widget.controller.text;
+    var base = widget.controller.selection.baseOffset;
+    var extent = widget.controller.selection.extentOffset;
+
+    if (!widget.controller.selection.isValid) {
+      base = extent = text.length;
+    }
+
+    final newPos = (extent + delta).clamp(0, text.length);
+    final sel = extend
+        ? TextSelection(baseOffset: base, extentOffset: newPos)
+        : TextSelection.collapsed(offset: newPos);
+    widget.controller.selection = sel;
+  }
+
   void _startRepeatDelete() {
     _repeatTimer?.cancel();
     _repeatTimer = Timer.periodic(const Duration(milliseconds: 60), (_) => _deleteOne());
@@ -200,13 +283,113 @@ class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
     _repeatTimer = null;
   }
 
+  bool _handleRawKey(RawKeyEvent event) {
+    if (event is! RawKeyDownEvent) return false;
+
+    final isMac = defaultTargetPlatform == TargetPlatform.macOS;
+    final isCtrlOrMeta = isMac ? event.isMetaPressed : event.isControlPressed;
+
+    // Enter / Numpad Enter => Done
+    if (event.logicalKey == LogicalKeyboardKey.enter ||
+        event.logicalKey == LogicalKeyboardKey.numpadEnter) {
+      widget.onDone?.call();
+      return true;
+    }
+
+    // Backspace / Delete
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      _deleteOne();
+      return true;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.delete) {
+      _deleteForward();
+      return true;
+    }
+
+    // Arrow movement (+Shift to extend selection)
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      _moveCaret(-1, extend: event.isShiftPressed);
+      return true;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      _moveCaret(1, extend: event.isShiftPressed);
+      return true;
+    }
+
+    // Paste
+    if (isCtrlOrMeta && event.logicalKey == LogicalKeyboardKey.keyV) {
+      Clipboard.getData(Clipboard.kTextPlain).then((data) {
+        final txt = data?.text ?? '';
+        if (txt.isNotEmpty) _insertMany(txt);
+      });
+      return true;
+    }
+
+    // Top-row digits
+    final topRow = <LogicalKeyboardKey, String>{
+      LogicalKeyboardKey.digit0: '0',
+      LogicalKeyboardKey.digit1: '1',
+      LogicalKeyboardKey.digit2: '2',
+      LogicalKeyboardKey.digit3: '3',
+      LogicalKeyboardKey.digit4: '4',
+      LogicalKeyboardKey.digit5: '5',
+      LogicalKeyboardKey.digit6: '6',
+      LogicalKeyboardKey.digit7: '7',
+      LogicalKeyboardKey.digit8: '8',
+      LogicalKeyboardKey.digit9: '9',
+    };
+
+    final numpad = <LogicalKeyboardKey, String>{
+      LogicalKeyboardKey.numpad0: '0',
+      LogicalKeyboardKey.numpad1: '1',
+      LogicalKeyboardKey.numpad2: '2',
+      LogicalKeyboardKey.numpad3: '3',
+      LogicalKeyboardKey.numpad4: '4',
+      LogicalKeyboardKey.numpad5: '5',
+      LogicalKeyboardKey.numpad6: '6',
+      LogicalKeyboardKey.numpad7: '7',
+      LogicalKeyboardKey.numpad8: '8',
+      LogicalKeyboardKey.numpad9: '9',
+    };
+
+    if (topRow.containsKey(event.logicalKey)) {
+      _insert(topRow[event.logicalKey]!);
+      return true;
+    }
+    if (numpad.containsKey(event.logicalKey)) {
+      _insert(numpad[event.logicalKey]!);
+      return true;
+    }
+
+    if (topRow.containsKey(event.logicalKey)) {
+      _insert(topRow[event.logicalKey]!);
+      return true;
+    }
+    if (numpad.containsKey(event.logicalKey)) {
+      _insert(numpad[event.logicalKey]!);
+      return true;
+    }
+
+    // Decimal: '.' ',' or numpad decimal
+    if (widget.allowDecimal &&
+        (event.logicalKey == LogicalKeyboardKey.period ||
+            event.logicalKey == LogicalKeyboardKey.comma ||
+            event.logicalKey == LogicalKeyboardKey.numpadDecimal)) {
+      _maybeInsertDecimal();
+      return true;
+    }
+
+    // Let other keys bubble (e.g., Tab for focus traversal)
+    return false;
+  }
+
   @override
   void dispose() {
     _stopRepeatDelete();
+    _focusNode.dispose();
     super.dispose();
   }
 
-  /// --- REPLACE build() of CupertinoNumericKeyboard with this ---
   @override
   Widget build(BuildContext context) {
     final bg = CupertinoTheme.of(context).barBackgroundColor;
@@ -214,36 +397,38 @@ class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
 
     return SafeArea(
       top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.5 : 0.1),
-              blurRadius: 12,
-              offset: const Offset(0, -2),
+      child: RawKeyboardListener(
+        focusNode: _focusNode,
+        onKey: _handleRawKey,
+        child: Container(
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.5 : 0.1),
+                blurRadius: 12,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: _KeyGrid(
+              onNumber: _insert,
+              onDecimal: _maybeInsertDecimal,
+              onDeleteTap: _deleteOne,
+              onDeleteLongPressStart: _startRepeatDelete,
+              onDeleteLongPressEnd: _stopRepeatDelete,
+              onDone: widget.onDone,
+              allowDecimal: widget.allowDecimal,
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
-          child: _KeyGrid(
-            onNumber: _insert,
-            onDecimal: _maybeInsertDecimal,
-            onDeleteTap: _deleteOne,
-            onDeleteLongPressStart: _startRepeatDelete,
-            onDeleteLongPressEnd: _stopRepeatDelete,
-            onDone: widget.onDone,
-            allowDecimal: widget.allowDecimal,
           ),
         ),
       ),
     );
   }
-
 }
-
 /// --- REPLACE _KeyGrid with this version (adds Done bottom-right) ---
 class _KeyGrid extends StatelessWidget {
   const _KeyGrid({
