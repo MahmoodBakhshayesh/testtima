@@ -1,4 +1,8 @@
+import 'dart:developer';
+
 import 'package:abds/core/constants/ui.dart';
+import 'package:abds/initialize.dart';
+import 'package:abds/screens/performance/performance_controller.dart';
 import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +13,15 @@ import '../../../core/classes/overall_report_tabel_class.dart';
 /// ===== WIDGET: ListView-style, header fixed, body scrolls =====
 class OverallReportListView extends StatefulWidget {
   final OverallReportTable? model;
+  final DateTime? fromDate;
+  final DateTime? toDate;
   final EdgeInsetsGeometry cellPadding;
   final bool enableHorizontalScroll; // if true, side-scroll when too many columns
 
-  const OverallReportListView({super.key, required this.model, this.cellPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 10), this.enableHorizontalScroll = true});
+  const OverallReportListView({super.key,
+    required this.fromDate,
+    required this.toDate,
+    required this.model, this.cellPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 10), this.enableHorizontalScroll = true});
 
   @override
   State<OverallReportListView> createState() => _OverallReportListViewState();
@@ -40,8 +49,11 @@ class _OverallReportListViewState extends State<OverallReportListView> {
             Padding(
               padding: EdgeInsets.only(right: 5),
               child: _RowStrip(
+                fromDate: widget.toDate,
+                toDate: widget.toDate,
                 isHeader: true,
                 texts: header.column.map((c) => c.text).toList(),
+                queries: header.column.map((c) => '').toList(),
                 widthsPx: widthsPx,
                 bg: _hex(header.color),
                 fgList: header.column.map((c) => _hex(c.fontColor)).toList(),
@@ -74,6 +86,9 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                     final fg = List<Color>.filled(header.column.length, _hex(stripe.fontColor));
                     final fgD = header.column.map((a) => _hex(a.fontColorValue)).toList();
                     final headerData = header.column.map((h)=>h.text).toList();
+                    final sectionHeader =section.header;
+                    final sectionHeaderValues = sectionHeader.toJson().values.map((a) => a["value"].toString()).toList();
+                    final sectionHeaderQueries = sectionHeader.toJson().values.map((a) => a["q"].toString()).toList();
                     return MyExpansionTile(
                       initiallyExpanded: true,
                       // collapsedBackgroundColor: Colors.red,
@@ -81,7 +96,10 @@ class _OverallReportListViewState extends State<OverallReportListView> {
 
                       showFooter: false,
                       title: _RowStrip(
-                        texts: List.generate(header.column.length, (i) => i < headerData.length ? (headerData[i] ?? '') : ''),
+                        fromDate: widget.toDate,
+                        toDate: widget.toDate,
+                        texts: sectionHeaderValues,
+                        queries: sectionHeaderQueries,
                         widthsPx: widthsPx,
                         ratio: header.column.map((a) => a.width).toList(),
                         alignments: header.column.map((a) => a.alignment).toList(),
@@ -95,8 +113,12 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                         ...sectionRows.map((r) {
                           final int i = sectionRows.indexOf(r);
                           final row = r.toJson().values.map((a) => a["value"].toString()).toList();
+                          final rowQueries = r.toJson().values.map((a) => a["q"].toString()).toList();
                           return _RowStrip(
+                            fromDate: widget.toDate,
+                            toDate: widget.toDate,
                             texts: List.generate(header.column.length, (i) => i < row.length ? (row[i] ?? '') : ''),
+                            queries: rowQueries,
                             widthsPx: widthsPx,
                             ratio: header.column.map((a) => a.width).toList(),
                             alignments: header.column.map((a) => a.alignment).toList(),
@@ -156,7 +178,10 @@ class _OverallReportListViewState extends State<OverallReportListView> {
 
 /// Renders one strip (header or data row) using exact pixel widths (keeps alignment).
 class _RowStrip extends StatelessWidget {
+  final DateTime? fromDate;
+  final DateTime? toDate;
   final List<String> texts;
+  final List<String> queries;
   final List<double> widthsPx;
   final List<int> ratio;
   final List<TableAlignment> alignments;
@@ -168,7 +193,10 @@ class _RowStrip extends StatelessWidget {
   final bool isHeader;
 
   const _RowStrip({
+    required this.fromDate,
+    required this.toDate,
     required this.texts,
+    required this.queries,
     required this.widthsPx,
     required this.alignments,
     required this.ratio,
@@ -191,22 +219,33 @@ class _RowStrip extends StatelessWidget {
 
       child: Row(
         children: List.generate(widthsPx.length, (i) {
+          String query = queries[i];
           return Expanded(
             flex: ratio[i],
-            child: Container(
-              alignment: Alignment(alignments[i].x.toDouble(), alignments[i].y.toDouble()),
-              decoration: BoxDecoration(
-                // border: Border.all(color: Colors.black)
-                border: Border(right: BorderSide(color: MyColors.lineColor, width: 0.5)),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: Text(
-                  i < texts.length ? texts[i] : '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            child: GestureDetector(
+              onTap:query=="null"?null: (){
+                if(query.trim().isEmpty){
+                  log("no query");
+                }else {
+                  getIt<PerformanceController>().getOverallPerformances(additionalQuery: query);
+                  log("query => ${query}");
+                }
+              },
+              child: Container(
+                alignment: Alignment(alignments[i].x.toDouble(), alignments[i].y.toDouble()),
+                decoration: BoxDecoration(
+                  // border: Border.all(color: Colors.black)
+                  border: Border(right: BorderSide(color: MyColors.lineColor, width: 0.5)),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Text(
+                    i < texts.length ? texts[i] : '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
 
-                  style: GoogleFonts.chivoMono(fontSize: fontSize, fontWeight: fontWeight, color: i < fgList.length ? fgList[i] : Theme.of(context).colorScheme.onSurface),
+                    style: GoogleFonts.chivoMono(fontSize: fontSize, fontWeight: fontWeight, color: i < fgList.length ? fgList[i] : Theme.of(context).colorScheme.onSurface),
+                  ),
                 ),
               ),
             ),

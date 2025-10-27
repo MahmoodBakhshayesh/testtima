@@ -70,10 +70,10 @@ class PerformanceController extends ControllerInterface {
     return details;
   }
 
-  Future<OverallReportTable?> getOverallPerformances({DateTime? fromDate, DateTime? toDate, String? from, String? to}) async {
+  Future<OverallReportTable?> getOverallPerformances({DateTime? fromDate, DateTime? toDate, String? from, String? to,String? additionalQuery}) async {
     OverallReportTable? table;
     GetOverallPerformancesUseCase getPerformanceLogUseCase = GetOverallPerformancesUseCase();
-    GetOverallPerformancesRequest getReportRequest = GetOverallPerformancesRequest(from: from, to: to, fromDate: fromDate, toDate: toDate);
+    GetOverallPerformancesRequest getReportRequest = GetOverallPerformancesRequest(from: from, to: to, fromDate: fromDate, toDate: toDate, additionalQuery: additionalQuery);
     final result = await getPerformanceLogUseCase(request: getReportRequest);
 
     switch (result) {

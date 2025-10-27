@@ -25,8 +25,9 @@ class GetOverallPerformancesRequest extends RequestInterface {
   final DateTime? toDate;
   final String? from;
   final String? to;
+  final String? additionalQuery;
 
-  GetOverallPerformancesRequest({required this.fromDate, required this.toDate, required this.from, required this.to});
+  GetOverallPerformancesRequest({required this.fromDate, required this.toDate, required this.from, required this.to, required this.additionalQuery});
 
   @override
   Map<String, dynamic> toJson() => {

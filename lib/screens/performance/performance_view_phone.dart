@@ -42,8 +42,8 @@ class PerformanceViewPhone extends StatefulWidget {
 class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with SingleTickerProviderStateMixin {
   String? from;
   String? to;
-  DateTime? fromDate;
-  DateTime? toDate;
+  DateTime? fromDate = DateTime.now();
+  DateTime? toDate = DateTime.now();
 
   OverallReportTable? table;
 
@@ -178,7 +178,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                       physics: NeverScrollableScrollPhysics(),
                       controller: tabBarController,
                       children: [
-                        OverallReportListView(model: table),
+                        OverallReportListView(model: table,fromDate: fromDate,toDate: toDate,),
                         Column(
                           spacing: 12,
                           children: [
@@ -198,13 +198,13 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                     child: Row(
                                       children: [
                                         Expanded(
-                                          flex: 2,
+                                          flex: 3,
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(vertical: 12),
                                             decoration: BoxDecoration(
                                               border: Border(right: BorderSide(color: MyColors.lineColor)),
                                             ),
-                                            child: Center(child: Text("TIME", style: TextStyle(fontSize: 9, wordSpacing: 0))),
+                                            child: Center(child: Text("DATE", style: TextStyle(fontSize: 9, wordSpacing: 0))),
                                           ),
                                         ),
                                         Expanded(
@@ -306,7 +306,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                             ),
                           ],
                         ),
-
                         Column(
                           spacing: 12,
                           children: [
@@ -554,7 +553,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
         child: Row(
           children: [
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -563,7 +562,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text("${widget.log.createdAt.format_HHmm}", style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
+                child: Center(child: Text("${DateFormat("dd MMM").format(widget.log.createdAt)}", style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
               ),
             ),
             Expanded(

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interface_implementations/shared_preferences_imp.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
 import 'package:artemis_cupps/artemis_cupps.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
@@ -406,6 +407,7 @@ class CuppsUtils {
     String data = result.first.decodedValue;
     RouteInfo currentRoute = getIt<HomeController>().navigation.currentRoute!;
     log("BC Read Data : $data on ${currentRoute.path}");
+    getIt<BarcodeReaderController>().onBarcodeRead(data,shouldPop: false);
   }
 
   static Future<BgResponse> bgDataHandler(BgData result) async {

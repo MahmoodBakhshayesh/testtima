@@ -47,7 +47,7 @@ class PerformanceRemoteDataSource implements PerformanceDataSourceInterface {
 
   @override
   Future<GetOverallPerformancesResponse> getOverallPerformances({required GetOverallPerformancesRequest request}) async {
-    final api = Uri.parse("$apiVersion2/report")
+    String api = Uri.parse("$apiVersion2/report")
         .replace(
           queryParameters: {
             "startDT": request.fromDate?.format_yyyyMMdd,
@@ -55,11 +55,12 @@ class PerformanceRemoteDataSource implements PerformanceDataSourceInterface {
             "from": request.from,
             "to": request.to,
             "adminReport": "true",
-
           },
         )
         .toString();
-
+    if(request.additionalQuery!=null){
+      api = api + request.additionalQuery!;
+    }
     log(api);
     // String api = "$apiVersion2/report?${request.fromDate==null?'':'startDT=${request.fromDate.format_yyyyMMdd}&'}${request.toDate==null?'':'endDT=${request.toDate.format_yyyyMMdd}&'}${request.from==null?'':'from=${request.from}&'}${request.to==null?'':'to=${request.to}'}";
     // log(api);

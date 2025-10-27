@@ -126,7 +126,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     controller = TextEditingController(text: widget.item.documentNumber);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.addListener(() {
-        ref.read(confirmingDocumentProvider.notifier).update((s) => widget.item.copyWith(documentNumber: controller.text));
+        Future((){
+          ref.read(confirmingDocumentProvider.notifier).update((s) => widget.item.copyWith(documentNumber: controller.text));
+        });
       });
     });
   }

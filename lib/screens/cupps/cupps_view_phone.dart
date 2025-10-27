@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/utils_and_services/cupps_util.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
@@ -117,8 +119,13 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
                           ...cupps.bgDevices.map((d) {
                             return Image.asset(d.icon, package: 'artemis_cupps', width: 40, height: 40);
                           }),
-                          ...cupps.bcDevices.map((d) {
-                            return Image.asset(d.icon, package: 'artemis_cupps', width: 40, height: 40);
+                          ...cupps.bcDevices.map((d) {;
+
+                            return GestureDetector(
+                                onTap: (){
+                                  d.lock();
+                                },
+                                child: Image.asset(d.icon, package: 'artemis_cupps', width: 40, height: 40));
                           }),
                           ...cupps.ddDevices.map((d) {
                             return Image.asset(d.icon, package: 'artemis_cupps', width: 40, height: 40);

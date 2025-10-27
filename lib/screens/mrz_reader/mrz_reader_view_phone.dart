@@ -9,6 +9,7 @@ import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:camera_kit_plus/camera_kit_ocr_plus_view.dart';
+import 'package:camera_kit_plus/enums.dart';
 import 'package:dynamsoft_mrz_scanner_bundle_flutter/dynamsoft_mrz_scanner_bundle_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -38,6 +39,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
   // OcrMrzSetting setting = OcrMrzSetting(validateNames: false, validatePersonalNumberValid: false,validateFinalCheckValid: false);
 
   // bool showLogs = false;
+  bool flash = false;
 
   @override
   void initState() {
@@ -143,18 +145,19 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
     return Scaffold(
       appBar: MrzReaderAppBar(
         actions: [
-          // DotButton(
-          //   onLongPress: () {
-          //     // myMrzReaderController.sendLogs([]);
-          //     // return;
-          //     myMrzReaderController.ref.read(showLogProvider.notifier).update((s) => !s);
-          //     setState(() {});
-          //   },
-          //   icon: Icons.settings,
-          //   onPressed: () {
-          //     changeSetting();
-          //   },
-          // ),
+          DotButton(
+            // onLongPress: () {
+            //   myMrzReaderController.ocrMrzController.changeFlashMode(flash?CameraKitPlusFlashMode.off:CameraKitPlusFlashMode.on);
+            //   flash = !flash;
+            //   setState(() {});
+            // },
+            icon: flash?Icons.flash_off_outlined:Icons.flash_on,
+            onPressed: () {
+              myMrzReaderController.ocrMrzController.changeFlashMode(flash?CameraKitPlusFlashMode.off:CameraKitPlusFlashMode.on);
+              flash = !flash;
+              setState(() {});
+            },
+          ),
         ],
       ),
       body: Column(

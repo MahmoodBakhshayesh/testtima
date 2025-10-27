@@ -14,7 +14,7 @@ class BarcodeReaderController extends ControllerInterface {
   String? lastScanned;
   DateTime lastScanTime = DateTime.now();
 
-  void onBarcodeRead(String barcode) {
+  void onBarcodeRead(String barcode,{bool shouldPop = true}) {
     // log(barcode);
     if (barcode == lastScanned && DateTime.now().difference(lastScanTime).inSeconds < 5) return;
     lastScanned = barcode;
@@ -51,7 +51,9 @@ class BarcodeReaderController extends ControllerInterface {
           }
           ref.read(scannedBpProvider.notifier).update((s) => bp);
         }
-        navigation.pop(result: bpl);
+        if(shouldPop) {
+          navigation.pop(result: bpl);
+        }
       }
     } catch (e) {
       log("$e");

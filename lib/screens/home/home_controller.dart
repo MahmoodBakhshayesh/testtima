@@ -240,7 +240,7 @@ class HomeController extends ControllerInterface {
 
     switch (result) {
       case Err<GetRefCodeLogResponse>():
-        Future.delayed(Duration(milliseconds: 300),(){
+        Future.delayed(Duration(milliseconds: 300), () {
           FailureHandler.handle(result.error);
         });
         return null;
@@ -311,8 +311,8 @@ class HomeController extends ControllerInterface {
         }),
       );
 
-      if(passes.isNotEmpty){
-        passes[0]= passes[0].copyWith(sex: pd.gender?.value);
+      if (passes.isNotEmpty) {
+        passes[0] = passes[0].copyWith(sex: pd.gender?.value);
       }
       ref.read(passportsProvider.notifier).setAll(passes);
       ref.read(visasProvider.notifier).setAll(visas);
@@ -443,14 +443,13 @@ class HomeController extends ControllerInterface {
         options: Options(headers: {"Content-Type": "multipart/form-data", "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
       );
       if (response.statusCode == 200) {
-        if(response.data["success"] == true){
+        if (response.data["success"] == true) {
           result = true;
           ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
-        }else{
+        } else {
           FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.data["message"] ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
           return false;
         }
-
       } else {
         FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
         return false;
@@ -467,7 +466,6 @@ class HomeController extends ControllerInterface {
       return false;
     }
   }
-
 
   Future<bool> airlineApproval({required String logId, required String sign, Map<String, dynamic>? data}) async {
     bool result = false;
@@ -760,7 +758,12 @@ class HomeController extends ControllerInterface {
 
   handleConfirming(DocumentDetail added) async {
     ref.read(confirmingDocumentProvider.notifier).update((s) => added);
+    if(navigation.isDialogOpen || navigation.isBottomSheetOpen){
+      return;
+    }
     if (added.documentCode == null) {
+      navigation.popAllBottomSheets();
+      navigation.popAllDialogs();
       final code = await navigation.openBottomSheet(
         isScrollControlled: true,
         bottomSheet: PickerSheetWidget(
@@ -769,15 +772,15 @@ class HomeController extends ControllerInterface {
           value: null,
           searchAutoFocus: true,
           hasClear: false,
-          items: BasicClass.constData.data.documentCode.where((a) =>added.shortType==null ||  a.type == added.shortType).toList(),
+          items: BasicClass.constData.data.documentCode.where((a) => added.shortType == null || a.type == added.shortType).toList(),
           label: "Type",
           hasSearch: true,
         ),
       );
       if (code is DocumentCode) {
         log("code ${code.code}");
-        String shortType = added.shortType??BasicClass.constData.data.documentDetailType.firstWhereOrNull((a)=>a.code == code.code)?.type??"P";
-        ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true,shortType: shortType));
+        String shortType = added.shortType ?? BasicClass.constData.data.documentDetailType.firstWhereOrNull((a) => a.code == code.code)?.type ?? "P";
+        ref.read(confirmingDocumentProvider.notifier).update((s) => added.copyWith(documentCode: code, verifiedDocCode: true, shortType: shortType));
         log(ref.read(confirmingDocumentProvider)!.documentCode.toString());
         final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
         if (addRes == true) {
@@ -787,6 +790,8 @@ class HomeController extends ControllerInterface {
         }
       }
     } else {
+      navigation.popAllBottomSheets();
+      navigation.popAllDialogs();
       final addRes = await navigation.openDialog(dialog: ConfirmScannedDocDialog(), barrierDismissible: false);
       if (addRes == true) {
         addConfirmingDocument();
