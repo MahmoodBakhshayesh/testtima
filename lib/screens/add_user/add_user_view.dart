@@ -12,11 +12,11 @@ class AddUserView extends ConsumerWidget {
     const AddUserView({super.key});
     @override
     Widget build(BuildContext context,WidgetRef ref) {
-      return AddUserViewPhone();
+      // return AddUserViewPhone();
       if(context.isDesktop){
         return AddUserViewDesktop();
       }else if(context.isMyTablet){
-        return AddUserViewTablet();
+        return AddUserViewPhone();
       }else{
         return AddUserViewPhone();
       }

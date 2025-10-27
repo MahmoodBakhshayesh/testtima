@@ -225,13 +225,15 @@ class _MyTextFieldState extends State<MyTextField> {
                                 ? widget.locked
                                       ? const Icon(Icons.lock)
                                       : null
-                                : IconButton(
-                                    onPressed: () {
-                                      obscureText = !obscureText;
-                                      setState(() {});
-                                    },
-                                    icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                  )),
+                                : ExcludeFocus(
+                                  child: IconButton(
+                                      onPressed: () {
+                                        obscureText = !obscureText;
+                                        setState(() {});
+                                      },
+                                      icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                    ),
+                                )),
                       ),
                       controller: widget.controller,
                     ),
@@ -337,13 +339,15 @@ class _MyTextFieldState extends State<MyTextField> {
                                   ? widget.locked
                                         ? const Icon(Icons.lock)
                                         : null
-                                  : IconButton(
-                                      onPressed: () {
-                                        obscureText = !obscureText;
-                                        setState(() {});
-                                      },
-                                      icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                    )),
+                                  : ExcludeFocus(
+                                    child: IconButton(
+                                        onPressed: () {
+                                          obscureText = !obscureText;
+                                          setState(() {});
+                                        },
+                                        icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                      ),
+                                  )),
                         ),
                         controller: widget.controller,
                       ),
@@ -451,13 +455,15 @@ class _MyTextFieldState extends State<MyTextField> {
                             ? widget.locked
                                   ? const Icon(Icons.lock)
                                   : null
-                            : IconButton(
-                                onPressed: () {
-                                  obscureText = !obscureText;
-                                  setState(() {});
-                                },
-                                icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                              )),
+                            : ExcludeFocus(
+                              child: IconButton(
+                                  onPressed: () {
+                                    obscureText = !obscureText;
+                                    setState(() {});
+                                  },
+                                  icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                ),
+                            )),
                   ),
                   controller: widget.controller,
                 ),

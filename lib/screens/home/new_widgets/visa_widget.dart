@@ -15,6 +15,7 @@ import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 import '../../../core/utils_and_services/string_utility.dart';
 import '../../../core/utils_and_services/timatic/artemis_timatic.dart';
+import '../../../initialize.dart';
 import '../../../widgets/DotButton.dart';
 import '../../../widgets/DurationOfStayPicker.dart';
 import '../../../widgets/MyButton.dart';
@@ -26,6 +27,7 @@ import '../../../widgets/MyTextField.dart';
 import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/MyTimePicker.dart';
 import '../../result_report/result_report_state.dart';
+import '../home_controller.dart';
 import '../home_state.dart';
 import '../widgets/locked_document_widget.dart';
 import '../widgets/passport_section.dart';
@@ -55,6 +57,27 @@ class VisaWidget extends ConsumerWidget {
       );
     }
     if(visas.isEmpty){
+      if(context.isDesktop){
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12,horizontal: 12),
+          decoration: BoxDecoration(
+            color: BasicClass.constData.data.documentType[1].getColor.withOpacity(0.12),
+            borderRadius: BorderRadiusGeometry.circular(10)
+          ),
+          child: Row(
+            children: [
+              DotButton(icon: Icons.add,onPressed: (){
+                getIt<HomeController>().handleConfirming(DocumentDetail.visa());
+              },),
+              const SizedBox(width: 12),
+              BasicClass.constData.data.documentType[1].getIconBiger,
+              const SizedBox(width: 12),
+              Expanded(child: Text( BasicClass.constData.data.documentType[1].title,style: TextStyle(),)),
+            ],
+          ),
+        );
+      }
       return SizedBox();
     }
 

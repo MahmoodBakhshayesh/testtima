@@ -162,6 +162,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
 
                           title: 'Cupps',
                           onTap: () {
+                            Navigator.pop(context);
                             myHomeController.goNamed(Routes.cupps);
                           },
                           leading:  IcomoonLayeredCss.profile_2user(),

@@ -1035,6 +1035,18 @@ class DocumentType {
     }
   }
 
+  Widget get getIconBiger {
+    if(type == "P"){
+      return IcomoonLayeredCss.global(baseColor: MyColors.mainBlue,size: 35);
+    }else if(type == "V"){
+      return IcomoonLayeredCss.document_text(colors: [MyColors.mainOrange.withOpacity(0.4),MyColors.mainOrange,MyColors.mainOrange,MyColors.mainOrange,MyColors.mainOrange],size: 35);
+    }else if(type == "I"){
+      return IcomoonLayeredCss.user_square(colors: [MyColors.mainGreen.withOpacity(0.48),MyColors.mainGreen,MyColors.mainGreen],size: 35);
+    }else{
+      return IcomoonLayeredCss.document(colors: [Colors.black.withOpacity(0.2)],size: 35);
+    }
+  }
+
   Map<String, dynamic> toJson() => {
     "type": type,
     "color": color,

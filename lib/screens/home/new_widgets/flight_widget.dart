@@ -169,24 +169,29 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           shape: RoundedRectangleBorder(),
           collapsedShape: RoundedRectangleBorder(),
           tilePadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          childrenPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
           footerExtra: IndexedStack(
             index: isLast ? 0 : 1,
             children: [
-              MyButton(
-                height: 30,
-                label: "Segment",
-                icon: Icons.add_circle_outline,
-                onPressed: () {
-                  var beforeSeg = seg;
-                  beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit,purposeOfStay: beforeSeg.purposeOfStay,returnOnwardTicket: beforeSeg.returnOnwardTicket);
-                  ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
-                  var newSeg = ItinerarySegment.empty();
-                  newSeg = newSeg.copyWith(departure: seg.arrival);
-                  ref.read(segmentsProvider.notifier).add(newSeg);
-                },
-                textColor: Colors.blueAccent,
-                color: Colors.blueAccent.withOpacity(0.1),
 
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: MyButton(
+                  height: 30,
+                  label: "Segment",
+                  icon: Icons.add_circle_outline,
+                  onPressed: () {
+                    var beforeSeg = seg;
+                    beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit,purposeOfStay: beforeSeg.purposeOfStay,returnOnwardTicket: beforeSeg.returnOnwardTicket);
+                    ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
+                    var newSeg = ItinerarySegment.empty();
+                    newSeg = newSeg.copyWith(departure: seg.arrival);
+                    ref.read(segmentsProvider.notifier).add(newSeg);
+                  },
+                  textColor: Colors.blueAccent,
+                  color: Colors.blueAccent.withOpacity(0.1),
+
+                ),
               ),
               SizedBox(
                 width: 165,
@@ -201,6 +206,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               ),
             ],
           ),
+          
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

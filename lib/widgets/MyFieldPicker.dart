@@ -129,6 +129,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             rowLabelRatio: widget.rowLabelRatio,
             items: widget.items,
             supportNull: false,
+            value: widget.value,
             hasSearch: widget.hasSearch,
             // autoFocus: widget.searchAutoFocus,
             required: widget.required,

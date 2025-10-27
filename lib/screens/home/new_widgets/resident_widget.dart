@@ -2,6 +2,8 @@ import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
 import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
+import 'package:abds/initialize.dart';
+import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/widgets/resident_section.dart';
 import 'package:abds/screens/home/widgets/visa_section.dart';
 import 'package:country_flags/country_flags.dart';
@@ -56,6 +58,27 @@ class ResidentWidget extends ConsumerWidget {
       );
     }
     if (residents.isEmpty) {
+      if(context.isDesktop){
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12,horizontal: 12),
+          decoration: BoxDecoration(
+              color: BasicClass.constData.data.documentType[2].getColor.withOpacity(0.12),
+              borderRadius: BorderRadiusGeometry.circular(10)
+          ),
+          child: Row(
+            children: [
+              DotButton(icon: Icons.add,onPressed: (){
+                getIt<HomeController>().handleConfirming(DocumentDetail.resident());
+              },),
+              const SizedBox(width: 12),
+              BasicClass.constData.data.documentType[2].getIconBiger,
+              const SizedBox(width: 12),
+              Expanded(child: Text( BasicClass.constData.data.documentType[2].title,style: TextStyle(),)),
+            ],
+          ),
+        );
+      }
       return SizedBox(height: 12);
     }
     return Column(

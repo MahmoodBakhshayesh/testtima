@@ -214,6 +214,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                         collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                         childrenPadding: EdgeInsets.symmetric(horizontal: 12),
                         backgroundColor: Colors.green.withOpacity(0.08),
+                        tilePadding: EdgeInsets.all(8),
                         collapsedBackgroundColor: Colors.green.withOpacity(0.08),
                         title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                         children: BasicClass.constData.data.attribute.where((a) => a.onlyOwner).map((att) {
@@ -347,6 +348,7 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
                       ),
                       const SizedBox(height: 12),
                       MyExpansionTile(
+                        tilePadding: EdgeInsets.all(8),
                         showFooter: false,
                         showTrailingIcon: true,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),

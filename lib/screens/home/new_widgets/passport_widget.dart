@@ -62,6 +62,25 @@ class PassportWidget extends ConsumerWidget {
       );
     }
     if(passports.isEmpty){
+      if(context.isDesktop){
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12,horizontal: 12),
+          decoration: BoxDecoration(
+              color: BasicClass.constData.data.documentType[0].getColor.withOpacity(0.12),
+              borderRadius: BorderRadiusGeometry.circular(10)
+          ),
+          child: Row(
+            children: [
+              DotButton(icon: Icons.add,onPressed: (){},),
+              const SizedBox(width: 12),
+              BasicClass.constData.data.documentType[0].getIconBiger,
+              const SizedBox(width: 12),
+              Expanded(child: Text( BasicClass.constData.data.documentType[0].title,style: TextStyle(),)),
+            ],
+          ),
+        );
+      }
       return SizedBox();
     }
 

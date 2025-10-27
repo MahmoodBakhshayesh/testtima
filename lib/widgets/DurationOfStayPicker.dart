@@ -41,7 +41,7 @@ class MyDurationOfStayPicker extends StatefulWidget {
   const MyDurationOfStayPicker({
     super.key,
     this.locked = false,
-    this.rowLabelRatio = const[3,5],
+    this.rowLabelRatio = const[12,33],
     this.required = false,
     this.labelInRow = false,
     this.style,
@@ -174,7 +174,6 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: Row(children: [
-
                           MyButton(
                             flat: true,
                             color: Colors.black,
@@ -241,7 +240,9 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
               radius: BorderRadius.circular(8),
               label: widget.label,
               placeholder: widget.placeholder,
-              suffixIcon: Icon(Icons.arrow_drop_down),
+              suffixIcon: SizedBox(
+                  height: 16,
+                  child: Icon(Icons.arrow_drop_down)),
               // suffixIcon:widget.value == null? Icon(Icons.arrow_drop_down):DotButton(icon: Icons.clear,onPressed: (){},flat: true,),
             ),
           ),

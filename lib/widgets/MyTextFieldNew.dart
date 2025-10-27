@@ -10,7 +10,8 @@ import '../core/constants/ui.dart';
 import '../core/utils_and_services/keyboard/lib/keyboard_actions.dart';
 import '../core/utils_and_services/keyboard/lib/keyboard_actions_item.dart';
 import 'number_input_sheet.dart';
-final globalFormValidationMode =  StateProvider<bool>((ref) => false);
+
+final globalFormValidationMode = StateProvider<bool>((ref) => false);
 
 class MyTextFieldNew extends ConsumerStatefulWidget {
   final FocusNode? focusNode;
@@ -69,7 +70,7 @@ class MyTextFieldNew extends ConsumerStatefulWidget {
     this.headerBgColor,
     this.bodyBgColor,
     this.nextFn,
-    this.rowLabelRatio = const [12,33],
+    this.rowLabelRatio = const [12, 33],
     this.validationColor,
     this.backgroundColor,
     this.prevFn,
@@ -153,27 +154,38 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
     bool requiredError = widget.required && (widget.controller?.text ?? '').isEmpty;
     Color validationColor = widget.validationColor ?? Colors.red;
     bool validationMode = ref.watch(globalFormValidationMode) && widget.required && widget.controller!.text.isEmpty;
-    InputBorder? border = validationMode?OutlineInputBorder(borderSide: BorderSide(color: Colors.red,),borderRadius: BorderRadius.circular(8)): InputBorder.none;
+    InputBorder? border = validationMode
+        ? OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.circular(8),
+          )
+        : InputBorder.none;
     return GestureDetector(
-      onTap:!widget.openNumberSheet?null: () async {
-        showModalBottomSheet(context: context,
-            isScrollControlled: true,
-            builder: (c)=>NumericInputSheet(label: widget.label??'',maxLength: widget.maxLength,
-              onDone: (a){
-                if(a is String){
-                  widget.controller?.text = a;
-                  widget.onSubmit?.call(a);
-                  // widget.onChanged.call(a!);
-                }
-              },
-            )).then((a){
-          // if(a is String){
-          //   widget.controller?.text = a;
-          //   widget.onSubmit?.call(a);
-          //   // widget.onChanged.call(a!);
-          // }
-        });
-      },
+      onTap: !widget.openNumberSheet
+          ? null
+          : () async {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (c) => NumericInputSheet(
+                  label: widget.label ?? '',
+                  maxLength: widget.maxLength,
+                  onDone: (a) {
+                    if (a is String) {
+                      widget.controller?.text = a;
+                      widget.onSubmit?.call(a);
+                      // widget.onChanged.call(a!);
+                    }
+                  },
+                ),
+              ).then((a) {
+                // if(a is String){
+                //   widget.controller?.text = a;
+                //   widget.onSubmit?.call(a);
+                //   // widget.onChanged.call(a!);
+                // }
+              });
+            },
       child: AbsorbPointer(
         absorbing: widget.openNumberSheet,
         child: ClipRRect(
@@ -258,20 +270,23 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                                 enabledBorder: border,
                                 disabledBorder: border,
                                 prefixIcon: widget.prefixIcon,
-                                suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200,maxHeight: 40),
+                                suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200, maxHeight: 40),
                                 suffixIcon:
                                     widget.suffixIcon ??
                                     (!widget.isPassword
                                         ? widget.locked
                                               ? const Icon(Icons.lock)
                                               : null
-                                        : IconButton(
-                                            onPressed: () {
-                                              obscureText = !obscureText;
-                                              setState(() {});
-                                            },
-                                            icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                          ))??SizedBox(height: 30,),
+                                        : ExcludeFocus(
+                                            child: IconButton(
+                                              onPressed: () {
+                                                obscureText = !obscureText;
+                                                setState(() {});
+                                              },
+                                              icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                            ),
+                                          )) ??
+                                    SizedBox(height: 30),
                               ),
                               controller: widget.controller,
                             ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -151,6 +153,7 @@ class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value) {
       _value.value = widget.value;
+
     }
     _applyFilter(_searchCtrl.text);
     WidgetsBinding.instance.addPostFrameCallback((_) => _measureValueBox());
@@ -533,11 +536,10 @@ class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
   Widget build(BuildContext context) {
     // compute validation like your snippet (simplified)
     final displayText = _valueToText(_value.value);
-    final reqError = widget.required && (displayText.isEmpty);
+    final reqError = widget.required && (displayText.isEmpty) && false;
     final valMsg = widget.validator?.call(displayText) ?? '';
     final hasError = (valMsg.isNotEmpty) || reqError;
     final Color vColor = widget.validationColor ?? Colors.red;
-
     final bool showErrorBorder = widget.validationMode && hasError;
 
     final InputBorder? border = showErrorBorder

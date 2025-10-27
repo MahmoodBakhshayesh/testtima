@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interface_implementations/shared_preferences_imp.dart';
+import 'package:abds/core/interfaces/result_int.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/barcode_reader/barcode_reader_controller.dart';
 import 'package:artemis_cupps/artemis_cupps.dart';
@@ -53,8 +54,10 @@ class CuppsUtils {
         setStatus(CuppsPlatformStatus.authenticating);
         final auth = await CUPPS.authenticate();
         if (auth) {
+          log("auth start");
           setStatus(CuppsPlatformStatus.connectingToDevices);
           final deviceConnection = await CUPPS.connectToAvailableNeededDevices();
+          log("auth Done");
           CUPPS.setConnectionChecker(
             interval: const Duration(seconds: 45),
             timeout: const Duration(seconds: 12),
@@ -74,6 +77,9 @@ class CuppsUtils {
         setStatus(CuppsPlatformStatus.disconnected);
       }
     } catch (e) {
+      if(e is Error){
+        log(e.stackTrace.toString());
+      }
       log(e.toString());
     }
   }

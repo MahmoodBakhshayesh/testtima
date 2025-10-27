@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: artemis_cupps
-      sha256: "07a29d2e92adbc69236cdf142a548de191eeffa6007d40fc2789527abedf144f"
+      sha256: b40b52f7b6ffebe976854e8b9016a85f6854a8d1f02a7a47b68b0597f25b54c0
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.97"
+    version: "0.0.98"
   artemis_ui_kit:
     dependency: "direct main"
     description:
