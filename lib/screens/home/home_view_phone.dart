@@ -13,6 +13,7 @@ import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/interfaces/local_data_base_int.dart';
 import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/cupps_util.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/core/utils_and_services/operations/confirm_operation.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
@@ -656,6 +657,13 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                       },
                                     ),
                                     Spacer(),
+                                    Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                      final cupps = ref.watch(cuppsStatusProvider);
+                                      if(cupps == null){
+                                        return SizedBox();
+                                      }
+                                      return Row(children: cupps.ocDevices.map((d)=>Image.asset(d.icon,package: "artemis_cupps",width: 35,height: 35,)).toList(),);
+                                    },),
                                     CheckPermission(
                                       permission: TimaticUiPermission.read(),
                                       child: MyButton(

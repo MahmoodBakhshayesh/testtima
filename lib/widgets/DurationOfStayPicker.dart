@@ -241,7 +241,7 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
               label: widget.label,
               placeholder: widget.placeholder,
               suffixIcon: SizedBox(
-                  height: 16,
+                  height: context.isDesktop? 16:20,
                   child: Icon(Icons.arrow_drop_down)),
               // suffixIcon:widget.value == null? Icon(Icons.arrow_drop_down):DotButton(icon: Icons.clear,onPressed: (){},flat: true,),
             ),

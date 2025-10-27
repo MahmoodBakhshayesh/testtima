@@ -191,7 +191,7 @@ class DocumentDetail {
     'verifiedDocNum': verifiedDocNum,
   };
 
-  bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now());
+  bool get isExpired => documentExpiryDate != null && documentExpiryDate!.isBefore(DateTime.now().subtract(Duration(days: 1)));
 
   bool get isExpiryFake => (documentExpiryDate?.difference(DateTime(1, 1, 1)).inDays ?? 100) < 1;
 

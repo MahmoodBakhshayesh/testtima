@@ -192,7 +192,7 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
                         validateCountry: false,
                         validateNationality: false,
                         rotation: ref.watch(ocrMrzSettingProvider).rotation,
-                        macro: ref.watch(ocrMrzSettingProvider).macro,
+                        macro: Platform.isAndroid?false:ref.watch(ocrMrzSettingProvider).macro,
                         algorithm: ref.watch(ocrMrzSettingProvider).algorithm,
                       ), onFoundMrz: (OcrMrzResult res) {  },
                     ),

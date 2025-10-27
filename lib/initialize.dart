@@ -20,6 +20,7 @@ import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 // import 'package:wakelock_fixed/wakelock_fixed.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -64,6 +65,9 @@ Future<void> init() async {
   final spi = await SharedPreferences.getInstance();
   SharedPreferencesImp sp = SharedPreferencesImp(spi);
   getIt.registerFactory(() => sp);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp
+  ]);
 
   await _initDataBase();
   await _initConfig();

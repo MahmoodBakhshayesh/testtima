@@ -9,6 +9,7 @@ import 'package:get/get_utils/src/extensions/string_extensions.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/constants/ui.dart';
+import '../../core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import '../../widgets/DotButton.dart';
 import '../../widgets/MyButton.dart';
 import '../../widgets/MyDatePicker.dart';
@@ -84,60 +85,114 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
   Widget build(BuildContext context) {
     final headerBg = MyColors.green2.withOpacity(0.26);
     final bodyBg = MyColors.green2.withOpacity(0.12);
+    final headerBgGrey = MyColors.black.withOpacity(0.08);
+    final bodyBgGrey  = MyColors.black.withOpacity(0.12);
     if (profile == null) {
       return SizedBox();
     }
     return Scaffold(
       appBar: ProfileAppBar(),
+
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(context.width * .5),
-                        child: Container(
-                          width: context.width * 0.7,
-                          height: context.width * 0.7,
-                          decoration: BoxDecoration(color: Colors.black12),
-                          child: UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false),
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadiusGeometry.circular(10)
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 12),
-                            profile.hasImage
-                                ? DotButton(
-                                    icon: Icons.delete,
-                                    onPressed: () async {
-                                      await getIt<UsersController>().deleteAvatar();
-                                    },
-                                    size: 50,
-                                    color: Colors.red,
-                                  )
-                                : SizedBox(),
-                            Spacer(),
-                            const SizedBox(width: 12),
-                            DotButton(
-                              icon: Icons.add_photo_alternate,
-                              onPressed: () async {
-                                await getIt<UsersController>().setAvatar();
-                              },
-                              size: 50,
-                            ),
-                            const SizedBox(width: 12),
-                          ],
-                        ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        spacing: 12,
+                        children: [
+                          Row(children: [
+                            IcomoonLayeredCss.user_square(),
+                            const SizedBox(width: 8),
+                            Text("Personal Info",style: TextStyle(fontWeight: FontWeight.bold),)
+                          ],),
+                          Row(
+                            children: [
+                              Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(context.width * .5),
+                                    child: Container(
+                                      width: context.width * 0.2,
+                                      height: context.width * 0.2,
+                                      decoration: BoxDecoration(color: Colors.black12),
+                                      child: UserAvatar(url: '', canEdit: true, hasImage: ref.watch(userProvider)?.profile.hasImage ?? false),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    left: 0,
+                                    child: Row(
+                                      children: [
+
+                                        profile.hasImage
+                                            ? DotButton(
+                                          icon: Icons.delete,
+                                          onPressed: () async {
+                                            await getIt<UsersController>().deleteAvatar();
+                                          },
+                                          size: 30,
+                                          color: Colors.red,
+                                          fade: false,
+                                          radius: 8,
+                                        )
+                                            : SizedBox(),
+                                        Spacer(),
+                                        const SizedBox(width: 12),
+                                        DotButton(
+
+                                          icon: Icons.add_photo_alternate,
+                                          onPressed: () async {
+                                            await getIt<UsersController>().setAvatar();
+                                          },
+                                          color: Colors.black,
+                                          flat: false,
+                                          fade: false,
+                                          size: 30,
+                                          radius: 8,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          MyTextFieldNew(headerBgColor: headerBgGrey, bodyBgColor: bodyBgGrey, label: "Firstname", controller: firstNameC, focusNode: firstNameFN, labelInRow: true),
+                          MyTextFieldNew(headerBgColor: headerBgGrey, bodyBgColor: bodyBgGrey, label: "Middle name", controller: middleNameC, focusNode: middleNameFN, labelInRow: true),
+                          MyTextFieldNew(headerBgColor: headerBgGrey, bodyBgColor: bodyBgGrey, label: "Lastname", controller: lastNameC, focusNode: lastNameFN, labelInRow: true),
+                          Row(
+                            children: [
+
+                              MyButton(
+                                flat: true,
+                                reverse: true,
+                                label: "Change Password",
+                                icon: Icons.lock,
+
+
+                                onPressed: () async {
+                                  myProfileController.changePasswordDialog(profile);
+                                },
+                                radius: 12,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
+
                   Divider(height: 24),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -154,6 +209,7 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                               childrenPadding: EdgeInsets.symmetric(horizontal: 12),
                               backgroundColor: Colors.green.withOpacity(0.08),
                               collapsedBackgroundColor: Colors.green.withOpacity(0.08),
+                              tilePadding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
                               title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                               children: BasicClass.constData.data.attribute.where((a) => !a.onlyOwner).map((att) {
                                 final headerBg = MyColors.green2.withOpacity(0.26);
@@ -217,11 +273,7 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                                 }
                                 return Container(child: Row(children: [Text("${att.title}")]));
                               }).toList(),
-                            ),
-                            MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: "Firstname", controller: firstNameC, focusNode: firstNameFN, labelInRow: true),
-                            MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: "Middle name", controller: middleNameC, focusNode: middleNameFN, labelInRow: true),
-                            MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: "Lastname", controller: lastNameC, focusNode: lastNameFN, labelInRow: true),
-                            // ArtemisCardField(title: "Username", value: profile.username ?? '-'),
+                            ),// ArtemisCardField(title: "Username", value: profile.username ?? '-'),
                             // ArtemisCardField(title: "Email", value: profile.email ?? '-'),
                             // ArtemisCardField(title: "First Name", value: profile.firstname ?? '-'),
                             // ArtemisCardField(title: "Middle Name", value: profile.middlename ?? '-'),
@@ -241,17 +293,7 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
             child: Row(
               spacing: 12,
               children: [
-                Expanded(
-                  child: MyButton(
-                    label: "Change Password",
-                    icon: Icons.password,
-                    iconInRight: true,
-                    onPressed: () async {
-                      myProfileController.changePasswordDialog(profile);
-                    },
-                    radius: 12,
-                  ),
-                ),
+
                 Expanded(
                   child: MyButton(
                     label: "Save Changes",

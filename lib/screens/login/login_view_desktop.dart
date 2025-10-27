@@ -232,6 +232,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                         return MyButton(
                           height: 45,
                           radius: 12,
+                          listenEnter: true,
                           onPressed: () async {
                             await myLoginController.login(usernameC.text, passwordC.text);
                           },

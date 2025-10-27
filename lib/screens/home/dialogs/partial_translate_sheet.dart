@@ -175,6 +175,7 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                                           value: l.language!,
                                           groupValue: selected?.language,
                                           onChanged: (a) {
+                                            FocusScope.of(context).requestFocus(FocusNode());
                                             selected = l;
                                             setState(() {});
                                           },

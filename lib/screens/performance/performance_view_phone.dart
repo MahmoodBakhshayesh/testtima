@@ -356,7 +356,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                   child: MyButton(
                     label: "Summary",
                     onPressed: () async {
-                      if (reportDetails.isEmpty) {
                         final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
                         if (rdl != null) {
                           reportDetails = rdl;
@@ -365,11 +364,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                             tabBarController.animateTo(1);
                           });
                         }
-                      } else {
-                        Future(() {
-                          tabBarController.animateTo(1);
-                        });
-                      }
                     },
                   ),
                 ),
@@ -377,7 +371,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                   child: MyButton(
                     label: "Details",
                     onPressed: () async {
-                      if (reportDetails.isEmpty) {
                         final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
                         log("rdl ${rdl?.length}");
                         if (rdl != null) {
@@ -388,11 +381,6 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                             tabBarController.animateTo(2);
                           });
                         }
-                      } else {
-                        Future(() {
-                          tabBarController.animateTo(2);
-                        });
-                      }
                     },
                   ),
                 ),
