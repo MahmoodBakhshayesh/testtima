@@ -786,7 +786,7 @@ DocumentDetail _parseTD3(String l1, String l2) {
     documentIssueCountry: BasicClass.getLocationWithCode(issuing),
     nationality: BasicClass.getLocationWithCode(nationality),
     birthDate: _parseMrzDate(birthYYMMDD),
-    documentExpiryDate: _parseMrzDate(expiryYYMMDD),
+    documentExpiryDate: parseMrzExpiryDate(expiryYYMMDD),
     sex: _nz(sex),
     shortType: _shortTypeFromDocCode(docCode), // 'P' (passport) or 'V' (visa)
     docCode: docCode,
@@ -813,7 +813,7 @@ DocumentDetail _parseTD2(String l1, String l2) {
     documentIssueCountry: BasicClass.getLocationWithCode(issuing),
     nationality: BasicClass.getLocationWithCode(nationality),
     birthDate: _parseMrzDate(birthYYMMDD),
-    documentExpiryDate: _parseMrzDate(expiryYYMMDD),
+    documentExpiryDate: parseMrzExpiryDate(expiryYYMMDD),
     sex: _nz(sex),
     shortType: _shortTypeFromDocCode(docCode),
     docCode: docCode,

@@ -198,7 +198,7 @@ class _InboxMessageWidgetState extends State<InboxMessageWidget> {
                             Icon(Icons.circle,size: 10,color: Colors.red):
                             Icon(Icons.check_outlined,size: 10,color: Colors.grey),
                             const SizedBox(width: 4),
-                            Text("From: ${widget.message.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                            // Text("From: ${widget.message.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                           ],
                         ),
                       ),

@@ -262,38 +262,45 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                   reportDetails.isEmpty
                                       ? SizedBox()
 
-                                  : ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: detailsFrom.length,
-                                      itemBuilder: (c, i) {
-                                        String from = detailsFrom[i];
-                                        final items = reportDetails.where((a)=>a.from == from).toList();
-                                        return MyExpansionTile(
-                                          initiallyExpanded: true,
-                                          showFooter: false,
-                                          tilePadding: EdgeInsets.zero,
-                                          childrenPadding: EdgeInsets.zero,
-                                          showTrailingIcon: true,
-                                          backgroundColor: Colors.blueAccent.withOpacity(0.1),
-                                          collapsedBackgroundColor:  Colors.blueAccent.withOpacity(0.1),
-                                          collapsedShape: RoundedRectangleBorder(
-                                              side: BorderSide(color: MyColors.lineColor),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                              side: BorderSide(color: MyColors.lineColor)
-                                          ),
-                                          title: Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
-                                              decoration: BoxDecoration(
-                                              ),
-                                              child: Text(from)),children: [
-                                          ...items.map((det)=>ReportDetailsSummaryWidget(index: items.indexOf(det), log: det))
-                                        ],);
-                                        LogReportDetail det = reportDetails[i];
-                                        return ReportDetailsSummaryWidget(index: i, log: det);
-                                      },
-                                    ),
+                                  : Expanded(
+                                    child: ListView.builder(
+                                        // shrinkWrap: true,
+                                        // physics: NeverScrollableScrollPhysics(),
+                                        itemCount: detailsFrom.length,
+                                        itemBuilder: (c, i) {
+                                          String from = detailsFrom[i];
+                                          final items = reportDetails.where((a)=>a.from == from).toList();
+                                          return MyExpansionTile(
+                                            initiallyExpanded: true,
+                                            showFooter: false,
+                                            tilePadding: EdgeInsets.zero,
+                                            childrenPadding: EdgeInsets.zero,
+                                            showTrailingIcon: true,
+                                            backgroundColor: Colors.blueAccent.withOpacity(0.1),
+                                            collapsedBackgroundColor:  Colors.blueAccent.withOpacity(0.1),
+                                            collapsedShape: RoundedRectangleBorder(
+                                                side: BorderSide(color: MyColors.lineColor),
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                                side: BorderSide(color: MyColors.lineColor)
+                                            ),
+                                            title: Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
+                                                decoration: BoxDecoration(
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(child: Text(from,style: TextStyle(fontSize: 12),)),
+                                                    Text(items.length.toString(),style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                                                  ],
+                                                )),children: [
+                                            ...items.map((det)=>ReportDetailsSummaryWidget(index: items.indexOf(det), log: det))
+                                          ],);
+                                          LogReportDetail det = reportDetails[i];
+                                          return ReportDetailsSummaryWidget(index: i, log: det);
+                                        },
+                                      ),
+                                  ),
                                 ],
                               ),
                             ),

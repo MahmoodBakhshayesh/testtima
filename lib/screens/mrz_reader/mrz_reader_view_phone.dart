@@ -143,18 +143,18 @@ class _MrzReaderViewPhoneState extends State<MrzReaderViewPhone> {
     return Scaffold(
       appBar: MrzReaderAppBar(
         actions: [
-          DotButton(
-            onLongPress: () {
-              // myMrzReaderController.sendLogs([]);
-              // return;
-              myMrzReaderController.ref.read(showLogProvider.notifier).update((s) => !s);
-              setState(() {});
-            },
-            icon: Icons.settings,
-            onPressed: () {
-              changeSetting();
-            },
-          ),
+          // DotButton(
+          //   onLongPress: () {
+          //     // myMrzReaderController.sendLogs([]);
+          //     // return;
+          //     myMrzReaderController.ref.read(showLogProvider.notifier).update((s) => !s);
+          //     setState(() {});
+          //   },
+          //   icon: Icons.settings,
+          //   onPressed: () {
+          //     changeSetting();
+          //   },
+          // ),
         ],
       ),
       body: Column(

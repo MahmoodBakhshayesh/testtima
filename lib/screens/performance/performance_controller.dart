@@ -63,6 +63,8 @@ class PerformanceController extends ControllerInterface {
       case Ok<GetReportResponse>():
         final r = result.value;
         details = r.reportDetails.reversed.toList();
+        // details = r.reportDetails.reversed.toList();
+        // details = [...r.reportDetails.reversed.toList(),...r.reportDetails.reversed.toList(),...r.reportDetails.reversed.toList()];
     }
 
     return details;

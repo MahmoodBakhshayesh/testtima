@@ -88,7 +88,7 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
 
                       // leading: IcomoonLayeredCss.global(baseColor: MyColors.mainBlue),
                       // leading: dt.getIcon,
-                      title: "${dt.title} ${dt.type}",
+                      title: "${dt.title}",
                       leadingWidget: dt.getIcon,
                     ),
                   );

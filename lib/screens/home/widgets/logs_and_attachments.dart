@@ -37,9 +37,9 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
     }
     logs.sort((a,b)=>b.at!.compareTo(a.at!));
     logs.sort((a,b)=>['airlineApproval',"askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval',"askSupervisor"].indexOf(b.type!)));
-    for (var l in logs) {
-      log(jsonEncode(l.toJson()));
-    }
+    // for (var l in logs) {
+    //   log(jsonEncode(l.toJson()));
+    // }
     return Column(
       children: [
         ...logs.map((l) {
@@ -224,9 +224,11 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: [Text(widget.his.user ?? '-', style: TextStyle(fontWeight: FontWeight.bold))],
+                        children: [
+                          Expanded(child: Text(widget.his.payload!.message!)),
+                          Text(widget.his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                        ],
                       ),
-                      Text(widget.his.payload!.message!),
                     ],
                   ),
                 ),
@@ -762,7 +764,13 @@ class SupervisorApprovalWidget extends StatelessWidget {
                           // ),
                         ],
                       ),
-                      Text(ask.payload?.message ?? ''),
+                      Row(
+                        children: [
+                          Expanded(child: Text(ask.payload?.message ?? '')),
+                          Text(ask.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -786,7 +794,13 @@ class SupervisorApprovalWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Text(his.payload?.message ?? ''),
+                      Row(
+                        children: [
+                          Expanded(child: Text(his.payload?.message ?? '')),
+                          Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+
+                        ],
+                      ),
                     ],
                   ),
                 ),

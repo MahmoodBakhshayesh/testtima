@@ -1,4 +1,5 @@
 import 'package:abds/core/constants/ui.dart';
+import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -60,30 +61,67 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                 child: ListView.builder(
                   padding: EdgeInsets.only(right: 5),
                   controller: scrollController,
-                  itemCount: widget.model!.data.length,
+                  itemCount: widget.model!.sections.length,
                   primary: false,
                   shrinkWrap: false,
                   itemBuilder: (context, index) {
                     final isEven = index % 2 == 0;
                     final stripe = isEven ? rowStyle.even : rowStyle.odd;
-                    final row = widget.model!.data[index];
+                    final section = widget.model!.sections[index];
+                    final sectionRows = section.data;
 
                     // Per-cell text colors follow the stripe's fg
                     final fg = List<Color>.filled(header.column.length, _hex(stripe.fontColor));
-                    final fgD = header.column.map((a)=>_hex(a.fontColorValue)).toList();
+                    final fgD = header.column.map((a) => _hex(a.fontColorValue)).toList();
+                    final headerData = header.column.map((h)=>h.text).toList();
+                    return MyExpansionTile(
+                      initiallyExpanded: true,
+                      // collapsedBackgroundColor: Colors.red,
+                      // backgroundColor: Colors.red,
 
-                    return _RowStrip(
-                      texts: List.generate(header.column.length, (i) => i < row.length ? (row[i] ?? '') : ''),
-                      widthsPx: widthsPx,
-                      ratio: header.column.map((a) => a.width).toList(),
-                      alignments: header.column.map((a) => a.alignment).toList(),
-                      bg: _hex(stripe.color),
+                      showFooter: false,
+                      title: _RowStrip(
+                        texts: List.generate(header.column.length, (i) => i < headerData.length ? (headerData[i] ?? '') : ''),
+                        widthsPx: widthsPx,
+                        ratio: header.column.map((a) => a.width).toList(),
+                        alignments: header.column.map((a) => a.alignment).toList(),
+                        bg: _hex(header.color),
+                        fgList: fg,
+                        fontSize: rowStyle.fontSize.toDouble(),
+                        fontWeight: FontWeight.w500,
+                        padding: widget.cellPadding,
+                      ),
+                      children: [
+                        ...sectionRows.map((r) {
+                          final int i = sectionRows.indexOf(r);
+                          final row = r.toJson().values.map((a) => a["value"].toString()).toList();
+                          return _RowStrip(
+                            texts: List.generate(header.column.length, (i) => i < row.length ? (row[i] ?? '') : ''),
+                            widthsPx: widthsPx,
+                            ratio: header.column.map((a) => a.width).toList(),
+                            alignments: header.column.map((a) => a.alignment).toList(),
+                            bg: _hex(stripe.color),
 
-                      fgList: fg,
-                      fontSize: rowStyle.fontSize.toDouble(),
-                      fontWeight: FontWeight.w500,
-                      padding: widget.cellPadding,
+                            fgList: fg,
+                            fontSize: rowStyle.fontSize.toDouble(),
+                            fontWeight: FontWeight.w500,
+                            padding: widget.cellPadding,
+                          );
+                        }),
+                      ],
                     );
+                    // return _RowStrip(
+                    //   texts: List.generate(header.column.length, (i) => i < row.length ? (row[i] ?? '') : ''),
+                    //   widthsPx: widthsPx,
+                    //   ratio: header.column.map((a) => a.width).toList(),
+                    //   alignments: header.column.map((a) => a.alignment).toList(),
+                    //   bg: _hex(stripe.color),
+                    //
+                    //   fgList: fg,
+                    //   fontSize: rowStyle.fontSize.toDouble(),
+                    //   fontWeight: FontWeight.w500,
+                    //   padding: widget.cellPadding,
+                    // );
                   },
                 ),
               ),
