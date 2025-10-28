@@ -28,7 +28,7 @@ extension BuldContextMore on BuildContext {
     return MediaQuery.of(this).size.height;
   }
   EdgeInsets? get getDialogPadding {
-    return EdgeInsets.symmetric(horizontal:isMyTablet?width*0.25: isDesktop?  width*.3:12);
+    return EdgeInsets.symmetric(horizontal:isMyTablet?width*0.25: isDesktop?  width*.3:12,vertical: isDesktop?(height*0.25):0);
   }
   EdgeInsets? get getBigDialogPadding {
     return EdgeInsets.symmetric(horizontal:isMyTablet?width*0.10: isDesktop?  width*.3:12);

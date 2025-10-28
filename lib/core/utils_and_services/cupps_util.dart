@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/interface_implementations/shared_preferences_imp.dart';
@@ -503,7 +504,24 @@ class CuppsUtils {
   static Future<(String?, String?)> loadIpPort() async {
     String? ip = await getIt<SharedPreferencesImp>().getVariable(key: "cuppsIp");
     String? port = await getIt<SharedPreferencesImp>().getVariable(key: "cuppsPort");
+
+    ip ??= getWindowsEnvVariable("CUPPSPN");
+    port ??= getWindowsEnvVariable("CUPPSPP");
     return (ip,port);
+  }
+
+  static String? getWindowsEnvVariable(String varName) {
+    if (Platform.isWindows) {
+      try {
+        final value = Platform.environment[varName];
+        return value;
+      } catch (e) {
+        log('Error getting environment variable $varName: $e');
+        return null;
+      }
+    }
+
+    return null;
   }
 }
 

@@ -50,7 +50,7 @@ class UsersController extends ControllerInterface {
       case Ok<GetUserListResponse>():
         final r = result.value;
         peopleList = r.peoples;
-        r.peoples.forEach((p){
+        r.peoples.forEach((p) {
           log(jsonEncode(p.toJson()));
         });
         ref.read(peopleListProvider.notifier).update((s) => r.peoples);
@@ -63,10 +63,10 @@ class UsersController extends ControllerInterface {
     navigation.openDialog(dialog: EditUserDialog(user: people));
   }
 
-  Future<People?> updateUser({required People user, required bool enable, required UserPermission permission, required Map<String, dynamic> attributes}) async {
+  Future<People?> updateUser({required People user, required bool enable, String? email, String? password, required UserPermission permission, required Map<String, dynamic> attributes}) async {
     People? updated;
     EditUserUseCase updateUserUseCase = EditUserUseCase();
-    EditUserRequest editUserRequest = EditUserRequest(people: user, active: enable, updatedPermission: permission, attributes: attributes);
+    EditUserRequest editUserRequest = EditUserRequest(email: email, password: password, people: user, active: enable, updatedPermission: permission, attributes: attributes);
     final result = await updateUserUseCase(request: editUserRequest);
 
     switch (result) {
@@ -80,6 +80,7 @@ class UsersController extends ControllerInterface {
 
         updated.userPermission = permission;
         updated.userAttribute = attributes;
+        updated.email = email??updated.email;
 
         int index = ref.read(peopleListProvider).indexWhere((a) => a.uId == updated!.uId);
         final copy = [...ref.read(peopleListProvider)];
@@ -179,7 +180,7 @@ class UsersController extends ControllerInterface {
     String apiAddress = "$serverAddress/user/image";
     // log(apiAddress);
     try {
-      final dio = Dio(BaseOptions(receiveTimeout: Duration(minutes: 10),sendTimeout: Duration(minutes: 10),connectTimeout: Duration(minutes: 10)));
+      final dio = Dio(BaseOptions(receiveTimeout: Duration(minutes: 10), sendTimeout: Duration(minutes: 10), connectTimeout: Duration(minutes: 10)));
       final response = await dio.put(
         apiAddress,
         data: formData,
@@ -207,8 +208,7 @@ class UsersController extends ControllerInterface {
       }
     } catch (e) {
       log('Upload failed: $e');
-      FailureHandler.handle(ServerFailure(code: -1, msg: e.toString(), traceMsg:  e.toString()));
-
+      FailureHandler.handle(ServerFailure(code: -1, msg: e.toString(), traceMsg: e.toString()));
     }
   }
 

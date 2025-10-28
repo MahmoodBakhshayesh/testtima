@@ -1,6 +1,7 @@
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_utils/src/extensions/string_extensions.dart';
 import 'package:pinput/pinput.dart';
 
@@ -1041,6 +1042,34 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+class DefaultEnterScope extends StatelessWidget {
+  const DefaultEnterScope({super.key, required this.onActivate, required this.child});
+  final VoidCallback onActivate;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+      },
+      child: Actions(
+        actions: {
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (intent) {
+              onActivate();
+              return null;
+            },
+          ),
+        },
+        child: Focus(autofocus: false, child: child),
       ),
     );
   }

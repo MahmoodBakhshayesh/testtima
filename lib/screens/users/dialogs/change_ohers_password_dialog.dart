@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/screens/login/login_controller.dart';
+import 'package:abds/screens/users/users_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,36 +22,35 @@ import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
 import '../../../widgets/SelectionChip.dart';
 import '../../login/login_state.dart';
-import '../profile_controller.dart';
 
-class ChangePasswordDialog extends StatefulWidget {
-  final Profile profile;
+class ChangeOthersPasswordDialog extends StatefulWidget {
+  final People user;
 
-  const ChangePasswordDialog({super.key, required this.profile});
+  const ChangeOthersPasswordDialog({super.key, required this.user});
 
   @override
-  State<ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+  State<ChangeOthersPasswordDialog> createState() => _ChangeOthersPasswordDialogState();
 }
 
-class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
-  final ProfileController myProfilesController = getIt<ProfileController>();
+class _ChangeOthersPasswordDialogState extends State<ChangeOthersPasswordDialog> {
+  final UsersController myProfilesController = getIt<UsersController>();
 
-  TextEditingController passwordC = TextEditingController();
+  TextEditingController newPassConfirmC = TextEditingController();
   TextEditingController newPassC = TextEditingController();
 
-  FocusNode passwordFN = FocusNode();
+  FocusNode newPassConfirmFN = FocusNode();
   FocusNode newPassFN = FocusNode();
   bool loading = false;
 
-  late Profile tmp ;
+  late Profile tmp;
+
   // List<ProfilePermission> includedPermissions = [];
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      tmp = Profile.fromJson(widget.profile.toJson());
-      passwordC.addListener(()=>setState((){}));
-      newPassC.addListener(()=>setState((){}));
+      newPassConfirmC.addListener(() => setState(() {}));
+      newPassC.addListener(() => setState(() {}));
       setState(() {});
     });
 
@@ -60,6 +60,8 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+
+    bool valid = newPassC.text == newPassConfirmC.text;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
       insetPadding: context.getDialogPadding,
@@ -82,12 +84,12 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           const Divider(height: 1),
           Container(
             color: MyColors.scaffoldBg,
-            padding: const EdgeInsets.symmetric(horizontal: 12.0,vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
             child: Column(
               spacing: 12,
               children: [
-                MyTextField(label: "Old Password",controller: passwordC,focusNode: passwordFN,labelInRow: true,isPassword: true,),
-                MyTextField(label: "New Password",controller: newPassC,focusNode: newPassFN,labelInRow: true,isPassword: true,),
+                MyTextField(label: "New Password", controller: newPassC, focusNode: newPassFN, labelInRow: true, isPassword: true),
+                MyTextField(label: "New Password Confirm", controller: newPassConfirmC, focusNode: newPassConfirmFN, labelInRow: true, isPassword: true),
               ],
             ),
           ),
@@ -100,17 +102,23 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                 MyButton(onPressed: () => Navigator.of(context).pop(), label: "Cancel", color: MyColors.greyishBrown),
                 const SizedBox(width: 8),
                 MyButton(
-                  onPressed: () async {
-                    final res = await myProfilesController.editProfile(widget.profile,{"oldPassword":passwordC.text,"newPassword":newPassC.text},myProfilesController.ref.read(userProvider)!.attributes);
-                    if (res != null) {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      getIt<LoginController>().logout();
-                      Future.delayed(Duration(milliseconds: 500), () {
-                        SuccessHandler.handle(ServerSuccess(code: 1, msg: "Password Updated Successfully"));
-                      });
-                    }
-                  },
+                  onPressed: !valid
+                      ? null
+                      : () async {
+                          final res = await myProfilesController.updateUser(
+                            password: newPassConfirmC.text,
+                            user: widget.user,
+                            enable: widget.user.enable,
+                            permission: widget.user.userPermission,
+                            attributes: widget.user.userAttribute,
+                          );
+                          if (res != null) {
+                            Navigator.of(context).pop();
+                            Future.delayed(Duration(milliseconds: 500), () {
+                              SuccessHandler.handle(ServerSuccess(code: 1, msg: "Password Updated Successfully"));
+                            });
+                          }
+                        },
                   label: "Save",
                   color: theme.primaryColor,
                 ),

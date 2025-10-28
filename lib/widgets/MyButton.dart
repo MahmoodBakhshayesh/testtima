@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import '../core/extenstions/context_exp.dart';
 
 /// Optional: wrap a subtree so that pressing Enter anywhere inside triggers [onActivate].
@@ -109,6 +112,7 @@ class MyButton extends StatefulWidget {
 
 class _MyButtonState extends State<MyButton> {
   bool _loading = false;
+  final FocusNode _focusNode = FocusNode(debugLabel: 'MyButtonFN');
 
   /// NEW: allow triggering the button programmatically (e.g., from DefaultEnterScope via GlobalKey)
   void press() => _onTap();
@@ -126,6 +130,12 @@ class _MyButtonState extends State<MyButton> {
     } else {
       widget.onPressed?.call();
     }
+  }
+  
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -225,27 +235,46 @@ class _MyButtonState extends State<MyButton> {
     if (!widget.listenEnter) {
       return button;
     }
-
+    log("listen to enter");
     // Map Enter/NumpadEnter -> ActivateIntent -> _onTap (when this widget or a focused descendant is focused)
-    return Shortcuts(
-      shortcuts: const <ShortcutActivator, Intent>{
-        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
-        SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+    return VisibilityDetector(
+      onVisibilityChanged: (v){
+        if(v.visibleFraction==1){
+          _focusNode.requestFocus();
+          log("focued");
+        }else{
+          _focusNode.unfocus();
+          log("unfocued");
+        }
       },
-      child: Actions(
-        actions: <Type, Action<Intent>>{
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (intent) {
-              if (!disable) _onTap();
-              return null;
-            },
-          ),
-        },
-        child: Focus(
-          autofocus: widget.autofocus, // ensures focus if you want Enter to work immediately (e.g., in dialogs)
-          child: button,
-        ),
+      key: Key("MyButtonKey"),
+      child: RawKeyboardListener(
+        focusNode: _focusNode,
+        onKey: _handleRawKey,
+      
+        child: button
       ),
     );
   }
+
+  bool _handleRawKey(RawKeyEvent event) {
+    log("_handleRawKey");
+    if (event is! RawKeyDownEvent) return false;
+
+    final isMac = defaultTargetPlatform == TargetPlatform.macOS;
+    final isCtrlOrMeta = isMac ? event.isMetaPressed : event.isControlPressed;
+
+    // Enter / Numpad Enter => Done
+    if (event.logicalKey == LogicalKeyboardKey.enter ||
+        event.logicalKey == LogicalKeyboardKey.numpadEnter) {
+      // widget.onDone?.call();
+      log("enter entered");
+      return true;
+    }
+
+
+    // Let other keys bubble (e.g., Tab for focus traversal)
+    return false;
+  }
+
 }

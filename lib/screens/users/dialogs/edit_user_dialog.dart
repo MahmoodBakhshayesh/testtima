@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/screens/users/dialogs/change_ohers_password_dialog.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
@@ -58,7 +59,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
   late bool active = widget.user.enable;
   late UserPermission aup = UserPermission.fromPermissionMap(widget.user.userPermission.toPermissionMap());
 
-  Map<String,dynamic> attributes = {};
+  Map<String, dynamic> attributes = {};
+
   // late Map<String,int> tmp = Map<String,int>.from(widget.user.permission);
 
   // List<UserPermission> includedPermissions = [];
@@ -67,21 +69,21 @@ class _EditUserDialogState extends State<EditUserDialog> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final permissions = myUsersController.ref.read(userProvider)!.permission;
-      BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).forEach((att){
-        if(att.type.toLowerCase() == "string"){
-          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]));
-        }else if(att.type.toLowerCase() =="enum"){
-          attributes.putIfAbsent(att.name, ()=>widget.user.userAttribute[att.name]);
-        }else if(att.type.toLowerCase() =="date"){
-          attributes.putIfAbsent(att.name, ()=>DateTime.tryParse(widget.user.userAttribute[att.name]));
-        }else if(att.type.toLowerCase() =="boolean"){
-          attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute[att.name])??false);
-        }else if(att.type.toLowerCase() =="number"){
-          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
-        }else if(att.type.toLowerCase() =="float"){
-          attributes.putIfAbsent(att.name, ()=>TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
-        }else if(att.type.toLowerCase() =="multiselectlist"){
-          attributes.putIfAbsent(att.name, ()=>(widget.user.userAttribute[att.name]??[]));
+      BasicClass.constData.data.attribute.where((a) => a.onlyOwner).forEach((att) {
+        if (att.type.toLowerCase() == "string") {
+          attributes.putIfAbsent(att.name, () => TextEditingController(text: widget.user.userAttribute[att.name]));
+        } else if (att.type.toLowerCase() == "enum") {
+          attributes.putIfAbsent(att.name, () => widget.user.userAttribute[att.name]);
+        } else if (att.type.toLowerCase() == "date") {
+          attributes.putIfAbsent(att.name, () => DateTime.tryParse(widget.user.userAttribute[att.name]));
+        } else if (att.type.toLowerCase() == "boolean") {
+          attributes.putIfAbsent(att.name, () => (widget.user.userAttribute[att.name]) ?? false);
+        } else if (att.type.toLowerCase() == "number") {
+          attributes.putIfAbsent(att.name, () => TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
+        } else if (att.type.toLowerCase() == "float") {
+          attributes.putIfAbsent(att.name, () => TextEditingController(text: widget.user.userAttribute[att.name]?.toString()));
+        } else if (att.type.toLowerCase() == "multiselectlist") {
+          attributes.putIfAbsent(att.name, () => (widget.user.userAttribute[att.name] ?? []));
         }
       });
       // tmp = permissions.where((p) => widget.user.permission.map((pp) => pp.id).contains(p.id)).map((a) {
@@ -106,6 +108,8 @@ class _EditUserDialogState extends State<EditUserDialog> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     final permissions = myUsersController.ref.read(userProvider)!.permission;
+    final headerBg = MyColors.green2.withOpacity(0.26);
+    final bodyBg = MyColors.green2.withOpacity(0.12);
     // log(permissions.airlines.map((a)=>a.airline.code).join("--"));
     // log(tmp.airlines.map((a)=>a.airline.code).join("--"));
     // final current = widget.user.permission;
@@ -158,80 +162,77 @@ class _EditUserDialogState extends State<EditUserDialog> {
               padding: const EdgeInsets.all(8.0),
               child: SingleChildScrollView(
                 child: Column(
+                  spacing: 12,
                   children: [
+                    MyTextFieldNew(
+                        headerBgColor: headerBg,
+                        bodyBgColor: bodyBg,
+                        label: "Email", controller: emailC, keyboardType: TextInputType.emailAddress),
                     MyExpansionTile(
                       showFooter: false,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                       collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                       childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                      tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       backgroundColor: Colors.green.withOpacity(0.08),
                       collapsedBackgroundColor: Colors.green.withOpacity(0.08),
                       title: Text("Attributes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      children: BasicClass.constData.data.attribute.where((a)=>a.onlyOwner).map((att){
-                        final headerBg = MyColors.green2.withOpacity(0.26);
-                        final bodyBg = MyColors.green2.withOpacity(0.12);
-                        if(att.type == "string"){
+                      children: BasicClass.constData.data.attribute.where((a) => a.onlyOwner).map((att) {
+
+                        if (att.type == "string") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(
-                              headerBgColor:headerBg,
-                              bodyBgColor: bodyBg,
-                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
+                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
-                        }else if(att.type == "enum"){
+                        } else if (att.type == "enum") {
                           final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyFieldPicker<dynamic>(
-                              items:(overrideList is List)?overrideList: att.defaultList,
-                              headerBgColor:headerBg,
+                              items: (overrideList is List) ? overrideList : att.defaultList,
+                              headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
                               value: attributes[att.name],
-                              onChange: (a){
+                              onChange: (a) {
                                 attributes[att.name] = a;
-                                setState((){});
+                                setState(() {});
                               },
-                              label: att.title,placeholder: att.title,),
+                              label: att.title,
+                              placeholder: att.title,
+                            ),
                           );
-                        }else if(att.type == "boolean"){
+                        } else if (att.type == "boolean") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(
-                              headerBgColor:headerBg,
-                              bodyBgColor: bodyBg,
-                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
+                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
-                        }else if(att.type == "number"){
+                        } else if (att.type == "number") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(
-                              headerBgColor:headerBg,
-                              bodyBgColor: bodyBg,
-                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
+                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
-                        }else if(att.type == "float"){
+                        } else if (att.type == "float") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(
-                              headerBgColor:headerBg,
-                              bodyBgColor: bodyBg,
-                              label: att.title,placeholder: att.title,controller: attributes[att.name],),
+                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
-                        }else if(att.type == "date"){
+                        } else if (att.type == "date") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyDatePicker(
-                              headerBgColor:headerBg,
+                              headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
                               value: attributes[att.name],
-                              onChanged: (a){
+                              onChanged: (a) {
                                 attributes[att.name] = a;
-                                setState((){});
+                                setState(() {});
                               },
-                              label: att.title,placeholder: att.title,),
+                              label: att.title,
+                              placeholder: att.title,
+                            ),
                           );
-                        }else if (att.type == "multiselectlist") {
+                        } else if (att.type == "multiselectlist") {
                           final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
 
                           return Padding(
@@ -240,7 +241,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                               required: att.mandatory,
                               headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
-                              values:  attributes[att.name]??[],
+                              values: attributes[att.name] ?? [],
                               onChange: (a) {
                                 log(a.runtimeType.toString());
                                 attributes[att.name] = a;
@@ -252,22 +253,17 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             ),
                           );
                         }
-                        return Container(
-                          child: Row(
-                            children: [
-                              Text("${att.title}"),
-                            ],
-                          ),
-                        );
-                      }).toList()
+                        return Container(child: Row(children: [Text("${att.title}")]));
+                      }).toList(),
                     ),
-                    const SizedBox(height: 12),
                     MyExpansionTile(
                       showFooter: false,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                       collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
                       childrenPadding: EdgeInsets.symmetric(horizontal: 12),
                       backgroundColor: Colors.blueAccent.withOpacity(0.08),
+                      tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+
                       collapsedBackgroundColor: Colors.blueAccent.withOpacity(0.08),
                       title: Text("Permissions", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       children: BasicClass.constData.data.permission.areas
@@ -286,7 +282,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.48),
                                   border: Border.all(color: Colors.white),
-                                  borderRadius: BorderRadius.circular(10)
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 padding: EdgeInsets.all(12),
                                 child: Column(
@@ -351,6 +347,24 @@ class _EditUserDialogState extends State<EditUserDialog> {
                           .values
                           .toList(),
                     ),
+                    Row(
+                      children: [
+                        Spacer(),
+                        MyButton(
+                          label: "Change Password",
+                          icon: Icons.lock,
+                          reverse: true,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (c) {
+                                return ChangeOthersPasswordDialog(user: widget.user);
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -366,26 +380,26 @@ class _EditUserDialogState extends State<EditUserDialog> {
                 const SizedBox(width: 8),
                 MyButton(
                   onPressed: () async {
-                    final attFix = <String,dynamic>{};
-                    attributes.forEach((k,v){
-                      final att = BasicClass.constData.data.attribute.firstWhere((a)=>a.name == k);
-                      if(att.type == "string"){
-                        attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
-                      }else if(att.type =="enum"){
-                        attFix.putIfAbsent(att.name, ()=>v);
-                      }else if(att.type =="date"){
-                        attFix.putIfAbsent(att.name, ()=>(v as DateTime?).format_yyMMdd);
-                      }else if(att.type =="boolean"){
-                        attFix.putIfAbsent(att.name, ()=>v);
-                      }else if(att.type =="number"){
-                        attFix.putIfAbsent(att.name, ()=>(v as TextEditingController).text);
-                      }else if(att.type =="float"){
-                        attFix.putIfAbsent(att.name,()=>(v as TextEditingController).text);
-                      }else if(att.type =="multiselectlist"){
-                        attFix.putIfAbsent(att.name,()=>v);
+                    final attFix = <String, dynamic>{};
+                    attributes.forEach((k, v) {
+                      final att = BasicClass.constData.data.attribute.firstWhere((a) => a.name == k);
+                      if (att.type == "string") {
+                        attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+                      } else if (att.type == "enum") {
+                        attFix.putIfAbsent(att.name, () => v);
+                      } else if (att.type == "date") {
+                        attFix.putIfAbsent(att.name, () => (v as DateTime?).format_yyMMdd);
+                      } else if (att.type == "boolean") {
+                        attFix.putIfAbsent(att.name, () => v);
+                      } else if (att.type == "number") {
+                        attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+                      } else if (att.type == "float") {
+                        attFix.putIfAbsent(att.name, () => (v as TextEditingController).text);
+                      } else if (att.type == "multiselectlist") {
+                        attFix.putIfAbsent(att.name, () => v);
                       }
                     });
-                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: aup,attributes:attFix);
+                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: aup, attributes: attFix,email: emailC.text);
                     if (res != null) {
                       Navigator.of(context).pop();
                       Future.delayed(Duration(milliseconds: 300), () {
