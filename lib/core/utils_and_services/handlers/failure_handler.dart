@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tree_navigation/tree_navigation.dart';
@@ -13,6 +14,9 @@ abstract class FailureHandler {
 
 
   static void handle(Failure failure, {Function? retry}) {
+    if(kIsWeb){
+      return;
+    }
     BotToast.showAttachedWidget(
         attachedBuilder: (_) => Transform.scale(
               scale: 0.9,

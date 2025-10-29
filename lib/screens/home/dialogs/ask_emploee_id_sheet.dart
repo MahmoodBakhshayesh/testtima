@@ -22,6 +22,7 @@ import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
+import 'package:abds/widgets/primary_action_widget.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,8 @@ class AskEmployeeIDSheet extends StatefulWidget {
 class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
   TextEditingController idC = TextEditingController();
   bool invalidId = false;
+  final buttonKey = GlobalKey<MyButtonState>();
+
 
   @override
   void initState() {
@@ -57,7 +60,7 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
     return SafeArea(
       bottom: true,
-      child: Container(
+      child:  Container(
         constraints: BoxConstraints(maxHeight: (context.height * 0.9)),
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom, // pushes above keyboard
@@ -127,19 +130,20 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                     CupertinoNumericKeyboard(
                       maxLength: 6,
                       controller: idC,
+                      submitKeyKey: buttonKey,
                       onDone: idC.text.isEmpty
                           ? null
                           : () async {
-                              bool valid = await getIt<HomeController>().validateEmployeeId(idC.text);
-                              if (valid) {
-                                Navigator.of(context).pop(idC.text);
-                              } else {
-                                invalidId = !valid;
-                                setState(() {});
-                              }
+                        bool valid = await getIt<HomeController>().validateEmployeeId(idC.text);
+                        if (valid) {
+                          Navigator.of(context).pop(idC.text);
+                        } else {
+                          invalidId = !valid;
+                          setState(() {});
+                        }
 
-                              //
-                            },
+                        //
+                      },
                     ),
                   ],
                 ),

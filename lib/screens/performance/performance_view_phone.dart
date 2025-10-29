@@ -550,7 +550,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text("${DateFormat("dd MMM").format(widget.log.createdAt)}", style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
+                child: Center(child: Text("${DateFormat("dd MMM").format(widget.log.createdAt.toLocal())}", style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
               ),
             ),
             Expanded(

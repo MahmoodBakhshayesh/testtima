@@ -131,6 +131,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             supportNull: false,
             value: widget.value,
             hasSearch: widget.hasSearch,
+            valueToString: widget.valueToString,
             // autoFocus: widget.searchAutoFocus,
             required: widget.required,
             label: widget.label,

@@ -20,6 +20,7 @@ import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 // import 'package:wakelock_fixed/wakelock_fixed.dart';
@@ -44,6 +45,7 @@ import 'core/interface_implementations/shared_preferences_imp.dart';
 import 'core/interfaces/parser_int.dart';
 import 'core/interfaces/shared_preferences_int.dart';
 import 'core/navigation/routes.dart';
+import 'core/utils_and_services/route_tracker.dart';
 import 'core/utils_and_services/timatic/artemis_timatic.dart';
 import 'core/utils_and_services/timatic/src/timatic_client.dart';
 import 'screens/home/home_controller.dart';
@@ -58,7 +60,6 @@ final _noScreenshot = NoScreenshot.instance;
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   getIt.allowReassignment = true;
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -180,6 +181,11 @@ initNetworkManager([String? baseUrl]) {
 }
 
 Future<void> _initConfig() async {
+  if(kIsWeb){
+    AppData.setConfig(Config.def());
+    initNetworkManager(Config.def().baseUrl);
+    return;
+  }
   String? directory = (await getApplicationDocumentsDirectory()).path;
   final File file = File('$directory/config/config.json');
   if (file.existsSync() && false) {
@@ -299,8 +305,14 @@ Future<void> _initPackages() async {
   ParserInterface parser = Parser();
   getIt.registerSingleton(parser);
 
-  AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
-  getIt.registerSingleton(adnd);
+  if(!kIsWeb) {
+    AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
+    getIt.registerSingleton(adnd);
+  }else{
+    AppDeviceNetworkData adnd = AppDeviceNetworkData(app: AppInfoData(name: "name", id: ""), device: DeviceInfoData(type: DeviceType.desktop, id: "id", os: OSType.other), network: NetworkInfoData(type: NetworkType.other));
+    getIt.registerSingleton(adnd);
+
+  }
 
   // final client = TimaticClient(const TimaticClientOptions(baseUrl: 'https://timatic.multidcs.com/api/v1'));
   // final api = TimaticApi(client);

@@ -69,6 +69,10 @@ class _EditUserDialogState extends State<EditUserDialog> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final permissions = myUsersController.ref.read(userProvider)!.permission;
+
+      firstNameC.text = widget.user.firstname??'';
+      lastNameC.text = widget.user.lastname??'';
+      emailC.text = widget.user.email??'';
       BasicClass.constData.data.attribute.where((a) => a.onlyOwner).forEach((att) {
         if (att.type.toLowerCase() == "string") {
           attributes.putIfAbsent(att.name, () => TextEditingController(text: widget.user.userAttribute[att.name]));
@@ -168,6 +172,14 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         label: "Email", controller: emailC, keyboardType: TextInputType.emailAddress),
+                    // MyTextFieldNew(
+                    //     headerBgColor: headerBg,
+                    //     bodyBgColor: bodyBg,
+                    //     label: "Firstname", controller: firstNameC),
+                    // MyTextFieldNew(
+                    //     headerBgColor: headerBg,
+                    //     bodyBgColor: bodyBg,
+                    //     label: "Lastname", controller: lastNameC),
                     MyExpansionTile(
                       showFooter: false,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
@@ -193,6 +205,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                               items: (overrideList is List) ? overrideList : att.defaultList,
                               headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
+                              rowLabelRatio: [4,6],
                               value: attributes[att.name],
                               onChange: (a) {
                                 attributes[att.name] = a;
@@ -205,22 +218,33 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         } else if (att.type == "boolean") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
+                            child: MyTextFieldNew(
+                                rowLabelRatio: [4,6],
+
+                                headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
                         } else if (att.type == "number") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
+                            child: MyTextFieldNew(
+                                rowLabelRatio: [4,6],
+
+                                headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
                         } else if (att.type == "float") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
-                            child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
+                            child: MyTextFieldNew(
+                                rowLabelRatio: [4,6],
+
+                                headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
                         } else if (att.type == "date") {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyDatePicker(
+                              rowLabelRatio: [4,6],
+
                               headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
                               value: attributes[att.name],
@@ -238,6 +262,9 @@ class _EditUserDialogState extends State<EditUserDialog> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
                             child: MyMultiFieldPicker(
+
+                              rowLabelRatio: [4,6],
+
                               required: att.mandatory,
                               headerBgColor: headerBg,
                               bodyBgColor: bodyBg,
@@ -399,7 +426,10 @@ class _EditUserDialogState extends State<EditUserDialog> {
                         attFix.putIfAbsent(att.name, () => v);
                       }
                     });
-                    final res = await myUsersController.updateUser(user: widget.user, enable: active, permission: aup, attributes: attFix,email: emailC.text);
+                    final res = await myUsersController.updateUser(
+                        firstName: firstNameC.text,
+                        lastName: lastNameC.text,
+                        user: widget.user, enable: active, permission: aup, attributes: attFix,email: emailC.text);
                     if (res != null) {
                       Navigator.of(context).pop();
                       Future.delayed(Duration(milliseconds: 300), () {

@@ -2,6 +2,8 @@ import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/my_icons.dart';
 import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
+import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
+import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
 import 'package:abds/screens/home/widgets/locked_passenger_widget.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +57,7 @@ class PassengerWidget extends ConsumerWidget {
         ],
       );
     }
-
+    DocumentDetail? birthD = [...ref.watch(passportsProvider),...ref.watch(visasProvider),...ref.watch(residentsProvider)].firstWhereOrNull((a)=>a.isBirthday);
     return Container(
       decoration: BoxDecoration(
         color:Colors.white,
@@ -89,6 +91,7 @@ class PassengerWidget extends ConsumerWidget {
             ],
           ),
           PassengerDetailsRow(index: 0, isLast: true, isFirst: false, details: passengerDetails),
+          // ?birthD?.birthdayWidget
         ],
       ),
     );

@@ -79,45 +79,35 @@ class LockedSegmentRow extends StatelessWidget {
               spacing: 12,
               children: [
                 Expanded(
-                  child: Row(
-                    spacing: 12,
-                    children: [
-                      Expanded(
-                        child: LockedFieldWidget(
-                          label: "Departure",
-                          value: Row(children: [Text(seg.departure.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.departure.time?.format_HHmm ?? '')]),
-                        ),
-                      ),
-                      Expanded(
-                        child: LockedFieldWidget(
-                          label: "Arrival",
-                          value: Row(children: [Text(seg.arrival.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.arrival.time?.format_HHmm ?? '')]),
-                        ),
-                      ),
-                    ],
+                  child: LockedFieldWidget(
+                    label: "Departure",
+                    value: Row(children: [Text(seg.departure.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.departure.time?.format_HHmm ?? '')]),
                   ),
                 ),
                 Expanded(
-                  child: Row(
-                    spacing: 12,
-                    children: [
-                      Expanded(
-                        child: LockedFieldWidget(label: "Type", value: Text(seg.segmentType?.title ?? '')),
-                      ),
-                      Expanded(
-                        child: LockedFieldWidget(label: "Ticket", value: Text(seg.returnOnwardTicket?.title ?? '')),
-                      ),
-                      Expanded(
-                        child: LockedFieldWidget(label: "POS", value: Text(seg.purposeOfStay?.title ?? "")),
-                      ),
-                      Expanded(
-                        child: LockedFieldWidget(label: "DOS", value: Text(seg.durationOfStay?.formatDurationUnit ?? '')),
-                      ),
-                    ],
+                  child: LockedFieldWidget(
+                    label: "Arrival",
+                    value: Row(children: [Text(seg.arrival.dateTime?.format_ddMMMEEE ?? ''), Text(" - "), Text(seg.arrival.time?.format_HHmm ?? '')]),
                   ),
+                ),
+                Expanded(
+                  child: LockedFieldWidget(label: "Type", value: Text(seg.segmentType?.title ?? '')),
                 ),
               ],
             ),
+            Row(
+              spacing: 12,
+              children: [
+              Expanded(
+                child: LockedFieldWidget(label: "Ticket", value: Text(seg.returnOnwardTicket?.title ?? '')),
+              ),
+              Expanded(
+                child: LockedFieldWidget(label: "POS", value: Text(seg.purposeOfStay?.title ?? "")),
+              ),
+              Expanded(
+                child: LockedFieldWidget(label: "DOS", value: Text(seg.durationOfStay?.formatDurationUnit ?? '')),
+              ),
+            ],)
             // ?seg.luggageCollected != null ? LockedFieldWidget(label: "Luggage Collected", value: Text(seg.luggageCollected!?"Yes":"No")) : null,
           ],
         ),

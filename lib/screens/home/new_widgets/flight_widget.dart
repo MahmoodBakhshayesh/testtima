@@ -36,11 +36,12 @@ import '../widgets/locked_segment_widget.dart';
 
 class FlightWidget extends ConsumerWidget {
   final bool report;
-  const FlightWidget({super.key,this.report = false});
+
+  const FlightWidget({super.key, this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if(report){
+    if (report) {
       final List<ItinerarySegment> segments = ref.watch(reportSegmentsProvider);
       return Column(
         children: segments.map((d) {
@@ -158,8 +159,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
     final mandatories = BasicClass.constData.data.mandatory!.flight;
     String fName = "Segment${hasTransit ? " ${widget.index + 1}" : ""}";
 
-
-    if(context.isDesktop){
+    if (context.isDesktop) {
       return Container(
         decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.white)),
@@ -173,7 +173,6 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
           footerExtra: IndexedStack(
             index: isLast ? 0 : 1,
             children: [
-
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: MyButton(
@@ -182,7 +181,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   icon: Icons.add_circle_outline,
                   onPressed: () {
                     var beforeSeg = seg;
-                    beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit,purposeOfStay: beforeSeg.purposeOfStay,returnOnwardTicket: beforeSeg.returnOnwardTicket);
+                    beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit, purposeOfStay: beforeSeg.purposeOfStay, returnOnwardTicket: beforeSeg.returnOnwardTicket);
                     ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
                     var newSeg = ItinerarySegment.empty();
                     newSeg = newSeg.copyWith(departure: seg.arrival);
@@ -190,7 +189,6 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   },
                   textColor: Colors.blueAccent,
                   color: Colors.blueAccent.withOpacity(0.1),
-
                 ),
               ),
               SizedBox(
@@ -206,105 +204,105 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               ),
             ],
           ),
-          
+
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               widget.index == 0
                   ? Row(
-                spacing: 8,
-                children: [
-                  Expanded(
-                    child: Row(
+                      spacing: 8,
                       children: [
-                        Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                        airlineLogoBuild(widget.item.operatingCarrier),
-                      ],
-                    ),
-                  ),
-                  MyButton(
-                    label: "Scan Boarding Pass",
-                    onPressed: () {
-                      getIt<HomeController>().goNamed(Routes.barcodeReader);
-                    },
-                    radius: 8,
-                  ),
-                  DotButton(
-                    icon: ArtemisIcons.eraser_1,
-                    onPressed: () async {
-                      final confirm = await ConfirmOperation.getConfirm(
-                        Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear "$fName" in flight information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
-                      );
-                      if (!confirm) return;
-                      if (segments.length == 1) {
-                        ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
-                      } else {
-                        ref
-                            .read(segmentsProvider.notifier)
-                            .updateAt(ref.read(segmentsProvider).length - 2, ref.read(segmentsProvider)[ref.read(segmentsProvider).length - 2].copyWith(segmentType: SegmentType.entry, luggageCollected: true));
-                        ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
-                      }
-                    },
-                    size: 40,
-                    iconSize: 20,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                              airlineLogoBuild(widget.item.operatingCarrier),
+                            ],
+                          ),
+                        ),
+                        MyButton(
+                          label: "Scan Boarding Pass",
+                          onPressed: () {
+                            getIt<HomeController>().goNamed(Routes.barcodeReader);
+                          },
+                          radius: 8,
+                        ),
+                        DotButton(
+                          icon: ArtemisIcons.eraser_1,
+                          onPressed: () async {
+                            final confirm = await ConfirmOperation.getConfirm(
+                              Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear "$fName" in flight information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+                            );
+                            if (!confirm) return;
+                            if (segments.length == 1) {
+                              ref.read(segmentsProvider.notifier).updateAt(ref.read(segmentsProvider).length - 1, ItinerarySegment.emptyNoAirport());
+                            } else {
+                              ref
+                                  .read(segmentsProvider.notifier)
+                                  .updateAt(ref.read(segmentsProvider).length - 2, ref.read(segmentsProvider)[ref.read(segmentsProvider).length - 2].copyWith(segmentType: SegmentType.entry, luggageCollected: true));
+                              ref.read(segmentsProvider.notifier).removeAt(ref.read(segmentsProvider).length - 1);
+                            }
+                          },
+                          size: 40,
+                          iconSize: 20,
 
-                    radius: 8,
-                    flat: true,
-                    border: BorderSide(width: 1, color: context.mainColor),
-                  ),
-                ],
-              )
+                          radius: 8,
+                          flat: true,
+                          border: BorderSide(width: 1, color: context.mainColor),
+                        ),
+                      ],
+                    )
                   : Row(
-                spacing: 12,
-                children: [
-                  Expanded(
-                    child: Row(
+                      spacing: 12,
                       children: [
-                        Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                        airlineLogoBuild(widget.item.operatingCarrier),
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text(fName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                              airlineLogoBuild(widget.item.operatingCarrier),
+                            ],
+                          ),
+                        ),
+                        DotButton(
+                          icon: ArtemisIcons.trash,
+                          onPressed: () async {
+                            final confirm = await ConfirmOperation.getConfirm(
+                              Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete "$fName" in flight information. Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]),
+                            );
+                            if (!confirm) return;
+                            if (widget.isLast) {
+                              final prev = segments[widget.index - 1];
+                              ref.read(segmentsProvider.notifier).updateAt(index - 1, prev.copyWith(segmentType: SegmentType.entry, luggageCollected: true));
+                            }
+
+                            ref.read(segmentsProvider.notifier).removeAt(widget.index);
+                          },
+                          size: 40,
+                          iconSize: 20,
+                          radius: 8,
+                          flat: true,
+                          color: Colors.red,
+                          border: BorderSide(width: 1, color: Colors.red),
+                        ),
+                        DotButton(
+                          icon: ArtemisIcons.eraser_1,
+                          onPressed: () async {
+                            final confirm = await ConfirmOperation.getConfirm(
+                              Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear "$fName" in flight information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+                            );
+                            if (!confirm) return;
+                            ref.read(segmentsProvider.notifier).updateAt(widget.index, ItinerarySegment.empty());
+                          },
+                          size: 40,
+                          iconSize: 20,
+                          radius: 8,
+                          flat: true,
+                          border: BorderSide(width: 1, color: context.mainColor),
+                        ),
                       ],
                     ),
-                  ),
-                  DotButton(
-                    icon: ArtemisIcons.trash,
-                    onPressed: () async {
-                      final confirm = await ConfirmOperation.getConfirm(
-                        Operation(type: OperationType.error, icon: ArtemisIcons.trash, message: 'You are about to delete "$fName" in flight information. Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]),
-                      );
-                      if (!confirm) return;
-                      if (widget.isLast) {
-                        final prev = segments[widget.index - 1];
-                        ref.read(segmentsProvider.notifier).updateAt(index - 1, prev.copyWith(segmentType: SegmentType.entry, luggageCollected: true));
-                      }
-
-                      ref.read(segmentsProvider.notifier).removeAt(widget.index);
-                    },
-                    size: 40,
-                    iconSize: 20,
-                    radius: 8,
-                    flat: true,
-                    color: Colors.red,
-                    border: BorderSide(width: 1, color: Colors.red),
-                  ),
-                  DotButton(
-                    icon: ArtemisIcons.eraser_1,
-                    onPressed: () async {
-                      final confirm = await ConfirmOperation.getConfirm(
-                        Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to clear "$fName" in flight information. Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
-                      );
-                      if (!confirm) return;
-                      ref.read(segmentsProvider.notifier).updateAt(widget.index, ItinerarySegment.empty());
-                    },
-                    size: 40,
-                    iconSize: 20,
-                    radius: 8,
-                    flat: true,
-                    border: BorderSide(width: 1, color: context.mainColor),
-                  ),
-                ],
-              ),
               const SizedBox(height: 12),
-               Row(
+              Row(
                 spacing: 12,
                 children: [
                   Expanded(
@@ -355,7 +353,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       headerBgColor: Color(0xffECECEC),
                       bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                       // labelStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
+                      valueToString: (dynamic a) => "$a",
+                      itemToWidget: (dynamic a) => Text("$a (${(a as Airport).code3})"),
                       searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
                       items: BasicClass.constData.data.airport,
                       value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.departure.point),
@@ -388,6 +387,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                       itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
                       required: mandatories!.to,
                       items: BasicClass.constData.data.airport,
+                      valueToString: (dynamic a) => "$a",
                       searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
                       value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == seg.arrival.point),
                       onChange: (a) {
@@ -409,8 +409,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     ),
                   ),
                 ],
-              )
-
+              ),
             ],
           ),
           // childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
@@ -580,21 +579,21 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
             const SizedBox(height: 12),
             widget.isLast
                 ? Row(
-              spacing: 12,
-              children: [
-                Expanded(
-                  child: MySwitchButton(
-                    value: seg.luggageCollected ?? false,
-                    onChanged: (a) {
-                      seg = seg.copyWith(luggageCollected: a);
-                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
-                    },
-                    label: "Luggage Collect",
-                  ),
-                ),
-                Expanded(child: SizedBox()),
-              ],
-            )
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        child: MySwitchButton(
+                          value: seg.luggageCollected ?? false,
+                          onChanged: (a) {
+                            seg = seg.copyWith(luggageCollected: a);
+                            ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                          },
+                          label: "Luggage Collect",
+                        ),
+                      ),
+                      Expanded(child: SizedBox()),
+                    ],
+                  )
                 : SizedBox(),
           ],
         ),
@@ -611,37 +610,40 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
             shape: RoundedRectangleBorder(),
             collapsedShape: RoundedRectangleBorder(),
             tilePadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            footerExtra: IndexedStack(
-              index: isLast ? 0 : 1,
-              children: [
-                MyButton(
-                  height: 30,
-                  label: "Segment",
-                  icon: Icons.add_circle_outline,
-                  onPressed: () {
-                    var beforeSeg = seg;
-                    beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit,purposeOfStay: beforeSeg.purposeOfStay,returnOnwardTicket: beforeSeg.returnOnwardTicket);
-                    ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
-                    var newSeg = ItinerarySegment.empty();
-                    newSeg = newSeg.copyWith(departure: seg.arrival);
-                    ref.read(segmentsProvider.notifier).add(newSeg);
-                  },
-                  textColor: Colors.blueAccent,
-                  color: Colors.blueAccent.withOpacity(0.1),
-
-                ),
-                SizedBox(
-                  width: 165,
-                  child: MySwitchButton(
-                    value: seg.luggageCollected ?? false,
-                    onChanged: (a) {
-                      seg = seg.copyWith(luggageCollected: a);
-                      ref.read(segmentsProvider.notifier).updateAt(index, seg);
+            childrenPadding: EdgeInsets.symmetric(horizontal: 8),
+            footerExtra: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IndexedStack(
+                index: isLast ? 0 : 1,
+                children: [
+                  MyButton(
+                    height: 30,
+                    label: "Segment",
+                    icon: Icons.add_circle_outline,
+                    onPressed: () {
+                      var beforeSeg = seg;
+                      beforeSeg = beforeSeg.copyWith(luggageCollected: false, segmentType: SegmentType.transit, purposeOfStay: beforeSeg.purposeOfStay, returnOnwardTicket: beforeSeg.returnOnwardTicket);
+                      ref.read(segmentsProvider.notifier).updateAt(index, beforeSeg);
+                      var newSeg = ItinerarySegment.empty();
+                      newSeg = newSeg.copyWith(departure: seg.arrival);
+                      ref.read(segmentsProvider.notifier).add(newSeg);
                     },
-                    label: "Luggage Collect",
+                    textColor: Colors.blueAccent,
+                    color: Colors.blueAccent.withOpacity(0.1),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    width: 165,
+                    child: MySwitchButton(
+                      value: seg.luggageCollected ?? false,
+                      onChanged: (a) {
+                        seg = seg.copyWith(luggageCollected: a);
+                        ref.read(segmentsProvider.notifier).updateAt(index, seg);
+                      },
+                      label: "Luggage Collect",
+                    ),
+                  ),
+                ],
+              ),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -889,6 +891,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                             Expanded(
                               child: MyDurationOfStayPicker(
                                 label: "DOS",
+                                rowLabelRatio: [3, 5],
+
                                 headerBgColor: Color(0xffECECEC),
                                 bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
                                 placeholder: "Duration Of Stay",
@@ -1034,6 +1038,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                             child: MyDurationOfStayPicker(
                               label: "DOS",
                               required: mandatories!.dos && isFirst,
+                              rowLabelRatio: [3, 5],
 
                               headerBgColor: Color(0xffECECEC),
                               bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
@@ -1210,7 +1215,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
             ],
           ),
         ),
-        Divider(height: 8)
+        Divider(height: 8),
       ],
     );
   }

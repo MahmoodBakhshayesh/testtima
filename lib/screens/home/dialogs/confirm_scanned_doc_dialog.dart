@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/constants/ui.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
+import 'package:abds/core/utils_and_services/button_keys.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'package:abds/core/utils_and_services/stateControllers/passports_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
@@ -11,13 +12,16 @@ import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
+import 'package:abds/widgets/primary_action_widget.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:dartx/dartx_io.dart';
+import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/classes/basic_class.dart';
@@ -40,6 +44,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
       return SizedBox();
     }
     log(documentDetail.shortType?? '');
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
       insetPadding: context.getDialogPadding,
@@ -85,6 +90,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                   ),
                   Expanded(
                     child: MyButton(
+                      key: ButtonKeys.confirmDocKey,
                       label: "Confirm",
                       // reverse: true,
                       borderSide: BorderSide(color: context.mainColor),
@@ -190,6 +196,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     DocumentType? typeMatch = d.getMatch();
     List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == d.shortType).map((a) => a.code!).toList();
     final requiredFields = d.getRequiredFields;
+    bool isBirthday = d.birthDate!=null &&  DateFormat("MM-dd").format(d.birthDate!) == DateFormat("MM-dd").format(DateTime.now());
+    bool isBirthdayTom = d.birthDate!=null &&  DateFormat("MM-dd").format(d.birthDate!) == DateFormat("MM-dd").format(DateTime.now().add(Duration(days: 1)));
 
     return Container(
       decoration: BoxDecoration(
@@ -203,7 +211,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         showFooter: false,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2),
+        backgroundColor: (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2)??Colors.blueGrey,
         collapsedBackgroundColor:  (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
@@ -351,7 +359,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
               ref.read(confirmingDocumentProvider.notifier).update((s) => d);
             },
           ),
-
+          d.birthdayWidget,
           const SizedBox(height: 12),
           ?d.shortType =="P"?
           Padding(

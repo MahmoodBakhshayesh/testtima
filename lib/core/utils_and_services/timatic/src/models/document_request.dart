@@ -7,9 +7,12 @@ import 'package:artemis_utils/artemis_utils.dart';
 import 'package:dartx/dartx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart' hide DocumentType;
 
 import '../../../../classes/constant_data_class.dart';
+import '../../../../constants/assest.dart';
+import '../../../icomoon_layered_presets_from_css.dart';
 import '../../artemis_timatic.dart';
 import 'enums.dart';
 import 'location.dart'; // Location & LocationType
@@ -263,6 +266,63 @@ class DocumentDetail {
     }
     return required;
   }
+
+  int get birthDayIndex => birthDate==null?-1 : [
+    DateFormat("MM-dd").format(DateTime.now()),
+    DateFormat("MM-dd").format(DateTime.now().add(Duration(days: 1))),
+    DateFormat("MM-dd").format(DateTime.now().subtract(Duration(days: 1))),
+  ].indexOf(DateFormat("MM-dd").format(birthDate!));
+
+  bool get isBirthday => birthDayIndex != -1;
+  String get birthdayLabel => !isBirthday?"":["(Today)","(Tomorrow)","(Yesterday)"][birthDayIndex];
+
+  Widget get birthdayWidget =>!isBirthday?SizedBox(): Container(
+    margin: EdgeInsets.only(top: 12),
+    padding: EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: Colors.purple.withOpacity(0.12),
+      borderRadius: BorderRadiusGeometry.circular(24),
+    ),
+    child: Row(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.purple,
+          ),
+          padding: EdgeInsets.all(8),
+          child: Image.asset(AssetImages.cake,width: 20,height: 20,),
+          // child: IcomoonLayeredCss.cake(colors: [Colors.white,Colors.white38,Colors.white38,Colors.white38],size: 20),
+          // child: IcomoonLayeredCss.cake(colors: [Colors.white,Colors.white38,Colors.white38,Colors.white38],size: 20),
+        ),
+        const SizedBox(width: 12),
+        Text("Happy Birthday $birthdayLabel",style: TextStyle(color: Colors.purple,fontWeight: FontWeight.bold),)
+      ],
+    ),
+  );
+  Widget get birthdayWidgetHeader =>!isBirthday?SizedBox(): Container(
+    padding: EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: Colors.purple.withOpacity(0.12),
+      borderRadius: BorderRadiusGeometry.vertical(bottom: Radius.circular(24)),
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.purple,
+          ),
+          padding: EdgeInsets.all(8),
+          child: Image.asset(AssetImages.cake,width: 20,height: 20,),
+          // child: IcomoonLayeredCss.cake(colors: [Colors.white,Colors.white38,Colors.white38,Colors.white38],size: 15),
+        ),
+        const SizedBox(width: 12),
+        Text("Happy Birthday $birthdayLabel",style: TextStyle(color: Colors.purple,fontWeight: FontWeight.bold),)
+      ],
+    ),
+  );
 
   bool hasAllRequired() {
     if(BasicClass.constData.data.mandatory == null ) return true;

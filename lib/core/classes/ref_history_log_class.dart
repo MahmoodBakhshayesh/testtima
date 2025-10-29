@@ -48,6 +48,8 @@ class RefHistoryLog {
   final String? type;
   final String? id;
   final DateTime? at;
+  final String? currentTime;
+  final String? currentDate;
   final Payload? payload;
 
   RefHistoryLog({
@@ -56,18 +58,24 @@ class RefHistoryLog {
     this.at,
     required this.id,
     this.payload,
+    this.currentTime,
+    this.currentDate,
   });
 
   RefHistoryLog copyWith({
     String? user,
     String? type,
     String? id,
+    String? currentTime,
+    String? currentDate,
     DateTime? at,
     Payload? payload,
   }) =>
       RefHistoryLog(
         user: user ?? this.user,
         type: type ?? this.type,
+        currentTime: currentTime ?? this.currentTime,
+        currentDate: currentDate ?? this.currentDate,
         at: at ?? this.at,
         id: id ?? this.id,
         payload: payload ?? this.payload,
@@ -76,6 +84,8 @@ class RefHistoryLog {
   factory RefHistoryLog.fromJson(Map<String, dynamic> json) => RefHistoryLog(
     user: json["user_"]??"",
     type: json["type"],
+    currentTime: json["currentTime"],
+    currentDate: json["currentDate"],
     id: json["_id"],
     at: json["at"] == null ? null : DateTime.parse(json["at"]),
     payload: json["payload"] == null ? null : Payload.fromJson(json["payload"]),
@@ -84,6 +94,8 @@ class RefHistoryLog {
   Map<String, dynamic> toJson() => {
     "user_": user,
     "type": type,
+    "currentTime": currentTime,
+    "currentDate": currentDate,
     "_id": id,
     "at": at?.toIso8601String(),
     "payload": payload?.toJson(),
@@ -131,6 +143,7 @@ class Payload {
     this.comment,
     this.flightNumber,
     this.supervisorId,
+
     this.name,
     this.action,
   });

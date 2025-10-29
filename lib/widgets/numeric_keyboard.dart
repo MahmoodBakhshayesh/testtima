@@ -113,6 +113,7 @@ class CupertinoNumericKeyboard extends StatefulWidget {
     required this.controller,
     this.onDone,
     this.maxLength,
+    this.submitKeyKey,
     this.allowLeadingZeros = true,
     this.allowDecimal = false,
     this.enableHaptics = true,
@@ -124,6 +125,7 @@ class CupertinoNumericKeyboard extends StatefulWidget {
   final bool allowLeadingZeros;
   final bool allowDecimal;
   final bool enableHaptics;
+  final Key? submitKeyKey;
 
   @override
   State<CupertinoNumericKeyboard> createState() => _CupertinoNumericKeyboardState();
@@ -422,6 +424,7 @@ class _CupertinoNumericKeyboardState extends State<CupertinoNumericKeyboard> {
               onDeleteLongPressEnd: _stopRepeatDelete,
               onDone: widget.onDone,
               allowDecimal: widget.allowDecimal,
+              submitKeyKey: widget.submitKeyKey,
             ),
           ),
         ),
@@ -438,6 +441,7 @@ class _KeyGrid extends StatelessWidget {
     required this.onDeleteLongPressStart,
     required this.onDeleteLongPressEnd,
     required this.onDone,
+    required this.submitKeyKey,
     required this.allowDecimal,
   });
 
@@ -447,6 +451,7 @@ class _KeyGrid extends StatelessWidget {
   final VoidCallback onDeleteLongPressStart;
   final VoidCallback onDeleteLongPressEnd;
   final VoidCallback? onDone;
+  final Key? submitKeyKey;
   final bool allowDecimal;
 
   @override
@@ -465,7 +470,9 @@ class _KeyGrid extends StatelessWidget {
 
     Widget buildDoneKey() {
       // iOS-like filled action key
-      return MyButton(label: "Done",onPressed: onDone,radius: 12,fontSize: 20,fontWeight: FontWeight.w700,height: 56,);
+      return MyButton(
+        key: submitKeyKey,
+        label: "Done",onPressed: onDone,radius: 12,fontSize: 20,fontWeight: FontWeight.w700,height: 56,);
       return GestureDetector(
         onTap: onDone,
         child: Container(

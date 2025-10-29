@@ -1,4 +1,5 @@
 import 'package:abds/screens/outbox/usecases/get_outbox_messages_usecase.dart';
+import 'package:abds/screens/performance/performance_controller.dart';
 import 'package:logging/logging.dart';
 import '../../core/classes/outbox_message_class.dart';
 import '../../core/interfaces/controller_int.dart';
@@ -40,5 +41,8 @@ class OutboxController extends ControllerInterface {
       // ref.read(refCodeProvider.notifier).update((s)=>messageCode);
       navigation.pop();
     }
+  }
+  load(String messageCode) async {
+    final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: messageCode,code: null);
   }
 }

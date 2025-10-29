@@ -114,6 +114,8 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                           final int i = sectionRows.indexOf(r);
                           final row = r.toJson().values.map((a) => a["value"].toString()).toList();
                           final rowQueries = r.toJson().values.map((a) => a["q"].toString()).toList();
+                          final rowIsEven = i % 2 == 0;
+                          final rowStripe = rowIsEven ? rowStyle.even : rowStyle.odd;
                           return _RowStrip(
                             fromDate: widget.toDate,
                             toDate: widget.toDate,
@@ -122,7 +124,7 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                             widthsPx: widthsPx,
                             ratio: header.column.map((a) => a.width).toList(),
                             alignments: header.column.map((a) => a.alignment).toList(),
-                            bg: _hex(stripe.color),
+                            bg: _hex(rowStripe.color),
 
                             fgList: fg,
                             fontSize: rowStyle.fontSize.toDouble(),

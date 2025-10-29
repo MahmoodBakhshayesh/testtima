@@ -9,12 +9,15 @@ import 'package:get/get_rx/src/rx_typedefs/rx_typedefs.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../core/extenstions/context_exp.dart';
 
-/// Optional: wrap a subtree so that pressing Enter anywhere inside triggers [onActivate].
-/// Useful for dialogs/pages where you want a "default" button.
-/// Example:
-/// DefaultEnterScope(onActivate: () => _btnKey.currentState?.press(), child: dialog)
+/// Optional scope: Enter triggers [onActivate] when focus is anywhere INSIDE this subtree.
+/// This is focus-scoped (not global): it only works if something in [child] has focus.
 class DefaultEnterScope extends StatelessWidget {
-  const DefaultEnterScope({super.key, required this.onActivate, required this.child});
+  const DefaultEnterScope({
+    super.key,
+    required this.onActivate,
+    required this.child,
+  });
+
   final VoidCallback onActivate;
   final Widget child;
 
@@ -34,7 +37,12 @@ class DefaultEnterScope extends StatelessWidget {
             },
           ),
         },
-        child: Focus(autofocus: false, child: child),
+        // Focus wrapper so the subtree can actually receive key events.
+        child: Focus(
+          autofocus: false,
+          canRequestFocus: true,
+          child: child,
+        ),
       ),
     );
   }
@@ -70,8 +78,12 @@ class MyButton extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
 
-  /// NEW: when true, pressing Enter/NumpadEnter will trigger the button (when this button or an ancestor has focus)
+  /// When true, Enter/NumpadEnter will trigger the button **only if the button (or its subtree) has focus**.
+  /// This avoids global conflicts with PrimaryAction/other handlers.
   final bool listenEnter;
+
+  /// If true (default), button won't activate if it's not actually visible on screen.
+  final bool requireVisibleToActivate;
 
   const MyButton({
     super.key,
@@ -103,65 +115,79 @@ class MyButton extends StatefulWidget {
     this.reverse = false,
     this.color,
     this.fontWeight,
-    this.listenEnter = false, // NEW
+    this.listenEnter = false,
+    this.requireVisibleToActivate = true,
   });
 
   @override
-  State<MyButton> createState() => _MyButtonState();
+  State<MyButton> createState() => MyButtonState();
 }
 
-class _MyButtonState extends State<MyButton> {
+class MyButtonState extends State<MyButton> {
   bool _loading = false;
-  final FocusNode _focusNode = FocusNode(debugLabel: 'MyButtonFN');
+  bool _isVisible = true; // updated by VisibilityDetector
+  late final FocusNode _internalFocusNode;
+  FocusNode get _focusNode => widget.focusNode ?? _internalFocusNode;
 
-  /// NEW: allow triggering the button programmatically (e.g., from DefaultEnterScope via GlobalKey)
+  /// Programmatic trigger
+  void triggerTap() => _onTap();
   void press() => _onTap();
 
-  void _onTap() {
-    if (widget.disabled) return;
-    if (widget.onPressed is AsyncCallback) {
-      if (_loading) return;
-      _loading = true;
-      setState(() {});
-      (widget.onPressed as AsyncCallback).call().whenComplete(() {
-        _loading = false;
-        if (mounted) setState(() {});
-      });
-    } else {
-      widget.onPressed?.call();
-    }
+  @override
+  void initState() {
+    super.initState();
+    _internalFocusNode = FocusNode(debugLabel: 'MyButtonFN');
   }
-  
+
   @override
   void dispose() {
-    _focusNode.dispose();
+    if (widget.focusNode == null) {
+      _internalFocusNode.dispose();
+    }
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    bool disable = widget.disabled || widget.onPressed == null;
+  void _onTap() {
+    if (widget.disabled) return;
+    if (widget.requireVisibleToActivate && !_isVisible) return;
+
+    final callback = widget.onPressed;
+    if (callback == null) return;
+
+    // If the callback is async, show loading until it completes.
+    if (callback is AsyncCallback) {
+      if (_loading) return;
+      setState(() => _loading = true);
+      callback().whenComplete(() {
+        if (mounted) setState(() => _loading = false);
+      });
+    } else {
+      callback();
+    }
+  }
+
+  Widget _buildCoreButton(BuildContext context) {
+    final theme = Theme.of(context);
+    final disable = widget.disabled || widget.onPressed == null;
 
     Color c = widget.color ?? context.mainColor;
     Color backgroundColor = (!widget.reverse) ? c : Colors.transparent;
-    Color foregroundColor = (widget.reverse) ? c : Colors.white;
+    Color fg = (widget.reverse) ? c : Colors.white;
     Color? borderColor = widget.borderSide?.color;
 
     if (widget.reverse) {
-      // Swap colors when reverse is true
-      Color tmp = c;
-      c = foregroundColor;
-      foregroundColor = tmp;
+      final tmp = c;
+      c = fg;
+      fg = tmp;
     }
     if (widget.fade) {
       backgroundColor = backgroundColor.withOpacity(0.3);
     }
-    foregroundColor = widget.textColor ?? foregroundColor;
+    fg = widget.textColor ?? fg;
 
     if (disable) {
       backgroundColor = const Color(0xffECECEC);
-      foregroundColor = Colors.black12;
+      fg = Colors.black12;
       borderColor = Colors.black12;
     }
 
@@ -173,7 +199,7 @@ class _MyButtonState extends State<MyButton> {
         onLongPress: widget.onLongPress,
         onFocusChange: widget.onFocusChange,
         autofocus: widget.autofocus,
-        focusNode: widget.focusNode,
+        focusNode: _focusNode,
         statesController: widget.statesController,
         onHover: widget.onHover,
         style: widget.style ??
@@ -188,14 +214,14 @@ class _MyButtonState extends State<MyButton> {
               padding: WidgetStatePropertyAll(widget.padding ?? const EdgeInsets.symmetric(horizontal: 8)),
               shadowColor: const WidgetStatePropertyAll(Colors.transparent),
               backgroundColor: WidgetStatePropertyAll(backgroundColor),
-              // Keep your original semantics: when fade=false, don't tint foreground via style; we set text/icon colors directly.
+              // Foreground tinting handled by child styles; keep transparent here when not faded.
               foregroundColor: WidgetStatePropertyAll(widget.fade ? c : Colors.transparent),
             ),
         child: IndexedStack(
           alignment: Alignment.center,
           index: _loading && widget.showLoading ? 0 : 1,
           children: [
-            SpinKitThreeBounce(color: foregroundColor, size: 18),
+            SpinKitThreeBounce(color: fg, size: 18),
             Padding(
               padding: const EdgeInsets.all(2.0),
               child: Row(
@@ -205,7 +231,7 @@ class _MyButtonState extends State<MyButton> {
                       ? const SizedBox()
                       : Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Icon(widget.icon, color: foregroundColor, size: widget.iconSize),
+                    child: Icon(widget.icon, color: fg, size: widget.iconSize),
                   ),
                   widget.child != null
                       ? Expanded(child: widget.child!)
@@ -213,7 +239,7 @@ class _MyButtonState extends State<MyButton> {
                     widget.label,
                     style: TextStyle(
                       fontSize: widget.fontSize,
-                      color: foregroundColor,
+                      color: fg,
                       fontWeight: widget.fontWeight,
                     ),
                     textAlign: TextAlign.center,
@@ -222,59 +248,52 @@ class _MyButtonState extends State<MyButton> {
                       ? const SizedBox()
                       : Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                    child: Icon(widget.icon, color: foregroundColor, size: widget.iconSize),
+                    child: Icon(widget.icon, color: fg, size: widget.iconSize),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
 
+    // Wrap with Focus+Shortcuts **only** when listenEnter is true.
+    // IMPORTANT: This binding is focus-scoped — it fires ONLY when this button (or a descendant) has focus.
     if (!widget.listenEnter) {
       return button;
     }
-    log("listen to enter");
-    // Map Enter/NumpadEnter -> ActivateIntent -> _onTap (when this widget or a focused descendant is focused)
-    return VisibilityDetector(
-      onVisibilityChanged: (v){
-        if(v.visibleFraction==1){
-          _focusNode.requestFocus();
-          log("focued");
-        }else{
-          _focusNode.unfocus();
-          log("unfocued");
-        }
-      },
-      key: Key("MyButtonKey"),
-      child: RawKeyboardListener(
-        focusNode: _focusNode,
-        onKey: _handleRawKey,
-      
-        child: button
+
+    return Focus(
+      focusNode: _focusNode,
+      autofocus: widget.autofocus,
+      canRequestFocus: true,
+      child: Shortcuts(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+          SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+        },
+        child: Actions(
+          actions: {
+            ActivateIntent: CallbackAction<ActivateIntent>(
+              onInvoke: (intent) {
+                // Only react if this button (or a child) is the focused subtree
+                if (!Focus.of(context).hasFocus) return null;
+                if (widget.requireVisibleToActivate && !_isVisible) return null;
+                _onTap();
+                return null;
+              },
+            ),
+          },
+          child: button,
+        ),
       ),
     );
   }
 
-  bool _handleRawKey(RawKeyEvent event) {
-    log("_handleRawKey");
-    if (event is! RawKeyDownEvent) return false;
-
-    final isMac = defaultTargetPlatform == TargetPlatform.macOS;
-    final isCtrlOrMeta = isMac ? event.isMetaPressed : event.isControlPressed;
-
-    // Enter / Numpad Enter => Done
-    if (event.logicalKey == LogicalKeyboardKey.enter ||
-        event.logicalKey == LogicalKeyboardKey.numpadEnter) {
-      // widget.onDone?.call();
-      log("enter entered");
-      return true;
-    }
-
-
-    // Let other keys bubble (e.g., Tab for focus traversal)
-    return false;
+  @override
+  Widget build(BuildContext context) {
+    // Visibility detector to avoid accidental activations when not really visible.
+    return _buildCoreButton(context);
   }
-
 }

@@ -152,6 +152,7 @@ class _MyOcrSettingDialogState extends ConsumerState<PartialTranslateSheet> {
                                       initiallyExpanded: true,
                                       showTrailingIcon: true,
                                       dense: true,
+                                      tilePadding: EdgeInsets.all(8),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
                                       collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
                                       backgroundColor: Color(0xffAbAbAb).withOpacity(0.08),

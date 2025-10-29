@@ -18,6 +18,7 @@ import '/screens/login/login_view.dart';
 import 'package:tree_navigation/tree_navigation.dart';
 import 'core/constants/ui.dart';
 import 'core/navigation/routes.dart';
+import 'core/utils_and_services/route_tracker.dart';
 import 'initialize.dart';
 import 'screens/performance/performance_view.dart';
 import 'screens/profile/profile_view.dart';
@@ -30,15 +31,20 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+  final topRouteTracker = TopRouteTracker();
+
   @override
   void initState() {
     getIt.registerSingleton(ref);
+    GlobalEnter.I.init(tracker: topRouteTracker);
+
     initNavigation();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
     // final router = ref.watch(routerProvider);
     return GlobalWrapper(child: TreeNavigation.makeMaterialApp(
 
@@ -78,7 +84,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         ),
       ],
       navigatorKey: topKey,
-      observers: [BotToastNavigatorObserver()],
+      observers: [BotToastNavigatorObserver(),topRouteTracker],
       globalKeyList: [topKey, shellKey],
     ));
   }

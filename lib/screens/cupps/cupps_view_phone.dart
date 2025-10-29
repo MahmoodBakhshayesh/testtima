@@ -3,9 +3,14 @@ import 'dart:developer';
 import 'package:abds/core/utils_and_services/cupps_util.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
+import 'package:artemis_acps/artemis_acps.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../../core/classes/basic_class.dart';
+import '../../core/classes/constant_data_class.dart';
+import '../../widgets/MyFieldPicker.dart';
 import 'cupps_controller.dart';
 import 'cupps_state.dart';
 import '../../initialize.dart';
@@ -26,12 +31,21 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
   TextEditingController ipC = TextEditingController();
   TextEditingController portC = TextEditingController();
 
+  ParameterValue? airline;
+  Airport? airport;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       myCuppsController.loadIpPort().then((v) {
         ipC.text = v.$1 ?? '';
         portC.text = v.$2 ?? '';
+        setState((){});
+      });
+      myCuppsController.loadAirlineAirport().then((v) {
+        airline = BasicClass.getAirlineWithCode(v.$2 ?? '');
+        airport = BasicClass.getAirportByCode(v.$1 ?? '');
+        setState((){});
       });
     });
     super.initState();
@@ -50,15 +64,23 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 12,
               children: [
-                Expanded(
-                  flex: 2,
-                  child: MyTextFieldNew(controller: ipC, headerBgColor: headerBgColor, bodyBgColor: bodyBgColor, labelInRow: true, label: "IP"),
-                ),
-                Expanded(
-                  child: MyTextFieldNew(controller: portC, rowLabelRatio: [4, 7], headerBgColor: headerBgColor, bodyBgColor: bodyBgColor, labelInRow: true, label: "Port"),
+                Text("CUPPS",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                Divider(),
+                Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: MyTextFieldNew(controller: ipC, headerBgColor: headerBgColor, bodyBgColor: bodyBgColor, labelInRow: true, label: "IP"),
+                    ),
+                    Expanded(
+                      child: MyTextFieldNew(controller: portC, rowLabelRatio: [4, 7], headerBgColor: headerBgColor, bodyBgColor: bodyBgColor, labelInRow: true, label: "Port"),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -133,6 +155,74 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewPhone> {
                   ),
               )
               : null,
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                Text("ACPS",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                Divider(),
+                Row(
+                  spacing: 12,
+                  children: [
+                  Expanded(
+                    child: MyFieldPicker<ParameterValue>(
+                      label: "Airline",
+                      required: true,
+                      placeholder: "Airline",
+                      searchAutoFocus: true,
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+
+                      items: BasicClass.constData.data.carrier,
+                      value: airline,
+                      // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
+                      valueToString: (a) => a.code,
+                      onChange: (a) {
+                        airline = a;
+                        setState((){});
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: MyFieldPicker<Airport>(
+                      required: true,
+                      searchAutoFocus: true,
+                      label: "From",
+                      placeholder: "City",
+                      headerBgColor: Color(0xffECECEC),
+                      bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                      valueToString: (dynamic a) => "$a",
+                      itemToWidget: (dynamic a) => Text("$a (${(a as Airport).code3})"),
+                      searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                      items: BasicClass.constData.data.airport,
+                      value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == airport?.code3),
+                      onChange: (a) {
+                        airport = a;
+                        setState((){});
+                      },
+                    ),
+                  ),
+                ],),
+                Row(children: [
+                  MyButton(label: "Connect",
+                      disabled: airport == null && airline == null,
+                      onPressed: (){
+                          myCuppsController.initAcps(airport!.code3,airline!.code);
+                      }),
+                  Expanded(child: Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                    final acps = ref.watch(acpsProvider);
+                    if(acps == null){
+                      return SizedBox();
+                    }
+                    return acps.getGeneralWidget();
+                  },))
+                ],)
+              ],
+            ),
+          ),
+
         ],
       ),
     );
@@ -164,7 +254,7 @@ class CuppsAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Row(
                     children: [
                       BackButton(),
-                      Text("Cupps", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      Text("Connections", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
                       SizedBox(width: 8),
                     ],

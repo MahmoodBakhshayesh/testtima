@@ -63,6 +63,17 @@ class TimaticUiPermission extends UiPermission {
   String getLabel() => label;
 }
 
+class ConnectionUiPermission extends UiPermission {
+  final int flag;
+  final String label;
+  final UiPermissionGroup group;
+  ConnectionUiPermission(this.group,this.flag,this.label);
+
+  factory ConnectionUiPermission.connect() => ConnectionUiPermission(UiPermissionGroup.report,1,"Connection");
+
+  @override
+  String getLabel() => label;
+}
 
 
 

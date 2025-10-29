@@ -718,6 +718,9 @@ class HomeController extends ControllerInterface {
   }
 
   Future<FlightHistoryData?> getFlightNumberHistory(String flnb, {required int index}) async {
+    if(index !=0){
+      return null;
+    }
     FlightHistoryData? history;
     FlightNumberHistoryUseCase getFlightNumberHistoryUseCase = FlightNumberHistoryUseCase();
     FlightNumberHistoryRequest flightNumberHistoryRequest = FlightNumberHistoryRequest(flnb: flnb);

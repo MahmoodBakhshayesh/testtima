@@ -835,125 +835,131 @@ class HeaderSummaryWidget extends ConsumerWidget {
     // }
     // log(logs.map((l)=>l.type??'').join("*"));
     // log("final response ${finalResponse?.name}");
+    DocumentDetail? birthD = [...passports,...visas,...residents].firstWhereOrNull((a)=>a.isBirthday);
     return FigmaGlass(
       // height: 124 + (resultMode ? additionalHeight : 0),
-      child: Container(
-        padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
-        width: context.width,
-        decoration: BoxDecoration(gradient: gradiant),
-        child: Column(
-          children: [
-            header,
-            resultMode
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      spacing: 8,
-                      children: [
-                        Builder(
-                          builder: (BuildContext context) {
-                            final res = ref.watch(timaticResultNewProvider)!;
-                            return Container(
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                              padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                              margin: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
-                              child: Column(
-                                children: [
-                                  Row(spacing: 12, children: [...res.segments.map((seg) => seg.routeWidget)]),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                        Row(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 16),
+            width: context.width,
+            decoration: BoxDecoration(gradient: gradiant),
+            child: Column(
+              children: [
+                header,
+                resultMode
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Column(
+                          spacing: 8,
                           children: [
-                            Expanded(
-                              flex: 5,
-                              child: Column(
-                                children: [
-                                  Row(
+                            Builder(
+                              builder: (BuildContext context) {
+                                final res = ref.watch(timaticResultNewProvider)!;
+                                return Container(
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
+                                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 1),
+                                  child: Column(
                                     children: [
-                                      Expanded(child: Text("Flight: ", style: TextStyle(color: Colors.grey,fontSize: 11))),
-                                      AirlineLogo(segments.first.operatingCarrier?.code ?? '',key: Key(segments.first.operatingCarrier?.code ?? ''),size: 20,),
-                                      Text("${segments.first.operatingCarrier?.code ?? ''} ${segments.first.flnb ?? ''}"),
+                                      Row(spacing: 12, children: [...res.segments.map((seg) => seg.routeWidget)]),
                                     ],
                                   ),
-                                  Row(
+                                );
+                              },
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 5,
+                                  child: Column(
                                     children: [
-                                      Expanded(child: Text("Passport: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      Text(StringUtility.maskString(passports.firstOrNull?.documentNumber ?? ''), style: TextStyle(fontSize: 11)),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("Flight: ", style: TextStyle(color: Colors.grey,fontSize: 11))),
+                                          AirlineLogo(segments.first.operatingCarrier?.code ?? '',key: Key(segments.first.operatingCarrier?.code ?? ''),size: 20,),
+                                          Text("${segments.first.operatingCarrier?.code ?? ''} ${segments.first.flnb ?? ''}"),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("Passport: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          Text(StringUtility.maskString(passports.firstOrNull?.documentNumber ?? ''), style: TextStyle(fontSize: 11)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
 
-                                      Expanded(child: Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      countryBuilderHeader(passengerDetails.nationality??passports.firstOrNull?.nationality),
+                                          Expanded(child: Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          countryBuilderHeader(passengerDetails.nationality??passports.firstOrNull?.nationality),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height:65,child: VerticalDivider(width: 8,)),
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  Row(
+                                ),
+                                SizedBox(height:65,child: VerticalDivider(width: 8,)),
+                                Expanded(
+                                  flex: 4,
+                                  child: Column(
                                     children: [
-                                      Expanded(child: Text("Date: ", style: TextStyle(color: Colors.grey,fontSize: 11))),
-                                      Text(segments.first.departure.dateTime?.format_ddMMM ?? '',style: TextStyle(fontSize: 12),),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("Date: ", style: TextStyle(color: Colors.grey,fontSize: 11))),
+                                          Text(segments.first.departure.dateTime?.format_ddMMM ?? '',style: TextStyle(fontSize: 12),),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("Tracking: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          Text(ref.watch(refCodeShowProvider) ?? '', style: TextStyle(color: Colors.black,fontSize: 12)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("Resident: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          countryBuilderHeader(passengerDetails.residentCountryCode),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                  Row(
+                                ),
+                                SizedBox(height:65,child: VerticalDivider(width: 8,)),
+                                Expanded(
+                                  flex: 4,
+                                  child: Column(
                                     children: [
-                                      Expanded(child: Text("Tracking: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      Text(ref.watch(refCodeShowProvider) ?? '', style: TextStyle(color: Colors.black,fontSize: 12)),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          Text("${segments.first.departure.point ?? ''}-${segments.first.arrival.point ?? ''}", style: TextStyle(fontSize: 12)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("EmployeeId: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          Text(ref.watch(currentStatusProvider)?.employeeId ?? '', style: TextStyle(color: Colors.black,fontSize: 12)),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(child: Text("VISA: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
+                                          countryBuilderHeader(visas.firstOrNull?.documentIssueCountry),
+                                        ],
+                                      ),
                                     ],
                                   ),
-                                  Row(
-                                    children: [
-                                      Expanded(child: Text("Resident: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      countryBuilderHeader(passengerDetails.residentCountryCode),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height:65,child: VerticalDivider(width: 8,)),
-                            Expanded(
-                              flex: 4,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(child: Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      Text("${segments.first.departure.point ?? ''}-${segments.first.arrival.point ?? ''}", style: TextStyle(fontSize: 12)),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(child: Text("EmployeeId: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      Text(ref.watch(currentStatusProvider)?.employeeId ?? '', style: TextStyle(color: Colors.black,fontSize: 12)),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(child: Text("VISA: ", style: TextStyle(color: Colors.grey, fontSize: 11))),
-                                      countryBuilderHeader(visas.firstOrNull?.documentIssueCountry),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  )
-                : SizedBox(),
-          ],
-        ),
+                      )
+                    : SizedBox(),
+              ],
+            ),
+          ),
+          ?birthD?.birthdayWidgetHeader
+        ],
       ),
     );
     return Padding(

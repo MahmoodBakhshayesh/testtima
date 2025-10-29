@@ -41,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.7.0"
+  artemis_acps:
+    dependency: "direct main"
+    description:
+      name: artemis_acps
+      sha256: "4e81442211a9716a431941a99f4e5ee695ec960c022e7fbd157f97229374a037"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.14"
   artemis_cupps:
     dependency: "direct main"
     description:

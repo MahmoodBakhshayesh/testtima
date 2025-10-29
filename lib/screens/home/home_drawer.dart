@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
-import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart' show UserUiPermission, LogUiPermission, UiPermission, ReportUiPermission;
+import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart' show UserUiPermission, LogUiPermission, UiPermission, ReportUiPermission, ConnectionUiPermission;
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/outbox/outbox_state.dart';
@@ -158,14 +158,19 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             leading:  IcomoonLayeredCss.profile_2user(),
                           ),
                         ),
-                        DrawerAction(
+                        CheckPermission(
+                          saveSpace: false,
+                          permission: ConnectionUiPermission.connect(),
+                          // permission: UserUiPermission.edit(),
 
-                          title: 'Cupps',
-                          onTap: () {
-                            Navigator.pop(context);
-                            myHomeController.goNamed(Routes.cupps);
-                          },
-                          leading:  Icon(Icons.connected_tv,color: Colors.grey,),
+                          child: DrawerAction(
+                            title: 'Connections',
+                            onTap: () {
+                              Navigator.pop(context);
+                              myHomeController.goNamed(Routes.cupps);
+                            },
+                            leading:  Icon(Icons.connected_tv,color: Colors.grey,),
+                          ),
                         ),
 
                       ],

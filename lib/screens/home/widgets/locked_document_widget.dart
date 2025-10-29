@@ -60,15 +60,13 @@ class LockedDocumentItemRow extends StatelessWidget {
                     spacing: 12,
                     children: [
                     Expanded(
-                      child: LockedFieldWidget(half: true, label: "Issued In", value: countryPrefixBuilder(d.documentIssueCountry?.code3)),
+                      child: LockedFieldWidget(label: "Issued In", value: countryPrefixBuilder(d.documentIssueCountry?.code3)),
                     ),
                     Expanded(
-                      child: LockedFieldWidget(half: true, label: "Nationality", value: countryPrefixBuilder(d.nationality?.code3)),
+                      child: LockedFieldWidget(label: "Nationality", value: countryPrefixBuilder(d.nationality?.code3)),
                     ),
-
                     Expanded(
                       child: LockedFieldWidget(
-                        half: true,
                         label: "Gender",
                         value: Row(
                           children: [
@@ -77,46 +75,44 @@ class LockedDocumentItemRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Expanded(child: LockedFieldWidget(
-                        half: true,
-                        label: "Document #", value: Text(StringUtility.maskString(d.documentNumber??'') ?? ''))),
+
                   ],),
                 ),
-                Expanded(
-                  child: Row(
-                    spacing: 12,
-                    children: [
 
-                    Expanded(
-                      flex: 2,
-                      child: LockedFieldWidget(
-                        label: "Expiry Date",
-                        value: Row(
-                          children:d.documentExpiryDate==null?[]: [
-                            Expanded(child: Text(DateFormat("dd MMM yyyy").format(d.documentExpiryDate!))),
-                            Icon(expiryValidationIcon(d.documentExpiryDate), size: 10, color: expiryValidationColor(d.documentExpiryDate)),
-                            Text(expiryValidator("", d.documentExpiryDate) ?? '', style: TextStyle(fontSize: 10, color: expiryValidationColor(d.documentExpiryDate))),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: LockedFieldWidget(
-                        label: "Birth Date",
-                        value: Row(
-                          children:d.birthDate==null?[]: [
-                            Expanded(child: Text(DateFormat("dd MMM yyyy").format(d.birthDate!))),
-                            Icon(Icons.date_range, size: 10, color: birthDateValidationColor(d.birthDate)),
-                            Text(birthDateValidator("", d.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(d.birthDate))),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],),
-                )
               ],
             ),
+            Row(
+              spacing: 12,
+              children: [
+                Expanded(child: LockedFieldWidget(
+                    label: "Document #", value: Text(StringUtility.maskString(d.documentNumber??'') ?? ''))),
+                Expanded(
+                  flex: 1,
+                  child: LockedFieldWidget(
+                    label: "Expiry Date",
+                    value: Row(
+                      children:d.documentExpiryDate==null?[]: [
+                        Expanded(child: Text(DateFormat("dd MMM yyyy").format(d.documentExpiryDate!))),
+                        Icon(expiryValidationIcon(d.documentExpiryDate), size: 10, color: expiryValidationColor(d.documentExpiryDate)),
+                        Text(expiryValidator("", d.documentExpiryDate) ?? '', style: TextStyle(fontSize: 10, color: expiryValidationColor(d.documentExpiryDate))),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: LockedFieldWidget(
+                    label: "Birth Date",
+                    value: Row(
+                      children:d.birthDate==null?[]: [
+                        Expanded(child: Text(DateFormat("dd MMM yyyy").format(d.birthDate!))),
+                        Icon(Icons.date_range, size: 10, color: birthDateValidationColor(d.birthDate)),
+                        Text(birthDateValidator("", d.birthDate) ?? '', style: TextStyle(fontSize: 10, color: birthDateValidationColor(d.birthDate))),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
 
           ],
         ),

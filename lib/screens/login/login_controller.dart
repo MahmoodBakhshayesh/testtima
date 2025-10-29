@@ -12,9 +12,11 @@ import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/login/usecases/get_cons_data_usecase.dart';
 import 'package:abds/screens/login/usecases/get_publish_server_usecase.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 import '../../core/classes/new_version_class.dart';
 import '../../core/classes/server_class.dart';
 import '../../core/classes/user_class.dart';
@@ -25,6 +27,7 @@ import '../../core/navigation/routes.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../core/utils_and_services/timatic/src/endpoints.dart';
 import '../../initialize.dart';
+import '../../widgets/MyButton.dart';
 import 'dialogs/server_picker_dialog.dart';
 import 'dialogs/set_first_password_dialog.dart';
 import 'dialogs/update_version_dialog.dart';
@@ -183,13 +186,15 @@ class LoginController extends ControllerInterface {
     log(serverJson ?? '');
     if (serverJson == null) {
       serverSelect(showDialog: false).then((a) {
-        Server server = a.firstWhere((a) => a.serverDefault, orElse: () => a.first);
-        // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
-        log("we found default server ${server.toJson()}");
+        if(a.isNotEmpty) {
+          Server server = a.firstWhere((a) => a.serverDefault, orElse: () => a.first);
+          // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
+          log("we found default server ${server.toJson()}");
 
-        server = server.copyWith(apiAddress: "${server!.apiAddress}");
-        ref.read(selectedServerProvider.notifier).update((s) => server);
-        initNetworkManager(server.apiAddress);
+          server = server.copyWith(apiAddress: "${server!.apiAddress}");
+          ref.read(selectedServerProvider.notifier).update((s) => server);
+          initNetworkManager(server.apiAddress);
+        }
       });
     } else {
       Server s = Server.fromJson(jsonDecode(serverJson));
@@ -213,6 +218,10 @@ class LoginController extends ControllerInterface {
   }
 
   Future<List<Server>> serverSelect({bool showDialog = true}) async {
+    // final d = dio.Dio();
+    // final res  = await d.get('https://timatic.multidcs.com/api/v1/server');
+    // log(res.toString());
+    // return [];
     List<Server> servers = [];
     ServerSelectUseCase serverSelectUsecase = ServerSelectUseCase();
     ServerSelectRequest serverSelectRequest = ServerSelectRequest();

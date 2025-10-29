@@ -26,15 +26,25 @@ class EditUserRequest extends RequestInterface {
   final People people;
   final bool active;
   final String? email;
+  final String? firstname;
+  final String? lastname;
   final String? password;
   final UserPermission updatedPermission;
   final Map<String, dynamic> attributes;
 
-  EditUserRequest({required this.people, required this.email, required this.password, required this.active, required this.updatedPermission, required this.attributes});
+  EditUserRequest({required this.people,
+
+    required this.firstname,
+    required this.lastname,
+    required this.email,
+    required this.password, required this.active, required this.updatedPermission, required this.attributes});
 
   @override
   Map<String, dynamic> toJson() {
-    final json =  {"enable": active, "permission": updatedPermission.toPermissionMap(), "attributes": attributes};
+    final json =  {"enable": active,
+      "firstname":firstname,
+      "lastname":lastname,
+      "permission": updatedPermission.toPermissionMap(), "attributes": attributes};
     if(password!= null){
       json.putIfAbsent("newPassword", ()=>password!);
     }

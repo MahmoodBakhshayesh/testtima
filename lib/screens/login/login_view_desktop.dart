@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/button_keys.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
+import 'package:abds/widgets/primary_action_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_utils/src/extensions/string_extensions.dart';
 import 'package:pinput/pinput.dart';
@@ -42,43 +46,38 @@ class _LoginViewDesktopState extends State<LoginViewDesktop> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
-      child: Scaffold(
-        floatingActionButton: Consumer(
-          builder: (BuildContext context, WidgetRef ref, Widget? child) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: DotButton(
-                size: 40,
-                // fade: false,
-                flat: true,
-                backgroundColor: Colors.transparent,
-                border: BorderSide(color: MyColors.mainBlue.withOpacity(0.3)),
-                onPressed: () async {
-                  await LoginViewDesktop.myLoginController.serverSelect();
-                  // myLoginController.showLoginSetting();
-                },
-                child: IcomoonLayeredCss.cloud_connection(colors: [MyColors.mainBlue.withOpacity(0.3),MyColors.mainBlue]),
-                icon: Icons.settings_remote_rounded,
-              ),
-            );
-          },
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.black54,
-        body: Container(
-            color: Colors.white,
-            child: Center(child: SizedBox(
-                width: 500,
-                  height: 500,
-
-                child: LoginPanel()
-            ))),
+    return Scaffold(
+      floatingActionButton: Consumer(
+        builder: (BuildContext context, WidgetRef ref, Widget? child) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: DotButton(
+              size: 40,
+              // fade: false,
+              flat: true,
+              backgroundColor: Colors.transparent,
+              border: BorderSide(color: MyColors.mainBlue.withOpacity(0.3)),
+              onPressed: () async {
+                await LoginViewDesktop.myLoginController.serverSelect();
+                // myLoginController.showLoginSetting();
+              },
+              child: IcomoonLayeredCss.cloud_connection(colors: [MyColors.mainBlue.withOpacity(0.3),MyColors.mainBlue]),
+              icon: Icons.settings_remote_rounded,
+            ),
+          );
+        },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.black54,
+      body: Container(
+          color: Colors.white,
+          child: Center(child: SizedBox(
+              width: 500,
+                height: 500,
+
+              child: LoginPanel()
+          ))),
     );
   }
 }
@@ -161,6 +160,8 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -231,13 +232,14 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                       builder: (BuildContext context, WidgetRef ref, Widget? child) {
                         LoginState state = ref.watch(loginProvider);
                         return MyButton(
+
                           height: 45,
                           radius: 12,
-                          listenEnter: true,
                           onPressed: () async {
                             await myLoginController.login(usernameC.text, passwordC.text);
                           },
                           fontSize: 16,
+                          key: ButtonKeys.loginButtonKey,
                           label: 'Sign In',
                           child: Row(children: [
                             Expanded(child: Text("Sign In",style: TextStyle(color: Colors.white),)),

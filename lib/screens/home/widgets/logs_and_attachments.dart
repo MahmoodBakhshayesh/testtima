@@ -27,19 +27,20 @@ import '../home_state.dart';
 
 class LogsAndAttachmentsWidget extends ConsumerWidget {
   final bool report;
-  const LogsAndAttachmentsWidget({super.key,this.report = false});
+
+  const LogsAndAttachmentsWidget({super.key, this.report = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var logs = ref.watch(showingLogsProvider);
-    if(report){
+    if (report) {
       logs = ref.watch(reportShowingLogsProvider);
     }
-    logs.sort((a,b)=>b.at!.compareTo(a.at!));
-    logs.sort((a,b)=>['airlineApproval',"askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval',"askSupervisor"].indexOf(b.type!)));
-    // for (var l in logs) {
-    //   log(jsonEncode(l.toJson()));
-    // }
+    logs.sort((a, b) => b.at!.compareTo(a.at!));
+    logs.sort((a, b) => ['airlineApproval', "askSupervisor"].indexOf(a.type!).compareTo(['airlineApproval', "askSupervisor"].indexOf(b.type!)));
+    for (var l in logs) {
+      log(l.type.toString());
+    }
     return Column(
       children: [
         ...logs.map((l) {
@@ -47,17 +48,18 @@ class LogsAndAttachmentsWidget extends ConsumerWidget {
             case null:
               return SizedBox();
             case "askSupervisor":
-
               // return SizedBox();
               return Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: AskSupervisorWidget(his: l,answer: logs.firstWhereOrNull((a)=>l.id!=null && l.id == a.payload?.askId),),
+                child: AskSupervisorWidget(his: l, answer: logs.firstWhereOrNull((a) => l.id != null && l.id == a.payload?.askId)),
               );
             case "airlineApproval":
               return ManagerApprovalWidget(his: l);
+            case "agentDecision":
+              return AgentDecisionWidget(his: l);
             case "supervisorResponse":
               return SizedBox();
-              return SupervisorApprovalWidget(his: l,ask: logs.firstWhere((a)=>a.id == l.payload?.askId),);
+              return SupervisorApprovalWidget(his: l, ask: logs.firstWhere((a) => a.id == l.payload?.askId));
             default:
               return SizedBox();
           }
@@ -152,9 +154,9 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
     // if (ask == null || resps.length >= asks.length) {
     //   return SizedBox();
     // }
-    if(widget.answer != null){
+    if (widget.answer != null) {
       log("with answer");
-      return SupervisorApprovalWidget(his: widget.answer!,ask: widget.his);
+      return SupervisorApprovalWidget(his: widget.answer!, ask: widget.his);
     }
 
     final superID = widget.his.payload?.supervisorId;
@@ -169,33 +171,35 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
           // color: Color(0xff2A5CFF).withOpacity(.08)
           color: Colors.white,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 6,vertical: 0),
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             widget.his.payload?.message == null
                 ? SizedBox()
                 : Container(
-              margin: EdgeInsets.symmetric(vertical: 6),
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(color: MyColors.mainBlue.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(15)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: Text(widget.his.user ?? '-', style: TextStyle(fontWeight: FontWeight.bold))),
-                      Text(widget.his.at.format_HHmm, style: TextStyle(color: Colors.grey, fontSize: 12)),
-
-                    ],
+                    margin: EdgeInsets.symmetric(vertical: 6),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: MyColors.mainBlue.withOpacity(0.08), borderRadius: BorderRadiusGeometry.circular(15)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(widget.his.user ?? '-', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ),
+                            // Text(widget.his.at!.toLocal().format_HHmm, style: TextStyle(color: Colors.grey, fontSize: 12)),
+                            Text(widget.his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          ],
+                        ),
+                        Text(widget.his.payload!.message!),
+                      ],
+                    ),
                   ),
-                  Text(widget.his.payload!.message!),
-                ],
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text("Waiting for ${sup?.name}'s Response", style: TextStyle( fontSize: 12)),
+              child: Text("Waiting for ${sup?.name}'s Response", style: TextStyle(fontSize: 12)),
             ),
             const SizedBox(height: 8),
           ],
@@ -226,7 +230,8 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                       Row(
                         children: [
                           Expanded(child: Text(widget.his.payload!.message!)),
-                          Text(widget.his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          // Text(widget.his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(widget.his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -237,25 +242,30 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             children: (BasicClass.user?.setting?.supervisorResponse ?? []).map((re) {
               return Expanded(
                 child: MyButton(
-                  color: response == null ? null :response!.actionId == re.actionId? re.getColor:null,
+                  color: response == null
+                      ? null
+                      : response!.actionId == re.actionId
+                      ? re.getColor
+                      : null,
                   fontSize: 12,
                   radius: 12,
                   label: "${re.name}",
                   onPressed: () {
+                    msg = null;
                     if (response == re) {
                       response = null;
                       msg = null;
                     } else {
                       response = re;
-                      if ((re.message ?? []).length == 1) {
-                        msg = re.message![0];
-                      }
+                      // if ((re.message ?? []).length == 1) {
+                      //   msg = re.message![0];
+                      // }
                     }
                     setState(() {});
                   },
                   icon: re.getIcon,
                   reverse: response == null ? false : response != re,
-                  borderSide: response == null ? null :BorderSide(color:response!.actionId == re.actionId? re.getColor:MyColors.mainColor),
+                  borderSide: response == null ? null : BorderSide(color: response!.actionId == re.actionId ? re.getColor : MyColors.mainColor),
                 ),
               );
             }).toList(),
@@ -363,9 +373,14 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             onPressed: response == null
                 ? null
                 : () async {
+                    String sendingMsg = response!.textEntry ? commentC.text : (msg ?? '');
+                    log("${response!.textEntry} $sendingMsg ");
                     await getIt<HomeController>().supervisorResponse(
-                      askId: widget.his.id??'',
-                      logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: commentC.text+ (msg??''), );
+                      askId: widget.his.id ?? '',
+                      logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-',
+                      response: response!,
+                      msg: response!.textEntry ? commentC.text : (msg ?? ''),
+                    );
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -433,6 +448,7 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
                     } else {
                       status = 1;
                     }
+                    msg = null;
                     setState(() {});
                   },
                   icon: ArtemisIcons.tick_square,
@@ -452,6 +468,7 @@ class _AskSupervisorWidgetNewState extends State<AskSupervisorWidgetNew> {
                     } else {
                       status = 2;
                     }
+                    msg = null;
                     setState(() {});
                   },
                   icon: ArtemisIcons.close_square,
@@ -565,7 +582,8 @@ class ManagerApprovalWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -596,8 +614,8 @@ class ManagerApprovalWidget extends StatelessWidget {
                       //     );
                       //   },
                       // ),
-                      Text(his.payload?.name ?? '',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15),),
-                      Text(his.payload?.message ?? '',style: TextStyle(fontSize: 12),),
+                      Text(his.payload?.name ?? '', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      Text(his.payload?.message ?? '', style: TextStyle(fontSize: 12)),
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
@@ -653,8 +671,147 @@ class ManagerApprovalWidget extends StatelessWidget {
                                 ),
                               ],
                             ),
+                    ],
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.48),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                  padding: EdgeInsets.all(12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        approved ? "Approved" : "Denied",
+                        style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
+class AgentDecisionWidget extends StatelessWidget {
+  final RefHistoryLog his;
 
+  const AgentDecisionWidget({super.key, required this.his});
+
+  @override
+  Widget build(BuildContext context) {
+    bool approved = his.payload?.approved ?? false;
+    final color = approved ? Color(0xff00C68E) : Color(0xffFF3F42);
+
+    log("${his.payload?.toJson()}");
+    return Container(
+      margin: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+      decoration: BoxDecoration(color: color.withOpacity(0.08), borderRadius: BorderRadius.circular(20)),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Icon(approved ? ArtemisIcons.shield_tick : ArtemisIcons.user_octagon, color: color),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "Agent Decision",
+                    style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [color.withOpacity(0.08), color.withOpacity(0.00)]),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    // color: Colors.white.withOpacity(0.48),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white),
+                  ),
+                  margin: EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(his.payload?.message ?? '', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                      (his.payload?.attachFiles ?? []).isEmpty
+                          ? SizedBox()
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: Wrap(
+                                    children: [
+                                      ...(his.payload?.attachFiles ?? []).map((img) {
+                                        String api = getIt<HomeController>().ref.read(selectedServerProvider)!.apiAddress;
+                                        String token = getIt<HomeController>().ref.read(userProvider)!.token;
+                                        bool isVoice = img.endsWith("m4a");
+                                        if (isVoice) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(left: 8.0),
+                                            child: DotButton(
+                                              size: 40,
+                                              icon: Icons.record_voice_over,
+                                              onPressed: () async {
+                                                String dlUrl = "${api}/v1/logs/attach/${img}";
+                                                final f = await getIt<HomeController>().getFile(url: dlUrl);
+                                                log(f.path);
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (BuildContext context) {
+                                                    return VoicePreviewDialog(address: f.path);
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        }
+                                        return GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return PhotoPreviewDialog(address: img);
+                                              },
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            width: 120,
+                                            height: 120,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadiusGeometry.circular(5),
+                                              child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fill, headers: {"Authorization": "Bearer ${token}"}),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                     ],
                   ),
                 ),
@@ -720,7 +877,9 @@ class SupervisorApprovalWidget extends StatelessWidget {
                     style: TextStyle(color: res.getColor, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+
               ],
             ),
           ),
@@ -737,27 +896,26 @@ class SupervisorApprovalWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white),
                   ),
-                  margin: EdgeInsets.only(left: 12,right: 12,top: 12),
+                  margin: EdgeInsets.only(left: 12, right: 12, top: 12),
                   padding: EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                            return  Row(
-                              children: [
-                                Text(
-                                  "Employee ID: ",
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-                                ),
-                                Text(
-                                  "${ref.watch(currentStatusProvider).employeeId}",
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ],
-                            );
-                          },),
+                          Consumer(
+                            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                              return Row(
+                                children: [
+                                  Text(
+                                    "Employee ID: ",
+                                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                                  ),
+                                  Text("${ref.watch(currentStatusProvider).employeeId}", style: TextStyle(color: Colors.black)),
+                                ],
+                              );
+                            },
+                          ),
                           // Text(
                           //   ask.user?.username ?? ask.user?.email ?? '',
                           //   style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
@@ -767,7 +925,8 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(child: Text(ask.payload?.message ?? '')),
-                          Text(ask.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          // Text(ask.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(ask.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
 
                         ],
                       ),
@@ -797,7 +956,8 @@ class SupervisorApprovalWidget extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(child: Text(his.payload?.message ?? '')),
-                          Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
 
                         ],
                       ),
@@ -868,7 +1028,9 @@ class AttachmentsWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(hisList.last.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                // Text(hisList.last.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(hisList.last.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+
               ],
             ),
           ),
@@ -906,10 +1068,9 @@ class AttachmentsWidget extends StatelessWidget {
                           child: ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(5),
                             child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.3)
-                                ),
-                                child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"},)),
+                              decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3)),
+                              child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"}),
+                            ),
                           ),
                         );
                       }).toList(),
@@ -979,7 +1140,9 @@ class EVisaWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+
               ],
             ),
           ),
@@ -1057,7 +1220,9 @@ class CommentWidget extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+
               ],
             ),
           ),

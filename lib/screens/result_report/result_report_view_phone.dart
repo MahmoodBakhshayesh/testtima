@@ -140,6 +140,7 @@ class _ResultReportViewPhoneState extends ConsumerState<ResultReportViewPhone> {
                                     side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
                                   ),
                                   childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                                  tilePadding: EdgeInsets.symmetric(horizontal: 8,vertical: 8),
                                   showTrailingIcon: true,
                                   title: Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 8.0),

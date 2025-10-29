@@ -115,6 +115,10 @@ class BasicClass {
       return up.maskOf("timatic")>0;
     }
 
+    if (permission is ConnectionUiPermission) {
+      return up.maskOf("connection")>0;
+    }
+
     return false;
   }
 

@@ -20,6 +20,7 @@ import '../../../core/constants/ui.dart';
 import '../../../core/navigation/navigation_service.dart';
 import '../../../widgets/MySwitchButton.dart';
 import '../../../widgets/MyTextField.dart';
+import '../../../widgets/MyTextFieldNew.dart';
 import '../../../widgets/SelectionChip.dart';
 import '../../login/login_state.dart';
 
@@ -60,7 +61,8 @@ class _ChangeOthersPasswordDialogState extends State<ChangeOthersPasswordDialog>
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-
+    final headerBg = MyColors.green2.withOpacity(0.26);
+    final bodyBg = MyColors.green2.withOpacity(0.12);
     bool valid = newPassC.text == newPassConfirmC.text;
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
@@ -88,8 +90,16 @@ class _ChangeOthersPasswordDialogState extends State<ChangeOthersPasswordDialog>
             child: Column(
               spacing: 12,
               children: [
-                MyTextField(label: "New Password", controller: newPassC, focusNode: newPassFN, labelInRow: true, isPassword: true),
-                MyTextField(label: "New Password Confirm", controller: newPassConfirmC, focusNode: newPassConfirmFN, labelInRow: true, isPassword: true),
+                MyTextFieldNew(
+                    rowLabelRatio: [5,6],
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
+                    label: "New Password", controller: newPassC, focusNode: newPassFN, labelInRow: true, isPassword: true),
+                MyTextFieldNew(
+                    rowLabelRatio: [5,6],
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
+                    label: "New Password Confirm", controller: newPassConfirmC, focusNode: newPassConfirmFN, labelInRow: true, isPassword: true),
               ],
             ),
           ),

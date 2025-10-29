@@ -1,3 +1,4 @@
+import 'package:artemis_acps/artemis_acps.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -11,4 +12,4 @@ class CuppsState extends ChangeNotifier {
 }
 
 
-///final userProvider = StateProvider<User?>((ref) => null);
+final acpsProvider = StateProvider<ArtemisAcps?>((ref) => null);
