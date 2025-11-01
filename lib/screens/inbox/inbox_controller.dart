@@ -11,6 +11,7 @@ import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../initialize.dart';
+import '../performance/performance_controller.dart';
 
 class InboxController extends ControllerInterface {
   final _log = Logger('InboxController');
@@ -65,4 +66,10 @@ class InboxController extends ControllerInterface {
 
     return read;
   }
+
+  Future<void> load(String messageCode) async {
+    final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: messageCode,code: null);
+
+  }
 }
+

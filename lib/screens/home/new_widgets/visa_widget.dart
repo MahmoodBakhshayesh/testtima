@@ -59,7 +59,7 @@ class VisaWidget extends ConsumerWidget {
     if(visas.isEmpty){
       if(context.isDesktop){
         return Container(
-          margin: EdgeInsets.symmetric(vertical: 12),
+          margin: EdgeInsets.only(top: 12),
           padding: EdgeInsets.symmetric(vertical: 12,horizontal: 12),
           decoration: BoxDecoration(
             color: BasicClass.constData.data.documentType[1].getColor.withOpacity(0.12),

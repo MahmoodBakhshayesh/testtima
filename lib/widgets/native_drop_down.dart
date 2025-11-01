@@ -622,7 +622,8 @@ class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
                   if (widget.prefixIcon != null) const SizedBox(width: 6),
                   Expanded(
                     child:
-                    (widget.value!=null &&  widget.valueToString!=null)?Text(displayText):
+                    (widget.value!=null &&  widget.valueToString!=null)?Text(displayText,    overflow: TextOverflow.ellipsis,):
+
                     widget.value!=null && ( widget.itemToWidget!= null)?widget.itemToWidget!(widget.value!): Text(
                       displayText.isEmpty ? (widget.placeholder ?? '') : displayText,
                       maxLines: 1,

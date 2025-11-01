@@ -117,6 +117,7 @@ class PerformanceController extends ControllerInterface {
         final r = result.value;
         historyLog = r.history;
         ref.read(reportCurrentStatusProvider.notifier).update((s) => r.currentStatus);
+
         fillReportWithRefHistory(r.history, code, showCode);
     }
 
@@ -159,13 +160,7 @@ class PerformanceController extends ControllerInterface {
           );
         }),
       );
-      // final passes = allDocs;
 
-      // final passes = allDocs.where((a) {
-      //   log("*" * 20);
-      //   log("${a.getMatch()?.type} ${a.docCode}");
-      //   return a.getMatch()?.type == "P";
-      // }).toList();
       final passes = allDocs.where((a) => a.getMatch()?.type == "P").toList();
       final visas = allDocs.where((a) => a.getMatch()?.type == "V").toList();
       final residents = allDocs.where((a) => a.getMatch()?.type == "I").toList();
@@ -187,6 +182,7 @@ class PerformanceController extends ControllerInterface {
       ref.read(reportSegmentsProvider.notifier).update((s)=>allSegs);
       ref.read(reportPassengerProvider.notifier).update((s) => pd);
       ref.read(reportRefCodeShowProvider.notifier).update((s) => his.showCode);
+      ref.read(reportRefCodeProvider.notifier).update((s) => his.refCode);
       TimaticResponseNew result = TimaticResponseNew.fromJson(output);
 
       ref.read(reportTimaticResultNewProvider.notifier).update((s) => result);

@@ -33,6 +33,7 @@ import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
+import 'package:abds/screens/result_report/result_report_state.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/DurationOfStayPicker.dart';
 import 'package:abds/widgets/MyButton.dart';
@@ -417,13 +418,16 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
                                               Consumer(
                                                 builder: (BuildContext context, WidgetRef ref, Widget? child) {
                                                   final result = ref.watch(timaticResultNewProvider);
+                                                  final refCode = ref.watch(refCodeProvider);
                                                   if (result == null) {
                                                     return SizedBox();
                                                   }
+                                                  // log("refcode ${refCode}");
+                                                  // log("result refcode ${ref.watch(reportRefCodeProvider)}");
                                                   // return SizedBox(height: 100);
                                                   return Column(
                                                     children: [
-                                                      TimaticTrueResultWidgetNew(res: result),
+                                                      TimaticTrueResultWidgetNew(res: result,refCode: refCode!,),
                                                       const SizedBox(height: 12),
                                                     ],
                                                   );

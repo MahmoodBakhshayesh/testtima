@@ -36,6 +36,7 @@ import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/navigation/routes.dart';
+import '../home_drawer.dart';
 import 'ask_supervisor_sheet.dart';
 import 'attach_comment_sheet.dart';
 import 'manul_add_doc_sheet.dart';
@@ -182,15 +183,6 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 },
                                 leadingIcon: ArtemisIcons.airplane_square,
                               ),
-                              // DrawerAction(
-                              //   tileColor: MyColors.mainBlue,
-                              //   title: "Translation for Passenger",
-                              //   onTap: () async {
-                              //     await myHomeController.translateForPassenger();
-                              //   },
-                              //   leadingIcon: ArtemisIcons.translate,
-                              // ),
-
                               DrawerAction(
                                 tileColor: MyColors.mainBlue,
                                 title: "Add Attachment",
@@ -212,23 +204,6 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 },
                                 leadingIcon: ArtemisIcons.attach_circle,
                               ),
-                              // DrawerAction(
-                              //   title: "Re-check TIMATIC",
-                              //   onTap: () async {
-                              //     final res = await getIt<HomeController>().lockUnlockResponse(false);
-                              //     setState(() {});
-                              //     if (res) {
-                              //       Navigator.pop(context);
-                              //     }
-                              //   },
-                              //   leadingIcon: ArtemisIcons.refresh,
-                              // ),
-                              // DrawerAction(
-                              //   title: "Final Decision",
-                              //   onTap: () async {
-                              //   },
-                              //   leadingIcon: ArtemisIcons.shield_tick,
-                              // ),
                             ],
                           ),
                         )

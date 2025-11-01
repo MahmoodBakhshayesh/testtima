@@ -23,5 +23,6 @@ final reportShowingLogsProvider =  StateProvider<List<RefHistoryLog>>((ref) => [
 final reportSegmentsProvider =  StateProvider<List<ItinerarySegment>>((ref) => []);
 final reportCurrentStatusProvider =  StateProvider<CurrentStatus>((ref) => CurrentStatus());
 final reportRefCodeShowProvider =  StateProvider<String?>((ref) =>null);
+final reportRefCodeProvider =  StateProvider<String?>((ref) =>null);
 final reportTimaticResultNewProvider =  StateProvider<TimaticResponseNew?>((ref) =>null);
 

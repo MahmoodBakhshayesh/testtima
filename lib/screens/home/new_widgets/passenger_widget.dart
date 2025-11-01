@@ -38,6 +38,9 @@ class PassengerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if(report){
+      // if(ref.read(reportTimaticResultNewProvider)==null){
+      //   return SizedBox();
+      // }
       final PassengerDetails passengerDetails = ref.watch(reportPassengerProvider);
       return Column(
         children: [

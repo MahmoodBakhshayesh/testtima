@@ -195,13 +195,14 @@ class _ResultReportViewPhoneState extends ConsumerState<ResultReportViewPhone> {
                                     Consumer(
                                       builder: (BuildContext context, WidgetRef ref, Widget? child) {
                                         final result = ref.watch(reportTimaticResultNewProvider);
+                                        final refCode = ref.watch(reportRefCodeProvider);
                                         if (result == null) {
                                           return SizedBox();
                                         }
                                         // return SizedBox(height: 100);
                                         return Column(
                                           children: [
-                                            TimaticTrueResultWidgetNew(res: result),
+                                            TimaticTrueResultWidgetNew(res: result,refCode:refCode!),
                                             const SizedBox(height: 12),
                                           ],
                                         );

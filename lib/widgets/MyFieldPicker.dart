@@ -147,7 +147,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
               } else if (v != null) {
                 dev.log(v.toString());
                 value.value = v;
-                setState(() {});
+                // setState(() {});
               }
             }
           );

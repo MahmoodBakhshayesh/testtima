@@ -21,8 +21,9 @@ import '../home_state.dart';
 
 class TimaticTrueResultWidgetNew extends ConsumerStatefulWidget {
   final TimaticResponseNew res;
+  final String refCode;
 
-  const TimaticTrueResultWidgetNew({super.key, required this.res});
+  const TimaticTrueResultWidgetNew({super.key, required this.res,required this.refCode});
 
   @override
   ConsumerState<TimaticTrueResultWidgetNew> createState() => _TimaticTrueResultWidgetNewState();
@@ -130,7 +131,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                 final sorted = sr.ruleSetEvaluations ?? [];
                 // sorted.sort((a, b) => a.evaluationResult.index.compareTo(b.evaluationResult.index));
                 return Column(children: [
-                  ...(sorted).map((a) => RuleSetWidgetNew(ruleSet: a)),
+                  ...(sorted).map((a) => RuleSetWidgetNew(ruleSet: a, refCode: widget.refCode,)),
                  ]
                 );
               }),
@@ -148,9 +149,10 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
 }
 
 class RuleSetWidgetNew extends StatelessWidget {
+  final String refCode;
   final RuleSetEvaluation ruleSet;
 
-  const RuleSetWidgetNew({super.key, required this.ruleSet});
+  const RuleSetWidgetNew({super.key, required this.ruleSet, required this.refCode});
 
   @override
   Widget build(BuildContext context) {
@@ -259,8 +261,8 @@ class RuleSetWidgetNew extends StatelessWidget {
         ),
         childrenPadding: EdgeInsets.zero,
         children: [
-          ...ruleSet.regulations.map((r) => RegulationWidgetNew(regulation: r)).toList(),
-          ...ruleSet.documents.map((r) => DocumentResultWidgetNew(docRes: r)).toList(),
+          ...ruleSet.regulations.map((r) => RegulationWidgetNew(regulation: r,refCode: refCode,)).toList(),
+          ...ruleSet.documents.map((r) => DocumentResultWidgetNew(docRes: r,refCode: refCode,)).toList(),
         ],
       ),
     );
@@ -268,9 +270,10 @@ class RuleSetWidgetNew extends StatelessWidget {
 }
 
 class RegulationWidgetNew extends StatelessWidget {
+  final String refCode;
   late Regulation regulation;
 
-  RegulationWidgetNew({super.key, required this.regulation});
+  RegulationWidgetNew({super.key, required this.regulation, required this.refCode});
 
   //final TimaticController myTimaticController = getIt<TimaticController>();
 
@@ -323,7 +326,8 @@ class RegulationWidgetNew extends StatelessWidget {
                       ),
                     ),
                     DotButton(icon: ArtemisIcons.translate,onPressed: ()async{
-                      final langs = await getIt<HomeController>().getSupportLanguage();
+                      final homeC = getIt<HomeController>();
+                      final langs = await homeC.getSupportLanguage(refCode);
                       if(langs == null) return;
                       log(e);
                       final regex = RegExp(r'<p[^>]*>(.*?)<\/p>', dotAll: true);
@@ -400,8 +404,8 @@ class RegulationWidgetNew extends StatelessWidget {
 
 class DocumentResultWidgetNew extends StatelessWidget {
   late DocumentResult docRes;
-
-  DocumentResultWidgetNew({super.key, required this.docRes});
+  final String refCode;
+  DocumentResultWidgetNew({super.key, required this.docRes, required this.refCode});
 
   @override
   Widget build(BuildContext context) {
@@ -439,7 +443,7 @@ class DocumentResultWidgetNew extends StatelessWidget {
                 //   ),
                 // ),
               ] +
-              (docRes.regulations.map((s2) => RegulationWidgetNew(regulation: s2)).toList()),
+              (docRes.regulations.map((s2) => RegulationWidgetNew(regulation: s2,refCode: refCode,)).toList()),
         ),
       ),
     );

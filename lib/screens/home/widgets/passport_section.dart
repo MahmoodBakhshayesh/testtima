@@ -79,7 +79,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
     children: [
       ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Country).name})"),
+      Expanded(child: Text("$a (${(a as Country).name})",overflow: TextOverflow.ellipsis,)),
     ],
   );
 

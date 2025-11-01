@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.2+14221
+version: 1.4.3+14301
 
 
 
@@ -111,6 +111,7 @@ dependencies:
   pinch_zoom: ^2.0.1
   artemis_cupps: ^0.0.98
   artemis_acps: ^0.0.14
+  custom_pop_up_menu: ^1.2.4
 
 
 dev_dependencies:

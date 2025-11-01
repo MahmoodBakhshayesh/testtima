@@ -30,6 +30,7 @@ import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
+import '../home_drawer.dart';
 import 'ask_supervisor_sheet.dart';
 import 'attach_comment_sheet.dart';
 

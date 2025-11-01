@@ -59,14 +59,10 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
   @override
   Widget build(BuildContext context) {
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
-    return SafeArea(
-      bottom: true,
-      child: Container(
-        constraints: BoxConstraints(maxHeight: (context.height * 0.9)),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom, // pushes above keyboard
-        ),
-        // height: context.height*0.5,
+
+    if(context.isDesktop){
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -277,6 +273,229 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
               ),
             ),
           ],
+        ),
+      );
+    }
+    return Material(
+      child: SafeArea(
+        bottom: true,
+        child: Container(
+          constraints: BoxConstraints(maxHeight: (context.height * 0.9)),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom, // pushes above keyboard
+          ),
+          // height: context.height*0.5,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const SizedBox(width: 12),
+                  Expanded(child: Text("Ask Supervisor")),
+                  CloseButton(),
+                ],
+              ),
+              Divider(),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.02)),
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 12,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MyFieldPicker<Supervisor?>(
+                        label: 'Select Supervisor',
+                        items: widget.supervisors,
+                        rowLabelRatio: [3, 7],
+                        headerBgColor: Colors.white,
+                        bodyBgColor: Color(0xffF4F4f4),
+                        placeholder: "Select",
+                        onChange: (a) {
+                          supervisor = a;
+                          setState(() {});
+                        },
+                      ),
+      
+                      // MyFieldPicker<ParameterValue?>(
+                      //   onChange: (a) {
+                      //     airline = a;
+                      //     setState(() {});
+                      //   },
+                      //   value: airline,
+                      //   label: 'Airline Code',
+                      //   items: BasicClass.timData.params.of(ParameterType.carrier),
+                      //   backgroundColor: Colors.white,
+                      //   placeholder: "Select",
+                      // ),
+                      // MyTextField(labelInRow: true, label: "Flight Number", backgroundColor: Colors.white, placeholder: "Flight Number", controller: flnbC, keyboardType: TextInputType.numberWithOptions(signed: true)),
+                      SizedBox(
+                        height: 100,
+                        child: CupertinoTextField(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadiusGeometry.circular(10),
+                            border: Border.all(color: Colors.white),
+                            color: Colors.white,
+                          ),
+                          controller: messageC,
+                          // minLines: 5,
+                          // maxLines: 5,
+                          placeholder: "Enter your message",
+                        ),
+                      ),
+                      // Visibility(
+                      //   visible: !keyboardIsOpen,
+                      //   child: Column(
+                      //     spacing: 12,
+                      //     children: [
+                      //       Container(
+                      //         width: double.infinity,
+                      //         padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                      //         child: Wrap(
+                      //           alignment: WrapAlignment.start,
+                      //           spacing: 12,
+                      //           children: [
+                      //             ...attachingPhotos.map(
+                      //               (p) => SizedBox(
+                      //                 width: 54,
+                      //                 height: 54,
+                      //                 child: Stack(
+                      //                   children: [
+                      //                     SizedBox(
+                      //                       width: 62,
+                      //                       height: 62,
+                      //                       child: ClipRRect(
+                      //                         borderRadius: BorderRadius.circular(8),
+                      //                         child: Image.file(File(p), fit: BoxFit.fill),
+                      //                       ),
+                      //                     ),
+                      //                     Positioned(
+                      //                       right: 2,
+                      //                       top: 2,
+                      //                       child: DotButton(
+                      //                         icon: Icons.delete,
+                      //                         color: Colors.red,
+                      //                         onPressed: () {
+                      //                           // ref.read(attachingPhotoPathProvider.notifier).update((s) => [...s.where((a) => a != p)]);
+                      //                           attachingPhotos.remove(p);
+                      //                           setState(() {});
+                      //                         },
+                      //                       ),
+                      //                     ),
+                      //                   ],
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //             DotButton(
+                      //               size: 54,
+                      //               icon: Icons.image,
+                      //               onPressed: () async {
+                      //                 final path = await getIt<HomeController>().selectPhotoToAttachMethodDialog();
+                      //                 if (path != null) {
+                      //                   attachingPhotos.add(path);
+                      //                   setState(() {});
+                      //                 }
+                      //               },
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //       MyVoiceRecorder(
+                      //         onSubmitRecord: (a) {
+                      //           dev.log("saved to $a");
+                      //           attachingVoices.insert(0, a);
+                      //           setState(() {});
+                      //         },
+                      //       ),
+                      //       Container(
+                      //         constraints: BoxConstraints(maxHeight: 100),
+                      //         child: ListView(
+                      //           shrinkWrap: true,
+                      //           children: [
+                      //             ...attachingVoices.map((a) {
+                      //               dev.log(a);
+                      //               return Row(
+                      //                 children: [
+                      //                   Expanded(
+                      //                     child: MyAudioPlayerWidget(
+                      //                       key: Key(a),
+                      //                       audioPath: a,
+                      //                       backgroundColor: Colors.transparent,
+                      //                       timerTextStyle: TextStyle(color: Colors.blueAccent),
+                      //                       iconColor: Colors.blueAccent,
+                      //                     ),
+                      //                   ),
+                      //                   const SizedBox(width: 8),
+                      //                   DotButton(
+                      //                     color: Colors.red,
+                      //                     icon: ArtemisIcons.trash,
+                      //                     onPressed: () {
+                      //                       attachingVoices.remove(a);
+                      //                       setState(() {});
+                      //                     },
+                      //                   ),
+                      //                 ],
+                      //               );
+                      //             }),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                ),
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: MyButton(
+                        color: Colors.grey,
+                        radius: 12,
+                        borderSide: BorderSide(color: MyColors.lineColor),
+                        reverse: true,
+                        label: "Cancel",
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: MyButton(
+                        label: "Send",
+                        radius: 12,
+                        icon: ArtemisIcons.send_2,
+                        iconInRight: true,
+                        onPressed:supervisor==null?null: () async {
+                          // final bool = await getIt<HomeController>().attachToResult(
+                          //   logId: widget.logId,
+                          //   images: attachingPhotos,
+                          //   voices: attachingVoices,
+                          //   data: {'airline': airline?.code, 'message': messageC.text, 'flightNumber': flnbC.text, 'supervisorId': supervisor?.id, 'action': 'askSupervisor'},
+                          // );
+                          final bool = await getIt<HomeController>().askSupervisor(logId: widget.logId, supervisorId: supervisor!.id!, msg: messageC.text);
+                          if (bool) {
+                            Navigator.of(context).pop(true);
+                            Future.delayed(Duration(milliseconds: 300), () {
+                              SuccessHandler.handle(ServerSuccess(code: 1, msg: "Done"));
+                            });
+                          }
+                          // Navigator.of(context).pop(true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

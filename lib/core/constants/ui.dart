@@ -135,6 +135,7 @@ class MyTheme {
     brightness: Brightness.light,
     disabledColor: MyColors.brownGrey,
     dialogTheme: DialogThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
         insetPadding: EdgeInsets.symmetric(horizontal: con.isDesktop?con.width*0.3:12)
     ),
     scaffoldBackgroundColor: MyColors.scaffoldBg,

@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:ferry/typed_links.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -229,67 +231,83 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: SizedBox(
-                            height: widget.height,
-                            child: TextField(
-                              textInputAction: widget.textInputAction ?? TextInputAction.done,
-                              enabled: !widget.locked && !widget.disabled,
-                              maxLines: obscureText
-                                  ? 1
-                                  : widget.maxLines == 0
-                                  ? null
-                                  : widget.maxLines,
-                              minLines: widget.minLines,
-                              maxLength: widget.maxLength,
-                              focusNode: widget.focusNode,
-                              onSubmitted: widget.onSubmit,
-                              keyboardType: widget.keyboardType,
-                              obscureText: obscureText,
-                              autofocus: widget.autofocus,
-                              inputFormatters: widget.inputFormatters,
-                              style:
-                                  widget.style ??
-                                  TextStyle(
-                                    fontSize: widget.fontSize,
-                                    color: Colors.black,
-                                    // height: 0.5
-                                    // height: 1,
-                                  ),
+                          child: CupertinoTextField(
+                            textInputAction: widget.textInputAction ?? TextInputAction.done,
+                            enabled: !widget.locked && !widget.disabled,
+                            maxLines: obscureText
+                                ? 1
+                                : widget.maxLines == 0
+                                ? null
+                                : widget.maxLines,
+                            minLines: widget.minLines,
+                            maxLength: widget.maxLength,
+                            focusNode: widget.focusNode,
+                            onSubmitted: widget.onSubmit,
+                            keyboardType: widget.keyboardType,
+                            obscureText: obscureText,
+                            autofocus: widget.autofocus,
+                            // textAlignVertical: TextAlignVertical.center,
+                            inputFormatters: widget.inputFormatters,
+                            style:
+                                widget.style ??
+                                TextStyle(
+                                  fontSize: widget.fontSize,
+                                  color: Colors.black,
+                                  // height: 0.5
+                                  // height: 1,
+                                ),
 
-                              // textAlignVertical: TextAlignVertical.top,
-                              decoration: InputDecoration(
-                                contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-                                filled: false,
+                            // textAlignVertical: TextAlignVertical.top,
+                            placeholder: widget.placeholder,
+                            suffix:
+                                widget.suffixIcon ??
+                                (!widget.isPassword
+                                    ? widget.locked
+                                          ? const Icon(Icons.lock)
+                                          : null
+                                    : ExcludeFocus(
+                                        child: IconButton(
+                                          onPressed: () {
+                                            obscureText = !obscureText;
+                                            setState(() {});
+                                          },
+                                          icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                        ),
+                                      )) ??
+                                SizedBox(height: 30),
+                            prefix: widget.prefix,
+                            decoration: BoxDecoration(
+                              // contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
+                              // filled: false,
 
-                                fillColor: widget.bodyBgColor,
-                                hintText: widget.placeholder,
-                                prefix: widget.prefix,
-                                counter: widget.showLimit ? null : SizedBox(),
-                                hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                                border: border,
-                                enabledBorder: border,
-                                disabledBorder: border,
-                                prefixIcon: widget.prefixIcon,
-                                suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200, maxHeight: 40),
-                                suffixIcon:
-                                    widget.suffixIcon ??
-                                    (!widget.isPassword
-                                        ? widget.locked
-                                              ? const Icon(Icons.lock)
-                                              : null
-                                        : ExcludeFocus(
-                                            child: IconButton(
-                                              onPressed: () {
-                                                obscureText = !obscureText;
-                                                setState(() {});
-                                              },
-                                              icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                            ),
-                                          )) ??
-                                    SizedBox(height: 30),
-                              ),
-                              controller: widget.controller,
+                              // fillColor: widget.bodyBgColor,
+                              // hintText: widget.placeholder,
+
+                              // counter: widget.showLimit ? null : SizedBox(),
+                              // hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
+                              // border: border,
+                              // enabledBorder: border,
+                              // disabledBorder: border,
+                              // prefixIcon: widget.prefixIcon,
+                              // suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200, maxHeight: 40),
+                              //   suffixIcon:
+                              //       widget.suffixIcon ??
+                              //       (!widget.isPassword
+                              //           ? widget.locked
+                              //                 ? const Icon(Icons.lock)
+                              //                 : null
+                              //           : ExcludeFocus(
+                              //               child: IconButton(
+                              //                 onPressed: () {
+                              //                   obscureText = !obscureText;
+                              //                   setState(() {});
+                              //                 },
+                              //                 icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                              //               ),
+                              //             )) ??
+                              //       SizedBox(height: 30),
                             ),
+                            controller: widget.controller,
                           ),
                         ),
                         (hasError) && widget.showError

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/result_report/result_report_state.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
@@ -113,40 +114,43 @@ class _OutboxViewDesktopState extends  ConsumerState<OutboxViewDesktop> {
           ),
           Expanded(
             flex: 3,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  LogsAndAttachmentsWidget(report: true,),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: MyExpansionTile(
-                      initiallyExpanded: true,
-                      backgroundColor: Colors.white.withOpacity(0.5),
-                      collapsedBackgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(28),
-                        side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                      ),
-                      collapsedShape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(28),
-                        side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                      ),
-                      childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                      tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      showTrailingIcon: true,
-                      title: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-
-                          ],
+            child: Visibility(
+              visible: ref.read(reportTimaticResultNewProvider)!=null,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    LogsAndAttachmentsWidget(report: true,),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: MyExpansionTile(
+                        initiallyExpanded: true,
+                        backgroundColor: Colors.white.withOpacity(0.5),
+                        collapsedBackgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(28),
+                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
                         ),
+                        collapsedShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(28),
+                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                        ),
+                        childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                        tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        showTrailingIcon: true,
+                        title: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            children: [
+
+                            ],
+                          ),
+                        ),
+                        showFooter: false,
+                        children: [FlightWidget(report: true,), PassengerWidget(report: true,), PassportWidget(report: true,), VisaWidget(report: true,), ResidentWidget(report: true,)],
                       ),
-                      showFooter: false,
-                      children: [FlightWidget(report: true,), PassengerWidget(report: true,), PassportWidget(report: true,), VisaWidget(report: true,), ResidentWidget(report: true,)],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -192,13 +196,14 @@ class _OutboxViewDesktopState extends  ConsumerState<OutboxViewDesktop> {
                     Consumer(
                       builder: (BuildContext context, WidgetRef ref, Widget? child) {
                         final result = ref.watch(reportTimaticResultNewProvider);
+                        final refCode = ref.watch(reportRefCodeProvider);
                         if (result == null) {
                           return SizedBox();
                         }
                         // return SizedBox(height: 100);
                         return Column(
                           children: [
-                            TimaticTrueResultWidgetNew(res: result),
+                            TimaticTrueResultWidgetNew(res: result,refCode:refCode!),
                             const SizedBox(height: 12),
                           ],
                         );

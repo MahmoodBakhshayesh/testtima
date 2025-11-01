@@ -56,6 +56,7 @@ import '../../core/utils_and_services/timatic/src/defaults.dart';
 import '../../initialize.dart';
 import '../../widgets/MyFieldPicker.dart';
 import '../mrz_reader/mrz_reader_state.dart';
+import 'dialogs/ask_supervisor_sheet.dart';
 import 'dialogs/image_pick_method_select_sheet.dart';
 import 'dialogs/option_sheet_dialog.dart';
 import 'home_state.dart';
@@ -199,9 +200,13 @@ class HomeController extends ControllerInterface {
 
   Future<String?> selectPhotoToAttach(ImageSource source) async {
     ImagePicker picker = ImagePicker();
-    final XFile? pic = await picker.pickImage(source: source, imageQuality: 30);
-    log("returned");
-    return pic?.path;
+    try {
+      final XFile? pic = await picker.pickImage(source: source, imageQuality: 30);
+      log("returned");
+      return pic?.path;
+    }catch(e){
+      log("$e");
+    }
     // if (pic != null) {
     //   // Uint8List fileBytes = await pic.readAsBytes();
     //   String path = pic.path;
@@ -333,7 +338,24 @@ class HomeController extends ControllerInterface {
     }
   }
 
-  askSuperVisorDialog() {
+  askSuperVisorDialog() async {
+    List<Supervisor>? supervisors = await getIt<HomeController>().getSupervisors();
+    if (supervisors == null) return;
+
+
+    String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+    if (logId != null) {
+      navigation.openDialog(dialog: AskSupervisorSheet(logId: logId, supervisors: supervisors));
+      // Navigator.pop(context);
+      // showDialog(
+      //   context: context,
+      //   builder: (BuildContext context) {
+      //     return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+      //   },
+      //   // isScrollControlled: true,
+      //   // shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+      // );
+    }
     // ref.read(attachingPhotoPathProvider.notifier).update((s) => []);
     // navigation.openDialog(dialog: AskSupervisorDialog(logId: ref.read(timaticResultProvider)?.refCode ?? ''));
   }
@@ -586,10 +608,10 @@ class HomeController extends ControllerInterface {
     return response;
   }
 
-  Future<List<SupportedLanguage>?> getSupportLanguage() async {
+  Future<List<SupportedLanguage>?> getSupportLanguage(String refCode) async {
     List<SupportedLanguage>? languages;
     GetSupportedLanguageUseCase getSupportLanguageUseCase = GetSupportedLanguageUseCase();
-    GetSupportedLanguageRequest getSupportedLanguageRequest = GetSupportedLanguageRequest(logId: ref.read(refCodeProvider) ?? '');
+    GetSupportedLanguageRequest getSupportedLanguageRequest = GetSupportedLanguageRequest(logId: refCode) ;
     final result = await getSupportLanguageUseCase(request: getSupportedLanguageRequest);
 
     switch (result) {
@@ -604,18 +626,18 @@ class HomeController extends ControllerInterface {
     return languages;
   }
 
-  Future<void> translateForPassenger() async {
-    List<SupportedLanguage>? langs = await getSupportLanguage();
-    if (langs != null) {
-      navigation.pop();
-      Future(() {
-        navigation.openBottomSheet(
-          bottomSheet: TranslateLanguageSelectSheet(languages: langs),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
-        );
-      });
-    }
-  }
+  // Future<void> translateForPassenger() async {
+  //   List<SupportedLanguage>? langs = await getSupportLanguage();
+  //   if (langs != null) {
+  //     navigation.pop();
+  //     Future(() {
+  //       navigation.openBottomSheet(
+  //         bottomSheet: TranslateLanguageSelectSheet(languages: langs),
+  //         shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(15)),
+  //       );
+  //     });
+  //   }
+  // }
 
   Future<TimaticResponseNew?> translateTimaticResponse({required String language, required String logId}) async {
     TimaticResponseNew? translated;

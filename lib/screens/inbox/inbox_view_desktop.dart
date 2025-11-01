@@ -14,19 +14,28 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../core/classes/inbox_message_class.dart';
 import '../../core/constants/ui.dart';
+import '../../widgets/MyExpansionTile.dart';
+import '../home/new_widgets/flight_widget.dart';
+import '../home/new_widgets/passenger_widget.dart';
+import '../home/new_widgets/passport_widget.dart';
+import '../home/new_widgets/resident_widget.dart';
+import '../home/new_widgets/visa_widget.dart';
+import '../home/widgets/logs_and_attachments.dart';
+import '../home/widgets/timatic_response_widget.dart';
+import '../result_report/result_report_state.dart';
 import 'inbox_controller.dart';
 import 'inbox_state.dart';
 import '../../initialize.dart';
 import '../../core/extenstions/context_exp.dart';
 
-class InboxViewDesktop extends StatefulWidget {
+class InboxViewDesktop extends ConsumerStatefulWidget {
   const InboxViewDesktop({super.key});
 
   @override
-  State<InboxViewDesktop> createState() => _InboxViewDesktopState();
+  ConsumerState<InboxViewDesktop> createState() => _InboxViewDesktopState();
 }
 
-class _InboxViewDesktopState extends State<InboxViewDesktop> {
+class _InboxViewDesktopState extends ConsumerState<InboxViewDesktop> {
   static InboxController myInboxController = getIt<InboxController>();
   TextEditingController searchC = TextEditingController();
   bool loading = true;
@@ -45,50 +54,189 @@ class _InboxViewDesktopState extends State<InboxViewDesktop> {
 
   @override
   Widget build(BuildContext context) {
+    final timaticRes= ref.watch(reportTimaticResultNewProvider);
+    bool resultMode = timaticRes !=null;
     return Scaffold(
       appBar: InboxAppBar(),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(width: 12),
                 Expanded(
-                  child: SizedBox(
-                    height: 40,
-                    child: CupertinoTextField(
-                        prefix: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(ArtemisIcons.search_normal),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 40,
+                                child: CupertinoTextField(
+                                  prefix: Padding(padding: const EdgeInsets.all(8.0), child: Icon(ArtemisIcons.search_normal)),
+                                  controller: searchC,
+                                  keyboardType: TextInputType.numberWithOptions(signed: true),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        controller: searchC, keyboardType: TextInputType.numberWithOptions(signed: true)),
+                      ),
+                      Expanded(
+                        child: loading
+                            ? SpinKitChasingDots(size: 50, color: context.mainColor)
+                            : Consumer(
+                          builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                            final messages = ref.watch(inboxMessagesProvider).reversed.where((a) => a.validateSearch(searchC.text)).toList();
+
+                            return ListView.builder(
+                              itemBuilder: (c, i) {
+                                final message = messages[i];
+                                return InboxMessageWidget(
+                                  key: Key(message.showCode!),
+                                  onTap: () async {
+                                    await myInboxController.load(message.showCode!);
+                                  },
+                                  message: message,
+                                  index: i,
+                                );
+                              },
+                              itemCount: messages.length,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: loading
-                ? SpinKitChasingDots(size: 50, color: context.mainColor)
-                : Consumer(
-              builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                final messages = ref.watch(inboxMessagesProvider).reversed.where((a)=>a.validateSearch(searchC.text)).toList();
+                Expanded(
+                  flex: 3,
+                  child: Visibility(
+                    visible: ref.read(reportTimaticResultNewProvider)!=null,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          LogsAndAttachmentsWidget(report: true,),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: MyExpansionTile(
+                              initiallyExpanded: true,
+                              backgroundColor: Colors.white.withOpacity(0.5),
+                              collapsedBackgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(28),
+                                side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                              ),
+                              collapsedShape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(28),
+                                side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                              ),
+                              childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                              tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              showTrailingIcon: true,
+                              title: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Row(
+                                  children: [
 
-                return ListView.builder(
-                  itemBuilder: (c, i) {
-                    final message = messages[i];
-                    return InboxMessageWidget(
-                      key: Key(message.showCode!),
-                      onTap: () async {
-                        await myInboxController.readMsg(message);
-                      },
-                      message: message,
-                      index: i,
-                    );
-                  },
-                  itemCount: messages.length,
-                );
-              },
+                                  ],
+                                ),
+                              ),
+                              showFooter: false,
+                              children: [FlightWidget(report: true,), PassengerWidget(report: true,), PassportWidget(report: true,), VisaWidget(report: true,), ResidentWidget(report: true,)],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: timaticRes == null?SizedBox():SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: MyExpansionTile(
+                        initiallyExpanded: true,
+                        showTrailingIcon: true,
+                        backgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
+                        collapsedBackgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(28),
+                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                        ),
+                        collapsedShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(28),
+                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                        ),
+                        childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                        tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        title: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            children: [
+                              Text("TIMATIC ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                              resultMode
+                                  ? Row(
+                                children: [
+                                  timaticRes.getRes.getIconWidget,
+                                  Text(timaticRes!.getRes.title, style: TextStyle(color: timaticRes.getRes.getColor)),
+                                  // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                ],
+                              )
+                                  : SizedBox(),
+                            ],
+                          ),
+                        ),
+                        showFooter: false,
+                        children: resultMode
+                            ? [
+                          Consumer(
+                            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                              final result = ref.watch(reportTimaticResultNewProvider);
+                              final refCode = ref.watch(reportRefCodeProvider);
+                              if (result == null) {
+                                return SizedBox();
+                              }
+                              // return SizedBox(height: 100);
+                              return Column(
+                                children: [
+                                  TimaticTrueResultWidgetNew(res: result,refCode:refCode!),
+                                  const SizedBox(height: 12),
+                                ],
+                              );
+                            },
+                          ),
+                        ]
+                            : [
+                          Column(
+                            children: [
+                              const SizedBox(height: 300),
+                              Text("After filling out data, Click on"),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Spacer(),
+                                  Expanded(
+                                      flex: 2,
+                                      child: SizedBox()
+                                  ),
+                                  Spacer(),
+                                ],
+                              ),
+                              const SizedBox(height: 300),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+
+              ],
             ),
           ),
         ],

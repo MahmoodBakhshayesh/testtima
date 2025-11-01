@@ -68,6 +68,171 @@ class _MyOcrSettingDialogState extends State<AgentDecisionSheet> {
     final red = Color(0xffFF3F42);
     final colors = [blue, red, green];
     bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 30;
+    if(context.isDesktop){
+      return Dialog(child:
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              const SizedBox(width: 12),
+              Expanded(child: Text("Agent Decision")),
+              CloseButton(),
+            ],
+          ),
+          Divider(),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xff2a5cff).withOpacity(0.18), Color(0xff535353).withOpacity(0.08)]),
+            ),
+            child: Column(
+              spacing: 12,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyTextFieldNew(headerBgColor: Colors.white, bodyBgColor: Color(0xffF4f4f4), labelInRow: true, label: "Note", backgroundColor: Colors.white, placeholder: "Note", controller: msgC),
+                    ),
+                  ],
+                ),
+                Wrap(
+                  direction: Axis.horizontal,
+                  runSpacing: 12,
+                  spacing: 12,
+                  children: attachingPhotos
+                      .map(
+                        (a) => ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(12),
+                      child: Stack(
+                        children: [
+                          SizedBox(
+                            width: (context.width - 48) / 3,
+                            height: (context.width - 48) / 3,
+                            child: Image.file(key: Key(a), File(a), fit: BoxFit.fill),
+                          ),
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: DotButton(
+                              backgroundColor: Colors.white,
+                              color: Colors.black,
+                              icon: Icons.delete,
+                              onPressed: () {
+                                attachingPhotos.remove(a);
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+           Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: MyButton(
+                        label: "OKTB",
+                        radius: 12,
+                        reverse: response == 0 ? false : response != 1,
+                        borderSide: response != 1 ? BorderSide(color: blue) : null,
+                        color: response == 1 ? green : blue,
+                        onPressed: () async {
+                          if (response == 1) {
+                            response = 0;
+                          } else {
+                            response = 1;
+                          }
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: MyButton(
+                        label: "NO GO",
+                        radius: 12,
+                        reverse: response == 0 ? false : response != 2,
+                        borderSide: response != 2 ? BorderSide(color: blue) : null,
+                        color: response == 2 ? Colors.red : blue,
+                        onPressed: () async {
+                          if (response == 2) {
+                            response = 0;
+                          } else {
+                            response = 2;
+                          }
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0, right: 12, top: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: MyButton(
+                        color: Colors.grey,
+                        borderSide: BorderSide(color: MyColors.lineColor),
+                        reverse: true,
+                        radius: 12,
+                        label: "Cancel",
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: MyButton(
+                        label: "Confirm",
+                        radius: 12,
+                        iconInRight: true,
+                        icon: ArtemisIcons.send_2,
+                        onPressed: response == 0
+                            ? null
+                            : () async {
+                          final bool = await getIt<HomeController>().agentDecision(
+                            images: attachingPhotos,
+                            logId: widget.logId,
+                            data: {
+                              "comment": msgC.text, "message": msgC.text, "action": "managerApproval", "approve": response == 1},
+                          );
+                          if (bool) {
+                            Navigator.of(context).pop(true);
+                            Future.delayed(Duration(milliseconds: 300), () {
+                              SuccessHandler.handle(ServerSuccess(code: 1, msg: "Done"));
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
+      ),
+      );
+    }
 
     return Column(
       children: [

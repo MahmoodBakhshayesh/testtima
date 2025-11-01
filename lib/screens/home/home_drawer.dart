@@ -7,6 +7,7 @@ import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart' sho
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/outbox/outbox_state.dart';
+import 'package:abds/screens/result_report/result_report_state.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -99,6 +100,8 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.of(context).pop();
                             ref.read(inboxMessagesProvider.notifier).update((s) => []);
                             ref.read(nextMessageId.notifier).update((s) => null);
+                            ref.read(reportTimaticResultNewProvider.notifier).update((s) => null);
+
                             myHomeController.goNamed(Routes.inbox);
                           },
                           leading:  IcomoonLayeredCss.direct_inbox(),
@@ -112,6 +115,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.of(context).pop();
                             ref.read(outboxMessagesProvider.notifier).update((s) => []);
                             ref.read(outboxNextMessageId.notifier).update((s) => null);
+                            ref.read(reportTimaticResultNewProvider.notifier).update((s) => null);
                             myHomeController.goNamed(Routes.outbox);
                           },
                           leading:  IcomoonLayeredCss.direct_send(),
@@ -160,8 +164,8 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                         ),
                         CheckPermission(
                           saveSpace: false,
-                          permission: ConnectionUiPermission.connect(),
-                          // permission: UserUiPermission.edit(),
+                          // permission: ConnectionUiPermission.connect(),
+                          permission: UserUiPermission.edit(),
 
                           child: DrawerAction(
                             title: 'Connections',
@@ -231,8 +235,12 @@ class DrawerAction extends StatefulWidget {
   final Color? color;
   final Widget? trailing;
   final UiPermission? permission;
+  final Widget? leadingWidget;
+  final Color? tileColor;
+  final double radius;
 
-  const DrawerAction({super.key, required this.title, this.leading, required this.onTap, this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission});
+
+  const DrawerAction({super.key, required this.title, this.leading, required this.onTap, this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission, this.leadingWidget, this.tileColor, this.radius =0.0});
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -267,7 +275,10 @@ class _DrawerActionState extends State<DrawerAction> {
     Color c = widget.color ?? const Color(0xff0A1A3A);
     if (!validatePermission()) return SizedBox();
     return Container(
-      // decoration: BoxDecoration(border: Border(bottom: BorderSide(color: MyColors.lineColor))),
+      decoration: BoxDecoration(
+          color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(0.08),
+          borderRadius: BorderRadiusGeometry.circular(widget.radius),
+          border: Border.all(color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(1),)),
       width: double.infinity,
       child: ListTile(
         onTap: _onTap,

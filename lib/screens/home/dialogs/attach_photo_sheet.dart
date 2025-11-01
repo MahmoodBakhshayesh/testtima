@@ -29,6 +29,7 @@ import 'package:voice_note_kit/voice_note_kit.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/interfaces/success_int.dart';
 import '../../../core/utils_and_services/handlers/success_handler.dart';
+import '../home_drawer.dart';
 
 class AttachPhotoSheet extends StatefulWidget {
   final String logId;
@@ -45,7 +46,264 @@ class _MyOcrSettingDialogState extends State<AttachPhotoSheet> {
 
   @override
   Widget build(BuildContext context) {
-    bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom > 30;
+    if(context.isDesktop){
+      return Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const SizedBox(width: 12),
+                Expanded(child: Text("Add Attachment")),
+                CloseButton(),
+              ],
+            ),
+            Divider(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              color: Colors.black.withOpacity(0.02),
+              child: Column(
+                spacing: 12,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    direction: Axis.horizontal,
+                    runSpacing: 12,
+                    spacing: 12,
+                    children: attachingPhoto
+                        .map(
+                          (a) => ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(12),
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                              width: (context.width - 48) / 3,
+                              height: (context.width - 48) / 3,
+                              child: Image.file(key: Key(a), File(a), fit: BoxFit.fill),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: DotButton(
+                                backgroundColor: Colors.white,
+                                color: Colors.black,
+                                icon: Icons.delete,
+                                onPressed: () {
+                                  attachingPhoto.remove(a);
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                        .toList(),
+                  ),
+                  Column(
+                    spacing: 12,
+                    children: [
+                      DrawerAction(
+                        title: "Gallery",
+                        onTap: () async {
+                          final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
+                          if (path != null) {
+                            attachingPhoto.add(path);
+                            setState(() {});
+                          }
+                        },
+                        leadingIcon: ArtemisIcons.camera,
+                      ),
+                      // DrawerAction(
+                      //   title: "File",
+                      //   onTap: () async {
+                      //     final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
+                      //     if (path != null) {
+                      //       attachingPhoto.add(path);
+                      //       setState(() {});
+                      //     }
+                      //   },
+                      //   leadingIcon: ArtemisIcons.attach_circle,
+                      // ),
+
+
+                      // Expanded(
+                      //   child: MyButton(
+                      //     height: (context.width - 36) / 2,
+                      //     radius: 25,
+                      //     // fade: true,
+                      //     reverse: true,
+                      //     borderSide: BorderSide(color: context.mainColor),
+                      //     label: "",
+                      //     onPressed: () async {
+                      //       final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.camera);
+                      //       if (path != null) {
+                      //         attachingPhoto.add(path);
+                      //         setState(() {});
+                      //       }
+                      //     },
+                      //     child: Column(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         Icon(ArtemisIcons.camera, color: context.mainColor, size: 50),
+                      //         Text("Camera", style: TextStyle(color: context.mainColor, fontSize: 14)),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+                      // Expanded(
+                      //   child: MyButton(
+                      //     height: (context.width - 36) / 2,
+                      //     radius: 25,
+                      //     fade: true,
+                      //     // reverse: true,
+                      //     borderSide: BorderSide(color: context.mainColor),
+                      //     label: "",
+                      //     onPressed: () async {
+                      //       final path = await getIt<HomeController>().selectPhotoToAttach(ImageSource.gallery);
+                      //       if (path != null) {
+                      //         attachingPhoto.add(path);
+                      //         setState(() {});
+                      //       }
+                      //     },
+                      //     child: Column(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         Icon(ArtemisIcons.attach_circle, color: context.mainColor, size: 50),
+                      //         Text("Gallery", style: TextStyle(color: context.mainColor, fontSize: 14)),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
+                  ),
+                  // Expanded(
+                  //   child: Column(
+                  //     spacing: 12,
+                  //     children: [
+                  //       Wrap(
+                  //         direction: Axis.horizontal,
+                  //         children: attachingPhoto.map((a)=>ClipRRect(
+                  //         borderRadius: BorderRadiusGeometry.circular(12),
+                  //         child: SizedBox(
+                  //           width: 108,
+                  //           height: 108,
+                  //           child: Image.file(
+                  //               key: Key(a),
+                  //               File(a), fit: BoxFit.fill),
+                  //         ),
+                  //       )).toList(),),
+                  //       Row(children: [
+                  //         // Expanded(
+                  //         //   child: MyButton(label: "",onPressed: (){},child: Column(children: [
+                  //         //     Icon(ArtemisIcons.camera),
+                  //         //     Text("Camera")
+                  //         //   ],),),
+                  //         // ),
+                  //         // Expanded(
+                  //         //   child: MyButton(label: "",onPressed: (){},child: Column(children: [
+                  //         //     Icon(ArtemisIcons.camera),
+                  //         //     Text("Camera")
+                  //         //   ],),),
+                  //         // ),
+                  //       ],)
+                  //       // Padding(
+                  //       //   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
+                  //       //   child: Container(
+                  //       //     padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  //       //     decoration: BoxDecoration(
+                  //       //       border: Border.all(color: MyColors.lineColor),
+                  //       //       borderRadius: BorderRadiusGeometry.circular(10),
+                  //       //     ),
+                  //       //     height: context.width * 0.9,
+                  //       //     width: context.width * 0.9,
+                  //       //     child: ClipRRect(
+                  //       //       borderRadius: BorderRadius.circular(8),
+                  //       //       child: attachingPhoto == null
+                  //       //           ? DotButton(
+                  //       //               icon: Icons.attach_file,
+                  //       //               size: 200,
+                  //       //               onPressed: () async {
+                  //       //                 final path = await getIt<HomeController>().selectPhotoToAttachMethodDialog();
+                  //       //                 if (path != null) {
+                  //       //                   attachingPhoto = path;
+                  //       //                   setState(() {});
+                  //       //                 }
+                  //       //               },
+                  //       //             )
+                  //       //           : Stack(
+                  //       //               children: [
+                  //       //                 SizedBox(
+                  //       //
+                  //       //                   height: context.width * 0.9,
+                  //       //                   width: context.width * 0.9,
+                  //       //                   child: Image.file(File(attachingPhoto!), fit: BoxFit.fill),
+                  //       //                 ),
+                  //       //                 Positioned(
+                  //       //                   right: 12,
+                  //       //                   top: 12,
+                  //       //                   child: DotButton(icon: Icons.delete, color: Colors.red, onPressed: () {
+                  //       //                     attachingPhoto = null;
+                  //       //                     setState((){});
+                  //       //                   }, size: 55),
+                  //       //                 ),
+                  //       //               ],
+                  //       //             ),
+                  //       //     ),
+                  //       //   ),
+                  //       // ),
+                  //     ],
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+            Divider(),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: MyButton(
+                      color: Colors.grey,
+                      borderSide: BorderSide(color: MyColors.lineColor),
+                      reverse: true,
+                      radius: 12,
+                      label: "Cancel",
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MyButton(
+                      label: "Attach",
+                      icon: ArtemisIcons.attach_circle,
+                      iconInRight: true,
+                      radius: 12,
+                      onPressed: attachingPhoto.isEmpty
+                          ? null
+                          : () async {
+                        final bool = await getIt<HomeController>().attachToResult(logId: widget.logId, images: attachingPhoto, voices: [], data: {"action": "attachPhoto"});
+                        if (bool) {
+                          Navigator.of(context).pop(true);
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            SuccessHandler.handle(ServerSuccess(code: 1, msg: "Done"));
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return SafeArea(
       bottom: true,
       child: Container(
