@@ -6,6 +6,7 @@ import 'package:abds/core/classes/log_report_detail_class.dart';
 import 'package:abds/core/classes/overall_performance_class.dart';
 import 'package:abds/core/classes/overall_report_tabel_class.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/core/utils_and_services/date_range_util.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/performance/widgets/overall_report_table.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
@@ -16,6 +17,8 @@ import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
+import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -44,8 +47,9 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
   String? to;
   DateTime? fromDate = DateTime.now();
   DateTime? toDate = DateTime.now();
-
+  bool moreMode = false;
   OverallReportTable? table;
+  int reportIndex = 0;
 
   // List<OverallPerformance> overalls = [];
   List<LogReportDetail> reportDetails = [];
@@ -72,7 +76,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
     final headerBg = MyColors.green2.withOpacity(0.26);
     final bodyBg = MyColors.green2.withOpacity(0.12);
 
-    List<String> detailsFrom = reportDetails.map((a)=>a.from).toSet().toList();
+    List<String> detailsFrom = reportDetails.map((a) => a.from).toSet().toList();
     // List<OverallPerformance> timOk = overalls.where((a) => a.timaticResult == 1).toList();
     // List<OverallPerformance> timNotOk = overalls.where((a) => a.timaticResult == 2).toList();
     // List<OverallPerformance> timCon = overalls.where((a) => a.timaticResult == 3).toList();
@@ -88,44 +92,244 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
         child: Column(
-          spacing: 16,
+          spacing: 8,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: MyDatePicker(
-                    backgroundColor: textFieldBG,
-                    headerBgColor: headerBg,
-                    onChanged: (a) {
-                      fromDate = a;
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+              decoration: BoxDecoration(color: Color(0xffECECEC),borderRadius: BorderRadius.circular(8)),
+              child: Row(
+                spacing: 8,
+                children: [
+                  Text("Range",style: TextStyle(fontSize: 12),),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        children: [
+                          DotButton(
+                            size: 28,
+                            icon: Icons.remove,
+                            color: Colors.black54,
+                            onPressed: () {
+                              fromDate = fromDate?.subtract(Duration(days: 1));
+                              setState(() {});
+                            },
+                          ),
+                          Expanded(
+                            child: MyDatePicker(
+                              backgroundColor: textFieldBG,
+                              headerBgColor: Colors.transparent,
+                              bodyBgColor: Colors.transparent,
+                              textAlign: TextAlign.center,
+                              radius: BorderRadius.zero,
+                              onChanged: (a) {
+                                fromDate = a;
+                                setState(() {});
+                              },
+                              label: "",
+              
+                              rowLabelRatio: [1, 100],
+                              placeholder: "From",
+                              valueFormat: DateFormat("dd, MMM"),
+                              // backgroundColor: textFieldBG,
+                              value: fromDate,
+                            ),
+                          ),
+                          DotButton(
+                            size: 28,
+                            icon: Icons.add,
+                            onPressed: () {
+                              fromDate = fromDate?.add(Duration(days: 1));
+                              setState(() {});
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        children: [
+                          DotButton(
+                            size: 28,
+                            icon: Icons.remove,
+                            color: Colors.black54,
+                            onPressed: () {
+                              toDate = toDate?.subtract(Duration(days: 1));
+                              setState(() {});
+                            },
+                          ),
+                          Expanded(
+                            child: MyDatePicker(
+                              backgroundColor: textFieldBG,
+                              headerBgColor: Colors.transparent,
+                              bodyBgColor: Colors.transparent,
+                              radius: BorderRadius.zero,
+                              textAlign: TextAlign.center,
+                              valueFormat: DateFormat("dd, MMM"),
+                              // bodyBgColor: bodyBg,
+                              onChanged: (a) {
+                                toDate = a;
+                                setState(() {});
+                              },
+                              label: "",
+                              rowLabelRatio: [1, 100],
+                              placeholder: "To",
+                              // backgroundColor: textFieldBG,
+                              value: toDate,
+                            ),
+                          ),
+                          DotButton(
+                            size: 28,
+                            icon: Icons.add,
+                            onPressed: () {
+                              toDate = toDate?.add(Duration(days: 1));
+                              setState(() {});
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  DotButton(
+                    size: 30,
+                    icon: Icons.more_vert,
+                    onPressed: () {
+                      moreMode = !moreMode;
                       setState(() {});
                     },
-                    label: "Date Range",
-                    rowLabelRatio: [2, 4],
-                    placeholder: "From",
-                    // backgroundColor: textFieldBG,
-                    value: fromDate,
+                  ),
+                ],
+              ),
+            ),
+            ?moreMode?   Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: MyButton(
+                    label: "This Week",
+                    fontSize: 11,
+                    onPressed: () async {
+                      final sAndE = getDateRange(DateRangeEnum.thisWeek);
+                      fromDate = sAndE.start;
+                      toDate = sAndE.end;
+                      setState(() {});
+                      await getOverall(null);
+                    },
                   ),
                 ),
                 Expanded(
-                  flex: 2,
-                  child: MyDatePicker(
-                    backgroundColor: textFieldBG,
-                    headerBgColor: headerBg,
-                    onChanged: (a) {
-                      toDate = a;
+                  child: MyButton(
+                    label: "Last Week",
+                    fontSize: 11,
+                    onPressed: () async {
+                      final sAndE = getDateRange(DateRangeEnum.lastWeek);
+                      fromDate = sAndE.start;
+                      toDate = sAndE.end;
                       setState(() {});
+                      await getOverall(null);
                     },
-                    label: "",
-                    rowLabelRatio: [1, 100],
-                    placeholder: "To",
-                    // backgroundColor: textFieldBG,
-                    value: toDate,
+                  ),
+                ),
+                Expanded(
+                  child: MyButton(
+                    label: "This Month",
+                    fontSize: 11,
+                    onPressed: () async {
+                      final sAndE = getDateRange(DateRangeEnum.thisMonth);
+                      fromDate = sAndE.start;
+                      toDate = sAndE.end;
+                      setState(() {});
+                      await getOverall(null);
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: MyButton(
+                    label: "Last Month",
+                    fontSize: 11,
+
+                    onPressed: () async {
+                      final sAndE = getDateRange(DateRangeEnum.lastMonth);
+                      fromDate = sAndE.start;
+                      toDate = sAndE.end;
+                      setState(() {});
+                      await getOverall(null);
+                    },
                   ),
                 ),
               ],
-            ),
+            ):null,
+            // EasyAnimatedIndexedStack(
+            //   index: moreMode ? 0 : 1,
+            //   children: [
+            //     Row(
+            //       spacing: 12,
+            //       children: [
+            //         Expanded(
+            //           child: MyButton(
+            //             label: "This Week",
+            //             fontSize: 11,
+            //             onPressed: () async {
+            //               final sAndE = getDateRange(DateRangeEnum.thisWeek);
+            //               fromDate = sAndE.start;
+            //               toDate = sAndE.end;
+            //               setState(() {});
+            //               await getOverall();
+            //             },
+            //           ),
+            //         ),
+            //         Expanded(
+            //           child: MyButton(
+            //             label: "Last Week",
+            //             fontSize: 11,
+            //             onPressed: () async {
+            //               final sAndE = getDateRange(DateRangeEnum.lastWeek);
+            //               fromDate = sAndE.start;
+            //               toDate = sAndE.end;
+            //               setState(() {});
+            //               await getOverall();
+            //             },
+            //           ),
+            //         ),
+            //         Expanded(
+            //           child: MyButton(
+            //             label: "This Month",
+            //             fontSize: 11,
+            //             onPressed: () async {
+            //               final sAndE = getDateRange(DateRangeEnum.thisMonth);
+            //               fromDate = sAndE.start;
+            //               toDate = sAndE.end;
+            //               setState(() {});
+            //               await getOverall();
+            //             },
+            //           ),
+            //         ),
+            //         Expanded(
+            //           child: MyButton(
+            //             label: "Last Month",
+            //             fontSize: 11,
+            //
+            //             onPressed: () async {
+            //               final sAndE = getDateRange(DateRangeEnum.lastMonth);
+            //               fromDate = sAndE.start;
+            //               toDate = sAndE.end;
+            //               setState(() {});
+            //               await getOverall();
+            //             },
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //     SizedBox(),
+            //   ],
+            // ),
             // Row(
             //   children: [
             //     Expanded(
@@ -178,7 +382,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                       physics: NeverScrollableScrollPhysics(),
                       controller: tabBarController,
                       children: [
-                        OverallReportListView(model: table,fromDate: fromDate,toDate: toDate,),
+                        OverallReportListView(model: table, fromDate: fromDate, toDate: toDate),
                         Column(
                           spacing: 12,
                           children: [
@@ -261,46 +465,41 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                   ),
                                   reportDetails.isEmpty
                                       ? SizedBox()
-
-                                  : Expanded(
-                                    child: ListView.builder(
-                                        // shrinkWrap: true,
-                                        // physics: NeverScrollableScrollPhysics(),
-                                        itemCount: detailsFrom.length,
-                                        itemBuilder: (c, i) {
-                                          String from = detailsFrom[i];
-                                          final items = reportDetails.where((a)=>a.from == from).toList();
-                                          return MyExpansionTile(
-                                            initiallyExpanded: true,
-                                            showFooter: false,
-                                            tilePadding: EdgeInsets.zero,
-                                            childrenPadding: EdgeInsets.zero,
-                                            showTrailingIcon: true,
-                                            backgroundColor: Colors.blueAccent.withOpacity(0.1),
-                                            collapsedBackgroundColor:  Colors.blueAccent.withOpacity(0.1),
-                                            collapsedShape: RoundedRectangleBorder(
-                                                side: BorderSide(color: MyColors.lineColor),
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                                side: BorderSide(color: MyColors.lineColor)
-                                            ),
-                                            title: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 12,vertical: 4),
-                                                decoration: BoxDecoration(
+                                      : Expanded(
+                                          child: ListView.builder(
+                                            // shrinkWrap: true,
+                                            // physics: NeverScrollableScrollPhysics(),
+                                            itemCount: detailsFrom.length,
+                                            itemBuilder: (c, i) {
+                                              String from = detailsFrom[i];
+                                              final items = reportDetails.where((a) => a.from == from).toList();
+                                              return MyExpansionTile(
+                                                initiallyExpanded: true,
+                                                showFooter: false,
+                                                tilePadding: EdgeInsets.zero,
+                                                childrenPadding: EdgeInsets.zero,
+                                                showTrailingIcon: true,
+                                                backgroundColor: Colors.blueAccent.withOpacity(0.1),
+                                                collapsedBackgroundColor: Colors.blueAccent.withOpacity(0.1),
+                                                collapsedShape: RoundedRectangleBorder(side: BorderSide(color: MyColors.lineColor)),
+                                                shape: RoundedRectangleBorder(side: BorderSide(color: MyColors.lineColor)),
+                                                title: Container(
+                                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                                  decoration: BoxDecoration(),
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(child: Text(from, style: TextStyle(fontSize: 12))),
+                                                      Text(items.length.toString(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                                    ],
+                                                  ),
                                                 ),
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(child: Text(from,style: TextStyle(fontSize: 12),)),
-                                                    Text(items.length.toString(),style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
-                                                  ],
-                                                )),children: [
-                                            ...items.map((det)=>ReportDetailsSummaryWidget(index: items.indexOf(det), log: det))
-                                          ],);
-                                          LogReportDetail det = reportDetails[i];
-                                          return ReportDetailsSummaryWidget(index: i, log: det);
-                                        },
-                                      ),
-                                  ),
+                                                children: [...items.map((det) => ReportDetailsSummaryWidget(index: items.indexOf(det), log: det))],
+                                              );
+                                              LogReportDetail det = reportDetails[i];
+                                              return ReportDetailsSummaryWidget(index: i, log: det);
+                                            },
+                                          ),
+                                        ),
                                 ],
                               ),
                             ),
@@ -341,14 +540,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                   child: MyButton(
                     label: "Overall",
                     onPressed: () async {
-                      final t = await getIt<PerformanceController>().getOverallPerformances(fromDate: fromDate, toDate: toDate, from: from, to: to);
-                      // overalls = overallList ?? overalls;
-                      table = t;
-                      reportDetails.clear();
-                      setState(() {});
-                      Future(() {
-                        tabBarController.animateTo(0);
-                      });
+                      await getOverall(0);
                     },
                   ),
                 ),
@@ -356,14 +548,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                   child: MyButton(
                     label: "Summary",
                     onPressed: () async {
-                        final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
-                        if (rdl != null) {
-                          reportDetails = rdl;
-                          setState(() {});
-                          Future(() {
-                            tabBarController.animateTo(1);
-                          });
-                        }
+                      await getOverall(1);
                     },
                   ),
                 ),
@@ -371,16 +556,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                   child: MyButton(
                     label: "Details",
                     onPressed: () async {
-                        final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
-                        log("rdl ${rdl?.length}");
-                        if (rdl != null) {
-                          reportDetails = rdl;
-
-                          setState(() {});
-                          Future(() {
-                            tabBarController.animateTo(2);
-                          });
-                        }
+                      await getOverall(2);
                     },
                   ),
                 ),
@@ -391,6 +567,29 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
         ),
       ),
     );
+  }
+
+  Future<void> getOverall(int? index) async {
+    int ri = index??reportIndex;
+    reportIndex = ri;
+    if(ri == 0) {
+      final t = await getIt<PerformanceController>().getOverallPerformances(fromDate: fromDate, toDate: toDate, from: from, to: to);
+      table = t;
+      reportDetails.clear();
+      setState(() {});
+      Future(() {
+        tabBarController.animateTo(ri);
+      });
+    }else{
+      final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
+      if (rdl != null) {
+        reportDetails = rdl;
+        setState(() {});
+        Future(() {
+          tabBarController.animateTo(ri);
+        });
+      }
+    }
   }
 }
 
@@ -681,7 +880,7 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
     final response = widget.log.supervisor?.firstOrNull?.getRes;
     final superResponse = airlineResponse ?? BasicClass.getResultOfCode(widget.log.supervisor?.firstOrNull?.action ?? 1)!;
     final baseTimaticResult = BasicClass.getResultOfCode(widget.log.timaticResult);
-    log("actionId ${response?.actionId.toString()} ${widget.log.supervisor?.lastOrNull?.action}");
+    // log("actionId ${response?.actionId.toString()} ${widget.log.supervisor?.lastOrNull?.action}");
     final totalRes = BasicClass.getResultOfCode(widget.log.totalResult);
     // log(jsonEncode(widget.log.toJson()));
     return Container(

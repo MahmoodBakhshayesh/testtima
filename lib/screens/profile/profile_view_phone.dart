@@ -90,6 +90,7 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
     if (profile == null) {
       return SizedBox();
     }
+
     return Scaffold(
       appBar: ProfileAppBar(),
 
@@ -223,8 +224,7 @@ class _ProfileViewPhoneState extends ConsumerState<ProfileViewPhone> {
                                         label: att.title, placeholder: att.title, controller: attributes[att.name]),
                                   );
                                 } else if (att.type == "enum") {
-                                  final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
-
+                                  final overrideList = att.getOverrideList;
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12.0),
                                     child: MyFieldPicker<dynamic>(

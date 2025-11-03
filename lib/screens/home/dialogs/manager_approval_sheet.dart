@@ -283,14 +283,14 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                             if (byteData == null) {
                               return;
                             }
-                            final buffer = byteData.buffer;
-                            final dir = await getTemporaryDirectory();
-
-                            final String path = "${dir.path}/sign.png";
-                            final f = await File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+                            // final buffer = byteData.buffer;
+                            // final dir = await getTemporaryDirectory();
+                            //
+                            // final String path = "${dir.path}/sign.png";
+                            // final f = await File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
                             final bool = await getIt<HomeController>().airlineApproval(
                               logId: widget.logId,
-                              sign: f.path,
+                              sign: byteData,
                               data: {'name': nameC.text, "comment": msgC.text, "message": msgC.text, "action": "managerApproval", "approve": response == 1},
                             );
                             if (bool) {
@@ -579,14 +579,14 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                                                 if (byteData == null) {
                                                   return;
                                                 }
-                                                final buffer = byteData.buffer;
-                                                final dir = await getTemporaryDirectory();
-
-                                                final String path = "${dir.path}/sign.png";
-                                                final f = await File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+                                                // final buffer = byteData.buffer;
+                                                // final dir = await getTemporaryDirectory();
+                                                //
+                                                // final String path = "${dir.path}/sign.png";
+                                                // final f = await File(path).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
                                                 final bool = await getIt<HomeController>().airlineApproval(
                                                   logId: widget.logId,
-                                                  sign: f.path,
+                                                  sign: byteData,
                                                   data: {'name': nameC.text, "comment": msgC.text, "message": msgC.text, "action": "managerApproval", "approve": response == 1},
                                                 );
                                                 if (bool) {

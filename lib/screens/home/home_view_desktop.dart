@@ -501,6 +501,27 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                             ),
                                                           ),
                                                           Visibility(
+                                                            visible: resultMode,
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.only(left: 8.0),
+                                                              child: MyButton(
+                                                                label: "Unlock",
+                                                                fontSize: 12,
+                                                                iconSize: 15,
+                                                                reverse: true,
+
+                                                                icon: ArtemisIcons.unlock,
+                                                                onPressed: !resultMode
+                                                                    ? null
+                                                                    : () async {
+                                                                  await getIt<HomeController>().setStatus(0);
+                                                                },
+                                                                radius: 10,
+                                                                borderSide: BorderSide(color: context.mainColor),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Visibility(
                                                             visible: !resultMode,
                                                             child: MyButton(
                                                               label: "TIMATIC",

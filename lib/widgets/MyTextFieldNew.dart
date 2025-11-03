@@ -244,6 +244,7 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                             focusNode: widget.focusNode,
                             onSubmitted: widget.onSubmit,
                             keyboardType: widget.keyboardType,
+                            textAlign: widget.textAlign,
                             obscureText: obscureText,
                             autofocus: widget.autofocus,
                             // textAlignVertical: TextAlignVertical.center,

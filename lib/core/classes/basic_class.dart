@@ -74,7 +74,7 @@ class BasicClass {
 
   static TimaticResult getResultOfCode(int? code) {
     return constData.data.timaticResult!.firstWhere((a) => a.resultId == code,orElse: (){
-      log("not found code $code");
+      // log("not found code $code");
       return constData.data.timaticResult!.first;
     });
   }

@@ -58,11 +58,14 @@ class MyDatePicker extends StatefulWidget {
   final Color? bodyBgColor;
   final IconData? validationIcon;
   final List<int> rowLabelRatio;
+  final DateFormat? valueFormat;
+  final BorderRadius? radius;
 
   const MyDatePicker({
     Key? key,
     this.label,
     this.value,
+    this.valueFormat,
     this.bodyBgColor,
     this.headerBgColor,
     this.rowLabelRatio = const [12, 33],
@@ -72,6 +75,7 @@ class MyDatePicker extends StatefulWidget {
     this.validationColor,
     this.backgroundColor,
     this.placeholder,
+    this.radius,
     this.height = 40,
     this.fontSize = 14,
     this.keyboardType,
@@ -115,7 +119,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
   @override
   void didUpdateWidget(covariant MyDatePicker oldWidget) {
     if (widget.value != oldWidget.value) {
-      controller?.text = widget.value?.format_yyMMddSlash ?? '';
+      controller?.text = widget.value==null?"":widget.valueFormat?.format(widget.value!)?? widget.value?.format_yyMMddSlash ?? '';
     }
 
     // setState(() {});
@@ -131,7 +135,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
       } else {
         controller = TextEditingController();
       }
-      controller?.text = widget.value.format_yyMMddSlash;
+      controller?.text =widget.value==null?"": widget.valueFormat?.format(widget.value!)?? widget.value.format_yyMMddSlash;
       controller?.addListener(() {
         _errorMsg = widget.validator?.call(controller!.text);
       });
@@ -175,7 +179,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
             final newVal = v ?? widget.value;
             widget.onChanged(newVal);
             if (v == null) return;
-            controller?.text = newVal.format_yyMMddSlash ?? '';
+            controller?.text =newVal==null?"": widget.valueFormat?.format(newVal) ??  newVal.format_yyMMddSlash ?? '';
           });
         }
         // showDatePicker(
@@ -198,7 +202,9 @@ class _MyDatePickerState extends State<MyDatePicker> {
         child: MyTextFieldNew(
           headerBgColor: widget.headerBgColor,
           bodyBgColor: widget.bodyBgColor,
+          radius: widget.radius,
           disabled: true,
+          textAlign: widget.textAlign,
           required: widget.required,
           showError: true,
           label: widget.label,
@@ -209,7 +215,6 @@ class _MyDatePickerState extends State<MyDatePicker> {
           validationIcon: widget.validationIcon,
           placeholder: widget.placeholder,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
-
           validator: widget.validator,
           suffixIcon: SizedBox(height: 22,),
           controller: controller,

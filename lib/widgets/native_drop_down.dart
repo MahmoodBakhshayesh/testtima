@@ -673,9 +673,8 @@ class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
     )
         : const SizedBox.shrink();
 
-    final labelFlex = widget.rowLabelRatio.isNotEmpty ? widget.rowLabelRatio[0] : 30;
-    final valueFlex = (widget.rowLabelRatio.length > 1 ? widget.rowLabelRatio[1] : 70);
-
+    final labelFlex = widget.rowLabelRatio.isNotEmpty ? widget.rowLabelRatio[0] : 12;
+    final valueFlex = (widget.rowLabelRatio.length > 1 ? widget.rowLabelRatio[1] : 33);
     return ClipRRect(
       borderRadius: widget.radius ?? BorderRadius.circular(5),
       child: Container(

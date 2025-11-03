@@ -200,16 +200,20 @@ class Device {
 class Setting {
   final int? refreshInboxTimer;
   final List<SupervisorResponse>? supervisorResponse;
+  final Map<String,dynamic> more;
 
-  Setting({this.refreshInboxTimer, this.supervisorResponse});
+  Setting({this.refreshInboxTimer, this.supervisorResponse,this.more = const{}});
 
   Setting copyWith({int? refreshInboxTimer, List<SupervisorResponse>? supervisorResponse}) =>
       Setting(refreshInboxTimer: refreshInboxTimer ?? this.refreshInboxTimer, supervisorResponse: supervisorResponse ?? this.supervisorResponse);
 
   factory Setting.fromJson(Map<String, dynamic> json) =>
-      Setting(refreshInboxTimer: json["refreshInboxTimer"], supervisorResponse: json["supervisorResponse"] == null ? [] : List<SupervisorResponse>.from(json["supervisorResponse"]!.map((x) => SupervisorResponse.fromJson(x))));
+      Setting(
+          more: json,
+          refreshInboxTimer: json["refreshInboxTimer"], supervisorResponse: json["supervisorResponse"] == null ? [] : List<SupervisorResponse>.from(json["supervisorResponse"]!.map((x) => SupervisorResponse.fromJson(x))));
 
-  Map<String, dynamic> toJson() => {"refreshInboxTimer": refreshInboxTimer, "supervisorResponse": supervisorResponse == null ? [] : List<dynamic>.from(supervisorResponse!.map((x) => x.toJson()))};
+  Map<String, dynamic> toJson() => more;
+
 }
 
 class SupervisorResponse {

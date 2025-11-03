@@ -35,6 +35,7 @@ import 'package:abds/screens/users/users_controller.dart';
 import 'package:abds/widgets/number_input_sheet.dart';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -48,6 +49,9 @@ import 'package:logging/logging.dart';
 
 import '../../core/interfaces/result_int.dart';
 import '../../core/navigation/routes.dart';
+import '../../core/utils_and_services/cross_helpers/build_formdata.dart';
+import '../../core/utils_and_services/cross_helpers/form_file.dart';
+import '../../core/utils_and_services/cross_helpers/web_path_to_bytes.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
@@ -369,11 +373,13 @@ class HomeController extends ControllerInterface {
     // Text data (can also be a JSON string)
     final textData = "your text or json here";
     List<String> images = ref.read(attachingPhotoPathProvider);
-    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final formData = FormData.fromMap({
-      "images": imageFiles, // multiple images
-      "data": jsonEncode({"logNoteType": noteType, "description": desc}),
-    });
+
+    final formData = buildFormDataFromPaths(images: images, voices: [], data: {"logNoteType": noteType, "description": desc});
+    // final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    // final formData = FormData.fromMap({
+    //   "images": imageFiles, // multiple images
+    //   "data": jsonEncode({"logNoteType": noteType, "description": desc}),
+    // });
     String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId";
 
     try {
@@ -411,14 +417,17 @@ class HomeController extends ControllerInterface {
     bool result = false;
     final dio = Dio();
 
-    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final attachings = [...imageFiles, ...voiceFiles];
-    log("\n${[...images, ...voices].join("\n")}\n to $logId");
-    final formData = FormData.fromMap({
-      "attachFiles": attachings, // multiple images
-      "data": jsonEncode(data),
-    });
+    final formData = await buildFormDataFromPaths(
+      images: images,
+      voices: voices,
+      data: data??{},
+    );
+
+
+
+
+    // log("${images.length} images.length");
+    // log(formData.files.);
     String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId/attach";
     try {
       final response = await dio.post(
@@ -449,14 +458,24 @@ class HomeController extends ControllerInterface {
     bool result = false;
     final dio = Dio();
 
-    final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final attachings = [...imageFiles, ...voiceFiles];
-    log("\n${[...images, ...voices].join("\n")}\n to $logId");
-    final formData = FormData.fromMap({
-      "attachFiles": attachings, // multiple images
-      "data": jsonEncode(data),
-    });
+    final formData = await buildFormDataFromPaths(
+      images: images,
+      voices: voices,
+      data: data??{},
+    );
+
+
+    // if(kIsWeb){
+    //   formData = buildFormDataUniversal(images: [], voices: [], data: {});
+    // }else {
+    //   final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    //   final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
+    //   final attachings = [...imageFiles, ...voiceFiles];
+    //   formData = FormData.fromMap({
+    //     "attachFiles": attachings, // multiple images
+    //     "data": jsonEncode(data),
+    //   });
+    // }
     String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId/agentDecision";
     try {
       final response = await dio.post(
@@ -489,19 +508,28 @@ class HomeController extends ControllerInterface {
     }
   }
 
-  Future<bool> airlineApproval({required String logId, required String sign, Map<String, dynamic>? data}) async {
+  Future<bool> airlineApproval({required String logId, required ByteData sign, Map<String, dynamic>? data}) async {
     bool result = false;
     final dio = Dio();
-
     // final imageFiles = await Future.wait(images.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
-    final signFile = await MultipartFile.fromFile(sign, filename: sign.split('/').last);
+    // final signFile = await MultipartFile.fromFile(sign, filename: sign.split('/').last);
     // final voiceFiles = await Future.wait(voices.map((path) async => await MultipartFile.fromFile(path, filename: path.split('/').last)));
     // final attachings = [...imageFiles, ...voiceFiles];
     // log("\n${[...images, ...voices].join("\n")}\n to $logId");
+    // final formData = buildFormDataFromPaths(images: [sign], voices: [], data: data??{},imgKey: "sign");
+    final bytes = sign.buffer.asUint8List();
+    // Wrap in MultipartFile
+    final multipart = MultipartFile.fromBytes(bytes, filename: "sign.png");
     final formData = FormData.fromMap({
-      "sign": signFile, // multiple images
-      "data": jsonEncode(data),
+      'sign': multipart,
+      'data': jsonEncode(data),
     });
+    // final formData2 = FormData.fromMap({
+    //
+    //   "sign": signFile, // multiple images
+    //   "data": jsonEncode(data),
+    // });
+    log("calling to api");
     String api = "${ref.read(selectedServerProvider).apiAddress}/v1/logs/$logId/airlineApproval";
     try {
       final response = await dio.post(

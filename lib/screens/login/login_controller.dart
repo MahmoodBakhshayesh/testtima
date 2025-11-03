@@ -370,32 +370,13 @@ class LoginController extends ControllerInterface {
       log("no need to get const data");
     }
     return cached;
-    // final String? constJson = await sharedPref.getVariable(key: "constantData");
-    // if(constJson == null){
-    //   final newConst = await getConstantData(constantVersion);
-    //   if(newConst != null){
-    //     return newConst;
-    //   }else{
-    //     return null;
-    //   }
-    // }else{
-    //   VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
-    //   BasicClass.setVersionedConstData(constantData);
-    //   log("new const version is ${constantVersion} and saved version is ${constantData.version} --> ${constantVersion.compareTo("20250924150831")}");
-    //   if(constantVersion.compareTo(constantData.version)>0){
-    //     getConstantData(constantVersion);
-    //   }else{
-    //     log("no need to get const data");
-    //   }
-    //   return constantData;
-    // }
   }
 
   Future<VersionedConstantData?> loadCachedConstData() async {
     String key = "${ref.read(selectedServerProvider).id}/${getIt<AppDeviceNetworkData>().app.versionKey}/constantData";
     log("CachedConstData key $key");
     final String? constJson = await sharedPref.getVariable(key: key);
-    if (constJson != null) {
+    if (constJson != null ) {
       VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
       return constantData;
     }

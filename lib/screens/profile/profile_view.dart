@@ -13,7 +13,7 @@ class ProfileView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return ProfileViewPhone();
+        return ProfileViewDesktop();
       }else if(context.isMyTablet){
         return ProfileViewPhone();
       }else{

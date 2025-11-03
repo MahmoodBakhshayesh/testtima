@@ -13,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../utils_and_services/icomoon_layered_presets_from_css.dart';
+import 'basic_class.dart';
 
 VersionedConstantData constantDataFromJson(String str) => VersionedConstantData.fromJson(json.decode(str));
 
@@ -328,6 +329,7 @@ class Attribute {
   final bool mandatory;
   final String defaultValue;
   final String? listItemName;
+  final String? settingItemName;
 
 
   Attribute({
@@ -339,6 +341,7 @@ class Attribute {
     required this.mandatory,
     required this.defaultValue,
     required this.listItemName,
+    required this.settingItemName,
 
   });
 
@@ -351,6 +354,7 @@ class Attribute {
     bool? mandatory,
     String? defaultValue,
     String? listItemName,
+    String? settingItemName,
   }) =>
       Attribute(
         defaultList: defaultList ?? this.defaultList,
@@ -361,6 +365,7 @@ class Attribute {
         mandatory: mandatory ?? this.mandatory,
         defaultValue: defaultValue ?? this.defaultValue,
         listItemName: listItemName ?? this.listItemName,
+        settingItemName: settingItemName ?? this.settingItemName,
       );
 
   factory Attribute.fromJson(Map<String, dynamic> json) => Attribute(
@@ -372,7 +377,10 @@ class Attribute {
     mandatory: json["mandatory"]??false,
     defaultValue: json["defaultValue"],
     listItemName: json["listItemName"],
+    settingItemName: json["settingItemName"],
   );
+
+  List get getOverrideList => BasicClass.user?.setting?.toJson()["$settingItemName"]??BasicClass.constData.data.toJson()["$listItemName"]??defaultList;
 
   Map<String, dynamic> toJson() => {
     "defaultList": List<dynamic>.from(defaultList.map((x) => x)),
@@ -382,6 +390,7 @@ class Attribute {
     "mandatory": mandatory,
     "defaultValue": defaultValue,
     "listItemName": listItemName,
+    "settingItemName": settingItemName,
   };
 }
 

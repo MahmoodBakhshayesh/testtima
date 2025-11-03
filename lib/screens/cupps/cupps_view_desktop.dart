@@ -5,7 +5,11 @@ import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../../core/classes/basic_class.dart';
+import '../../core/classes/constant_data_class.dart';
+import '../../widgets/MyFieldPicker.dart';
 import 'cupps_controller.dart';
 import 'cupps_state.dart';
 import '../../initialize.dart';
@@ -26,6 +30,8 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewDesktop> {
   TextEditingController ipC = TextEditingController();
   TextEditingController portC = TextEditingController();
 
+  ParameterValue? airline;
+  Airport? airport;
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -122,7 +128,73 @@ class _CuppsViewPhoneState extends ConsumerState<CuppsViewDesktop> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                Text("ACPS",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16),),
+                Divider(),
+                Row(
+                  spacing: 12,
+                  children: [
+                    Expanded(
+                      child: MyFieldPicker<ParameterValue>(
+                        label: "Airline",
+                        required: true,
+                        placeholder: "Airline",
+                        searchAutoFocus: true,
+                        headerBgColor: Color(0xffECECEC),
+                        bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
 
+                        items: BasicClass.constData.data.carrier,
+                        value: airline,
+                        // prefixIcon: airlineLogoBuild(seg.operatingCarrier),
+                        valueToString: (a) => a.code,
+                        onChange: (a) {
+                          airline = a;
+                          setState((){});
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: MyFieldPicker<Airport>(
+                        required: true,
+                        searchAutoFocus: true,
+                        label: "From",
+                        placeholder: "City",
+                        headerBgColor: Color(0xffECECEC),
+                        bodyBgColor: Color(0xffE9E9E9).withOpacity(0.48),
+                        valueToString: (dynamic a) => "$a",
+                        itemToWidget: (dynamic a) => Text("$a (${(a as Airport).code3})"),
+                        searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
+                        items: BasicClass.constData.data.airport,
+                        value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == airport?.code3),
+                        onChange: (a) {
+                          airport = a;
+                          setState((){});
+                        },
+                      ),
+                    ),
+                    MyButton(label: "Connect",
+                        disabled: airport == null && airline == null,
+                        onPressed: (){
+                          myCuppsController.initAcps(airport!.code3,airline!.code);
+                        }),
+                    Expanded(flex:2,child: Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                      final acps = ref.watch(acpsProvider);
+                      if(acps == null){
+                        return SizedBox();
+                      }
+                      return acps.getGeneralWidget();
+                    },))
+
+                  ],),
+
+              ],
+            ),
+          ),
 
         ],
       ),

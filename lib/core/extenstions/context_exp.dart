@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:abds/core/utils_and_services/platform_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 extension BuldContextMore on BuildContext {
   bool get isMyTablet {
-    if(isDesktop) return false;
+    if (isDesktop) return false;
     var size = MediaQuery.of(this).size;
     var diagonal = sqrt((size.width * size.width) + (size.height * size.height));
 
@@ -17,27 +18,60 @@ extension BuldContextMore on BuildContext {
 
     return (Platform.isIOS || Platform.isAndroid) && width > 600;
   }
+
+
   bool get isDesktop {
-    if(kIsWeb) return true;
+    if (kIsWeb && !PlatformHelper.isMobileWeb) return true;
     return Platform.isMacOS || Platform.isWindows;
   }
+
   double get width {
     return MediaQuery.of(this).size.width;
   }
-  double get height{
+
+  double get height {
     return MediaQuery.of(this).size.height;
   }
+
   EdgeInsets? get getDialogPadding {
-    return EdgeInsets.symmetric(horizontal:isMyTablet?width*0.25: isDesktop?  width*.3:12,vertical: isDesktop?(height*0.25):0);
+    return EdgeInsets.symmetric(
+      horizontal: isMyTablet
+          ? width * 0.25
+          : isDesktop
+          ? width * .3
+          : 12,
+      vertical: isDesktop ? (height * 0.25) : 0,
+    );
   }
+
   EdgeInsets? get getBigDialogPadding {
-    return EdgeInsets.symmetric(horizontal:isMyTablet?width*0.10: isDesktop?  width*.3:12);
+    return EdgeInsets.symmetric(
+      horizontal: isMyTablet
+          ? width * 0.10
+          : isDesktop
+          ? width * .3
+          : 12,
+    );
   }
+
   EdgeInsets? get horizontalPadding {
-    return EdgeInsets.symmetric(horizontal:isMyTablet?16: isDesktop?  16:12);
+    return EdgeInsets.symmetric(
+      horizontal: isMyTablet
+          ? 16
+          : isDesktop
+          ? 16
+          : 12,
+    );
   }
+
   EdgeInsetsGeometry get getDrawerPadding {
-    return EdgeInsets.all(isMyTablet?24: isDesktop?  24:16);
+    return EdgeInsets.all(
+      isMyTablet
+          ? 24
+          : isDesktop
+          ? 24
+          : 16,
+    );
   }
 
   Color get mainColor => Theme.of(this).primaryColor;

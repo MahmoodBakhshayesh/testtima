@@ -1,16 +1,6 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:abds/core/extenstions/context_exp.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
 import 'package:flutter/material.dart';
-
-import '../core/classes/basic_class.dart';
-import '../core/constants/apis.dart';
-import '../core/constants/ui.dart';
-import '../core/data_base/local_data_base.dart';
-import '../core/data_base/table_names.dart';
-
 class AirlineLogo extends StatefulWidget {
   final String al;
   final double size;
@@ -18,7 +8,6 @@ class AirlineLogo extends StatefulWidget {
 
   const AirlineLogo(this.al, {super.key, this.size = 40, this.padding = const EdgeInsets.all(4)});
 
-  // const AirlineLogo({Key? key}) : super(key: key);
 
   @override
   State<AirlineLogo> createState() => _AirlineLogoState();

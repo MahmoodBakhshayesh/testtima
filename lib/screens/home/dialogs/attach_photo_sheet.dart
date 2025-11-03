@@ -28,6 +28,7 @@ import 'package:voice_note_kit/voice_note_kit.dart';
 
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/interfaces/success_int.dart';
+import '../../../core/utils_and_services/cross_helpers/adaptive_image_path.dart';
 import '../../../core/utils_and_services/handlers/success_handler.dart';
 import '../home_drawer.dart';
 
@@ -81,7 +82,8 @@ class _MyOcrSettingDialogState extends State<AttachPhotoSheet> {
                             SizedBox(
                               width: (context.width - 48) / 3,
                               height: (context.width - 48) / 3,
-                              child: Image.file(key: Key(a), File(a), fit: BoxFit.fill),
+                              // child: Image.file(key: Key(a), File(a), fit: BoxFit.fill),
+                              child: AdaptiveImagePath(path: a,key: Key(a),fit: BoxFit.fill,),
                             ),
                             Positioned(
                               top: 8,
