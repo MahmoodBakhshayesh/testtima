@@ -6,7 +6,6 @@ import 'package:abds/initialize.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/home/widgets/resident_section.dart';
 import 'package:abds/screens/home/widgets/visa_section.dart';
-import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/export.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

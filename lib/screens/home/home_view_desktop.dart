@@ -44,7 +44,7 @@ import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:abds/widgets/check_permission.dart';
 import 'package:abds/widgets/user_avatar.dart';
 import 'package:artemis_utils/artemis_utils.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:dartx/dartx.dart';
@@ -64,6 +64,7 @@ import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/classes/supervisor_class.dart';
 import '../../core/classes/timatic_response_new_class.dart';
+import '../../core/utils_and_services/country_flag_util.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/residents_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
@@ -276,7 +277,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
       ? SizedBox()
       : Row(
           children: [
-            ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
             const SizedBox(width: 8),
             Text("$a (${(a as Country).name})"),
           ],
@@ -288,7 +289,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
           children: [
             Text("$a"),
             const SizedBox(width: 2),
-            ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            MyCountryFlagsPro.getFlag(a.country!,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
           ],
         );
 
@@ -394,7 +395,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                         children: [
 
                                                           Visibility(
-                                                            visible: resultMode,
+                                                            visible: resultMode ,
                                                             child:     CustomPopupMenu(
                                                               horizontalMargin: 96,
                                                               child: Container(
@@ -751,7 +752,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
           children: [
             Text("$a"),
             const SizedBox(width: 2),
-            ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
           ],
         );
 

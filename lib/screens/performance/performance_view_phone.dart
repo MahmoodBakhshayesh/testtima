@@ -16,7 +16,7 @@ import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:artemis_utils/artemis_utils.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +28,7 @@ import 'package:intl/intl.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/performance_log_class.dart';
 import '../../core/constants/ui.dart';
+import '../../core/utils_and_services/country_flag_util.dart';
 import 'performance_controller.dart';
 import 'performance_state.dart';
 import '../../initialize.dart';
@@ -951,12 +952,14 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
                             Text("${widget.log.airline ?? ''}${widget.log.flightNumber ?? ''}", style: TextStyle(fontSize: 10)),
                             Text(" / "),
                             Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                            CountryFlag.fromCountryCode(widget.log.nationality, shape: RoundedRectangle(3), width: 15, height: 10),
+                            MyCountryFlagsPro.getFlag(widget.log.nationality, borderRadius: BorderRadius.circular(3), width: 15, height: 10),
+
                             Text(" ${widget.log.nationality}", style: TextStyle(fontSize: 10)),
                             Text(" / "),
                             Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
                             Text("${widget.log.from ?? ''}- ", style: TextStyle(fontSize: 10)),
-                            CountryFlag.fromCountryCode(BasicClass.getAirportByCode(widget.log.to)?.country ?? '', shape: RoundedRectangle(3), width: 15, height: 10),
+                            MyCountryFlagsPro.getFlag(BasicClass.getAirportByCode(widget.log.to)?.country ?? '', borderRadius: BorderRadius.circular(3), width: 15, height: 10),
+
                             Text(" ${widget.log.to ?? ''}", style: TextStyle(fontSize: 10)),
 
                             // Text("Nationality",style: TextStyle(color: Colors.grey),),

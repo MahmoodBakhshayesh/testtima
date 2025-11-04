@@ -345,14 +345,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
-  country_flags:
+  country_flags_pro:
     dependency: "direct main"
     description:
-      name: country_flags
-      sha256: "78a7bf8aabd7ae1a90087f0c517471ac9ebfe07addc652692f58da0f0f833196"
+      name: country_flags_pro
+      sha256: e34d38bceaa531e84ad7a49e317ab6222d3ddd8492fcff34170e4e1505757144
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "0.1.1"
   cross_file:
     dependency: transitive
     description:
@@ -1232,22 +1232,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.2+1"
-  jovial_misc:
-    dependency: transitive
-    description:
-      name: jovial_misc
-      sha256: "4301011027d87b8b919cb862db84071a34448eadbb32cc8d40fe505424dfe69a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.9.2"
-  jovial_svg:
-    dependency: transitive
-    description:
-      name: jovial_svg
-      sha256: "6791b1435547bdc0793081a166d41a8a313ebc61e4e5136fb7a3218781fb9e50"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.27"
   js:
     dependency: transitive
     description:

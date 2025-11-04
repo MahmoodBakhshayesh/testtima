@@ -7,7 +7,7 @@ import 'dart:ui';
 
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:flutter/material.dart';
 
 import 'basic_class.dart';
@@ -93,7 +93,7 @@ class Segment {
           "${from!.airport} - ",
           style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
         ),
-        CountryFlag.fromCountryCode(to!.country!, width: 20, height: 15, shape: RoundedRectangle(4)),
+        CountryFlagsPro.getFlag(to!.country!, width: 20, height: 15, borderRadius: BorderRadius.circular(4)),
         Text(
           " ${to!.airport}",
           style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),

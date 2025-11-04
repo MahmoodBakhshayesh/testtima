@@ -21,7 +21,7 @@ import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:abds/widgets/drawer_action.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +30,7 @@ import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 
 import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
+import '../../../core/utils_and_services/country_flag_util.dart';
 import '../home_drawer.dart';
 import 'ask_supervisor_sheet.dart';
 import 'attach_comment_sheet.dart';
@@ -128,7 +129,11 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
                         collapsedBackgroundColor: Color(0xffAbAbAb).withOpacity(0.08),
                         title: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Row(children: [CountryFlag.fromCountryCode(a.country!, width: 30, height: 20), const SizedBox(width: 8), Text(a.country!,style: TextStyle(color: Colors.black),)]),
+                          child: Row(children: [
+
+                            MyCountryFlagsPro.getFlag(a.country!,width: 30,height: 20,borderRadius: BorderRadius.circular(2)),
+
+                            const SizedBox(width: 8), Text(a.country!,style: TextStyle(color: Colors.black),)]),
                         ),
                         showFooter: false,
                         children: a.languages!.where((l)=>l.validateSearch(searchC.text)).map((l) {
@@ -148,57 +153,7 @@ class _MyOcrSettingDialogState extends ConsumerState<TranslateLanguageSelectShee
                         }).toList(),
                       ),
                     );
-                    return Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(bottom: 8),
-                          // decoration: BoxDecoration(
-                          //   color: Colors.black.withOpacity(0.08),
-                          //   borderRadius: BorderRadius.circular(12),
-                          //   border: Border.all(color: MyColors.lineColor),
-                          // ),
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(2),
-                                    decoration: BoxDecoration(color: MyColors.lineColor, borderRadius: BorderRadius.circular(4)),
-                                    child: CountryFlag.fromCountryCode(a.country!, width: 40, height: 20),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(a.country ?? '-', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const SizedBox(width: 20),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Column(
-                                        children: (a.languages ?? [])
-                                            .map(
-                                              (l) => DrawerAction(
-                                                title: l.name!,
-                                                onTap: () async {
-                                                  await myHomeController.translateTimaticResponse(language: l.language!, logId: ref.read(refCodeProvider)!);
-                                                },
-                                                leadingIcon: Icons.circle,
-                                              ),
-                                            )
-                                            .toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
+
                   }).toList(),
                 ),
               ),

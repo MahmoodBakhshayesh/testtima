@@ -14,9 +14,9 @@ abstract class FailureHandler {
 
 
   static void handle(Failure failure, {Function? retry}) {
-    if(kIsWeb){
-      return;
-    }
+    // if(kIsWeb){
+    //   return;
+    // }
     BotToast.showAttachedWidget(
         attachedBuilder: (_) => Transform.scale(
               scale: 0.9,

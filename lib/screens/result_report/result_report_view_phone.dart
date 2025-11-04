@@ -1,7 +1,7 @@
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/screens/result_report/result_report_state.dart';
 import 'package:artemis_utils/artemis_utils.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -10,6 +10,7 @@ import 'package:smart_overlay_menu/smart_overlay_menu.dart';
 
 import '../../core/classes/constant_data_class.dart';
 import '../../core/constants/ui.dart';
+import '../../core/utils_and_services/country_flag_util.dart';
 import '../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/residents_state_controller.dart';
 import '../../core/utils_and_services/stateControllers/segments_state_controller.dart';
@@ -61,7 +62,7 @@ class _ResultReportViewPhoneState extends ConsumerState<ResultReportViewPhone> {
       ? SizedBox()
       : Row(
     children: [
-      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
       const SizedBox(width: 8),
       Text("$a (${(a as Country).name})"),
     ],
@@ -73,7 +74,8 @@ class _ResultReportViewPhoneState extends ConsumerState<ResultReportViewPhone> {
     children: [
       Text("$a"),
       const SizedBox(width: 2),
-      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+
     ],
   );
 
@@ -343,7 +345,8 @@ class HeaderSummaryWidget extends ConsumerWidget {
       ? SizedBox()
       : Row(
     children: [
-      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 18, height: 14)),
+      MyCountryFlagsPro.getFlag(a,width: 18,height: 14,borderRadius: BorderRadius.circular(2)),
+
       const SizedBox(width: 2),
       Text("$a",style: TextStyle(fontSize: 12),),
 

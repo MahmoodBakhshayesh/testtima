@@ -7,7 +7,7 @@ import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/drawer_action.dart';
 import 'package:artemis_utils/artemis_utils.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import '../../core/classes/basic_class.dart';
 import '../../core/classes/outbox_message_class.dart';
 import '../../core/constants/ui.dart';
+import '../../core/utils_and_services/country_flag_util.dart';
 import '../../widgets/MyExpansionTile.dart';
 import '../../widgets/check_permission.dart';
 import '../home/new_widgets/flight_widget.dart';
@@ -380,12 +381,13 @@ class _OutboxMessageWidgetState extends State<OutboxMessageWidget> {
                             Text("${widget.message.airline ?? ''}${widget.message.flightNumber ?? ''}", style: TextStyle(fontSize: 10)),
                             Text(" / "),
                             Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                            CountryFlag.fromCountryCode(widget.message.nationality, shape: RoundedRectangle(3), width: 15, height: 10),
+                            MyCountryFlagsPro.getFlag(widget.message.nationality, borderRadius: BorderRadius.circular(3), width: 15, height: 10),
+
                             Text(" ${widget.message.nationality}", style: TextStyle(fontSize: 10)),
                             Text(" / "),
                             Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
                             Text("${widget.message.from ?? ''}- ", style: TextStyle(fontSize: 10)),
-                            CountryFlag.fromCountryCode(BasicClass.getAirportByCode(widget.message.to)?.country ?? '', shape: RoundedRectangle(3), width: 15, height: 10),
+                            MyCountryFlagsPro.getFlag(BasicClass.getAirportByCode(widget.message.to)?.country ?? '', borderRadius: BorderRadius.circular(3), width: 15, height: 10),
                             Text(" ${widget.message.to ?? ''}", style: TextStyle(fontSize: 10)),
 
                             // Text("Flight",style: TextStyle(color: Colors.grey),),

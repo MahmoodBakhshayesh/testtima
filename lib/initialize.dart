@@ -327,6 +327,8 @@ Future<void> _initPackages() async {
 
 
 Future<void> disableScreenshot() async {
+  if(kIsWeb) return;
+
   if(Platform.isAndroid || Platform.isIOS) {
     bool result = await _noScreenshot.screenshotOff();
     // listenForScreenshot();
@@ -335,6 +337,7 @@ Future<void> disableScreenshot() async {
 }
 
 Future<void> enableScreenshot() async {
+  if(kIsWeb) return;
   if(Platform.isAndroid || Platform.isIOS) {
     bool result = await _noScreenshot.screenshotOn();
     // listenForScreenshot();

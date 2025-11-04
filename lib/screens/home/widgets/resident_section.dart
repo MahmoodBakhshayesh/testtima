@@ -1,6 +1,6 @@
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -9,6 +9,7 @@ import '../../../core/classes/basic_class.dart';
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/constants/ui.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
+import '../../../core/utils_and_services/country_flag_util.dart';
 import '../../../core/utils_and_services/icomoon_layered_presets_from_css.dart';
 import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
@@ -67,7 +68,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
 
   Widget countryBuilder(dynamic a) => Row(
     children: [
-      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+
       const SizedBox(width: 8),
       Text("$a (${(a as Country).name})"),
     ],
@@ -81,7 +83,8 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           SizedBox(
             width: 15,
             height: 10,
-            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            child:             MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+
           ),
           const SizedBox(width: 4),
           Text(a, style: TextStyle(fontSize: 12)),

@@ -5,7 +5,7 @@ import 'package:abds/core/utils_and_services/stateControllers/passports_state_co
 import 'package:abds/core/utils_and_services/stateControllers/residents_state_controller.dart';
 import 'package:abds/core/utils_and_services/stateControllers/visas_state_controller.dart';
 import 'package:abds/screens/home/widgets/locked_passenger_widget.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/export.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -13,6 +13,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../core/classes/basic_class.dart';
 import '../../../core/constants/ui.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
+import '../../../core/utils_and_services/country_flag_util.dart';
 import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 import '../../../core/utils_and_services/string_utility.dart';
@@ -150,7 +151,7 @@ class PassengerDetailsRow extends ConsumerStatefulWidget {
 class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
   Widget countryBuilder(dynamic a) => Row(
     children: [
-      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      MyCountryFlagsPro.getFlag("$a",width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
       const SizedBox(width: 8),
       Text("$a (${(a as Country).name})"),
     ],
@@ -164,7 +165,10 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
           SizedBox(
             width: 15,
             height: 10,
-            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            child: ClipRRect(borderRadius: BorderRadiusGeometry.circular(2),
+                // child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)
+              child: MyCountryFlagsPro.getFlag(a),
+            ),
           ),
           const SizedBox(width: 4),
           Text(a, style: TextStyle(fontSize: 12)),

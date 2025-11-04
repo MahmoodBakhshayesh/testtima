@@ -7,7 +7,7 @@ import 'package:abds/initialize.dart';
 import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:artemis_utils/artemis_utils.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/export.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -16,6 +16,7 @@ import '../../../core/classes/basic_class.dart';
 import '../../../core/constants/ui.dart';
 import '../../../core/navigation/routes.dart';
 import '../../../core/utils_and_services/artemis_icons_icons.dart';
+import '../../../core/utils_and_services/country_flag_util.dart';
 import '../../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../../core/utils_and_services/stateControllers/segments_state_controller.dart';
 import '../../../core/utils_and_services/timatic/artemis_timatic.dart';
@@ -141,7 +142,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
 
   Widget countryBuilder(dynamic a) => Row(
     children: [
-      ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+      MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+
       const SizedBox(width: 8),
       Text("$a (${(a as Country).name})"),
     ],

@@ -17,7 +17,7 @@ import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
-import 'package:country_flags/country_flags.dart';
+import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
 import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,6 +35,7 @@ import 'package:voice_note_kit/voice_note_kit.dart';
 import '../../../core/classes/constant_data_class.dart';
 import '../../../core/classes/mrz_agg_class.dart';
 import '../../../core/interfaces/success_int.dart';
+import '../../../core/utils_and_services/country_flag_util.dart';
 import '../../../core/utils_and_services/handlers/success_handler.dart';
 import '../../../core/utils_and_services/stateControllers/passports_state_controller.dart';
 import '../../../core/utils_and_services/stateControllers/segments_state_controller.dart';
@@ -482,7 +483,7 @@ class _MyOcrSettingDialogState extends State<AgentDecisionSheet> {
           children: [
             Text("$a"),
             const SizedBox(width: 2),
-            ClipRRect(borderRadius: BorderRadiusGeometry.circular(2), child: CountryFlag.fromCountryCode('${a}', width: 22, height: 16)),
+            MyCountryFlagsPro.getFlag(a, width: 22, height: 16, borderRadius: BorderRadius.circular(2)),
           ],
         );
 }
