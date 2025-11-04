@@ -21,10 +21,10 @@ packages:
     dependency: "direct main"
     description:
       name: app_device_net_info
-      sha256: "7c7be92da78f9d09ee1ff617efaa2138ba0fa0a8fdfb965d81bac9014c705ced"
+      sha256: "5a421f6efcc5e864ead04cd7f818657b587d8df35d8e5922e17245fa6c3a5bb6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.6"
   archive:
     dependency: "direct main"
     description:

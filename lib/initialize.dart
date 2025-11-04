@@ -305,14 +305,14 @@ Future<void> _initPackages() async {
   ParserInterface parser = Parser();
   getIt.registerSingleton(parser);
 
-  if(!kIsWeb) {
+  // if(!kIsWeb) {
     AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
     getIt.registerSingleton(adnd);
-  }else{
-    AppDeviceNetworkData adnd = AppDeviceNetworkData(app: AppInfoData(name: "name", id: ""), device: DeviceInfoData(type: DeviceType.desktop, id: "id", os: OSType.other), network: NetworkInfoData(type: NetworkType.other));
-    getIt.registerSingleton(adnd);
-
-  }
+  // }else{
+  //   AppDeviceNetworkData adnd = AppDeviceNetworkData(app: AppInfoData(name: "TimaCheck", id: "1",versionKey: "0",versionNumber: "0"), device: DeviceInfoData(type: DeviceType.desktop, id: "id", os: OSType.other), network: NetworkInfoData(type: NetworkType.other));
+  //   getIt.registerSingleton(adnd);
+  //
+  // }
 
   // final client = TimaticClient(const TimaticClientOptions(baseUrl: 'https://timatic.multidcs.com/api/v1'));
   // final api = TimaticApi(client);

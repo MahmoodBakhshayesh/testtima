@@ -26,6 +26,7 @@ import '../../core/interfaces/device_info_service_int.dart';
 import '../../core/navigation/routes.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../core/utils_and_services/timatic/src/endpoints.dart';
+import '../../core/utils_and_services/url_resolver.dart';
 import '../../initialize.dart';
 import '../../widgets/MyButton.dart';
 import 'dialogs/server_picker_dialog.dart';
@@ -182,6 +183,8 @@ class LoginController extends ControllerInterface {
   }
 
   Future<void> initServer() async {
+    final baseUrl = BaseUrlResolver.getBaseUrl();
+    log("BaseUrlResolver url $baseUrl");
     String? serverJson = await sharedPref.getVariable(key: "ServerNew");
     log(serverJson ?? '');
     if (serverJson == null) {

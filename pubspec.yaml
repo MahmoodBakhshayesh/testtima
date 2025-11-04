@@ -101,7 +101,7 @@ dependencies:
   dropdown_search: ^6.0.2
 #  country_flags: ^3.3.0
   flutter_hooks: ^0.20.5
-  app_device_net_info: ^0.0.5
+  app_device_net_info: ^0.0.6
   flutter_file_downloader: ^2.1.0
   just_audio: ^0.10.5
   dynamsoft_mrz_scanner_bundle_flutter: ^3.0.5200
