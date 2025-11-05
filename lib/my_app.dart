@@ -8,6 +8,7 @@ import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
 import 'package:abds/screens/outbox/outbox_view.dart';
 import 'package:abds/screens/result_report/result_report_view.dart';
+import 'package:abds/screens/setting_menu/setting_menu_view.dart';
 import 'package:abds/screens/users/users_view.dart';
 import 'package:abds/widgets/global_wrapper.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -81,6 +82,10 @@ class _MyAppState extends ConsumerState<MyApp> {
             ),
             TreeRoute(routeInfo: Routes.barcodeReader, pageWidget: BarcodeReaderView()),
           ],
+        ),
+        TreeRoute(
+          routeInfo: Routes.menuSetting,
+          pageWidget:SettingMenuView(),
         ),
       ],
       navigatorKey: topKey,

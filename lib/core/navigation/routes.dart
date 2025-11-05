@@ -67,6 +67,11 @@ abstract class Routes {
     name: 'profile',
     isShellRoute: false,
   );
+  static MyRouteInfo menuSetting = MyRouteInfo(
+    path: '/menuSetting',
+    name: 'menuSetting',
+    isShellRoute: false,
+  );
   static MyRouteInfo resultReport = MyRouteInfo(
 
     path: 'resultReport',

@@ -53,7 +53,6 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     final user = ref.watch(userProvider);
-
     return SafeArea(
       child: Padding(
         padding: context.getDrawerPadding,
@@ -119,6 +118,16 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             myHomeController.goNamed(Routes.outbox);
                           },
                           leading:  IcomoonLayeredCss.direct_send(),
+                          // trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
+                        ),
+                        DrawerAction(
+                          title: 'Menu Setting',
+                          // permission: LogUiPermission.read(),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            myHomeController.goNamed(Routes.menuSetting);
+                          },
+                          leading:  IcomoonLayeredCss.menu_1(),
                           // trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
 

@@ -16,8 +16,8 @@ class GlobalWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context,WidgetRef ref) {
     Server selectedServer = ref.watch(selectedServerProvider);
-    log(selectedServer.color??'-');
-    log(selectedServer.name??'-');
+    // log(selectedServer.color??'-');
+    // log(selectedServer.name??'-');
     return Directionality(
       textDirection: TextDirection.ltr,
       child:selectedServer.color == null?child: Material(

@@ -118,7 +118,7 @@ class MyExpansionTile extends StatefulWidget {
     this.initiallyExpanded = false,
     this.maintainState = false,
     this.tapOnTitleActive = true,
-    this.tilePadding,
+    this.tilePadding = const EdgeInsets.symmetric(horizontal: 8,vertical: 8),
     this.footerPadding,
     this.expandedCrossAxisAlignment,
     this.expandedAlignment,

@@ -12,6 +12,7 @@ import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/login/usecases/get_cons_data_usecase.dart';
 import 'package:abds/screens/login/usecases/get_publish_server_usecase.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -348,7 +349,7 @@ class LoginController extends ControllerInterface {
   }
 
   checkNotifCount(int? refreshInboxTimer) {
-    if (refreshInboxTimer == null) {
+    if (refreshInboxTimer == null || kDebugMode) {
       return;
     }
     if (ref.read(userProvider) == null) {

@@ -1,30 +1,8 @@
-import 'dart:io';
-import 'dart:math';
-import 'package:abds/core/utils_and_services/platform_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
-import 'package:flutter/material.dart';
 
 extension BuldContextMore on BuildContext {
-  // bool get isMyTablet {
-  //   if (isDesktop) return false;
-  //   var size = MediaQuery.of(this).size;
-  //   var diagonal = sqrt((size.width * size.width) + (size.height * size.height));
-  //
-  //   var isTablet = diagonal > 1100.0;
-  //   return isTablet;
-  //
-  //   double width = MediaQuery.of(this).size.width;
-  //   print(width);
-  //
-  //   return (Platform.isIOS || Platform.isAndroid) && width > 600;
-  // }
-
-  // bool get isDesktop {
-  //   if (kIsWeb && !PlatformHelper.isMobileWeb) return true;
-  //   return Platform.isMacOS || Platform.isWindows;
-  // }
 
   double get width {
     return MediaQuery.of(this).size.width;
