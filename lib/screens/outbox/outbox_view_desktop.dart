@@ -99,7 +99,7 @@ class _OutboxViewDesktopState extends  ConsumerState<OutboxViewDesktop> {
                           return OutboxMessageWidget(
                             key: Key(message.showCode!),
                             onTap: () async {
-                              await myOutboxController.load(message.showCode!);
+                              await myOutboxController.readMsg(message!);
                             },
                             message: message,
                             index: i,

@@ -106,16 +106,16 @@ class Even {
 }
 
 class TableSection {
-  final TableSectionHeader header;
-  final List<Datum> data;
+  final Map<String,dynamic> header;
+  final List<Map<String,dynamic>> data;
 
   TableSection({required this.header, required this.data});
 
-  TableSection copyWith({TableSectionHeader? header, List<Datum>? data}) => TableSection(header: header ?? this.header, data: data ?? this.data);
+  TableSection copyWith({Map<String,dynamic>? header, List<Map<String,dynamic>>? data}) => TableSection(header: header ?? this.header, data: data ?? this.data);
 
-  factory TableSection.fromJson(Map<String, dynamic> json) => TableSection(header: TableSectionHeader.fromJson(json["header"]), data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))));
+  factory TableSection.fromJson(Map<String, dynamic> json) => TableSection(header: json["header"]??{}, data: List<Map<String,dynamic>>.from(json["data"].map((x) =>x)));
 
-  Map<String, dynamic> toJson() => {"header": header.toJson(), "data": List<dynamic>.from(data.map((x) => x.toJson()))};
+  Map<String, dynamic> toJson() => {"header": header, "data": List<dynamic>.from(data.map((x) => x))};
 }
 
 class Datum {

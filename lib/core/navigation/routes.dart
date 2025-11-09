@@ -37,6 +37,11 @@ abstract class Routes {
     name: 'home',
     isShellRoute: false,
   );
+  static MyRouteInfo menuSection = MyRouteInfo(
+    path: 'menuSection',
+    name: 'menuSection',
+    isShellRoute: false,
+  );
   static MyRouteInfo mrzReader = MyRouteInfo(
     path: 'mrzReader',
     name: 'mrzReader',
@@ -70,6 +75,11 @@ abstract class Routes {
   static MyRouteInfo menuSetting = MyRouteInfo(
     path: '/menuSetting',
     name: 'menuSetting',
+    isShellRoute: false,
+  );
+  static MyRouteInfo menuItemAddEdit = MyRouteInfo(
+    path: 'menuItemAddEdit',
+    name: 'menuItemAddEdit',
     isShellRoute: false,
   );
   static MyRouteInfo resultReport = MyRouteInfo(

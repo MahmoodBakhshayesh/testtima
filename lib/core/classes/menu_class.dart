@@ -18,15 +18,11 @@ class SettingMenu {
     final data = source is String ? jsonDecode(source) : source;
 
     if (data is List) {
-      return SettingMenu(
-        sections: data.map((e) => MenuDescriptor.fromJson(_asMap(e))).toList(),
-      );
+      return SettingMenu(sections: data.map((e) => MenuDescriptor.fromJson(_asMap(e))).toList());
     }
     if (data is Map<String, dynamic>) {
       final secs = _asList(data['sections']);
-      return SettingMenu(
-        sections: secs.map((e) => MenuDescriptor.fromJson(_asMap(e))).toList(),
-      );
+      return SettingMenu(sections: secs.map((e) => MenuDescriptor.fromJson(_asMap(e))).toList());
     }
     throw FormatException('Expected a List or a Map with "sections".');
   }
@@ -37,15 +33,12 @@ class SettingMenu {
 
   Map<String, dynamic> toJsonObject() => {'sections': toJson()};
 
-  SettingMenu copyWith({List<MenuDescriptor>? sections}) =>
-      SettingMenu(sections: sections ?? this.sections);
+  SettingMenu copyWith({List<MenuDescriptor>? sections}) => SettingMenu(sections: sections ?? this.sections);
 
   /// Utils
-  MenuDescriptor? byEndpoint(String endpoint) =>
-      sections.where((s) => s.endpoint == endpoint).cast<MenuDescriptor?>().firstWhere((_) => true, orElse: () => null);
+  MenuDescriptor? byEndpoint(String endpoint) => sections.where((s) => s.endpoint == endpoint).cast<MenuDescriptor?>().firstWhere((_) => true, orElse: () => null);
 
-  MenuDescriptor? byTitle(String title) =>
-      sections.where((s) => s.title == title).cast<MenuDescriptor?>().firstWhere((_) => true, orElse: () => null);
+  MenuDescriptor? byTitle(String title) => sections.where((s) => s.title == title).cast<MenuDescriptor?>().firstWhere((_) => true, orElse: () => null);
 }
 
 /// Parse convenience for the raw array or object-with-sections.
@@ -60,54 +53,34 @@ class MenuDescriptor {
   final String endpoint;
   final SchemaNode schema;
 
-  const MenuDescriptor({
-    required this.title,
-    required this.endpoint,
-    required this.schema,
-  });
+  const MenuDescriptor({required this.title, required this.endpoint, required this.schema});
 
   factory MenuDescriptor.fromJson(Map<String, dynamic> json) {
-    return MenuDescriptor(
-      title: _asString(json['title']),
-      endpoint: _asString(json['endpoint']),
-      schema: SchemaNode.fromJson(_asMap(json['schema'])),
-    );
+    return MenuDescriptor(title: _asString(json['title']), endpoint: _asString(json['endpoint']), schema: SchemaNode.fromJson(_asMap(json['schema'])));
   }
 
-  Map<String, dynamic> toJson() => {
-    'title': title,
-    'endpoint': endpoint,
-    'schema': schema.toJson(),
-  };
+  Map<String, dynamic> toJson() => {'title': title, 'endpoint': endpoint, 'schema': schema.toJson()};
 
-  MenuDescriptor copyWith({
-    String? title,
-    String? endpoint,
-    SchemaNode? schema,
-  }) {
-    return MenuDescriptor(
-      title: title ?? this.title,
-      endpoint: endpoint ?? this.endpoint,
-      schema: schema ?? this.schema,
-    );
+  MenuDescriptor copyWith({String? title, String? endpoint, SchemaNode? schema}) {
+    return MenuDescriptor(title: title ?? this.title, endpoint: endpoint ?? this.endpoint, schema: schema ?? this.schema);
   }
 
   getValue(value) {
+    // log("getting value for ${title} from ${(schema.toJson()["items"]["properties"] as Map).keys.join("-")}");
+    if (value is List) {
+      final res = value.where((a) => a.keys.join("-") == (schema.toJson()["items"]["properties"] as Map).keys.join("-")).toList();
+      return res;
+    }
     return value;
-      // log("getting value for ${title} from ${(schema.toJson()["items"]["properties"] as Map).keys.join("-")}");
-      if (value is List) {
-        final res=  value.where((a) => a.keys.join("-") == (schema.toJson()["items"]["properties"] as Map).keys.join("-")).toList();
-        return res;
-      }
-      return value;
   }
+
   getOtherValue(value) {
-      // log("getting value for ${title} from ${(schema.toJson()["items"]["properties"] as Map).keys.join("-")}");
-      if (value is List) {
-        final res=  value.where((a) => a.keys.join("-") != (schema.toJson()["items"]["properties"] as Map).keys.join("-")).toList();
-        return res;
-      }
-      return value;
+    // log("getting value for ${title} from ${(schema.toJson()["items"]["properties"] as Map).keys.join("-")}");
+    if (value is List) {
+      final res = value.where((a) => a.keys.join("-") == (schema.toJson()["items"]["properties"] as Map).keys.join("-")).toList();
+      return res;
+    }
+    return value;
   }
 }
 
@@ -119,8 +92,10 @@ enum SchemaKind { object, array, string, number, boolean }
 
 abstract class SchemaNode {
   final SchemaKind kind;
+  final String? title;
+  final String? desc;
 
-  const SchemaNode(this.kind);
+  const SchemaNode({required this.kind, this.title, this.desc});
 
   factory SchemaNode.fromJson(Map<String, dynamic> json) {
     // normalize "type": ["string"] -> "string"
@@ -131,6 +106,7 @@ abstract class SchemaNode {
     }
 
     final type = _asString(json['type']).trim().toLowerCase();
+
     switch (type) {
       case 'object':
         final props = <String, SchemaProperty>{};
@@ -138,19 +114,50 @@ abstract class SchemaNode {
         rawProps.forEach((key, value) {
           props[key] = SchemaProperty.fromJson(key, _asMap(value));
         });
-        return ObjectSchema(properties: props);
+        return ObjectSchema(properties: props, title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+
       case 'array':
         final items = json['items'];
         if (items == null) throw FormatException('Array schema must contain "items".');
-        return ArraySchema(items: SchemaNode.fromJson(_asMap(items)));
+        return ArraySchema(items: SchemaNode.fromJson(_asMap(items)),title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+
+      // ---- Extended types you asked for ----
+      case 'enum':
+        // Treat as a string primitive with enum values from enumList (fallback to enum)
+        return PrimitiveSchema(kind: SchemaKind.string, enumValues: _readEnumList(json), format: null, title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+
+      case 'objectid':
+        // Treat as a string primitive with a format hint
+        return PrimitiveSchema(kind: SchemaKind.string, enumValues: null, format: 'objectId', title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+
+      // ---- Standard primitives ----
       case 'string':
-      case 'number':
-      case 'boolean':
-        final enumValues = _readEnum(json);
         return PrimitiveSchema(
-          _primitiveKindFrom(type),
-          enumValues: enumValues,
+          kind: SchemaKind.string,
+          enumValues: _readEnumClassicOrList(json),
+          format: _asString(json['format'], fallback: ''),
+          title: json["title"] ?? json["fieldTitle"],
+            desc: json["fieldDescription"]
         );
+
+      case 'number':
+        return PrimitiveSchema(
+          kind: SchemaKind.number,
+          enumValues: _readEnumClassicOrList(json),
+          format: _asString(json['format'], fallback: ''),
+          title: json["title"] ?? json["fieldTitle"],
+            desc: json["fieldDescription"]
+        );
+
+      case 'boolean':
+        return PrimitiveSchema(
+          kind: SchemaKind.boolean,
+          enumValues: _readEnumClassicOrList(json),
+          format: _asString(json['format'], fallback: ''),
+          title: json["title"] ?? json["fieldTitle"],
+            desc: json["fieldDescription"]
+        );
+
       default:
         throw UnsupportedError('Unsupported schema type: "$type"');
     }
@@ -162,46 +169,60 @@ abstract class SchemaNode {
 class ObjectSchema extends SchemaNode {
   final Map<String, SchemaProperty> properties;
 
-  ObjectSchema({required this.properties}) : super(SchemaKind.object);
+  ObjectSchema({required this.properties, required super.title, required super.desc, super.kind = SchemaKind.object});
 
   @override
-  Map<String, dynamic> toJson() => {
-    'type': 'object',
-    'properties': properties.map((k, v) => MapEntry(k, v.toJson())),
-  };
+  Map<String, dynamic> toJson() => {'type': 'object', 'properties': properties.map((k, v) => MapEntry(k, v.toJson()))};
 }
 
 class ArraySchema extends SchemaNode {
   final SchemaNode items;
 
-  ArraySchema({required this.items}) : super(SchemaKind.array);
+  ArraySchema({required this.items, super.kind = SchemaKind.array, super.title, super.desc});
 
   @override
-  Map<String, dynamic> toJson() => {
-    'type': 'array',
-    'items': items.toJson(),
-  };
+  Map<String, dynamic> toJson() => {'type': 'array', 'items': items.toJson()};
 }
 
 class PrimitiveSchema extends SchemaNode {
   /// Optional enum list (for dropdown choices)
   final List<dynamic>? enumValues; // must be a LIST (not String)
 
-  const PrimitiveSchema(SchemaKind kind, {this.enumValues}) : super(kind);
+  /// Optional format hint (e.g., 'objectId', 'email', 'timezone')
+  final String? format;
+
+  const PrimitiveSchema({this.enumValues, this.format, required super.kind, super.title, super.desc});
 
   bool get hasEnum => enumValues != null && enumValues!.isNotEmpty;
 
   @override
   Map<String, dynamic> toJson() {
-    final Map<String,dynamic> base = {
+    final Map<String, dynamic> base = {
       'type': switch (kind) {
         SchemaKind.string => 'string',
         SchemaKind.number => 'number',
         SchemaKind.boolean => 'boolean',
         _ => throw StateError('Invalid PrimitiveSchema kind: $kind'),
-      }
+      },
     };
-    if (hasEnum) base['enum'] = enumValues;
+
+    // Preserve extended types where possible in output
+    if ((format?.toLowerCase() ?? '') == 'objectid') {
+      return {'type': 'objectId'};
+    }
+
+    if (hasEnum && kind == SchemaKind.string && (format == null || format!.isEmpty)) {
+      // Prefer enumList in output, but also include classic enum for compatibility
+      return {'type': 'enum', 'enumList': enumValues, 'enum': enumValues};
+    }
+
+    if (hasEnum) {
+      base['enum'] = enumValues;
+      base['enumList'] = enumValues; // write both for compatibility
+    }
+    if (format != null && format!.isNotEmpty) {
+      base['format'] = format;
+    }
     return base;
   }
 }
@@ -211,11 +232,7 @@ class SchemaProperty {
   final SchemaNode schema;
   final bool required;
 
-  SchemaProperty({
-    required this.name,
-    required this.schema,
-    required this.required,
-  });
+  SchemaProperty({required this.name, required this.schema, required this.required});
 
   factory SchemaProperty.fromJson(String name, Map<String, dynamic> json) {
     final requiredFlag = _asBool(json['required'], fallback: false);
@@ -223,21 +240,10 @@ class SchemaProperty {
     return SchemaProperty(name: name, schema: schema, required: requiredFlag);
   }
 
-  Map<String, dynamic> toJson() => {
-    ...schema.toJson(),
-    'required': required,
-  };
+  Map<String, dynamic> toJson() => {...schema.toJson(), 'required': required};
 
-  SchemaProperty copyWith({
-    String? name,
-    SchemaNode? schema,
-    bool? required,
-  }) {
-    return SchemaProperty(
-      name: name ?? this.name,
-      schema: schema ?? this.schema,
-      required: required ?? this.required,
-    );
+  SchemaProperty copyWith({String? name, SchemaNode? schema, bool? required}) {
+    return SchemaProperty(name: name ?? this.name, schema: schema ?? this.schema, required: required ?? this.required);
   }
 }
 
@@ -249,13 +255,11 @@ dynamic emptyValueForSchema(SchemaNode schema) {
   switch (schema.kind) {
     case SchemaKind.object:
       final obj = schema as ObjectSchema;
-      return {
-        for (final entry in obj.properties.entries)
-          entry.key: emptyValueForSchema(entry.value.schema),
-      };
+      return {for (final entry in obj.properties.entries) entry.key: emptyValueForSchema(entry.value.schema)};
     case SchemaKind.array:
       return <dynamic>[];
     case SchemaKind.string:
+      // For enum/objectId we still default to empty string to force user selection.
       return '';
     case SchemaKind.number:
       return 0;
@@ -268,16 +272,38 @@ List<String> validateAgainstSchema(SchemaNode schema, dynamic value, {String pat
   final errors = <String>[];
   void err(String msg) => errors.add('$path: $msg');
 
+  // Extended primitive checks (format/enum) stay as-is
+  if (schema is PrimitiveSchema) {
+    if ((schema.format?.toLowerCase() ?? '') == 'objectid') {
+      if (value is! String) {
+        err('Expected objectId (string).');
+      } else if (value.isNotEmpty) {
+        final ok = RegExp(r'^[a-fA-F0-9]{24}$').hasMatch(value);
+        if (!ok) err('Invalid ObjectId format.');
+      }
+    }
+    if (schema.hasEnum) {
+      // Only enforce when something is provided (empty string will be caught by required check below)
+      final v = (value is String) ? value.trim() : value?.toString().trim();
+      if (v != null && v.isNotEmpty && !schema.enumValues!.contains(v)) {
+        err('Value not in enum list.');
+      }
+    }
+  }
+
   switch (schema.kind) {
     case SchemaKind.string:
       if (value is! String) err('Expected string.');
       break;
+
     case SchemaKind.number:
       if (value is! num) err('Expected number.');
       break;
+
     case SchemaKind.boolean:
       if (value is! bool) err('Expected boolean.');
       break;
+
     case SchemaKind.array:
       if (value is! List) {
         err('Expected array.');
@@ -288,16 +314,32 @@ List<String> validateAgainstSchema(SchemaNode schema, dynamic value, {String pat
         }
       }
       break;
+
     case SchemaKind.object:
       if (value is! Map) {
         err('Expected object.');
       } else {
         final obj = schema as ObjectSchema;
+
+        // 1) Presence check for required fields
         for (final p in obj.properties.values) {
           if (p.required && !value.containsKey(p.name)) {
             errors.add('$path.${p.name}: Missing required field.');
           }
         }
+
+        // 2) Emptiness check for required fields (your rule set)
+        for (final p in obj.properties.values) {
+          if (!value.containsKey(p.name)) continue; // already reported missing
+          final v = value[p.name];
+
+          if (p.required && _isEmptyForRequired(p.schema, v)) {
+            errors.add('$path.${p.name}: Required field is empty.');
+            // Even if empty, still recurse to catch type errors if you want; usually you can skip.
+          }
+        }
+
+        // 3) Recurse into children (for both required/optional if present)
         for (final entry in obj.properties.entries) {
           final key = entry.key;
           if (value.containsKey(key)) {
@@ -310,6 +352,7 @@ List<String> validateAgainstSchema(SchemaNode schema, dynamic value, {String pat
 
   return errors;
 }
+
 
 /// Build a map of path -> list of messages (for inline errors).
 Map<String, List<String>> buildErrorIndex(List<String> flatErrors) {
@@ -361,14 +404,9 @@ dynamic updateAtPath(dynamic root, String path, dynamic newValue) {
   return walk(deepClone(root), 1);
 }
 
-dynamic newEmptyDataForSection(MenuDescriptor section) =>
-    emptyValueForSchema(section.schema);
+dynamic newEmptyDataForSection(MenuDescriptor section) => emptyValueForSchema(section.schema);
 
-List<Map<String, dynamic>> upsertByKey({
-  required List<Map<String, dynamic>> array,
-  required String keyName,
-  required Map<String, dynamic> item,
-}) {
+List<Map<String, dynamic>> upsertByKey({required List<Map<String, dynamic>> array, required String keyName, required Map<String, dynamic> item}) {
   final key = item[keyName];
   if (key == null) return [...array, item];
   final idx = array.indexWhere((e) => e[keyName] == key);
@@ -392,11 +430,30 @@ SchemaKind _primitiveKindFrom(String t) => switch (t) {
   _ => throw ArgumentError('Not a primitive type: $t'),
 };
 
+/// Reads classic `"enum": [...]` only.
 List<dynamic>? _readEnum(Map<String, dynamic> json) {
   final e = json['enum'];
   if (e == null) return null;
   if (e is List) return e;
   throw FormatException('"enum" must be a List.');
+}
+
+/// Reads `"enumList": [...]`, fallback to classic `"enum": [...]`.
+List<dynamic>? _readEnumList(Map<String, dynamic> json) {
+  final e1 = json['enumList'];
+  if (e1 is List) return e1;
+  final e2 = json['enum'];
+  if (e2 is List) return e2;
+  return null;
+}
+
+/// Reads either `"enumList"` or `"enum"` for standard primitive cases.
+List<dynamic>? _readEnumClassicOrList(Map<String, dynamic> json) {
+  final e1 = json['enum'];
+  if (e1 is List) return e1;
+  final e2 = json['enumList'];
+  if (e2 is List) return e2;
+  return null;
 }
 
 class _PathToken {
@@ -405,12 +462,9 @@ class _PathToken {
   final int? index;
   final String? key;
 
-  _PathToken.index(this.raw, this.index)
-      : isIndex = true,
-        key = null;
-  _PathToken.key(this.raw, this.key)
-      : isIndex = false,
-        index = null;
+  _PathToken.index(this.raw, this.index) : isIndex = true, key = null;
+
+  _PathToken.key(this.raw, this.key) : isIndex = false, index = null;
 }
 
 List<_PathToken> _tokenizePath(String path) {
@@ -477,3 +531,29 @@ bool _asBool(dynamic v, {bool fallback = false}) {
   }
   return fallback;
 }
+
+bool _isEmptyForRequired(SchemaNode schema, dynamic value) {
+  if (value == null) return true;
+
+  switch (schema.kind) {
+    case SchemaKind.string:
+    // Treat empty/whitespace string as empty
+      return value is String ? value.trim().isEmpty : value.toString().trim().isEmpty;
+
+    case SchemaKind.array:
+    // IMPORTANT: you said empty list is valid
+      return false;
+
+    case SchemaKind.object:
+    // Present object is considered non-empty at this level; children handle their own "required"
+      return false;
+
+    case SchemaKind.number:
+    case SchemaKind.boolean:
+    // 0 and false are valid values
+      return false;
+  }
+}
+
+
+

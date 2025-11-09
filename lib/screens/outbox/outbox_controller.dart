@@ -9,6 +9,7 @@ import '../../initialize.dart';
 import '../home/home_controller.dart';
 import '../home/home_state.dart';
 import '../inbox/usecases/get_messages_usecase.dart';
+import '../inbox/usecases/read_msg_usecase.dart';
 import 'outbox_state.dart';
 
 
@@ -35,14 +36,34 @@ class OutboxController extends ControllerInterface {
     return messages;
   }
 
-  goMessageDetails(String messageCode) async {
-    final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: messageCode,code: null);
-    if(refHistory!=null){
-      // ref.read(refCodeProvider.notifier).update((s)=>messageCode);
-      navigation.pop();
+  Future<bool> readMsg(OutboxMessage msg) async {
+    bool read = false;
+    ReadMsgUseCase readMsgUseCase = ReadMsgUseCase();
+    ReadMsgRequest readMsgRequest = ReadMsgRequest(id: msg.id);
+    final result = await readMsgUseCase(request: readMsgRequest);
+
+    switch (result) {
+      case Err<ReadMsgResponse>():
+        FailureHandler.handle(result.error);
+
+      case Ok<ReadMsgResponse>():
+        final r = result.value;
+        ref.read(currentStatusProvider.notifier).update((s)=>r.currentStatus);
+        getIt<HomeController>().fillWithRefHistory(r.history, null, msg.showCode);
+        navigation.pop();
     }
+
+    return read;
   }
-  load(String messageCode) async {
-    final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: messageCode,code: null);
-  }
+
+  // goMessageDetails(String messageCode) async {
+  //   final refHistory = await getIt<HomeController>().getRefHistoryLog(showCode: messageCode,code: null);
+  //   if(refHistory!=null){
+  //     // ref.read(refCodeProvider.notifier).update((s)=>messageCode);
+  //     navigation.pop();
+  //   }
+  // }
+  // load(String messageCode) async {
+  //   final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: messageCode,code: null);
+  // }
 }

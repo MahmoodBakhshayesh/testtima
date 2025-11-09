@@ -81,7 +81,7 @@ class _OutboxViewPhoneState extends State<OutboxViewPhone> {
                           return OutboxMessageWidget(
                             key: Key(message.showCode!),
                             onTap: () async {
-                              await myOutboxController.goMessageDetails(message.showCode!);
+                              await myOutboxController.readMsg(message);
                             },
                             message: message,
                             index: i,

@@ -63,7 +63,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
     tabBarController.addListener(() {
       setState(() {});
     });
-    from = BasicClass.user?.attributes["defaultAirport"] ?? "";
+    // from = BasicClass.user?.attributes["defaultAirport"] ?? "";
     super.initState();
   }
 
@@ -77,7 +77,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
     final headerBg = MyColors.green2.withOpacity(0.26);
     final bodyBg = MyColors.green2.withOpacity(0.12);
 
-    List<String> detailsFrom = reportDetails.map((a) => a.from).toSet().toList();
+    List<String> detailsFrom = reportDetails.map((a) => a.airportAirline??'').toSet().toList();
     // List<OverallPerformance> timOk = overalls.where((a) => a.timaticResult == 1).toList();
     // List<OverallPerformance> timNotOk = overalls.where((a) => a.timaticResult == 2).toList();
     // List<OverallPerformance> timCon = overalls.where((a) => a.timaticResult == 3).toList();
@@ -409,6 +409,16 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                             decoration: BoxDecoration(
                                               border: Border(right: BorderSide(color: MyColors.lineColor)),
                                             ),
+                                            child: Center(child: Text("FROM", style: TextStyle(fontSize: 10))),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                            ),
                                             child: Center(child: Text("DATE", style: TextStyle(fontSize: 9, wordSpacing: 0))),
                                           ),
                                         ),
@@ -473,7 +483,7 @@ class _PerformanceViewPhoneState extends State<PerformanceViewPhone> with Single
                                             itemCount: detailsFrom.length,
                                             itemBuilder: (c, i) {
                                               String from = detailsFrom[i];
-                                              final items = reportDetails.where((a) => a.from == from).toList();
+                                              final items = reportDetails.where((a) => a.airportAirline == from).toList();
                                               return MyExpansionTile(
                                                 initiallyExpanded: true,
                                                 showFooter: false,
@@ -745,12 +755,22 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
+                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                ),
+                child: Center(child: Text(widget.log.from == widget.log.airportAirline?'':widget.log.from, style: GoogleFonts.chivoMono(fontSize: 10))),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
                   border: Border(
                     right: BorderSide(color: MyColors.lineColor),
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text("${DateFormat("dd MMM").format(widget.log.createdAt.toLocal())}", style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
+                child: Center(child: Text(DateFormat("dd MMM").format(widget.log.createdAt.toLocal()), style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
               ),
             ),
             Expanded(
@@ -760,7 +780,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text("${widget.log.to}", style: GoogleFonts.chivoMono(fontSize: 10))),
+                child: Center(child: Text(widget.log.to, style: GoogleFonts.chivoMono(fontSize: 10))),
               ),
             ),
             Expanded(
@@ -841,7 +861,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                   children: [
                     SizedBox(),
                     Expanded(
-                      child: Text("${widget.log.totalResultRole ?? ''}", style: TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
+                      child: Text(widget.log.totalResultRole ?? '', style: TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
                     ),
                     // BasicClass.getResultOfCode(widget.log.totalResult).getIconWidgetMini,
                     Text(BasicClass.getResultOfCode(widget.log.totalResult).title, style: TextStyle(fontSize: 8, color: BasicClass.getResultOfCode(widget.log.totalResult).getColor)),

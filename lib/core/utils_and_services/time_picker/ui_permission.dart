@@ -75,5 +75,17 @@ class ConnectionUiPermission extends UiPermission {
   String getLabel() => label;
 }
 
+class SuperAdminUiPermission extends UiPermission {
+  final int flag;
+  final String label;
+  final UiPermissionGroup group;
+  SuperAdminUiPermission(this.group,this.flag,this.label);
+
+  factory SuperAdminUiPermission.read() => SuperAdminUiPermission(UiPermissionGroup.report,1,"Superadmin");
+
+  @override
+  String getLabel() => label;
+}
+
 
 

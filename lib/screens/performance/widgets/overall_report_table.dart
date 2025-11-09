@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/constants/ui.dart';
@@ -87,8 +88,9 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                     final fgD = header.column.map((a) => _hex(a.fontColorValue)).toList();
                     final headerData = header.column.map((h)=>h.text).toList();
                     final sectionHeader =section.header;
-                    final sectionHeaderValues = sectionHeader.toJson().values.map((a) => a["value"].toString()).toList();
-                    final sectionHeaderQueries = sectionHeader.toJson().values.map((a) => a["q"].toString()).toList();
+                    final sectionHeaderValues = sectionHeader.values.map((a) => a["value"].toString()).toList();
+                    final sectionHeaderQueries = sectionHeader.values.map((a) => a["q"].toString()).toList();
+                    // return SizedBox();
                     return MyExpansionTile(
                       initiallyExpanded: true,
                       // collapsedBackgroundColor: Colors.red,
@@ -112,8 +114,8 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                       children: [
                         ...sectionRows.map((r) {
                           final int i = sectionRows.indexOf(r);
-                          final row = r.toJson().values.map((a) => a["value"].toString()).toList();
-                          final rowQueries = r.toJson().values.map((a) => a["q"].toString()).toList();
+                          final row = r.values.map((a) => a["value"].toString()).toList();
+                          final rowQueries = r.values.map((a) => a["q"].toString()).toList();
                           final rowIsEven = i % 2 == 0;
                           final rowStripe = rowIsEven ? rowStyle.even : rowStyle.odd;
                           return _RowStrip(

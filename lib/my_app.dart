@@ -4,6 +4,8 @@ import 'package:abds/screens/cupps/cupps_view.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_view.dart';
 import 'package:abds/screens/inbox/inbox_view.dart';
 import 'package:abds/screens/logs/logs_view.dart';
+import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_view.dart';
+import 'package:abds/screens/menu_section/menu_section_view.dart';
 import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
 import 'package:abds/screens/outbox/outbox_view.dart';
@@ -85,7 +87,20 @@ class _MyAppState extends ConsumerState<MyApp> {
         ),
         TreeRoute(
           routeInfo: Routes.menuSetting,
-          pageWidget:SettingMenuView(),
+          pageWidget:SettingMenuView(
+          ),
+          routes: [
+            TreeRoute(
+              routeInfo: Routes.menuSection,
+              pageWidget: MenuSectionView(),
+              routes: [
+                TreeRoute(
+                  routeInfo: Routes.menuItemAddEdit,
+                  pageWidget: MenuItemAddEditView(),
+                ),
+              ]
+            ),
+          ]
         ),
       ],
       navigatorKey: topKey,

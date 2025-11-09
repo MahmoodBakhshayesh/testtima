@@ -3,11 +3,12 @@ import 'dart:developer';
 
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
-import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart' show UserUiPermission, LogUiPermission, UiPermission, ReportUiPermission, ConnectionUiPermission;
+import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart' show UserUiPermission, LogUiPermission, UiPermission, ReportUiPermission, ConnectionUiPermission, SuperAdminUiPermission;
 import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/inbox/inbox_state.dart';
 import 'package:abds/screens/outbox/outbox_state.dart';
 import 'package:abds/screens/result_report/result_report_state.dart';
+import 'package:abds/screens/setting_menu/setting_menu_controller.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -122,8 +123,9 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                         ),
                         DrawerAction(
                           title: 'Menu Setting',
-                          // permission: LogUiPermission.read(),
-                          onTap: () {
+                          permission: SuperAdminUiPermission.read(),
+                          onTap: () async {
+                            await getIt<SettingMenuController>().getMenu();
                             Navigator.of(context).pop();
                             myHomeController.goNamed(Routes.menuSetting);
                           },
@@ -242,6 +244,7 @@ class DrawerAction extends StatefulWidget {
   final Callback? onTap;
   final bool dense;
   final Color? color;
+  final Color? borderColor;
   final Widget? trailing;
   final UiPermission? permission;
   final Widget? leadingWidget;
@@ -249,7 +252,9 @@ class DrawerAction extends StatefulWidget {
   final double radius;
 
 
-  const DrawerAction({super.key, required this.title, this.leading, required this.onTap, this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission, this.leadingWidget, this.tileColor, this.radius =0.0});
+  const DrawerAction({super.key,
+    this.borderColor,
+    required this.title, this.leading, required this.onTap, this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission, this.leadingWidget, this.tileColor, this.radius =0.0});
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -285,9 +290,9 @@ class _DrawerActionState extends State<DrawerAction> {
     if (!validatePermission()) return SizedBox();
     return Container(
       decoration: BoxDecoration(
-          color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(0.08),
+          color: widget.tileColor?? (Color(0xffABABAB)).withOpacity(0.08),
           borderRadius: BorderRadiusGeometry.circular(widget.radius),
-          border: Border.all(color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(1),)),
+          border:widget.borderColor==null?BoxBorder.all(color: Colors.transparent): Border.all(color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(1),)),
       width: double.infinity,
       child: ListTile(
         onTap: _onTap,
@@ -300,9 +305,10 @@ class _DrawerActionState extends State<DrawerAction> {
               : 0,
         ),
         dense: true,
-        leading:widget.leading?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
+        leading:widget.leadingWidget??widget.leading?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
         title: Row(
           children: [
+            // ?widget.leadingWidget,
             Expanded(
               child: Text(
                 widget.title,

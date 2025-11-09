@@ -33,6 +33,7 @@ class LogReportDetail {
   final String to;
   final int totalResult;
   final String? totalResultRole;
+  final String? airportAirline;
   final int? airlineApproval;
   final int? agentDecision;
   final List<ReportDetailSupervisor> supervisor;
@@ -48,6 +49,7 @@ class LogReportDetail {
     required this.employeeId,
     required this.flightDt,
     required this.flightNumber,
+    required this.airportAirline,
     required this.from,
     required this.nationality,
     required this.timaticResult,
@@ -68,6 +70,7 @@ class LogReportDetail {
     String? airline,
     String? documentNumber,
     String? employeeId,
+    String? airportAirline,
     DateTime? flightDt,
     String? flightNumber,
     String? from,
@@ -87,6 +90,7 @@ class LogReportDetail {
         createdAt: createdAt ?? this.createdAt,
         status: status ?? this.status,
         airline: airline ?? this.airline,
+        airportAirline: airportAirline ?? this.airportAirline,
         documentNumber: documentNumber ?? this.documentNumber,
         employeeId: employeeId ?? this.employeeId,
         flightDt: flightDt ?? this.flightDt,
@@ -109,6 +113,7 @@ class LogReportDetail {
     createdAt: DateTime.parse(json["createdAt"]),
     status: json["status"],
     airline: json["airline"]??'',
+    airportAirline: json["airportAirline"]??'',
     documentNumber: json["documentNumber"],
     employeeId: json["employeeId"],
     flightDt: DateTime.parse(json["flightDT"]),

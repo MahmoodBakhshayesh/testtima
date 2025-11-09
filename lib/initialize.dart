@@ -9,6 +9,8 @@ import 'package:abds/screens/cupps/cupps_controller.dart';
 import 'package:abds/screens/dynamsoft_mrz/dynamsoft_mrz_controller.dart';
 import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:abds/screens/logs/logs_controller.dart';
+import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_controller.dart';
+import 'package:abds/screens/menu_section/menu_section_controller.dart';
 import 'package:abds/screens/message_details/message_details_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/outbox/outbox_controller.dart';
@@ -258,6 +260,8 @@ Future<void> initNavigation() async {
   ResultReportController resultReportController = ResultReportController();
   CuppsController cuppsController = CuppsController();
   SettingMenuController settingMenuController = SettingMenuController();
+  MenuSectionController menuSectionController = MenuSectionController();
+  MenuItemAddEditController menuItemAddEditController = MenuItemAddEditController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -275,6 +279,8 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(resultReportController);
   getIt.registerSingleton(cuppsController);
   getIt.registerSingleton(settingMenuController);
+  getIt.registerSingleton(menuSectionController);
+  getIt.registerSingleton(menuItemAddEditController);
 
   TreeNavigation.navigator.registerAllControllers({
     Routes.login: loginController,

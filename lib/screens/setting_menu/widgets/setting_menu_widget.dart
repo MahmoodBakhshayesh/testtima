@@ -1,59 +1,70 @@
 // settings_menu_widgets_v2.dart
 import 'dart:developer';
-
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/initialize.dart';
 import 'package:abds/screens/setting_menu/setting_menu_controller.dart';
+import 'package:abds/widgets/MyDropDown.dart';
 import 'package:abds/widgets/MyExpansionTile.dart';
+import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../../../core/classes/menu_class.dart';
+import '../../../core/classes/menu_class.dart'; // your updated models (with enum/objectId)
 
-/// A full screen that lists sections on the left and renders an editor on the right.
-/// Keeps per-section form state in memory.
-///
 final headerBgColor = Colors.blue.withOpacity(0.3);
 final bodyBgColor = Colors.blue.withOpacity(0.15);
 
 class SettingsMenuScreen extends StatefulWidget {
   final SettingMenu menu;
+  final bool loading;
   final Map<String, dynamic>? initialValuesByEndpoint;
   final Future<void> Function(MenuDescriptor section, dynamic data)? onSave;
 
-  const SettingsMenuScreen({super.key, required this.menu, this.initialValuesByEndpoint, this.onSave});
+  const SettingsMenuScreen({super.key, required this.menu, this.initialValuesByEndpoint, this.onSave, required this.loading});
 
   @override
   State<SettingsMenuScreen> createState() => _SettingsMenuScreenState();
+
 }
 
 class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
   int _selected = 0;
-  // late final Map<String, dynamic> _values; // endpoint -> data
+
+  /// Endpoint -> data (owned copy)
+  late Map<String, dynamic> _values;
 
   List<MenuDescriptor> get _sections => widget.menu.sections;
 
   @override
   void initState() {
     super.initState();
-    // _values = {};
-    // for (final s in _sections) {
-    //   _values[s.endpoint] = widget.initialValuesByEndpoint?[s.endpoint] ?? newEmptyDataForSection(s);
-    // }
+    _values = {};
+    for (final s in _sections) {
+      final provided = widget.initialValuesByEndpoint?[s.endpoint];
+      _values[s.endpoint] = (provided != null) ? deepClone(provided) : newEmptyDataForSection(s);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant SettingsMenuScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If parent passes new initial values after init, merge them in.
+    if (widget.initialValuesByEndpoint != oldWidget.initialValuesByEndpoint && widget.initialValuesByEndpoint != null) {
+      setState(() {
+        for (final s in _sections) {
+          final incoming = widget.initialValuesByEndpoint![s.endpoint];
+          if (incoming != null) {
+            _values[s.endpoint] = deepClone(incoming);
+          }
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    log(widget.initialValuesByEndpoint.toString());
     final section = _sections[_selected];
-
-    // if(!(widget.initialValuesByEndpoint?.containsKey(section.endpoint)??true)){
-    //   return SizedBox();
-    // }
-    var _values = widget.initialValuesByEndpoint??{};
-
-    log("${_values[section.endpoint]}");
-    log("${(_values[section.endpoint] as List).length}");
-
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -62,7 +73,10 @@ class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
         final nav = NavigationRail(
           selectedIndex: _selected,
           onDestinationSelected: (i) {
-            getIt<SettingMenuController>().loadData(section);
+            if(_selected == i){
+              return;
+            }
+            getIt<SettingMenuController>().loadData(_sections[i]);
             setState(() => _selected = i);
           },
           labelType: NavigationRailLabelType.all,
@@ -74,7 +88,14 @@ class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
           child: SettingsSectionEditorV2(
             section: section,
             initialValue: _values[section.endpoint],
-            onChanged: (v) => _values[section.endpoint] = v,
+            onLoad: (){
+              getIt<SettingMenuController>().loadData(section);
+            },
+            onChanged: (v) {
+              setState(() {
+                _values[section.endpoint] = deepClone(v);
+              });
+            },
             onSubmit: widget.onSave == null
                 ? null
                 : () async {
@@ -85,14 +106,13 @@ class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
           ),
         );
 
-        log(isWide.toString());
         if (isWide) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: 280, child: nav),
               const VerticalDivider(width: 1),
-              Expanded(child: editor),
+              Expanded(child: widget.loading?SpinKitThreeBounce(color: context.mainColor,size: 100,):editor),
             ],
           );
         } else {
@@ -107,6 +127,7 @@ class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
                       title: Text(_sections[i].title),
                       selected: i == _selected,
                       onTap: () {
+                        getIt<SettingMenuController>().loadData(_sections[i]);
                         setState(() => _selected = i);
                         Navigator.pop(context);
                       },
@@ -115,7 +136,7 @@ class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
               ),
             ),
             appBar: AppBar(title: Text(section.title)),
-            body: editor,
+            body: widget.loading?SpinKitThreeBounce(color: context.mainColor,size: 100,):editor,
           );
         }
       },
@@ -123,7 +144,7 @@ class _SettingsMenuScreenState extends State<SettingsMenuScreen> {
   }
 }
 
-/// Section editor with enum dropdowns, inline errors, and array drag-reorder.
+/// Section editor with enum dropdowns, inline errors, array drag-reorder.
 class SettingsSectionEditorV2 extends StatefulWidget {
   final MenuDescriptor section;
   final dynamic initialValue;
@@ -131,40 +152,52 @@ class SettingsSectionEditorV2 extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final String? saveButtonText;
   final VoidCallback? onSubmit;
+  final VoidCallback? onLoad;
 
-  const SettingsSectionEditorV2({super.key, required this.section, this.initialValue, this.onChanged, this.padding = const EdgeInsets.all(0), this.saveButtonText, this.onSubmit});
+  const SettingsSectionEditorV2({super.key, required this.section, this.initialValue, this.onChanged,this.onLoad, this.padding = const EdgeInsets.all(0), this.saveButtonText, this.onSubmit});
 
   @override
   State<SettingsSectionEditorV2> createState() => _SettingsSectionEditorV2State();
 }
 
 class _SettingsSectionEditorV2State extends State<SettingsSectionEditorV2> {
-  // late dynamic _value;
-  late Map<String, List<String>> _errorIndex;
+  late dynamic _value; // owned local value for this section
+  Map<String, List<String>> _errorIndex = {};
 
   @override
   void initState() {
     super.initState();
-    // _value = widget.initialValue ?? newEmptyDataForSection(widget.section);
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      var data = getIt<SettingMenuController>().loadData(widget.section);
-    });
+    _value = widget.section.getValue(widget.initialValue ?? newEmptyDataForSection(widget.section));
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   getIt<SettingMenuController>().loadData(widget.section);
+    // });
     _revalidate();
   }
 
+  @override
+  void didUpdateWidget(covariant SettingsSectionEditorV2 oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      setState(() {
+        _value = widget.section.getValue(widget.initialValue ?? newEmptyDataForSection(widget.section));
+        _revalidate();
+      });
+    }
+  }
+
   void _revalidate() {
+    // If you want runtime validation:
     // final flat = validateAgainstSchema(widget.section.schema, _value);
     // _errorIndex = buildErrorIndex(flat);
+    _errorIndex = {};
   }
 
   void _updateValue(dynamic newValue) {
-    // var others = widget.section.getOtherValue(_value);
-    // var update = [...others, ...newValue];
-    // setState(() {
-    //   _value = update;
-    //   _revalidate();
-    // });
-    // widget.onChanged?.call(update);
+    setState(() {
+      _value = deepClone(newValue);
+      _revalidate();
+    });
+    widget.onChanged?.call(_value);
   }
 
   @override
@@ -172,8 +205,7 @@ class _SettingsSectionEditorV2State extends State<SettingsSectionEditorV2> {
     final title = widget.section.title;
     final endpoint = widget.section.endpoint;
     final hasErrors = _errorIndex.isNotEmpty;
-    var _value = widget.initialValue;
-    log(_value.toString());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -184,11 +216,11 @@ class _SettingsSectionEditorV2State extends State<SettingsSectionEditorV2> {
             ),
             Align(
               alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(onPressed: widget.onSubmit, icon: const Icon(Icons.save), label: Text("Load")),
+              child: ElevatedButton.icon(onPressed: widget.onLoad, icon: const Icon(Icons.cloud_download_outlined), label: const Text("Load")),
             ),
             if (widget.onSubmit != null)
-              Align(
-                alignment: Alignment.centerRight,
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
                 child: ElevatedButton.icon(onPressed: widget.onSubmit, icon: const Icon(Icons.save), label: Text(widget.saveButtonText ?? 'Save')),
               ),
           ],
@@ -196,7 +228,9 @@ class _SettingsSectionEditorV2State extends State<SettingsSectionEditorV2> {
         const SizedBox(height: 12),
         if (hasErrors) _SummaryBanner(errors: _errorIndex),
         Expanded(
-          child: SingleChildScrollView(child: SchemaNodeEditorV2(schema: widget.section.schema, value: widget.section.getValue(_value), onChanged: _updateValue, path: widget.section.title.split(" ").last, errorIndex: _errorIndex)),
+          child: SingleChildScrollView(
+            child: SchemaNodeEditorV2(schema: widget.section.schema, value: _value, onChanged: _updateValue, path: widget.section.title.split(" ").last, errorIndex: _errorIndex),
+          ),
         ),
         const SizedBox(height: 16),
       ],
@@ -212,70 +246,48 @@ class SchemaNodeEditorV2 extends StatelessWidget {
   final String path;
   final Map<String, List<String>> errorIndex;
   final bool requiredFlag; // from parent property, if applicable
+  final String? labelOverride;
 
-  const SchemaNodeEditorV2({super.key, required this.schema, required this.value, required this.onChanged, required this.path, required this.errorIndex, this.requiredFlag = false});
+  const SchemaNodeEditorV2({super.key, required this.schema, required this.value, required this.onChanged, required this.path, required this.errorIndex, this.requiredFlag = false, this.labelOverride});
 
   @override
   Widget build(BuildContext context) {
-    // if(value != null){
-    //   log("we have value for ${schema.kind}");
-    // }
     switch (schema.kind) {
       case SchemaKind.object:
-        return _ObjectEditorV2(schema: schema as ObjectSchema, value: (value is Map) ? value as Map<String, dynamic> : <String, dynamic>{}, onChanged: onChanged, path: path, errorIndex: errorIndex);
+        return _ObjectEditorV2(schema: schema as ObjectSchema, value: _toStringKeyMap(value), onChanged: onChanged, path: path, errorIndex: errorIndex);
       case SchemaKind.array:
         return _ArrayEditorV2(schema: schema as ArraySchema, value: (value is List) ? value as List<dynamic> : <dynamic>[], onChanged: onChanged, path: path, errorIndex: errorIndex);
       case SchemaKind.string:
       case SchemaKind.number:
       case SchemaKind.boolean:
         final p = schema as PrimitiveSchema;
-        final label = _labelFromPath(path);
+        final label = labelOverride ?? _labelFromPath(path);
         final errs = errorIndex[path] ?? const [];
+
         if (p.hasEnum) {
-          return _EnumField(
+          return _EnumField(key: ValueKey(path), label: label, value: value, onChanged: onChanged, enumValues: p.enumValues!, requiredFlag: requiredFlag, errors: errs, kind: schema.kind);
+        }
+
+        if ((p.format?.toLowerCase() ?? '') == 'objectid') {
+          return SizedBox();
+          final idValue = _objectIdFromAny(value);
+          return _ObjectIdFieldV2(
             key: ValueKey(path),
-            // ✅ stable per-field key
             label: label,
-            value: value,
+            value: idValue,
             onChanged: onChanged,
-            enumValues: p.enumValues!,
             requiredFlag: requiredFlag,
             errors: errs,
-            kind: schema.kind,
           );
         }
-        // regular primitive fields
+
         switch (schema.kind) {
           case SchemaKind.string:
-            return _StringFieldV2(
-              key: ValueKey(path),
-              // ✅ stable per-field key
-              label: label,
-              value: value is String ? value : '',
-              onChanged: onChanged,
-              requiredFlag: requiredFlag,
-              errors: errs,
-            );
+            return _StringFieldV2(key: ValueKey(path), label: label, value: value is String ? value : '', onChanged: onChanged, requiredFlag: requiredFlag, errors: errs);
           case SchemaKind.number:
-            return _NumberFieldV2(
-              key: ValueKey(path),
-              // ✅ stable per-field key
-              label: label,
-              value: (value is num) ? value : 0,
-              onChanged: (num v) => onChanged(v),
-              requiredFlag: requiredFlag,
-              errors: errs,
-            );
+            return _NumberFieldV2(key: ValueKey(path), label: label, value: (value is num) ? value : 0, onChanged: (num v) => onChanged(v), requiredFlag: requiredFlag, errors: errs);
           case SchemaKind.boolean:
-            return _BoolFieldV2(
-              key: ValueKey(path),
-              // ✅ stable per-field key
-              label: label,
-              value: value is bool ? value : false,
-              onChanged: (bool v) => onChanged(v),
-              requiredFlag: requiredFlag,
-              errors: errs,
-            );
+            return _BoolFieldV2(key: ValueKey(path), label: label, value: value is bool ? value : false, onChanged: (bool v) => onChanged(v), requiredFlag: requiredFlag, errors: errs);
           default:
             return const SizedBox.shrink();
         }
@@ -283,7 +295,6 @@ class SchemaNodeEditorV2 extends StatelessWidget {
   }
 }
 
-/// ----- Object Editor (with required badges & inline errors on groups) -----
 class _ObjectEditorV2 extends StatelessWidget {
   final ObjectSchema schema;
   final Map<String, dynamic> value;
@@ -295,158 +306,93 @@ class _ObjectEditorV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final children = <Widget>[];
-    int level = path.split(".").length;
-    // log("level $level");
+    final level = path.split(".").length;
+
     if (level == 1) {
       return MyExpansionTile(
         title: Text(path),
-        childrenPadding: EdgeInsets.symmetric(horizontal: 8),
+        childrenPadding: const EdgeInsets.symmetric(horizontal: 8),
         backgroundColor: Colors.greenAccent.withOpacity(0.12),
         collapsedBackgroundColor: Colors.greenAccent.withOpacity(0.12),
         showFooter: false,
-        children: schema.properties
-            .map((key, prop) {
-              final nextPath = '$path.$key';
-              final current = value[key] ?? emptyValueForSchema(prop.schema);
-              final groupErrs = errorIndex[nextPath] ?? const [];
+        children: schema.properties.entries.map((entry) {
+          final key = entry.key;
+          final prop = entry.value;
+          final nextPath = '$path.$key';
+          final current = value[key] ?? emptyValueForSchema(prop.schema);
 
-              return MapEntry(
-                key,
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: SchemaNodeEditorV2(
-                    schema: prop.schema,
-                    value: current,
-                    onChanged: (dynamic newChildValue) {
-                      final updated = Map<String, dynamic>.from(value);
-                      updated[key] = newChildValue;
-                      onChanged(updated);
-                    },
-                    path: nextPath,
-                    errorIndex: errorIndex,
-                    requiredFlag: prop.required,
-                  ),
-                ),
-              );
-            })
-            .values
-            .toList(),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: SchemaNodeEditorV2(
+              schema: prop.schema,
+              value: current,
+              onChanged: (dynamic newChildValue) {
+                final updated = Map<String, dynamic>.from(value);
+                updated[key] = deepClone(newChildValue);
+                onChanged(updated);
+              },
+              path: nextPath,
+              errorIndex: errorIndex,
+              requiredFlag: prop.required,
+              labelOverride: _humanizeLabel(key), // or use your property titles if you stored them
+            ),
+          );
+        }).toList(),
       );
     }
+
     if (schema.properties.length < 4) {
       return Row(
         spacing: 12,
-        children: schema.properties
-            .map((key, prop) {
-              final nextPath = '$path.$key';
-              final current = value[key] ?? emptyValueForSchema(prop.schema);
-              final groupErrs = errorIndex[nextPath] ?? const [];
-              // log("${key}  - ${nextPath}");
-
-              return MapEntry(
-                key,
-                Expanded(
-                  child: SchemaNodeEditorV2(
-                    schema: prop.schema,
-                    value: current,
-                    onChanged: (dynamic newChildValue) {
-                      final updated = Map<String, dynamic>.from(value);
-                      updated[key] = newChildValue;
-                      onChanged(updated);
-                    },
-                    path: nextPath,
-                    errorIndex: errorIndex,
-                    requiredFlag: prop.required,
-                  ),
-                ),
-              );
-            })
-            .values
-            .toList(),
+        children: schema.properties.entries.map((entry) {
+          final key = entry.key;
+          final prop = entry.value;
+          final nextPath = '$path.$key';
+          final current = value[key] ?? emptyValueForSchema(prop.schema);
+          return Expanded(
+            child: SchemaNodeEditorV2(
+              schema: prop.schema,
+              value: current,
+              onChanged: (dynamic newChildValue) {
+                final updated = Map<String, dynamic>.from(value);
+                updated[key] = deepClone(newChildValue);
+                onChanged(updated);
+              },
+              path: nextPath,
+              errorIndex: errorIndex,
+              requiredFlag: prop.required,
+              labelOverride: _humanizeLabel(key),
+            ),
+          );
+        }).toList(),
       );
     }
+
     return Column(
       spacing: 8,
-      children: schema.properties
-          .map((key, prop) {
-            final nextPath = '$path.$key';
-            final current = value[key] ?? emptyValueForSchema(prop.schema);
-            final groupErrs = errorIndex[nextPath] ?? const [];
-            // log("${key}  - ${nextPath}");
-
-            return MapEntry(
-              key,
-              SchemaNodeEditorV2(
-                schema: prop.schema,
-                value: current,
-                onChanged: (dynamic newChildValue) {
-                  final updated = Map<String, dynamic>.from(value);
-                  updated[key] = newChildValue;
-                  onChanged(updated);
-                },
-                path: nextPath,
-                errorIndex: errorIndex,
-                requiredFlag: prop.required,
-              ),
-            );
-          })
-          .values
-          .toList(),
+      children: schema.properties.entries.map((entry) {
+        final key = entry.key;
+        final prop = entry.value;
+        final nextPath = '$path.$key';
+        final current = value[key] ?? emptyValueForSchema(prop.schema);
+        return SchemaNodeEditorV2(
+          schema: prop.schema,
+          value: current,
+          onChanged: (dynamic newChildValue) {
+            final updated = Map<String, dynamic>.from(value);
+            updated[key] = deepClone(newChildValue);
+            onChanged(updated);
+          },
+          path: nextPath,
+          errorIndex: errorIndex,
+          requiredFlag: prop.required,
+          labelOverride: _humanizeLabel(key),
+        );
+      }).toList(),
     );
-
-    schema.properties.forEach((key, prop) {
-      final nextPath = '$path.$key';
-      final current = value[key] ?? emptyValueForSchema(prop.schema);
-      final groupErrs = errorIndex[nextPath] ?? const [];
-      log(nextPath);
-      children.add(
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (prop.schema is! PrimitiveSchema)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6, left: 2),
-                  child: Row(
-                    children: [
-                      Text(_humanizeLabel(key), style: Theme.of(context).textTheme.titleMedium),
-                      if (prop.required)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 6),
-                          child: Text('*', style: TextStyle(color: Colors.red)),
-                        ),
-                    ],
-                  ),
-                ),
-              SchemaNodeEditorV2(
-                schema: prop.schema,
-                value: current,
-                onChanged: (dynamic newChildValue) {
-                  final updated = Map<String, dynamic>.from(value);
-                  updated[key] = newChildValue;
-                  onChanged(updated);
-                },
-                path: nextPath,
-                errorIndex: errorIndex,
-                requiredFlag: prop.required,
-              ),
-              if (groupErrs.isNotEmpty) _InlineError(groupErrs),
-            ],
-          ),
-        ),
-      );
-    });
-
-    // if(children.length<3){
-    //   return Row(children: children);
-    // }
-    return Column(children: children);
   }
 }
 
-/// ----- Array Editor with Reorderable + stable keys to preserve focus -----
 class _ArrayEditorV2 extends StatelessWidget {
   final ArraySchema schema;
   final List<dynamic> value;
@@ -487,27 +433,25 @@ class _ArrayEditorV2 extends StatelessWidget {
                 if (newIndex > oldIndex) newIndex -= 1;
                 final updated = List<dynamic>.from(value);
                 final item = updated.removeAt(oldIndex);
-                updated.insert(newIndex, item);
+                updated.insert(newIndex, deepClone(item)); // CLONE on move
                 onChanged(updated);
               },
               itemBuilder: (_, index) {
-                // final itemPath = '$path[$index]';
-                final itemPath = '${path} ${index + 1}';
+                final internalPath = '$path[$index]'; // stable
+                final prettyLabel = '$path ${index + 1}';
                 final itemValue = value[index];
 
-                // ✅ Stable key that does NOT depend on the item value
-                // (prevents losing focus while typing)
-                final itemKey = ValueKey(itemPath);
+                final itemKey = ValueKey(internalPath);
 
                 final content = SchemaNodeEditorV2(
                   schema: schema.items,
                   value: itemValue,
                   onChanged: (dynamic v) {
                     final updated = List<dynamic>.from(value);
-                    updated[index] = v;
+                    updated[index] = deepClone(v); // CLONE on replace
                     onChanged(updated);
                   },
-                  path: itemPath,
+                  path: prettyLabel,
                   errorIndex: errorIndex,
                 );
 
@@ -517,7 +461,25 @@ class _ArrayEditorV2 extends StatelessWidget {
                     Expanded(child: content),
                     Row(
                       children: [
-                        ReorderableDragStartListener(index: index, child: Icon(Icons.drag_indicator)),
+                        ReorderableDragStartListener(index: index, child: const Icon(Icons.drag_indicator)),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () {
+                            final updated = List<dynamic>.from(value)..removeAt(index);
+                            onChanged(updated);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+                final childPhone = Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: content),
+                    Column(
+                      children: [
+                        // ReorderableDragStartListener(index: index, child: const Icon(Icons.drag_indicator)),
                         IconButton(
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () {
@@ -530,14 +492,15 @@ class _ArrayEditorV2 extends StatelessWidget {
                   ],
                 );
 
-                return Padding(key: itemKey, padding: const EdgeInsets.only(bottom: 12), child: child);
+                return Padding(key: itemKey, padding: const EdgeInsets.only(bottom: 12), child:context.isDesktop? child:childPhone);
               },
             ),
             Row(
               children: [
                 OutlinedButton.icon(
                   onPressed: () {
-                    final updated = List<dynamic>.from(value)..add(emptyValueForSchema(schema.items));
+                    final newItem = emptyValueForSchema(schema.items);
+                    final updated = List<dynamic>.from(value)..add(deepClone(newItem)); // CLONE
                     onChanged(updated);
                   },
                   icon: const Icon(Icons.add),
@@ -562,7 +525,7 @@ class _ArrayEditorV2 extends StatelessWidget {
   }
 }
 
-/// ----- Primitive: String (with stable key support) -----
+/// ---- String ----
 class _StringFieldV2 extends StatefulWidget {
   final String label;
   final String value;
@@ -570,14 +533,7 @@ class _StringFieldV2 extends StatefulWidget {
   final bool requiredFlag;
   final List<String> errors;
 
-  const _StringFieldV2({
-    super.key, // ✅ allow passing a ValueKey(path)
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.requiredFlag,
-    required this.errors,
-  });
+  const _StringFieldV2({super.key, required this.label, required this.value, required this.onChanged, required this.requiredFlag, required this.errors});
 
   @override
   State<_StringFieldV2> createState() => _StringFieldV2State();
@@ -610,15 +566,74 @@ class _StringFieldV2State extends State<_StringFieldV2> {
   Widget build(BuildContext context) {
     final label = widget.requiredFlag ? '${_humanizeLabel(widget.label)} *' : _humanizeLabel(widget.label);
     return MyTextFieldNew(headerBgColor: headerBgColor, bodyBgColor: bodyBgColor, controller: _c, label: label.isEmpty ? null : label, onChanged: widget.onChanged);
-    return TextField(
-      controller: _c,
-      decoration: InputDecoration(labelText: label.isEmpty ? null : label, border: const OutlineInputBorder(), isDense: true, errorText: widget.errors.isNotEmpty ? widget.errors.join('\n') : null),
-      onChanged: widget.onChanged,
+  }
+}
+
+/// ---- ObjectId (24-hex) ----
+class _ObjectIdFieldV2 extends StatefulWidget {
+  final String label;
+  final String value;
+  final ValueChanged<String> onChanged;
+  final bool requiredFlag;
+  final List<String> errors;
+
+  const _ObjectIdFieldV2({super.key, required this.label, required this.value, required this.onChanged, required this.requiredFlag, required this.errors});
+
+  @override
+  State<_ObjectIdFieldV2> createState() => _ObjectIdFieldV2State();
+}
+
+class _ObjectIdFieldV2State extends State<_ObjectIdFieldV2> {
+  late final TextEditingController _c;
+  static final _re = RegExp(r'^[a-fA-F0-9]{0,24}$');
+
+  @override
+  void initState() {
+    super.initState();
+    _c = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ObjectIdFieldV2 oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value && _c.text != widget.value) {
+      _c.text = widget.value;
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final label = widget.requiredFlag ? '${_humanizeLabel(widget.label)} *' : _humanizeLabel(widget.label);
+    final errorText = widget.errors.isNotEmpty ? widget.errors.join('\n') : null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyTextFieldNew(
+          headerBgColor: headerBgColor,
+          bodyBgColor: bodyBgColor,
+          controller: _c,
+          label: label.isEmpty ? null : '$label (24-hex)',
+          onChanged: (s) {
+            if (_re.hasMatch(s)) widget.onChanged(s);
+          },
+        ),
+        if (errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 4),
+            child: Text(errorText, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
+          ),
+      ],
     );
   }
 }
 
-/// ----- Primitive: Number (with stable key support) -----
+/// ---- Number ----
 class _NumberFieldV2 extends StatefulWidget {
   final String label;
   final num value;
@@ -626,14 +641,7 @@ class _NumberFieldV2 extends StatefulWidget {
   final bool requiredFlag;
   final List<String> errors;
 
-  const _NumberFieldV2({
-    super.key, // ✅ allow passing a ValueKey(path)
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.requiredFlag,
-    required this.errors,
-  });
+  const _NumberFieldV2({super.key, required this.label, required this.value, required this.onChanged, required this.requiredFlag, required this.errors});
 
   @override
   State<_NumberFieldV2> createState() => _NumberFieldV2State();
@@ -677,19 +685,10 @@ class _NumberFieldV2State extends State<_NumberFieldV2> {
         if (parsed != null) widget.onChanged(parsed);
       },
     );
-    return TextField(
-      controller: _c,
-      decoration: InputDecoration(labelText: label.isEmpty ? null : label, border: const OutlineInputBorder(), isDense: true, errorText: widget.errors.isNotEmpty ? widget.errors.join('\n') : null),
-      keyboardType: TextInputType.number,
-      onChanged: (s) {
-        final parsed = num.tryParse(s);
-        if (parsed != null) widget.onChanged(parsed);
-      },
-    );
   }
 }
 
-/// ----- Primitive: Boolean (with stable key support) -----
+/// ---- Boolean ----
 class _BoolFieldV2 extends StatelessWidget {
   final String label;
   final bool value;
@@ -697,14 +696,7 @@ class _BoolFieldV2 extends StatelessWidget {
   final bool requiredFlag;
   final List<String> errors;
 
-  const _BoolFieldV2({
-    super.key, // ✅ allow passing a ValueKey(path)
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.requiredFlag,
-    required this.errors,
-  });
+  const _BoolFieldV2({super.key, required this.label, required this.value, required this.onChanged, required this.requiredFlag, required this.errors});
 
   @override
   Widget build(BuildContext context) {
@@ -733,31 +725,44 @@ class _BoolFieldV2 extends StatelessWidget {
   }
 }
 
-/// ----- Enum dropdown (with stable key support) -----
+/// ---- Enum ----
 class _EnumField extends StatelessWidget {
   final String label;
-  final dynamic value; // selected value (single)
+  final dynamic value;
   final ValueChanged<dynamic> onChanged;
-  final List<dynamic> enumValues; // the whole list
+  final List<dynamic> enumValues;
   final bool requiredFlag;
   final List<String> errors;
   final SchemaKind kind;
 
-  const _EnumField({
-    super.key, // ✅ allow passing a ValueKey(path)
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.enumValues,
-    required this.requiredFlag,
-    required this.errors,
-    required this.kind,
-  });
+  const _EnumField({super.key, required this.label, required this.value, required this.onChanged, required this.enumValues, required this.requiredFlag, required this.errors, required this.kind});
 
   @override
   Widget build(BuildContext context) {
     final labelText = requiredFlag ? '${_humanizeLabel(label)} *' : _humanizeLabel(label);
-
+    return MyFieldPicker(
+      value: value,
+      label: labelText.isEmpty ? null : labelText,
+      headerBgColor: headerBgColor,
+      bodyBgColor: bodyBgColor,
+      items: enumValues,
+      onChange: (v) {
+        if (v == null) return;
+        switch (kind) {
+          case SchemaKind.number:
+            if (v is num) onChanged(v);
+            break;
+          case SchemaKind.boolean:
+            if (v is bool) onChanged(v);
+            break;
+          case SchemaKind.string:
+            onChanged(v.toString());
+            break;
+          default:
+            onChanged(v);
+        }
+      },
+    );
     return DropdownButtonFormField<dynamic>(
       value: enumValues.contains(value) ? value : null,
       decoration: InputDecoration(labelText: labelText.isEmpty ? null : labelText, border: const OutlineInputBorder(), isDense: true, errorText: errors.isNotEmpty ? errors.join('\n') : null),
@@ -782,8 +787,7 @@ class _EnumField extends StatelessWidget {
   }
 }
 
-/// ----- Banners / helpers -----
-
+/// ---- Banners / helpers ----
 class _Header extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -874,4 +878,33 @@ String _enumLabel(dynamic v) {
   if (v is String) return v;
   if (v is bool) return v ? 'True' : 'False';
   return v.toString();
+}
+
+Map<String, dynamic> _toStringKeyMap(dynamic v) {
+  if (v is Map<String, dynamic>) return v;
+  if (v is Map) {
+    return v.map((k, val) => MapEntry(k.toString(), val));
+  }
+  return <String, dynamic>{};
+}
+
+List<dynamic> _toList(dynamic v) {
+  if (v is List<dynamic>) return v;
+  if (v is List) return List<dynamic>.from(v);
+  return <dynamic>[];
+}
+
+String _objectIdFromAny(dynamic v) {
+  if (v == null) return '';
+  if (v is String) return v;
+  if (v is Map) {
+    final oid = v[r'$oid'] ?? v['oid'] ?? v['\$oid'];
+    if (oid is String) return oid;
+  }
+  return v.toString();
+}
+
+String _sanitizeHex24(String s) {
+  final onlyHex = s.replaceAll(RegExp(r'[^0-9a-fA-F]'), '');
+  return onlyHex.length <= 24 ? onlyHex : onlyHex.substring(0, 24);
 }

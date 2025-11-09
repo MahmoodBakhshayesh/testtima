@@ -892,9 +892,11 @@ class HomeController extends ControllerInterface {
   }
 
   refreshResults() {
+    String? showCode = ref.read(refCodeProvider);
+    if (showCode == null) {
+      getRefHistoryLog(code: null, showCode: showCode);
+    }
     String? refCode = ref.read(refCodeProvider);
-    log("refreshResults");
-
     if (refCode == null) {
       return;
     }

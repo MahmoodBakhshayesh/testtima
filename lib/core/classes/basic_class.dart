@@ -119,6 +119,10 @@ class BasicClass {
       return up.maskOf("connection")>0;
     }
 
+    if (permission is SuperAdminUiPermission) {
+      return up.maskOf("superadmin")>0;
+    }
+
     return false;
   }
 

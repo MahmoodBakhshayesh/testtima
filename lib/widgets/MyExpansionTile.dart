@@ -602,7 +602,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
         textColor: _headerColor.value,
         child:InkWell(
           hoverColor: Colors.transparent,
-          onTap: _tileController.isExpanded ? _tileController.collapse : _tileController.expand,
+          onTap: !widget.enabled?null:_tileController.isExpanded ? _tileController.collapse : _tileController.expand,
           child: Container(
             padding: widget.tilePadding,
             child: Column(
