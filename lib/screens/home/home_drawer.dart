@@ -245,6 +245,7 @@ class DrawerAction extends StatefulWidget {
   final bool dense;
   final Color? color;
   final Color? borderColor;
+  final Color? iconColor;
   final Widget? trailing;
   final UiPermission? permission;
   final Widget? leadingWidget;
@@ -254,7 +255,7 @@ class DrawerAction extends StatefulWidget {
 
   const DrawerAction({super.key,
     this.borderColor,
-    required this.title, this.leading, required this.onTap, this.leadingIcon, this.dense = false, this.color, this.trailing, this.permission, this.leadingWidget, this.tileColor, this.radius =0.0});
+    required this.title, this.leading, required this.onTap, this.leadingIcon,  this.iconColor, this.dense = false, this.color, this.trailing, this.permission, this.leadingWidget, this.tileColor, this.radius =0.0});
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -305,7 +306,7 @@ class _DrawerActionState extends State<DrawerAction> {
               : 0,
         ),
         dense: true,
-        leading:widget.leadingWidget??widget.leading?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: c),
+        leading:widget.leadingWidget??widget.leading?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color:widget.iconColor?? c),
         title: Row(
           children: [
             // ?widget.leadingWidget,

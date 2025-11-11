@@ -119,8 +119,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                             spacing: 8,
                             children: [
                               DrawerAction(
-                                tileColor: Colors.white,
-                                borderColor: Colors.grey,
+                                tileColor: Colors.blueAccent.withOpacity(0.18),
+                                borderColor: Colors.blueAccent,
+                                iconColor: Colors.blueAccent,
                                 radius: 8,
                                 title: "Agent Decision",
                                 onTap: () async {
@@ -143,8 +144,10 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               ),
                               ?ref.watch(currentStatusProvider).canAskSupervisor?
                               DrawerAction(
-                                tileColor: Colors.white,
-                                borderColor: Colors.grey,
+                                tileColor: Colors.blueAccent.withOpacity(0.18),
+                                borderColor: Colors.blueAccent,
+                                iconColor: Colors.blueAccent,
+
                                 radius: 8,
                                 title: "Ask Supervisor",
                                 onTap: () async {
@@ -167,8 +170,10 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 leadingIcon: ArtemisIcons.message_question,
                               ):null,
                               DrawerAction(
-                                tileColor: Colors.white,
-                                borderColor: Colors.grey,
+                                iconColor: Colors.blueAccent,
+
+                                tileColor: Colors.blueAccent.withOpacity(0.18),
+                                borderColor: Colors.blueAccent,
                                 radius: 8,
                                 title: "Airline Representative Decision",
                                 onTap: () async {
@@ -190,8 +195,10 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 leadingIcon: ArtemisIcons.airplane_square,
                               ),
                               DrawerAction(
-                                tileColor: Colors.white,
-                                borderColor: Colors.grey,
+                                tileColor: Colors.blueAccent.withOpacity(0.18),
+                                borderColor: Colors.blueAccent,
+                                iconColor: Colors.blueAccent,
+
                                 radius: 8,
                                 title: "Add Attachment",
                                 onTap: () async {
