@@ -196,6 +196,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
               SizedBox(
                 width: 165,
                 child: MySwitchButton(
+                  rowLabelRatio: [4,3],
                   value: seg.luggageCollected ?? false,
                   onChanged: (a) {
                     seg = seg.copyWith(luggageCollected: a);
@@ -585,6 +586,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                     children: [
                       Expanded(
                         child: MySwitchButton(
+                          rowLabelRatio: [4,3],
                           value: seg.luggageCollected ?? false,
                           onChanged: (a) {
                             seg = seg.copyWith(luggageCollected: a);
@@ -636,6 +638,7 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                   SizedBox(
                     width: 165,
                     child: MySwitchButton(
+                      rowLabelRatio: [4,3],
                       value: seg.luggageCollected ?? false,
                       onChanged: (a) {
                         seg = seg.copyWith(luggageCollected: a);
@@ -1197,11 +1200,13 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
 
               const SizedBox(height: 12),
               widget.isLast
+
                   ? Row(
                       spacing: 12,
                       children: [
                         Expanded(
                           child: MySwitchButton(
+                            rowLabelRatio: [4,3],
                             value: seg.luggageCollected ?? false,
                             onChanged: (a) {
                               seg = seg.copyWith(luggageCollected: a);

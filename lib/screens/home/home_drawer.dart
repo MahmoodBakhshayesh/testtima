@@ -292,7 +292,7 @@ class _DrawerActionState extends State<DrawerAction> {
       decoration: BoxDecoration(
           color: widget.tileColor?? (Color(0xffABABAB)).withOpacity(0.08),
           borderRadius: BorderRadiusGeometry.circular(widget.radius),
-          border:widget.borderColor==null?BoxBorder.all(color: Colors.transparent): Border.all(color:  (widget.tileColor??Color(0xffABABAB)).withOpacity(1),)),
+          border:widget.borderColor==null?BoxBorder.all(color: Colors.transparent): Border.all(color:  (widget.borderColor??Color(0xffABABAB)).withOpacity(1),)),
       width: double.infinity,
       child: ListTile(
         onTap: _onTap,

@@ -10,6 +10,7 @@ import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:flutter/material.dart';
 
+import '../utils_and_services/country_flag_util.dart';
 import 'basic_class.dart';
 
 TimaticResponseNew timaticResponseNewFromJson(String str) => TimaticResponseNew.fromJson(json.decode(str));
@@ -93,7 +94,7 @@ class Segment {
           "${from!.airport} - ",
           style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),
         ),
-        CountryFlagsPro.getFlag(to!.country!, width: 20, height: 15, borderRadius: BorderRadius.circular(4)),
+        MyCountryFlagsPro.getFlag(to!.country!,  borderRadius: BorderRadius.circular(4)),
         Text(
           " ${to!.airport}",
           style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w500),

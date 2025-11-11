@@ -47,7 +47,7 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
   TextEditingController idC = TextEditingController();
   bool invalidId = false;
   final buttonKey = GlobalKey<MyButtonState>();
-
+  final int maxLength = 10;
 
   @override
   void initState() {
@@ -106,7 +106,7 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                     Padding(
                       padding: const EdgeInsets.only(top: 12.0,left: 12,right: 12),
                       child: CupertinoTextField(
-                        maxLength: 6,
+                        maxLength: maxLength,
                         enabled: false,
                         textAlign: TextAlign.center,
                         decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(8), color: invalidId ? Colors.red.withOpacity(0.12) : MyColors.lineColor),
@@ -128,7 +128,7 @@ class _AskEmployeeIDSheetState extends State<AskEmployeeIDSheet> {
                       ],
                     ),
                     CupertinoNumericKeyboard(
-                      maxLength: 6,
+                      maxLength: maxLength,
                       controller: idC,
                       submitKeyKey: buttonKey,
                       onDone: idC.text.isEmpty

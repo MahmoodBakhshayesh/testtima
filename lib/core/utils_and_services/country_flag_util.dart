@@ -784,7 +784,7 @@ class MyCountryFlagsPro {
   /// - [height]: The height of the flag (default is 50.0).
   ///
   /// If the country code is invalid, an error widget is displayed.
-  static Widget getFlag(String countryCode,
+  static Widget getFlag(dynamic countryCode,
       {double width = 22.0,
         double height = 16.0,
         BoxFit fit = BoxFit.fill,
@@ -795,6 +795,7 @@ class MyCountryFlagsPro {
         Widget? errorWidget
       }) {
     // Validate the country code
+    countryCode = "${countryCode}";
     if(countryCode.length==3){
       countryCode = "$countryCode";
       countryCode = iso3ToIso2(countryCode)??countryCode;
@@ -811,6 +812,7 @@ class MyCountryFlagsPro {
 
     /// Helper widget to display an error message.
     return Container(
+      key: Key(countryCode),
       width: width,
       height: height,
       decoration: BoxDecoration(

@@ -119,7 +119,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                             spacing: 8,
                             children: [
                               DrawerAction(
-                                tileColor: MyColors.mainBlue,
+                                tileColor: Colors.white,
+                                borderColor: Colors.grey,
+                                radius: 8,
                                 title: "Agent Decision",
                                 onTap: () async {
                                   String? logId = getIt<HomeController>().ref.read(refCodeProvider);
@@ -141,7 +143,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                               ),
                               ?ref.watch(currentStatusProvider).canAskSupervisor?
                               DrawerAction(
-                                tileColor: MyColors.mainBlue,
+                                tileColor: Colors.white,
+                                borderColor: Colors.grey,
+                                radius: 8,
                                 title: "Ask Supervisor",
                                 onTap: () async {
                                   List<Supervisor>? supervisors = await myHomeController.getSupervisors();
@@ -163,7 +167,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 leadingIcon: ArtemisIcons.message_question,
                               ):null,
                               DrawerAction(
-                                tileColor: MyColors.mainBlue,
+                                tileColor: Colors.white,
+                                borderColor: Colors.grey,
+                                radius: 8,
                                 title: "Airline Representative Decision",
                                 onTap: () async {
                                   String? logId = getIt<HomeController>().ref.read(refCodeProvider);
@@ -184,7 +190,9 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 leadingIcon: ArtemisIcons.airplane_square,
                               ),
                               DrawerAction(
-                                tileColor: MyColors.mainBlue,
+                                tileColor: Colors.white,
+                                borderColor: Colors.grey,
+                                radius: 8,
                                 title: "Add Attachment",
                                 onTap: () async {
                                   String? logId = getIt<HomeController>().ref.read(refCodeProvider);

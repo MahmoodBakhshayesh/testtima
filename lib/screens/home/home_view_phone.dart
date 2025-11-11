@@ -796,7 +796,7 @@ class HeaderSummaryWidget extends ConsumerWidget {
       ? SizedBox()
       : Row(
           children: [
-            MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+            MyCountryFlagsPro.getFlag("${a}",width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
 
             const SizedBox(width: 2),
             Text("$a",style: TextStyle(fontSize: 12),),

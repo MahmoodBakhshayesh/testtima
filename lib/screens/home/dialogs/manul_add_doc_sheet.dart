@@ -67,6 +67,7 @@ class _MyOcrSettingDialogState extends State<ManualAddDocumentSheet> {
                   return Padding(
                     padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8),
                     child: DrawerAction(
+                      radius: 8,
                       tileColor: dt.getColor.withOpacity(0.2),
                       onTap: () async {
                         final ref = getIt<HomeController>().ref;
