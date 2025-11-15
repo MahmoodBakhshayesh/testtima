@@ -77,7 +77,11 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
       if (att.type.toLowerCase() == "string") {
         attributes.putIfAbsent(att.name, () => TextEditingController(text: ''));
       } else if (att.type.toLowerCase() == "enum") {
-        attributes.putIfAbsent(att.name, () => null);
+        var value;
+        if(att.getOverrideList.length==1){
+          value = att.getOverrideList;
+        }
+        attributes.putIfAbsent(att.name, () => value);
       } else if (att.type.toLowerCase() == "date") {
         attributes.putIfAbsent(att.name, () => null);
       } else if (att.type.toLowerCase() == "boolean") {

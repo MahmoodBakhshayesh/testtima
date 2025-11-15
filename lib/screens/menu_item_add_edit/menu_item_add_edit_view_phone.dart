@@ -41,11 +41,23 @@ class _MenuItemAddEditViewPhoneState extends ConsumerState<MenuItemAddEditViewPh
       return;
     }
     log(changed.runtimeType.toString());
-    if ((changed[0] as Map).containsKey("_id")) {
-      await myMenuItemAddEditController.addItem(schema, changed);
-    } else {
-      await myMenuItemAddEditController.saveItem(schema, changed);
+    if(changed is Map){
+      log("changed is Map and ${(changed as Map).containsKey("_id")}");
+      if ((changed as Map).containsKey("_id")) {
+        await myMenuItemAddEditController.saveItem(schema, changed);
+      } else {
+        await myMenuItemAddEditController.addItem(schema, changed);
+      }
+    }else if(changed is List){
+      log("changed is list Map and ${(changed[0] as Map).containsKey("_id")}");
+
+      if ((changed[0] as Map).containsKey("_id")) {
+        await myMenuItemAddEditController.saveItem(schema, changed);
+      } else {
+        await myMenuItemAddEditController.addItem(schema, changed);
+      }
     }
+
   }
 
   @override

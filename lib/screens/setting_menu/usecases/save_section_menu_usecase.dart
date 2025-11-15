@@ -45,6 +45,13 @@ class SaveSectionMenuResponse extends ResponseInterface {
 
   factory SaveSectionMenuResponse.fromResponse(ResponseInterface res) {
     log(jsonEncode(res.body));
+    if(res.body is Map && (res.body as Map).containsKey("_id")){
+      return SaveSectionMenuResponse(
+        status: res.status,
+        message: res.message,
+        menus:[res.body],
+      );
+    }
     return SaveSectionMenuResponse(
         status: res.status,
         message: res.message,

@@ -77,7 +77,11 @@ class _EditUserDialogState extends State<EditUserDialog> {
         if (att.type.toLowerCase() == "string") {
           attributes.putIfAbsent(att.name, () => TextEditingController(text: widget.user.userAttribute[att.name]));
         } else if (att.type.toLowerCase() == "enum") {
-          attributes.putIfAbsent(att.name, () => widget.user.userAttribute[att.name]);
+          var value = widget.user.userAttribute[att.name];
+          if(att.getOverrideList.length==1){
+            value = value??att.getOverrideList;
+          }
+          attributes.putIfAbsent(att.name, () => value);
         } else if (att.type.toLowerCase() == "date") {
           attributes.putIfAbsent(att.name, () => DateTime.tryParse(widget.user.userAttribute[att.name]));
         } else if (att.type.toLowerCase() == "boolean") {
@@ -197,7 +201,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             child: MyTextFieldNew(headerBgColor: headerBg, bodyBgColor: bodyBg, label: att.title, placeholder: att.title, controller: attributes[att.name]),
                           );
                         } else if (att.type == "enum") {
-                          final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
+                          final overrideList = att.getOverrideList;
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
@@ -257,7 +261,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
                             ),
                           );
                         } else if (att.type == "multiselectlist") {
-                          final overrideList = BasicClass.constData.data.toJson()["${att.listItemName}"];
+                          final overrideList = att.getOverrideList;
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12.0),
