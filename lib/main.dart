@@ -26,20 +26,22 @@ void main() async {
   // );
   await init();
 
-  FlutterError.onError = (FlutterErrorDetails details) {
-    Zone.current.handleUncaughtError(details.exception, details.stack??StackTrace.fromString("-"));
-  };
+  // FlutterError.onError = (FlutterErrorDetails details) {
+  //   Zone.current.handleUncaughtError(details.exception, details.stack??StackTrace.fromString("-"));
+  // };
+  //
+  // PlatformDispatcher.instance.onError = (error, stack) {
+  //   _handleError(error, stack);
+  //   return true; // handled
+  // };
 
-  PlatformDispatcher.instance.onError = (error, stack) {
-    _handleError(error, stack);
-    return true; // handled
-  };
+  runApp(  ProviderScope(child: RouteProvider(child: MyApp())));
 
-  runZonedGuarded(() {
-    runApp(  ProviderScope(child: RouteProvider(child: MyApp())));
-  }, (error, stack) {
-    _handleError(error, stack);
-  });
+  // runZonedGuarded(() {
+  //   runApp(  ProviderScope(child: RouteProvider(child: MyApp())));
+  // }, (error, stack) {
+  //   _handleError(error, stack);
+  // });
 
   // runApp( const ProviderScope(child: MyApp()));
 }

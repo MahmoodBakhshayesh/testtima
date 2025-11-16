@@ -12,6 +12,7 @@ import 'package:abds/screens/home/home_state.dart';
 import 'package:abds/screens/login/usecases/get_cons_data_usecase.dart';
 import 'package:abds/screens/login/usecases/get_publish_server_usecase.dart';
 import 'package:app_device_net_info/app_device_net_info.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -62,12 +63,16 @@ class LoginController extends ControllerInterface {
     if (["appleuser", "googleuser"].contains(username.toLowerCase())) {
       String? publishApi = await getPublishServer();
     }
+    final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+
+    final firebase = {"apnsToken": apnsToken, "fcmToken": fcmToken};
     // DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     // DeviceInfo deviceInfo = deviceInfoService.getInfo();
     AppDeviceNetworkData adnd = getIt<AppDeviceNetworkData>();
     LoginData? user;
     LoginUseCase loginUseCase = LoginUseCase();
-    LoginRequest loginRequest = LoginRequest(username: username, password: password, app: adnd.app.toJson(), device: adnd.device.toJson(), network: adnd.network.toJson());
+    LoginRequest loginRequest = LoginRequest(firebase: firebase, username: username, password: password, app: adnd.app.toJson(), device: adnd.device.toJson(), network: adnd.network.toJson());
     final fOrR = await loginUseCase(request: loginRequest);
 
     switch (fOrR) {
@@ -93,9 +98,9 @@ class LoginController extends ControllerInterface {
         // final tData = await getIt<HomeController>().preloadAll();
         checkNotifCount(user.setting?.refreshInboxTimer);
         final bool canScreenShot = user.permission.hasFlag("user", 64);
-        if(canScreenShot){
+        if (canScreenShot) {
           enableScreenshot();
-        }else{
+        } else {
           disableScreenshot();
         }
         loadSupervisors();
@@ -190,7 +195,7 @@ class LoginController extends ControllerInterface {
     log(serverJson ?? '');
     if (serverJson == null) {
       serverSelect(showDialog: false).then((a) {
-        if(a.isNotEmpty) {
+        if (a.isNotEmpty) {
           Server server = a.firstWhere((a) => a.serverDefault, orElse: () => a.first);
           // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
           log("we found default server ${server.toJson()}");
@@ -203,10 +208,10 @@ class LoginController extends ControllerInterface {
     } else {
       Server s = Server.fromJson(jsonDecode(serverJson));
 
-      if(!s.apiAddress.contains("v1")){
+      if (!s.apiAddress.contains("v1")) {
         log("we found saved server ${s.toJson()}");
         saveServer(s);
-      }else{
+      } else {
         serverSelect(showDialog: false).then((a) {
           Server server = a.firstWhere((a) => a.serverDefault, orElse: () => a.first);
           // server = server.copyWith(apiAddress: "${server!.apiAddress}$apiVersion");
@@ -217,7 +222,6 @@ class LoginController extends ControllerInterface {
           initNetworkManager(server.apiAddress);
         });
       }
-
     }
   }
 
@@ -380,7 +384,7 @@ class LoginController extends ControllerInterface {
     String key = "${ref.read(selectedServerProvider).id}/${getIt<AppDeviceNetworkData>().app.versionKey}/constantData";
     log("CachedConstData key $key");
     final String? constJson = await sharedPref.getVariable(key: key);
-    if (constJson != null ) {
+    if (constJson != null) {
       VersionedConstantData constantData = VersionedConstantData.fromJson(jsonDecode(constJson));
       return constantData;
     }
@@ -433,7 +437,7 @@ class LoginController extends ControllerInterface {
       case Ok<GetPublishServerResponse>():
         final r = result.value;
         apiAddress = r.apiAddress;
-        String address = apiAddress ;
+        String address = apiAddress;
         log("setting address ${address}");
         Server pubServer = Server(id: "100", title: "Publish", apiAddress: address, active: true, serverDefault: false, color: null, name: null);
         initNetworkManager(pubServer.apiAddress);

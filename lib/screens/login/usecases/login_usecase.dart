@@ -28,6 +28,7 @@ class LoginRequest extends RequestInterface{
 
   /// Arbitrary JSON blobs passed straight to the API.
   /// Example: {"name":"DCS One","id":"1e5rt71e", ...}
+  final Map<String, dynamic> firebase;
   final Map<String, dynamic> app;
   final Map<String, dynamic> device;
   final Map<String, dynamic> network;
@@ -35,6 +36,7 @@ class LoginRequest extends RequestInterface{
   LoginRequest({
     required this.username,
     required this.password,
+    required this.firebase,
     required this.app,
     required this.device,
     required this.network,
@@ -43,6 +45,7 @@ class LoginRequest extends RequestInterface{
   LoginRequest copyWith({
     String? username,
     String? password,
+    Map<String, dynamic>? firebase,
     Map<String, dynamic>? app,
     Map<String, dynamic>? device,
     Map<String, dynamic>? network,
@@ -50,7 +53,9 @@ class LoginRequest extends RequestInterface{
     return LoginRequest(
       username: username ?? this.username,
       password: password ?? this.password,
+
       app: app ?? Map<String, dynamic>.from(this.app),
+      firebase: firebase ?? Map<String, dynamic>.from(this.firebase),
       device: device ?? Map<String, dynamic>.from(this.device),
       network: network ?? Map<String, dynamic>.from(this.network),
     );
@@ -60,6 +65,7 @@ class LoginRequest extends RequestInterface{
     return LoginRequest(
       username: (json['username'] ?? '').toString(),
       password: (json['password'] ?? '').toString(),
+      firebase: Map<String, dynamic>.from(json['firebase'] ?? const {}),
       app: Map<String, dynamic>.from(json['app'] ?? const {}),
       device: Map<String, dynamic>.from(json['device'] ?? const {}),
       network: Map<String, dynamic>.from(json['network'] ?? const {}),
@@ -70,6 +76,7 @@ class LoginRequest extends RequestInterface{
     'username': username,
     'password': password,
     'app': app,
+    'firebase': firebase,
     'device': device,
     'network': network,
   };

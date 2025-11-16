@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'core/utils_and_services/notification_utils.dart';
+import 'firebase_options.dart';
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/screens/add_user/add_user_controller.dart';
@@ -23,11 +27,14 @@ import 'package:app_device_net_info/app_device_net_info.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fast_cached_network_image/fast_cached_network_image.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:no_screenshot/no_screenshot.dart';
+
 // import 'package:wakelock_fixed/wakelock_fixed.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
 // import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../core/interfaces/network_info_int.dart';
 import '../../core/utils_and_services/app_config.dart';
@@ -69,14 +76,62 @@ Future<void> init() async {
   final spi = await SharedPreferences.getInstance();
   SharedPreferencesImp sp = SharedPreferencesImp(spi);
   getIt.registerFactory(() => sp);
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp
-  ]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+
+  await initFirebase(); // your function
 
   await _initDataBase();
   await _initConfig();
   await _initPackages();
 }
+
+// Future<void> initFirebase() async {
+//   try {
+//     await Firebase.initializeApp(
+//       options: DefaultFirebaseOptions.currentPlatform,
+//     );
+//
+//     // Background handler MUST be registered BEFORE runApp
+//     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+//
+//     // iOS: show alerts/sounds even in foreground
+//     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+//       alert: true,
+//       badge: true,
+//       sound: true,
+//     );
+//
+//
+//     // 1) Ask for permission (no provisional here, be explicit)
+//     final settings = await FirebaseMessaging.instance.requestPermission(
+//       alert: true,
+//       badge: true,
+//       sound: true,
+//       provisional: false,
+//     );
+//     log('Auth status: ${settings.authorizationStatus}');
+//
+//     // 2) Log tokens (for testing)
+//     final fcmToken = await FirebaseMessaging.instance.getToken();
+//     log('FCM token: $fcmToken');
+//
+//     final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+//     log('APNs token: $apnsToken');
+//
+//     final initmesg = await FirebaseMessaging.instance.getInitialMessage();
+//     log('initmesgn: $apnsToken');
+//
+//     // 3) Setup listeners ALWAYS (no apnsToken if)
+//     setupFcmDebug();
+//   }catch(e){
+//     log("$e");
+//   }
+// }
+
+
+
+
 
 // initControllers() {
 //   LoginController loginController = LoginController();
@@ -101,7 +156,7 @@ initNetworkManager([String? baseUrl]) {
 
     successCheck: (NetworkRequest req, NetworkResponse res) {
       if (res.responseCode < 200 || res.responseCode > 300) return false;
-      if ((res.responseBody["Successful"]??false) == true) {
+      if ((res.responseBody["Successful"] ?? false) == true) {
         return true;
       }
       if (res.responseBody?["response"] is Map) {
@@ -125,7 +180,7 @@ initNetworkManager([String? baseUrl]) {
           }
         }
       } else if (res.responseBody?["response"] is List && (res.responseBody?["response"] as List).isNotEmpty) {
-        if(res.responseBody?["response"][0] is String){
+        if (res.responseBody?["response"][0] is String) {
           return true;
         }
         List<Map<String, dynamic>> respList = List<Map<String, dynamic>>.from(res.responseBody["response"]);
@@ -184,7 +239,7 @@ initNetworkManager([String? baseUrl]) {
 }
 
 Future<void> _initConfig() async {
-  if(kIsWeb){
+  if (kIsWeb) {
     AppData.setConfig(Config.def());
     initNetworkManager(Config.def().baseUrl);
     return;
@@ -315,8 +370,8 @@ Future<void> _initPackages() async {
   getIt.registerSingleton(parser);
 
   // if(!kIsWeb) {
-    AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
-    getIt.registerSingleton(adnd);
+  AppDeviceNetworkData adnd = await AppDeviceNetworkInfo.getAll();
+  getIt.registerSingleton(adnd);
   // }else{
   //   AppDeviceNetworkData adnd = AppDeviceNetworkData(app: AppInfoData(name: "TimaCheck", id: "1",versionKey: "0",versionNumber: "0"), device: DeviceInfoData(type: DeviceType.desktop, id: "id", os: OSType.other), network: NetworkInfoData(type: NetworkType.other));
   //   getIt.registerSingleton(adnd);
@@ -331,14 +386,12 @@ Future<void> _initPackages() async {
   await WakelockPlus.enable();
   // await disableScreenshot();
   // await Wakelock.enable();
-
 }
 
-
 Future<void> disableScreenshot() async {
-  if(kIsWeb) return;
+  if (kIsWeb) return;
 
-  if(Platform.isAndroid || Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isIOS) {
     bool result = await _noScreenshot.screenshotOff();
     // listenForScreenshot();
     debugPrint('Screenshot Off: $result');
@@ -346,8 +399,8 @@ Future<void> disableScreenshot() async {
 }
 
 Future<void> enableScreenshot() async {
-  if(kIsWeb) return;
-  if(Platform.isAndroid || Platform.isIOS) {
+  if (kIsWeb) return;
+  if (Platform.isAndroid || Platform.isIOS) {
     bool result = await _noScreenshot.screenshotOn();
     // listenForScreenshot();
     debugPrint('Screenshot Off: $result');
@@ -355,7 +408,7 @@ Future<void> enableScreenshot() async {
 }
 
 void listenForScreenshot() {
-  if(Platform.isAndroid || Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isIOS) {
     _noScreenshot.screenshotStream.listen((value) {
       if (value.wasScreenshotTaken) showAlert(value.screenshotPath);
     });

@@ -6,6 +6,9 @@ import com.android.build.gradle.AppExtension
 
 plugins {
     id("com.android.application")
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services")
+    // END: FlutterFire Configuration
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
@@ -25,11 +28,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
+
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
@@ -92,4 +98,12 @@ afterEvaluate {
     } else {
         println("⚠️ 'android' extension not found. Are you in the right module?")
     }
+}
+
+dependencies {
+    // 🔴 ADD THIS:
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    // your other dependencies, e.g.:
+    // implementation("org.jetbrains.kotlin:kotlin-stdlib:...")
 }

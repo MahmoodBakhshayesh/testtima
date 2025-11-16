@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.4+14401
+version: 1.4.4+14402
 
 
 
@@ -83,7 +83,7 @@ dependencies:
   google_fonts: ^6.2.1
   percent_indicator: ^4.2.4
   cached_network_image: ^3.4.1
-  image_picker: ^1.1.2
+  image_picker: ^1.2.1
   icons_plus: ^5.0.0
   http_parser: ^4.1.2
   tree_navigation: ^1.1.1
@@ -97,7 +97,7 @@ dependencies:
 #  artemis_timatic: ^0.0.12
   dropdown_textfield: ^1.2.0
   flutter_widget_from_html: ^0.17.0
-  ocr_mrz: ^0.0.54
+  ocr_mrz: ^0.0.66
   smart_overlay_menu: ^1.0.3
   dropdown_search: ^6.0.2
 #  country_flags: ^3.3.0
@@ -114,6 +114,9 @@ dependencies:
   artemis_acps: ^0.0.14
   custom_pop_up_menu: ^1.2.4
   country_flags_pro: ^0.1.1
+  firebase_core: ^4.2.1
+  firebase_messaging: ^16.0.4
+  flutter_local_notifications: ^19.5.0
 
 
 dev_dependencies:
