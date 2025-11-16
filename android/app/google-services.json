@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "766257278398",
+    "project_id": "timacheck",
+    "storage_bucket": "timacheck.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766257278398:android:b88ad9924df860de111def",
+        "android_client_info": {
+          "package_name": "com.abomis.abdc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFAgPbOA3FBfP4aSIA44SAd4sNS3pQEgA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
