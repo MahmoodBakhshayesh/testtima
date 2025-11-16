@@ -26,8 +26,6 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>FirebaseMessagingAutoInitEnabled</key>
-	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>In order to scan Documents</string>
 	<key>NSMicrophoneUsageDescription</key>
