@@ -79,7 +79,7 @@ class _EditUserDialogState extends State<EditUserDialog> {
         } else if (att.type.toLowerCase() == "enum") {
           var value = widget.user.userAttribute[att.name];
           if(att.getOverrideList.length==1){
-            value = value??att.getOverrideList;
+            value = value??att.getOverrideList.first;
           }
           attributes.putIfAbsent(att.name, () => value);
         } else if (att.type.toLowerCase() == "date") {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:abds/screens/offline_scanner/offline_scanner_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'core/utils_and_services/notification_utils.dart';
@@ -317,6 +318,7 @@ Future<void> initNavigation() async {
   SettingMenuController settingMenuController = SettingMenuController();
   MenuSectionController menuSectionController = MenuSectionController();
   MenuItemAddEditController menuItemAddEditController = MenuItemAddEditController();
+    OfflineScannerController offlineScannerController = OfflineScannerController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -336,6 +338,7 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(settingMenuController);
   getIt.registerSingleton(menuSectionController);
   getIt.registerSingleton(menuItemAddEditController);
+  getIt.registerSingleton(offlineScannerController);
 
   TreeNavigation.navigator.registerAllControllers({
     Routes.login: loginController,

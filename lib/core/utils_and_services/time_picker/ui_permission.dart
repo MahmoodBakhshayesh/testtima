@@ -21,6 +21,7 @@ class UserUiPermission extends UiPermission {
   factory UserUiPermission.edit() => UserUiPermission(UiPermissionGroup.user,2,"Edit");
   factory UserUiPermission.activeDeactive() => UserUiPermission(UiPermissionGroup.user,4,"Active / De Active");
   factory UserUiPermission.delete() => UserUiPermission(UiPermissionGroup.user,8,"Delete");
+  factory UserUiPermission.addWithExcel() => UserUiPermission(UiPermissionGroup.user,128,"Delete");
 
   @override
   String getLabel() => label;

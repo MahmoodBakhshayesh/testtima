@@ -63,10 +63,15 @@ class LoginController extends ControllerInterface {
     if (["appleuser", "googleuser"].contains(username.toLowerCase())) {
       String? publishApi = await getPublishServer();
     }
-    final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-    final fcmToken = await FirebaseMessaging.instance.getToken();
+    Map<String,dynamic> firebase = {};
+    if(!kIsWeb){
+      if(Platform.isAndroid || Platform.isIOS) {
+        final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        final fcmToken = await FirebaseMessaging.instance.getToken();
 
-    final firebase = {"apnsToken": apnsToken, "fcmToken": fcmToken};
+        firebase = {"apnsToken": apnsToken, "fcmToken": fcmToken};
+      }
+    }
     // DeviceInfoServiceImp deviceInfoService = getIt<DeviceInfoServiceImp>();
     // DeviceInfo deviceInfo = deviceInfoService.getInfo();
     AppDeviceNetworkData adnd = getIt<AppDeviceNetworkData>();

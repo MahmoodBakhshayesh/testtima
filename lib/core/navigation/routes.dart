@@ -118,6 +118,11 @@ abstract class Routes {
     name: 'messageDetails',
     isShellRoute: false,
   );
+  static MyRouteInfo offlineScanner = MyRouteInfo(
+    path: '/offlineScanner',
+    name: 'offlineScanner',
+    isShellRoute: false,
+  );
 
   static List<RouteInfo> allRoutes = [
     login,
@@ -129,5 +134,6 @@ abstract class Routes {
     inbox,
     outbox,
     messageDetails,
+    offlineScanner,
   ];
 }

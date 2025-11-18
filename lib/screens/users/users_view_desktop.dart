@@ -1,9 +1,12 @@
 import 'dart:developer';
 import 'dart:math' as math;
+import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
+import 'package:abds/widgets/check_permission.dart';
 import 'package:artemis_ui_kit/artemis_ui_kit.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/classes/people_class.dart';
 import '../../core/constants/ui.dart';
@@ -33,15 +36,34 @@ class _UsersViewDesktopState extends State<UsersViewDesktop> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          myUsersController.showAddUserDialog();
-        },
-        child: Icon(Icons.person_add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CheckPermission(
+            permission: UserUiPermission.addWithExcel(),
+            child: DotButton(
+              radius: 12,
+              size: 60,
+              onPressed: () {
+                myUsersController.pickExcel();
+              },
+              icon: Icons.table_chart_outlined,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+          DotButton(
+            radius: 12,
+            size: 60,
+            onPressed: () {
+              myUsersController.showAddUserDialog();
+            },
+            icon: Icons.person_add,
+          ),
+        ],
       ),
       appBar: UsersAppBar(),
       body: Column(
@@ -104,7 +126,6 @@ class PeopleListWidget extends ConsumerStatefulWidget {
   const PeopleListWidget({super.key});
 
   @override
-
   ConsumerState<PeopleListWidget> createState() => _PeopleListWidgetState();
 }
 
@@ -158,13 +179,13 @@ class _PeopleListWidgetState extends ConsumerState<PeopleListWidget> {
             child: ref.watch(loadingUsersProvider)
                 ? Center(child: SpinKitCubeGrid(size: 60, color: context.mainColor))
                 : ListView.builder(
-              padding: const EdgeInsets.only(bottom: 105.0),
-              itemBuilder: (c, i) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: PeopleWidgetDesktop(people: peoples[i], index: i),
-              ),
-              itemCount: peoples.length,
-            ),
+                    padding: const EdgeInsets.only(bottom: 105.0),
+                    itemBuilder: (c, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: PeopleWidgetDesktop(people: peoples[i], index: i),
+                    ),
+                    itemCount: peoples.length,
+                  ),
           ),
         ),
       ],
@@ -212,21 +233,19 @@ class PeopleWidgetDesktop extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: ArtemisCardField(title: "Username", value: people.username ?? '-', scale:1),
+                        child: ArtemisCardField(title: "Username", value: people.username ?? '-', scale: 1),
                       ),
                       Expanded(
-                        child: ArtemisCardField(title: "Fist Name", value: people.firstname ?? '-', scale:1),
+                        child: ArtemisCardField(title: "Fist Name", value: people.firstname ?? '-', scale: 1),
                       ),
                       Expanded(
-                        child: ArtemisCardField(title: "Last Name", value: people.lastname ?? '-', scale:1),
+                        child: ArtemisCardField(title: "Last Name", value: people.lastname ?? '-', scale: 1),
                       ),
                       Expanded(
                         flex: 2,
-                        child: ArtemisCardField(title: "Email", value: people.email ?? '-', scale:1),
+                        child: ArtemisCardField(title: "Email", value: people.email ?? '-', scale: 1),
                       ),
-                      Expanded(
-                          flex: 4,
-                          child: SizedBox())
+                      Expanded(flex: 4, child: SizedBox()),
                     ],
                   ),
                 ],

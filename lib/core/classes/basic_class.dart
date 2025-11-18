@@ -103,7 +103,8 @@ class BasicClass {
 
 
     if (permission is UserUiPermission) {
-      return up.maskOf("user") > 0;
+      // return up.maskOf("user") > 0;
+      return up.hasFlag("user", permission.flag);
       // return up.user.isGreaterThan(0);
     }
 

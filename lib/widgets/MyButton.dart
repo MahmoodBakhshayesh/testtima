@@ -133,6 +133,30 @@ class MyButtonState extends State<MyButton> {
   void triggerTap() => _onTap();
   void press() => _onTap();
 
+  /// 👇 Call this from outside via the GlobalKey and `await` it
+  Future<void> trigger() async {
+    if (_loading) return; // avoid re-entry
+    setState(() => _loading = true);
+    final callback = widget.onPressed;
+    if (callback == null) return;
+    try {
+      if (callback is AsyncCallback) {
+        if (_loading) return;
+        setState(() => _loading = true);
+        callback().whenComplete(() {
+          if (mounted) setState(() => _loading = false);
+        });
+      } else {
+        callback();
+      }
+      // await widget.onPressed();
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();

@@ -10,6 +10,7 @@ import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
 import 'package:abds/screens/users/usecases/update_user_usecase.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
@@ -265,6 +266,23 @@ class UsersController extends ControllerInterface {
         SuccessHandler.handle(r.getSuccess);
         ref.read(userProvider.notifier).update((s) => s?.copyWith(profile: s.profile.copyWith(defaultAirport: station)));
         BasicClass.initialize(ref.read(userProvider)!);
+    }
+  }
+
+  Future<void> pickExcel() async {
+
+    final excel  =await FilePicker.platform.pickFiles(type: FileType.custom,allowedExtensions: ["xlsx","xls"]);
+
+    if(excel!=null){
+      final f = excel.files.first;
+        log("path = ${f.path}");
+        log("name = ${f.name}");
+        final bytes = excel.files.first.bytes;
+        // Wrap in MultipartFile
+        final multipart = MultipartFile.fromBytes(bytes!, filename: excel.files.first.name);
+        final formData = FormData.fromMap({
+          'excel': multipart,
+        });
     }
   }
 }

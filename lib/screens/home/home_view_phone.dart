@@ -317,6 +317,17 @@ class _HomeViewPhoneState extends ConsumerState<HomeViewPhone> {
     bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 30;
     double additionalHeight = 120;
     final currentStatus = ref.watch(currentStatusProvider);
+    final loading = ref.watch(loadingTimaticProvider);
+    if(loading){
+      return Scaffold(
+        body: Center(
+          child: SpinKitThreeBounce(
+            color: context.mainColor,
+            size: 50,
+          ),
+        ),
+      );
+    }
     return PopScope(
       canPop: false,
       child: Container(

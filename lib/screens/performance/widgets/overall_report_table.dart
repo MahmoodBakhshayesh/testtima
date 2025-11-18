@@ -95,7 +95,7 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                       initiallyExpanded: true,
                       // collapsedBackgroundColor: Colors.red,
                       // backgroundColor: Colors.red,
-
+                      tilePadding: EdgeInsets.zero,
                       showFooter: false,
                       title: _RowStrip(
                         fromDate: widget.toDate,

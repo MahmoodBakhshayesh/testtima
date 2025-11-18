@@ -360,7 +360,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
 
                                 Expanded(
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 64.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       spacing: 24,

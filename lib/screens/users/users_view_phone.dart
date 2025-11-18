@@ -7,8 +7,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/classes/people_class.dart';
 import '../../core/constants/ui.dart';
+import '../../core/utils_and_services/time_picker/ui_permission.dart';
 import '../../widgets/DotButton.dart';
 import '../../widgets/MyTextField.dart';
+import '../../widgets/check_permission.dart';
 import '../../widgets/user_avatar.dart';
 import 'users_controller.dart';
 import 'users_state.dart';
@@ -37,11 +39,31 @@ class _UsersViewPhoneState extends State<UsersViewPhone> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          myUsersController.showAddUserDialog();
-        },
-        child: Icon(Icons.person_add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CheckPermission(
+            permission: UserUiPermission.addWithExcel(),
+            child: DotButton(
+              radius: 12,
+              size: 48,
+              onPressed: () {
+                myUsersController.pickExcel();
+              },
+              icon: Icons.table_chart_outlined,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+          DotButton(
+            radius: 12,
+            size: 48,
+            onPressed: () {
+              myUsersController.showAddUserDialog();
+            },
+            icon: Icons.person_add,
+          ),
+        ],
       ),
       appBar: UsersAppBar(),
       body: Column(

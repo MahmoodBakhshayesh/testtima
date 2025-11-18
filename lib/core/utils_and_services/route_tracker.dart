@@ -106,6 +106,9 @@ class GlobalEnter {
     // 2) Route-level handler
     final top = _tracker?.currentRoute;
     final name = top?.settings.name;
+    if(name == null){
+      return false;
+    }
     if (name != null) {
       final h = _routeHandlers[name];
       if (h != null && h(top)) return true;

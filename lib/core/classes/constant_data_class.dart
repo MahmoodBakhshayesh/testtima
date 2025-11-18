@@ -11,7 +11,9 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/get_utils.dart';
 
+import '../data_base/offline_const_data.dart';
 import '../utils_and_services/icomoon_layered_presets_from_css.dart';
 import 'basic_class.dart';
 
@@ -170,7 +172,7 @@ class VersionedData {
   factory VersionedData.fromJson(Map<String, dynamic> json) => VersionedData(
     logNoteType: List<String>.from((json["logNoteType"]??[]).map((x) => x)),
     textMessage: List<String>.from((json["textMessage"]??[]).map((x) => x)),
-    documentType: List<DocumentType>.from(json["documentType"].map((x) => DocumentType.fromJson(x))),
+    documentType: List<DocumentType>.from((json["documentType"]??[]).map((x) => DocumentType.fromJson(x))),
     documentDetailType: List<DocumentDetailType>.from(json["documentDetailType"].map((x) => DocumentDetailType.fromJson(x))),
     permission: PermissionCatalog.fromJson(json["permission"]??{}),
     attribute: List<Attribute>.from(json["attribute"].map((x) => Attribute.fromJson(x))),
@@ -227,6 +229,12 @@ class VersionedData {
     "customerNameEnum": List<dynamic>.from(customerNameEnum.map((x) => x)),
     "customerAirportEnum": List<dynamic>.from(customerAirportEnum.map((x) => x)),
   };
+
+  factory VersionedData.offline()=>VersionedData.fromJson(offlineConstData);
+
+  Country? getLocationWithCode(String code) {
+    return country.firstWhereOrNull((a) => a.code3 == code);
+  }
 }
 
 class AvailableLanguage {

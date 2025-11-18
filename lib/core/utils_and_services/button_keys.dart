@@ -5,5 +5,6 @@ class ButtonKeys {
   ButtonKeys._();
 
   static final loginButtonKey = GlobalKey<MyButtonState>();
+  static final loginButtonKeyPhone = GlobalKey<MyButtonState>();
   static final confirmDocKey = GlobalKey<MyButtonState>();
 }

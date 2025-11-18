@@ -8,6 +8,7 @@ import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_view.dart';
 import 'package:abds/screens/menu_section/menu_section_view.dart';
 import 'package:abds/screens/message_details/message_details_view.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_view.dart';
+import 'package:abds/screens/offline_scanner/offline_scanner_view.dart';
 import 'package:abds/screens/outbox/outbox_view.dart';
 import 'package:abds/screens/result_report/result_report_view.dart';
 import 'package:abds/screens/setting_menu/setting_menu_view.dart';
@@ -56,6 +57,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       routeInfoList: Routes.allRoutes,
       routes: [
         TreeRoute(routeInfo: Routes.login, pageWidget: LoginView()),
+        TreeRoute(routeInfo: Routes.offlineScanner, pageWidget: OfflineScannerView()),
         TreeRoute(routeInfo: Routes.users, pageWidget: UsersView()),
         TreeRoute(routeInfo: Routes.logs, pageWidget: LogsView()),
         TreeRoute(routeInfo: Routes.addUser, pageWidget: AddUserView()),

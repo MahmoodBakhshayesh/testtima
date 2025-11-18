@@ -109,6 +109,7 @@ extension ResponsiveX on BuildContext {
   bool get isMyTablet => deviceClass == DeviceClass.tablet;
 
   bool get isDesktop => deviceClass == DeviceClass.desktop;
+  // bool get isDesktop => true;
 
   /// Handy helper for values per form-factor
   T pick<T>({required T phone, T? tablet, T? desktop}) {

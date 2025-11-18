@@ -245,7 +245,9 @@ class HomeController extends ControllerInterface {
     RefHistory? historyLog;
     GetRefCodeLogUseCase getRefHistoryLogUseCase = GetRefCodeLogUseCase();
     GetRefCodeLogRequest getRefCodeLogRequest = GetRefCodeLogRequest(code: code, showCode: showCode);
+    ref.read(loadingTimaticProvider.notifier).update((s)=>true);
     final result = await getRefHistoryLogUseCase(request: getRefCodeLogRequest);
+    ref.read(loadingTimaticProvider.notifier).update((s)=>false);
 
     switch (result) {
       case Err<GetRefCodeLogResponse>():

@@ -230,24 +230,25 @@ class DocumentDetail {
     return (documentExpiryDate.format_yyyyMMdd == res.expiryDate.format_yyyyMMdd) && (docCode == res.documentCode) && (res.documentNumber == documentNumber) && (documentNumber ?? '').isNotEmpty;
   }
 
-  DocumentType? getMatch() {
+  DocumentType? getMatch([VersionedData? data]) {
     String? dc = docCode;
     DocumentType? match;
     if (dc != null && dc.length > 1) {
-      match = BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == BasicClass.constData.data.documentCode.firstWhere((a) => a.type == shortType || a.code == documentCode?.code).type);
+      match = (data??BasicClass.constData.data).documentType.lastOrNullWhere((a) => a.type == (data??BasicClass.constData.data).documentCode.firstWhere((a) => a.type == shortType || a.code == documentCode?.code).type);
     }
-    match ??= BasicClass.constData.data.documentType.lastOrNullWhere((a) => a.type == shortType);
+    match ??=  (data??BasicClass.constData.data).documentType.lastOrNullWhere((a) => a.type == shortType);
+    // log("match of $dc  - ${shortType}=> ${match?.title}");
     return match;
   }
 
-  DocumentDetailType? getTypeDetailsMatch() {
+  DocumentDetailType? getTypeDetailsMatch([VersionedData? data]) {
     String? dc = docCode;
     DocumentDetailType? match;
     if (docCode == null) {
       return null;
     }
     if (dc != null && dc.length > 1) {
-      match = BasicClass.constData.data.documentDetailType.lastOrNullWhere(
+      match =  (data??BasicClass.constData.data).documentDetailType.lastOrNullWhere(
         (a) => a.type == docCode?.characters.first && (a.subType == "*" || a.subType == docCode?.characters.last) && (a.country == "*" || a.country == documentIssueCountry?.code3),
       );
     }
@@ -263,6 +264,19 @@ class DocumentDetail {
       required = BasicClass.constData.data.mandatory!.visa!;
     } else if (shortType == "I") {
       required = BasicClass.constData.data.mandatory!.idCard!;
+    }
+    return required;
+  }
+
+  DocumentFields get getRequiredFieldsOffline {
+    DocumentFields required = DocumentFields();
+    if(VersionedData.offline() == null ) return required;
+    if (shortType == "P") {
+      required = VersionedData.offline().mandatory!.passport!;
+    } else if (shortType == "V") {
+      required = VersionedData.offline() .mandatory!.visa!;
+    } else if (shortType == "I") {
+      required = VersionedData.offline() .mandatory!.idCard!;
     }
     return required;
   }
@@ -324,10 +338,10 @@ class DocumentDetail {
     ),
   );
 
-  bool hasAllRequired() {
-    if(BasicClass.constData.data.mandatory == null ) return true;
+  bool hasAllRequired([VersionedData? data]) {
+    if((data??BasicClass.constData.data.mandatory) == null ) return true;
 
-    DocumentFields required = getRequiredFields;
+    DocumentFields required =data!=null?getRequiredFieldsOffline: getRequiredFields;
 
     final bDate = !required.birthDate || birthDate != null;
     final eDate = !required.expiryDate || documentExpiryDate != null;

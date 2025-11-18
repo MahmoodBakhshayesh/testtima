@@ -216,7 +216,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
           placeholder: widget.placeholder,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
           validator: widget.validator,
-          suffixIcon: SizedBox(height: 22,),
+          suffixIcon: widget.suffixIcon??SizedBox(height: 22,),
           controller: controller,
         ),
       ),

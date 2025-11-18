@@ -373,13 +373,13 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
             onPressed: response == null
                 ? null
                 : () async {
-                    String sendingMsg = response!.textEntry ? commentC.text : (msg ?? '');
-                    log("${response!.textEntry} $sendingMsg ");
+                    String sendingMsg = !response!.textEntry ? commentC.text : (msg ?? '');
+                    // log("anser ${response!.textEntry} $sendingMsg ");
                     await getIt<HomeController>().supervisorResponse(
                       askId: widget.his.id ?? '',
                       logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-',
                       response: response!,
-                      msg: response!.textEntry ? commentC.text : (msg ?? ''),
+                      msg:sendingMsg
                     );
                   },
             radius: 12,

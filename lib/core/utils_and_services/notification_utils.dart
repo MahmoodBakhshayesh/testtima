@@ -1,5 +1,9 @@
 import 'dart:developer';
 
+import 'package:abds/core/utils_and_services/button_keys.dart';
+import 'package:abds/initialize.dart';
+import 'package:abds/screens/home/home_controller.dart';
+import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -10,7 +14,7 @@ import '../../firebase_options.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
 
-/// Android channel (ignored on iOS but needed for Android)
+/// Channel constants
 const String highImportanceChannelId = 'high_importance_channel';
 const String highImportanceChannelName = 'High Importance Notifications';
 const String highImportanceChannelDescription =
@@ -18,20 +22,72 @@ const String highImportanceChannelDescription =
 
 const AndroidNotificationChannel highImportanceChannel =
 AndroidNotificationChannel(
-  highImportanceChannelId,
-  highImportanceChannelName,
+  highImportanceChannelId, // id
+  highImportanceChannelName, // name
   description: highImportanceChannelDescription,
   importance: Importance.max,
 );
 
-/// Background handler - we will NOT try to show local notifications here,
-/// let APNs/Android handle background notifications.
+/// Background message handler
+/// Must be a top-level function and annotated with @pragma
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Init Firebase in background isolate
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   log('🌙 onBackgroundMessage: ${message.messageId}');
   log('🌙 data: ${message.data}');
   log('🌙 notification: ${message.notification?.title} | ${message.notification?.body}');
+
+  // ✅ IMPORTANT:
+  // Do NOT show a local notification here for messages that already have
+  // a `notification` payload, otherwise you get double notifications,
+  // because the OS (APNs/Android) will also show it.
+  final RemoteNotification? notification = message.notification;
+
+  if (notification != null) {
+    // Let the system (APNs / FCM) handle it in background/terminated.
+    log('ℹ️ Background message has notification payload; letting OS show it.');
+    return;
+  }
+
+  // Optional: for DATA-ONLY messages in background you *can* show your own notification.
+  if (message.data.isNotEmpty) {
+    const AndroidInitializationSettings androidInit =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(initSettings);
+
+    final String title =
+        message.data['title'] as String? ?? 'New message (background)';
+    final String body =
+        message.data['body'] as String? ?? 'You have a new notification';
+
+    await flutterLocalNotificationsPlugin.show(
+      message.hashCode,
+      title,
+      body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          highImportanceChannelId,
+          highImportanceChannelName,
+          channelDescription: highImportanceChannelDescription,
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: message.data['route'] as String? ?? '',
+    );
+  }
 }
 
 /// Call this BEFORE runApp in main()
@@ -41,10 +97,10 @@ Future<void> initFirebase() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Background handler must be registered early
+    // Background handler MUST be set before any other messaging usage
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // iOS: allow alert/sound/badge even when app is in foreground
+    // iOS: how to present notifications when app is in foreground
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
@@ -54,12 +110,7 @@ Future<void> initFirebase() async {
     // Init local notifications (Android + iOS)
     const AndroidInitializationSettings androidInit =
     AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const DarwinInitializationSettings iosInit = DarwinInitializationSettings(
-      // You can add callbacks here if you want to handle taps
-      // onDidReceiveNotificationResponse: ...
-    );
-
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
     const InitializationSettings initSettings = InitializationSettings(
       android: androidInit,
       iOS: iosInit,
@@ -73,7 +124,7 @@ Future<void> initFirebase() async {
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(highImportanceChannel);
 
-    // Ask for permission (iOS + Android 13+)
+    // Ask for permission (iOS + Android 13+ behavior)
     final NotificationSettings settings =
     await FirebaseMessaging.instance.requestPermission(
       alert: true,
@@ -95,32 +146,8 @@ Future<void> initFirebase() async {
     await FirebaseMessaging.instance.getInitialMessage();
     log('🚀 init message: $initMsg');
 
+    // Setup foreground / opened-app listeners
     await setupFcmDebug();
-
-    // 🔔 SELF-TEST: show a local notification 3 seconds after startup
-    // so we know flutter_local_notifications works on iOS foreground.
-    Future.delayed(const Duration(seconds: 3), () async {
-      log('🧪 Showing test local notification...');
-      await flutterLocalNotificationsPlugin.show(
-        9999,
-        'Test local notification',
-        'If you see this, local notifications work',
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            highImportanceChannelId,
-            highImportanceChannelName,
-            channelDescription: highImportanceChannelDescription,
-            importance: Importance.max,
-            priority: Priority.high,
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-      );
-    });
   } catch (e, st) {
     log("❌ initFirebase error: $e\n$st");
   }
@@ -146,15 +173,18 @@ Future<void> setupFcmDebug() async {
       AndroidFlutterLocalNotificationsPlugin>();
   await androidImpl?.requestNotificationsPermission();
 
-  // FOREGROUND messages – always show a local notification
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     log('🔥 onMessage: ${message.messageId}');
     log('🔥 data: ${message.data}');
     log('🔥 notification: ${message.notification?.title} | ${message.notification?.body}');
 
     final RemoteNotification? notification = message.notification;
+    final AndroidNotification? android = notification?.android;
 
-    // Prefer notification payload, fall back to data
+    // Foreground: you usually want to show your own local notification
+    // so the user sees something even when app is open.
+    // (System may or may not show one depending on settings.)
+
     final String title =
         notification?.title ??
             message.data['title'] as String? ??
@@ -164,36 +194,48 @@ Future<void> setupFcmDebug() async {
             message.data['body'] as String? ??
             'You have a new notification';
 
-    await flutterLocalNotificationsPlugin.show(
-      notification?.hashCode ?? message.hashCode,
-      title,
-      body,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          highImportanceChannelId,
-          highImportanceChannelName,
-          channelDescription: highImportanceChannelDescription,
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      payload: message.data['route'] as String? ?? '',
-    );
+    // await flutterLocalNotificationsPlugin.show(
+    //   notification?.hashCode ?? message.hashCode,
+    //   title,
+    //   body,
+    //   NotificationDetails(
+    //     android: AndroidNotificationDetails(
+    //       highImportanceChannel.id,
+    //       highImportanceChannel.name,
+    //       channelDescription: highImportanceChannel.description,
+    //       importance: Importance.max,
+    //       priority: Priority.high,
+    //       icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+    //     ),
+    //     iOS: const DarwinNotificationDetails(
+    //       presentAlert: true,
+    //       presentBadge: true,
+    //       presentSound: true,
+    //     ),
+    //   ),
+    //   payload: message.data['route'] as String? ?? '',
+    // );
   });
 
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
     log('📬 onMessageOpenedApp: ${message.messageId}');
-    // TODO: handle navigation
+    String? refCode = message.data["refCode"];
+    String? route = getIt<HomeController>().navigation.currentRoute?.name;
+    final RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      log('🚀 getInitialMessage: ${initialMessage.messageId}');
+    }
+    if(route == "login" ){
+      ButtonKeys.loginButtonKeyPhone.currentState?.triggerTap();
+      // getIt<HomeController>().getRefHistoryLog(code: refCode, showCode: null);
+    }else{
+      if(refCode!=null){
+        getIt<HomeController>().getRefHistoryLog(code: refCode, showCode: null);
+      }
+    }
+    // getIt<HomeController>().getRefHistoryLog(code: refCode, showCode: null);
+    // TODO: navigation if needed
   });
 
-  final RemoteMessage? initialMessage =
-  await FirebaseMessaging.instance.getInitialMessage();
-  if (initialMessage != null) {
-    log('🚀 getInitialMessage: ${initialMessage.messageId}');
-  }
+
 }

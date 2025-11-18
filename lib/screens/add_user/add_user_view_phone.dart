@@ -72,14 +72,16 @@ class _AddUserViewPhoneState extends State<AddUserViewPhone> {
     passwordC.addListener(() => setState(() {}));
     passwordConfirmC.addListener(() => setState(() {}));
 
-    UserPermission addingP = UserPermission({});
+
+    // UserPermission addingP = UserPermission({});
+    UserPermission addingP = myAddUserController.ref.read(userProvider)!.permission;
     BasicClass.constData.data.attribute.where((a) => a.onlyOwner).forEach((att) {
       if (att.type.toLowerCase() == "string") {
         attributes.putIfAbsent(att.name, () => TextEditingController(text: ''));
       } else if (att.type.toLowerCase() == "enum") {
         var value;
         if(att.getOverrideList.length==1){
-          value = att.getOverrideList;
+          value = att.getOverrideList.first;
         }
         attributes.putIfAbsent(att.name, () => value);
       } else if (att.type.toLowerCase() == "date") {

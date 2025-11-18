@@ -156,12 +156,7 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
     bool requiredError = widget.required && (widget.controller?.text ?? '').isEmpty;
     Color validationColor = widget.validationColor ?? Colors.red;
     bool validationMode = ref.watch(globalFormValidationMode) && widget.required && widget.controller!.text.isEmpty;
-    InputBorder? border = validationMode
-        ? OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red),
-            borderRadius: BorderRadius.circular(8),
-          )
-        : InputBorder.none;
+    BoxBorder? border = validationMode ? BoxBorder.all(color: Colors.red) : BoxBorder.all(color: Colors.transparent);
     return GestureDetector(
       onTap: !widget.openNumberSheet
           ? null
@@ -224,7 +219,12 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
               Expanded(
                 flex: widget.rowLabelRatio[1],
                 child: Container(
-                  color: widget.bodyBgColor,
+                  decoration: BoxDecoration(
+                    border: border,
+                    color: widget.bodyBgColor,
+                    borderRadius: BorderRadius.horizontal(right: Radius.circular(widget.radius?.topRight.x??0))
+                  ),
+
                   // color:Colors.red,
                   height: widget.height,
                   child: Center(
@@ -278,6 +278,8 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                                 SizedBox(height: 30),
                             prefix: widget.prefix,
                             decoration: BoxDecoration(
+                              // border: border,
+                              // borderRadius: widget.radius
                               // contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
                               // filled: false,
 
