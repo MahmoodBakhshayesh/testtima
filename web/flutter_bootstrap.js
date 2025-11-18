@@ -14,11 +14,11 @@ _flutter.loader.load({
       loaderContainer.style.opacity = '0'; // Start fading out
 
       // Wait for the transition to complete before removing the element
-      setTimeout(() => {
-        if (document.body.contains(loaderContainer)) {
-          document.body.removeChild(loaderContainer);
-        }
-      }, 500);
+//      setTimeout(() => {
+//        if (document.body.contains(loaderContainer)) {
+//          document.body.removeChild(loaderContainer);
+//        }
+//      }, 500);
     }
 
     await appRunner.runApp();
