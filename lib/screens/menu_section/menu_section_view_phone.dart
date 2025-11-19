@@ -11,6 +11,7 @@ import 'menu_section_controller.dart';
 import 'menu_section_state.dart';
 import '../../initialize.dart';
 import '../../core/extenstions/context_exp.dart';
+
 final headerBgColor = Colors.blue.withOpacity(0.3);
 final bodyBgColor = Colors.blue.withOpacity(0.15);
 
@@ -75,9 +76,12 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
                       BackButton(),
                       Text("${section.title}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
-                      DotButton(icon: Icons.add,onPressed: (){
-                        getIt<MenuSectionController>().addItem(section.schema,"New ${section.title.split(" ").last}");
-                      },),
+                      DotButton(
+                        icon: Icons.add,
+                        onPressed: () {
+                          getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
+                        },
+                      ),
                       SizedBox(width: 8),
                     ],
                   ),
@@ -100,31 +104,32 @@ class SectionItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final level = label.split(".").length+1;
-    final bool isMainObject = level ==2;
+    final level = label.split(".").length + 1;
+    final bool isMainObject = level == 2;
     final String showingLabel = label.split(".").last;
     // log("level $level");
     // log(jsonEncode(data));
     // log(label);
     // log(section.schema.kind.name);
 
-
     switch (schema.kind) {
       case SchemaKind.object:
         final o = schema as ObjectSchema;
         final Map<String, dynamic> v = _toStringKeyMap(data);
         return MyExpansionTile(
-          childrenPadding: EdgeInsets.symmetric(horizontal: 4.0*level),
+          childrenPadding: EdgeInsets.symmetric(horizontal: 4.0 * level),
           title: Row(
             children: [
               Expanded(child: Text(label.split(".").last)),
               Visibility(
                 visible: isMainObject,
-                child: DotButton(icon: Icons.edit,onPressed: (){
-
-                  getIt<MenuSectionController>().editItem(schema,data,showingLabel);
-                },),
-              )
+                child: DotButton(
+                  icon: Icons.edit,
+                  onPressed: () {
+                    getIt<MenuSectionController>().editItem(schema, data, showingLabel, context.isDesktop);
+                  },
+                ),
+              ),
             ],
           ),
           showFooter: false,
@@ -136,38 +141,33 @@ class SectionItemWidget extends StatelessWidget {
             final current = v[key] ?? emptyValueForSchema(prop.schema);
             return Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: SectionItemWidget(
-                schema: prop.schema,
-                data: current,
-                label: nextPath,
-              ),
+              child: SectionItemWidget(schema: prop.schema, data: current, label: nextPath),
             );
           }).toList(),
         );
       case SchemaKind.array:
         final array = schema as ArraySchema;
         final List<dynamic> v = (data is List) ? data as List<dynamic> : <dynamic>[data];
-        if(v.length==1){
+        if (v.length == 1) {
           final internalPath = '$label[0]'; // stable
           final prettyLabel = '$label';
           final itemValue = v[0];
-          return SectionItemWidget(
-            schema: array.items,
-            data: itemValue,
-            label: prettyLabel,
-          );
+          return SectionItemWidget(schema: array.items, data: itemValue, label: prettyLabel);
         }
         return MyExpansionTile(
-          childrenPadding: EdgeInsets.symmetric(horizontal: 4.0*level),
+          childrenPadding: EdgeInsets.symmetric(horizontal: 4.0 * level),
           title: Row(
             children: [
               Expanded(child: Text(label.split(".").last)),
               Visibility(
                 visible: isMainObject,
-                child: DotButton(icon: Icons.edit,onPressed: (){
-                  getIt<MenuSectionController>().editItem(schema,data,showingLabel);
-                },),
-              )
+                child: DotButton(
+                  icon: Icons.edit,
+                  onPressed: () {
+                    getIt<MenuSectionController>().editItem(schema, data, showingLabel, context.isDesktop);
+                  },
+                ),
+              ),
             ],
           ),
           showFooter: false,
@@ -182,11 +182,7 @@ class SectionItemWidget extends StatelessWidget {
                 final prettyLabel = '$label ${index + 1}';
                 final itemValue = v[index];
                 final itemKey = ValueKey(internalPath);
-                final content = SectionItemWidget(
-                  schema: array.items,
-                  data: itemValue,
-                  label: prettyLabel,
-                );
+                final content = SectionItemWidget(schema: array.items, data: itemValue, label: prettyLabel);
                 return content;
               },
             ),
@@ -197,21 +193,21 @@ class SectionItemWidget extends StatelessWidget {
         final v = data is String ? data : '';
         final p = schema as PrimitiveSchema;
         final l = _labelFromPath(label);
-        if (l == "_id"){
+        if (l == "_id") {
           return SizedBox();
         }
-        return FieldDataWidget(label: l,data: v,);
+        return FieldDataWidget(label: l, data: v);
 
       case SchemaKind.number:
         final v = data is num ? data : 0;
         final p = schema as PrimitiveSchema;
         final l = _labelFromPath(label);
-        return FieldDataWidget(label: l,data: v,);
+        return FieldDataWidget(label: l, data: v);
       case SchemaKind.boolean:
         final v = data is bool ? data : false;
         final p = schema as PrimitiveSchema;
         final l = _labelFromPath(label);
-        return FieldDataWidget(label: l,data: v,);
+        return FieldDataWidget(label: l, data: v);
 
       default:
         return Container();
@@ -225,22 +221,22 @@ class FieldDataWidget extends StatelessWidget {
   final dynamic data;
 
   const FieldDataWidget({super.key, required this.label, this.data});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 2.0),
       child: MyTextFieldNew(
-        headerBgColor:headerBgColor ,
+        headerBgColor: headerBgColor,
         bodyBgColor: bodyBgColor,
-        rowLabelRatio: [4,5],
+        rowLabelRatio: [4, 5],
         disabled: true,
         label: label,
-        controller: TextEditingController.fromValue(TextEditingValue(text: "${data??''}")),
+        controller: TextEditingController.fromValue(TextEditingValue(text: "${data ?? ''}")),
       ),
     );
   }
 }
-
 
 Map<String, dynamic> _toStringKeyMap(dynamic v) {
   if (v is Map<String, dynamic>) return v;
@@ -257,5 +253,3 @@ String _labelFromPath(String path) {
   final raw = cut >= 0 ? path.substring(cut + 1) : path;
   return raw.replaceAll(RegExp(r'\[\d+\]'), '').split(".").last;
 }
-
-

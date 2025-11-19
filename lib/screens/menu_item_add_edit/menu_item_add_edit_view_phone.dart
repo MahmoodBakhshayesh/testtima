@@ -42,19 +42,21 @@ class _MenuItemAddEditViewPhoneState extends ConsumerState<MenuItemAddEditViewPh
     }
     log(changed.runtimeType.toString());
     if(changed is Map){
-      log("changed is Map and ${(changed as Map).containsKey("_id")}");
-      if ((changed as Map).containsKey("_id")) {
-        await myMenuItemAddEditController.saveItem(schema, changed);
+      log("changed is Map and ${(changed as Map).containsKey("_id") }");
+      if ((changed as Map).containsKey("_id") && (changed as Map)["_id"].toString().isNotEmpty) {
+        await myMenuItemAddEditController.saveItem(schema, changed,context.isDesktop);
       } else {
-        await myMenuItemAddEditController.addItem(schema, changed);
+        await myMenuItemAddEditController.addItem(schema, changed,context.isDesktop);
       }
     }else if(changed is List){
       log("changed is list Map and ${(changed[0] as Map).containsKey("_id")}");
 
-      if ((changed[0] as Map).containsKey("_id")) {
-        await myMenuItemAddEditController.saveItem(schema, changed);
+      if ((changed[0] as Map).containsKey("_id") && (changed[0] as Map)["_id"].toString().isNotEmpty) {
+        await myMenuItemAddEditController.saveItem(schema, changed,context.isDesktop);
+
+
       } else {
-        await myMenuItemAddEditController.addItem(schema, changed);
+        await myMenuItemAddEditController.addItem(schema, changed,context.isDesktop);
       }
     }
 

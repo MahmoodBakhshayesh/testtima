@@ -10,6 +10,8 @@ import '../../core/classes/menu_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
+import '../menu_item_add_edit/menu_item_add_edit_state.dart';
+import '../menu_section/menu_section_state.dart';
 import 'usecases/add_section_menu_usecase.dart';
 
 class SettingMenuController extends ControllerInterface {
@@ -20,6 +22,19 @@ class SettingMenuController extends ControllerInterface {
     GetMenuUseCase getMenuUseCase = GetMenuUseCase();
     GetMenuRequest getMenuRequest = GetMenuRequest();
     ref.read(settingMenuProvider.notifier).update((s) => null);
+    ref.read(menuSectionProvider.notifier).update((s) => null);
+    ref.read(editingMenuProvider.notifier).update((s) => null);
+    ref.read(editingSchemaProvider.notifier).update((s) => null);
+    ref.read(editingLabelProvider.notifier).update((s) => null);
+    ref.read(sectionItemsProvider.notifier).update((s) => []);
+
+    // final menuSectionProvider = StateProvider<MenuDescriptor?>((ref) => null);
+    // final sectionItemsProvider = StateProvider<List<dynamic>>((ref) => []);
+    //
+    // final editingMenuProvider = StateProvider<Map<String,dynamic>?>((ref) => null);
+    // final editingSchemaProvider = StateProvider<SchemaNode?>((ref) => null);
+    // final editingLabelProvider = StateProvider<String?>((ref) => null);
+
 
     ref.read(menuLoadingProvider.notifier).update((s) => true);
     final result = await getMenuUseCase(request: getMenuRequest);
@@ -70,6 +85,10 @@ class SettingMenuController extends ControllerInterface {
         current[section.endpoint] = r.menus;
         menu = r.menus;
         ref.read(menuValuesProvider.notifier).update((s) => current);
+        ref.read(menuSectionProvider.notifier).update((s) => section);
+        ref.read(sectionItemsProvider.notifier).update((s) => r.menus);
+        log("setting menuSectionProvider");
+        log("setting menuValuesProvider ${current.length}");
     }
 
     return menu;

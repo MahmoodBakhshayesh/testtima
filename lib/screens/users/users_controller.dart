@@ -6,6 +6,7 @@ import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/classes/user_permission_class.dart';
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/extenstions/response_ext.dart';
+import 'package:abds/core/interfaces/success_int.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
 import 'package:abds/screens/users/usecases/update_user_usecase.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -64,19 +65,10 @@ class UsersController extends ControllerInterface {
     navigation.openDialog(dialog: EditUserDialog(user: people));
   }
 
-  Future<People?> updateUser({required People user, required bool enable,
-
-    String? firstName,
-    String? lastName,
-    String? email,
-
-    String? password, required UserPermission permission, required Map<String, dynamic> attributes}) async {
+  Future<People?> updateUser({required People user, required bool enable, String? firstName, String? lastName, String? email, String? password, required UserPermission permission, required Map<String, dynamic> attributes}) async {
     People? updated;
     EditUserUseCase updateUserUseCase = EditUserUseCase();
-    EditUserRequest editUserRequest = EditUserRequest(
-        firstname: firstName,
-        lastname: lastName,
-        email: email, password: password, people: user, active: enable, updatedPermission: permission, attributes: attributes);
+    EditUserRequest editUserRequest = EditUserRequest(firstname: firstName, lastname: lastName, email: email, password: password, people: user, active: enable, updatedPermission: permission, attributes: attributes);
     final result = await updateUserUseCase(request: editUserRequest);
 
     switch (result) {
@@ -90,7 +82,7 @@ class UsersController extends ControllerInterface {
 
         updated.userPermission = permission;
         updated.userAttribute = attributes;
-        updated.email = email??updated.email;
+        updated.email = email ?? updated.email;
 
         int index = ref.read(peopleListProvider).indexWhere((a) => a.uId == updated!.uId);
         final copy = [...ref.read(peopleListProvider)];
@@ -269,20 +261,47 @@ class UsersController extends ControllerInterface {
     }
   }
 
-  Future<void> pickExcel() async {
-
-    final excel  =await FilePicker.platform.pickFiles(type: FileType.custom,allowedExtensions: ["xlsx","xls"]);
-
-    if(excel!=null){
-      final f = excel.files.first;
+  Future<bool> pickExcel() async {
+    bool result = false;
+    final excel = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ["xlsx", "xls"]);
+    final dio = Dio();
+    try {
+      if (excel != null) {
+        final f = excel.files.first;
         log("path = ${f.path}");
         log("name = ${f.name}");
-        final bytes = excel.files.first.bytes;
+        final bytes = await f.xFile.readAsBytes();
         // Wrap in MultipartFile
         final multipart = MultipartFile.fromBytes(bytes!, filename: excel.files.first.name);
-        final formData = FormData.fromMap({
-          'excel': multipart,
-        });
+        final formData = FormData.fromMap({'excel': multipart});
+
+        String api = "${ref.read(selectedServerProvider).apiAddress}/v1/user/list";
+
+        final response = await dio.post(
+          api,
+          data: formData,
+          options: Options(headers: {"Content-Type": "multipart/form-data", "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
+        );
+        if (response.statusCode == 200) {
+          result = true;
+          await getUserList();
+          SuccessHandler.handle(ServerSuccess(code: 1, msg: response.data["message"] ?? "Done"));
+        } else {
+          FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
+        }
+        log("Response: ${response.data}");
+        return result;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      log("Error: $e");
+      if (e is Error) {
+        log("${e.stackTrace}");
+      }
+
+      FailureHandler.handle(ServerFailure(code: -1, msg: "$e", traceMsg: "$e"));
+      return false;
     }
   }
 }

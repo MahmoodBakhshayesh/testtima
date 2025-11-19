@@ -35,7 +35,6 @@ class _UsersViewPhoneState extends State<UsersViewPhone> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,8 +46,8 @@ class _UsersViewPhoneState extends State<UsersViewPhone> {
             child: DotButton(
               radius: 12,
               size: 48,
-              onPressed: () {
-                myUsersController.pickExcel();
+              onPressed: () async {
+                await myUsersController.pickExcel();
               },
               icon: Icons.table_chart_outlined,
             ),
@@ -126,7 +125,6 @@ class PeopleListWidget extends ConsumerStatefulWidget {
   const PeopleListWidget({super.key});
 
   @override
-
   ConsumerState<PeopleListWidget> createState() => _PeopleListWidgetState();
 }
 

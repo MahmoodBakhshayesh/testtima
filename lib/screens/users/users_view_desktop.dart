@@ -47,8 +47,9 @@ class _UsersViewDesktopState extends State<UsersViewDesktop> {
             child: DotButton(
               radius: 12,
               size: 60,
-              onPressed: () {
-                myUsersController.pickExcel();
+              onPressed: () async {
+
+                await myUsersController.pickExcel();
               },
               icon: Icons.table_chart_outlined,
             ),
@@ -58,7 +59,7 @@ class _UsersViewDesktopState extends State<UsersViewDesktop> {
           DotButton(
             radius: 12,
             size: 60,
-            onPressed: () {
+            onPressed: ()async {
               myUsersController.showAddUserDialog();
             },
             icon: Icons.person_add,

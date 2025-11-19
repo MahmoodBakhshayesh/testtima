@@ -37,17 +37,17 @@ class AddSectionMenuRequest extends RequestInterface {
 
 
 class AddSectionMenuResponse extends ResponseInterface {
-  final List<dynamic> menus;
+  // final List<dynamic> menus;
 
-  AddSectionMenuResponse({required super.status, required super.message, required this.menus})
-      : super(body: menus);
+  AddSectionMenuResponse({required super.status, required super.message})
+      : super(body: {});
 
   factory AddSectionMenuResponse.fromResponse(ResponseInterface res) {
     log(jsonEncode(res.body));
     return AddSectionMenuResponse(
         status: res.status,
         message: res.message,
-        menus:res.body is List? res.body: res.body['permissions']??res.body["attributes"]??res.body,
+        // menus:(res.body is List)? res.body: res.body['permissions']??res.body["attributes"]??res.body,
       );
   }
 }

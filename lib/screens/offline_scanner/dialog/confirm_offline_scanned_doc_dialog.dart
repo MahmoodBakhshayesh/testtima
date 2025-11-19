@@ -50,7 +50,7 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
 
   void _restartTimer() {
     _autoCloseTimer?.cancel();
-    _autoCloseTimer = Timer(const Duration(seconds: 5), () {
+    _autoCloseTimer = Timer(const Duration(seconds: 500), () {
       if (!mounted) return;
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop(true);
@@ -68,10 +68,10 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
   Widget build(BuildContext context) {
     // LISTEN here (legal for ConsumerStatefulWidget)
     ref.listen<DocumentDetail?>(confirmingOfflineDocProvider, (previous, next) {
-      if(!ref.read(offlineScannedDocsProvider).any((a)=>getIt<OfflineScannerController>().isSame2(a, previous))){
+      if (!ref.read(offlineScannedDocsProvider).any((a) => getIt<OfflineScannerController>().isSame2(a, previous))) {
         ref.read(offlineScannedDocsProvider.notifier).update((s) => [...s, previous!]);
       }
-         // Any time the document changes → restart the timer
+      // Any time the document changes → restart the timer
       if (next != null) {
         _restartTimer();
       }
@@ -87,57 +87,83 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
 
     final documentDetail = ref.watch(confirmingOfflineDocProvider);
     if (documentDetail == null) return const SizedBox();
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      insetPadding: context.getDialogPadding,
+    bool isExpired = documentDetail!.isExpired;
+    return Material(
       child: Container(
-        width: double.infinity,
+        decoration: BoxDecoration(color: isExpired ? Colors.red.withOpacity(0.4) : null),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: (documentDetail.isExpired ? MyColors.red : documentDetail.getMatch(data)?.getColor)?.withOpacity(0.4),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(documentDetail.getMatch(data)?.title ?? '', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-            ),
-            ConfirmingOfflineItemRow(item: documentDetail, index: 0, isFirst: true, isLast: true),
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                spacing: 12,
-                children: [
-                  MyButton(
-                    label: "Cancel",
-                    color: Colors.grey,
-                    reverse: true,
-                    borderSide: const BorderSide(color: Colors.grey),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Expanded(
-                    child: MyButton(
-                      key: ButtonKeys.confirmDocKey,
-                      label: "Confirm",
-                      borderSide: BorderSide(color: context.mainColor),
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                      },
+            ?isExpired
+                ? Container(
+                    margin: context.getDialogPadding,
+                    padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                     ),
-                  ),
-                ],
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IcomoonLayeredCss.warning_2(colors: [Colors.white]),
+                          const SizedBox(width: 8),
+                          Text("${expiryValidator("", documentDetail.documentExpiryDate)}",style: TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),)]),
+                  )
+                : null,
+            Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              insetPadding: context.getDialogPadding,
+              child: Container(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: (documentDetail.isExpired ? MyColors.red : documentDetail.getMatch(data)?.getColor)?.withOpacity(0.4),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(documentDetail.getMatch(data)?.title ?? '', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    ),
+                    ConfirmingOfflineItemRow(item: documentDetail, index: 0, isFirst: true, isLast: true),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        spacing: 12,
+                        children: [
+                          MyButton(
+                            label: "Cancel",
+                            color: Colors.grey,
+                            reverse: true,
+                            borderSide: const BorderSide(color: Colors.grey),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          Expanded(
+                            child: MyButton(
+                              key: ButtonKeys.confirmDocKey,
+                              label: "Confirm",
+                              borderSide: BorderSide(color: context.mainColor),
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -226,12 +252,13 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
     List<String> validCodes = data.documentCode.where((a) => a.type == d.shortType).map((a) => a.code!).toList();
     final requiredFields = d.getRequiredFieldsOffline;
 
-    DocumentDetail? firstOfOthers =ref.watch(offlineScannedDocsProvider).length==1?null: ref.watch(offlineScannedDocsProvider).firstOrNull;
+    DocumentDetail? firstOfOthers = ref.watch(offlineScannedDocsProvider).length == 1 ? null : ref.watch(offlineScannedDocsProvider).firstOrNull;
 
     bool natVerified = d.nationality?.code3 != null && d.nationality?.code3 == firstOfOthers?.nationality?.code3;
     bool issuingVerified = d.documentIssueCountry?.code3 != null && d.documentIssueCountry?.code3 == firstOfOthers?.documentIssueCountry?.code3;
     bool birthDateVerified = d.birthDate?.format_yyMMdd != null && d.birthDate?.format_yyMMdd == firstOfOthers?.birthDate?.format_yyMMdd;
     bool genderVerified = d.gender?.value != null && d.gender?.value == firstOfOthers?.gender?.value;
+    bool docNoVerified = d.gender?.value != null && d.documentNumber == firstOfOthers?.documentNumber;
 
     log("birthDateVerified ${birthDateVerified}");
 
@@ -266,7 +293,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
                 MyFieldPicker<Country>(
                   hasSearch: true,
                   required: requiredFields.notionality,
-                  suffixIcon: natVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
+                  suffixIcon: natVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
                   searchAutoFocus: true,
                   // rowLabelRatio: [5, 4],
                   headerBgColor: headerBg,
@@ -296,7 +323,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
                   // rowLabelRatio: [5, 4],
                   placeholder: "Country",
                   suggestion: data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
-                  suffixIcon: issuingVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
+                  suffixIcon: issuingVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
 
                   itemToWidget: countryBuilder,
                   prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
@@ -335,7 +362,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
             required: requiredFields.birthDate,
             label: "Birth Date",
             placeholder: "Birth Date",
-            suffixIcon: birthDateVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
+            suffixIcon: birthDateVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
 
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
@@ -358,7 +385,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
             child: MyFieldPicker<Gender>(
               label: "Gender",
               headerBgColor: headerBg,
-              suffixIcon: genderVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
+              suffixIcon: genderVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
 
               bodyBgColor: bodyBg,
               placeholder: "Gender",
@@ -376,7 +403,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
           ),
 
           // const SizedBox(height: 12),
-          MyTextFieldNew(required: requiredFields.documentNumber, headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(required: requiredFields.documentNumber,
+              suffixIcon: docNoVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
+
+              headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           d.getMrzWidget,
           // MyDatePicker(

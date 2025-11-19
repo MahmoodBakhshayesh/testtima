@@ -223,13 +223,6 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                             ],
                           ),
                         ),
-                        MyButton(
-                          label: "Scan Boarding Pass",
-                          onPressed: () {
-                            getIt<HomeController>().goNamed(Routes.barcodeReader);
-                          },
-                          radius: 8,
-                        ),
                         DotButton(
                           icon: ArtemisIcons.eraser_1,
                           onPressed: () async {

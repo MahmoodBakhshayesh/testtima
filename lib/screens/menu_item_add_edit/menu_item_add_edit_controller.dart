@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:abds/core/classes/menu_class.dart';
 import 'package:abds/initialize.dart';
 import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_state.dart';
+import 'package:abds/screens/menu_section/menu_section_controller.dart';
 import 'package:abds/screens/setting_menu/setting_menu_controller.dart';
 import 'package:logging/logging.dart';
 import '../../core/interfaces/controller_int.dart';
@@ -11,7 +12,7 @@ import '../menu_section/menu_section_state.dart';
 class MenuItemAddEditController extends ControllerInterface {
   final _log = Logger('MenuItemAddEditController');
 
-  Future<void> saveItem(SchemaNode schema, changed) async {
+  Future<void> saveItem(SchemaNode schema, changed,bool isDesktop) async {
     String id = changed["_id"];
     log("saving menu item $id");
     bool success = await getIt<SettingMenuController>().saveMenuSection(ref.read(menuSectionProvider)!, changed, id);
@@ -21,19 +22,33 @@ class MenuItemAddEditController extends ControllerInterface {
       if (settingIndex != -1) {
         current[settingIndex] = changed;
         ref.read(sectionItemsProvider.notifier).update((s) => [...current]);
-        navigation.pop();
+        await getIt<SettingMenuController>().loadData(ref.read(menuSectionProvider)!);
+        ref.read(editingMenuProvider.notifier).update((s)=>null);
+        ref.read(editingSchemaProvider.notifier).update((s)=>null);
+        ref.read(editingLabelProvider.notifier).update((s)=>null);
+        if(!isDesktop){
+          navigation.pop();
+        }
       }
     }
   }
 
-  Future<void> addItem(SchemaNode schema, changed) async {
+  Future<void> addItem(SchemaNode schema, changed,bool isDesktop) async {
     log("adding menu item");
-
+    if(changed  is Map){
+      changed.remove("_id");
+    }
     bool success = await getIt<SettingMenuController>().addMenuSection(ref.read(menuSectionProvider)!, changed);
     if (success) {
       var current = ref.read(sectionItemsProvider);
-      ref.read(sectionItemsProvider.notifier).update((s) => [...current, changed]);
-      navigation.pop();
+      // ref.read(sectionItemsProvider.notifier).update((s) => [...current, changed]);
+      await getIt<SettingMenuController>().loadData(ref.read(menuSectionProvider)!);
+      ref.read(editingMenuProvider.notifier).update((s)=>null);
+      ref.read(editingSchemaProvider.notifier).update((s)=>null);
+      ref.read(editingLabelProvider.notifier).update((s)=>null);
+      if(!isDesktop){
+        navigation.pop();
+      }
     }
   }
 }
