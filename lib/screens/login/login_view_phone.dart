@@ -3,6 +3,7 @@ import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/button_keys.dart';
 import 'package:abds/core/utils_and_services/icomoon_layered_presets_from_css.dart';
+import 'package:abds/screens/offline_scanner/offline_scanner_controller.dart';
 import 'package:get/get_utils/src/extensions/string_extensions.dart';
 import 'package:pinput/pinput.dart';
 
@@ -81,6 +82,7 @@ class _LoginViewPhoneState extends State<LoginViewPhone> {
                 MyButton(
                   label: "Doc Scanner",
                   onPressed: () {
+                    getIt<OfflineScannerController>().reset();
                     myLoginController.navigation.goNamed(Routes.offlineScanner);
                   },
                   reverse: true,

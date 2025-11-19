@@ -64,18 +64,16 @@ class _MenuItemAddEditViewDesktopState extends ConsumerState<MenuItemAddEditView
     final editing = Map<String, dynamic>.from(ref.watch(editingMenuProvider) ?? {});
     final editingSchema = ref.watch(editingSchemaProvider);
     final editingLabel = ref.watch(editingLabelProvider);
-    return SingleChildScrollView(
-      child: EditingItemWidgetDesktop(
-        isRoot: true,
-        onChange: (up) {
-          changed = up;
-          setState(() {});
-        },
-        onSubmit: () async =>await onSubmit(editingSchema),
-        schema: editingSchema!,
-        data: editing,
-        label: editingLabel!,
-      ),
+    return EditingItemWidgetDesktop(
+      isRoot: true,
+      onChange: (up) {
+        changed = up;
+        setState(() {});
+      },
+      onSubmit: () async =>await onSubmit(editingSchema),
+      schema: editingSchema!,
+      data: editing,
+      label: editingLabel!,
     );
   }
 }
@@ -178,13 +176,49 @@ class _EditingItemWidgetDesktopState extends State<EditingItemWidgetDesktop> {
         final o = widget.schema as ObjectSchema;
         // final String showingLabel = widget.label.split(".").last;
         final Map<String, dynamic> v = _toStringKeyMap(tmp);
-        return MyExpansionTile(
+        if(widget.isRoot){
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(showingLabel)),
+                      ?widget.onDelete != null ? DotButton(icon: Icons.delete, onPressed: widget.onDelete!, color: Colors.red) : null,
+                      MyButton(label: "Save",onPressed: widget.onSubmit,)
+                    ],
+                  ),
+                ),
+                Expanded(child: SingleChildScrollView(child: Column(children: o.properties.entries.map((entry) {
+                  final key = entry.key;
+                  final prop = entry.value;
+                  final nextPath = '${widget.label}.$key';
+                  final current = v[key] ?? emptyValueForSchema(prop.schema);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: EditingItemWidgetDesktop(
+                      schema: prop.schema,
+                      data: current,
+                      label: nextPath,
+                      onChange: (up) {
+                        v[key] = up;
+                        tmp = v;
+                        widget.onChange?.call(tmp);
+                      },
+                    ),
+                  );
+                }).toList(),),))
+              ],
+            ),
+          );
+        }
 
+        return MyExpansionTile(
           initiallyExpanded: true,
-          enabled: !widget.isRoot,
           showTrailingIcon: true,
           childrenPadding: EdgeInsets.symmetric(horizontal: 1.0 * level + (widget.isRoot?12:0)),
-          trailing: widget.isRoot?MyButton(label: "Save",onPressed: widget.onSubmit,):null,
           title: Row(
             children: [
               Expanded(child: Text(showingLabel)),
@@ -214,7 +248,10 @@ class _EditingItemWidgetDesktopState extends State<EditingItemWidgetDesktop> {
         );
       case SchemaKind.array:
         final array = widget.schema as ArraySchema;
-        final List<dynamic> v = (tmp is List) ? tmp as List<dynamic> : <dynamic>[tmp];
+        final List<dynamic> v = ((tmp is List) ? tmp as List<dynamic> : <dynamic>[tmp]);
+        // if(showingLabel == "airportAirline") {
+        //   log(jsonEncode(v));
+        // }
         // if (v.length == 1) {
         //   final internalPath = '${widget.label}[0]'; // stable
         //   final prettyLabel = '${widget.label}';
@@ -235,10 +272,23 @@ class _EditingItemWidgetDesktopState extends State<EditingItemWidgetDesktop> {
                   final schema = widget.schema as ArraySchema;
                   final newItem = emptyValueForSchema(schema.items);
                   // log("new item ${newItem} ${schema}");
+                  // final updated = List<dynamic>.from(tmp)..insert(0,deepClone(newItem));
                   final updated = List<dynamic>.from(tmp)..add(deepClone(newItem));
                   tmp = updated;
                   widget.onChange?.call(tmp);
                   setState(() {});
+
+
+                  // final schema = widget.schema as ArraySchema;
+                  // final newItem = emptyValueForSchema(schema.items);
+                  // // log("new item ${newItem} ${schema}");
+                  // final updated = List<dynamic>.from([deepClone(newItem),...tmp]);
+                  // if(tmp is List){
+                  //   (tmp as List).insert(0, deepClone(newItem));
+                  // }
+                  //
+                  // widget.onChange?.call(tmp);
+                  // setState(() {});
                 },
               ),
             ],
@@ -247,6 +297,7 @@ class _EditingItemWidgetDesktopState extends State<EditingItemWidgetDesktop> {
           children: [
             ListView.builder(
               shrinkWrap: true,
+              reverse: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: v.length,
               itemBuilder: (_, index) {
@@ -254,7 +305,9 @@ class _EditingItemWidgetDesktopState extends State<EditingItemWidgetDesktop> {
                 final prettyLabel = '${widget.label} ${index + 1}';
                 final itemValue = v[index];
                 final itemKey = ValueKey(internalPath);
+                // log("item value = > of $prettyLabel ${itemValue}");
                 final content = EditingItemWidgetDesktop(
+                  key: Key("${showingLabel}-${index}"),
                   onDelete: () {
                     v.removeAt(index);
                     setState(() {});

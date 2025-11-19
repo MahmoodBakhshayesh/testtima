@@ -151,6 +151,12 @@ class _PeopleListWidgetState extends ConsumerState<PeopleListWidget> {
   @override
   Widget build(BuildContext context) {
     List<People> peoples = ref.watch(peopleListProvider).where((f) => f.validateSearch(searchC.text)).toList();
+    List<String> attKeys = [];
+    for (var a in peoples) {
+      attKeys.addAll(a.userAttribute.keys);
+    }
+    attKeys = attKeys.toSet().toList();
+
     return Column(
       children: [
         Container(
@@ -183,7 +189,7 @@ class _PeopleListWidgetState extends ConsumerState<PeopleListWidget> {
                     padding: const EdgeInsets.only(bottom: 105.0),
                     itemBuilder: (c, i) => Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
-                      child: PeopleWidgetDesktop(people: peoples[i], index: i),
+                      child: PeopleWidgetDesktop(people: peoples[i], index: i,attKeys: attKeys,),
                     ),
                     itemCount: peoples.length,
                   ),
@@ -196,10 +202,11 @@ class _PeopleListWidgetState extends ConsumerState<PeopleListWidget> {
 
 class PeopleWidgetDesktop extends StatelessWidget {
   final People people;
+  final List<String> attKeys;
   final int index;
   final void Function()? onTap;
 
-  const PeopleWidgetDesktop({super.key, required this.people, required this.index, this.onTap});
+  const PeopleWidgetDesktop({super.key, required this.people, required this.index, this.onTap, required this.attKeys});
 
   @override
   Widget build(BuildContext context) {
@@ -228,28 +235,29 @@ class PeopleWidgetDesktop extends StatelessWidget {
               ],
             ),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ArtemisCardField(title: "Username", value: people.username ?? '-', scale: 1),
-                      ),
-                      Expanded(
-                        child: ArtemisCardField(title: "Fist Name", value: people.firstname ?? '-', scale: 1),
-                      ),
-                      Expanded(
-                        child: ArtemisCardField(title: "Last Name", value: people.lastname ?? '-', scale: 1),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: ArtemisCardField(title: "Email", value: people.email ?? '-', scale: 1),
-                      ),
-                      Expanded(flex: 4, child: SizedBox()),
-                    ],
+                  Expanded(
+                    child: ArtemisCardField(title: "Username", value: people.username ?? '-', scale: 1),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: ArtemisCardField(title: "Name", value: "${people.firstname ?? '-'} ${people.lastname ?? '-'}", scale: 1),
+                  ),
+                  // Expanded(
+                  //   child: ArtemisCardField(title: "Last Name", value: people.lastname ?? '-', scale: 1),
+                  // ),
+                  Expanded(
+                    flex: 2,
+                    child: ArtemisCardField(title: "Email", value: people.email ?? '-', scale: 1),
                   ),
                 ],
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Row(
+                children: attKeys.map((a)=>Expanded(child: ArtemisCardField(title: a, value: "${people.userAttribute[a]??'-'}", scale: 0.89)),).toList()
               ),
             ),
             DotButton(

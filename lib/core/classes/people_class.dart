@@ -55,7 +55,7 @@ class People {
   };
 
   bool validateSearch(String text) {
-    return "${username ?? ''} ${email ?? ''} ${firstname ?? ''} ${lastname ?? ''}".toLowerCase().contains(text.toLowerCase());
+    return "${username ?? ''} ${email ?? ''} ${firstname ?? ''} ${lastname ?? ''} ${userAttribute.values.join(" ")}".toLowerCase().contains(text.toLowerCase());
   }
 }
 
