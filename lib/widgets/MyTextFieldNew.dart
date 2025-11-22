@@ -276,7 +276,8 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                                         ),
                                       )) ??
                                 SizedBox(height: 30),
-                            prefix: widget.prefix,
+                            prefix:widget.prefixIcon?? widget.prefix,
+
                             decoration: BoxDecoration(
                               // border: border,
                               // borderRadius: widget.radius

@@ -1,6 +1,7 @@
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/utils_and_services/country_flag_util.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
+import 'package:abds/screens/offline_scanner/dialog/set_timer_dialog.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:ocr_mrz/ocr_mrz.dart';
 import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import '../../core/constants/ui.dart';
 import '../../widgets/DotButton.dart';
+import 'dialog/confirm_offline_scanned_doc_dialog.dart';
 import 'offline_scanner_controller.dart';
 import 'offline_scanner_state.dart';
 import '../../initialize.dart';
@@ -41,6 +43,7 @@ class _OfflineScannerViewPhoneState extends ConsumerState<OfflineScannerViewPhon
   @override
   Widget build(BuildContext context) {
     final scanned = ref.watch(offlineScannedDocsProvider);
+    final confirming = ref.watch(confirmingOfflineDocProvider);
     return Scaffold(
       appBar: OfflineScannerAppBarPhone(),
       body: Column(
@@ -58,6 +61,10 @@ class _OfflineScannerViewPhoneState extends ConsumerState<OfflineScannerViewPhon
                     itemBuilder: (c, i) => ScannedDocsWidget(scanned: scanned[i]),
                   ),
                 ),
+                ?confirming != null ? Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0, child: ConfirmOfflineScannedDocDialog()) : null,
               ],
             ),
           ),
@@ -94,6 +101,13 @@ class OfflineScannerAppBarPhone extends StatelessWidget implements PreferredSize
                       BackButton(),
                       Text("Offline Scanner", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
+                      DotButton(
+                        icon: Icons.settings,
+                        onPressed: () async {
+                          mySettingMenuController.setTimer();
+                        },
+                      ),
+                      SizedBox(width: 8),
                       DotButton(
                         icon: Icons.refresh,
                         onPressed: () async {
@@ -133,7 +147,6 @@ class ScannedDocsWidget extends StatelessWidget {
           Row(
             spacing: 8,
             children: [
-
               Expanded(
                 flex: 2,
                 child: Row(

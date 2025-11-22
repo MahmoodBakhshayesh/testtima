@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:abds/core/classes/basic_class.dart';
 import 'package:abds/core/classes/constant_data_class.dart';
+import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/interfaces/result_int.dart';
 import 'package:abds/core/utils_and_services/stateControllers/segments_state_controller.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
@@ -56,6 +57,10 @@ class LoginController extends ControllerInterface {
   }
 
   Future<LoginData?> login(String username, String password) async {
+    if(username.isEmpty || password.isEmpty){
+      FailureHandler.handle(ValidationFailure(code: -1, msg: "Username and Password are required!", traceMsg: "Username and Password are required!"));
+      return null;
+    }
     _log.warning("Logging in");
     getIt<HomeController>().clear();
     ref.read(timaticResultNewProvider.notifier).update((s) => null);

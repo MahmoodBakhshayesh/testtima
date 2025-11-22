@@ -208,6 +208,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             labelStyle: widget.labelStyle,
             required: widget.required,
             prefix: widget.prefix,
+
             prefixIcon: widget.prefixIcon,
             rowLabelRatio: widget.rowLabelRatio,
             labelInRow: true,
@@ -437,6 +438,11 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   controller: searchC,
                   autofocus: widget.searchAutoFocus,
+                  onSubmitted: (a){
+                    if(a.isEmpty && widget.suggestion.isNotEmpty){
+                      Navigator.of(context).pop(widget.suggestion.first);
+                    }
+                  },
                   prefix: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.search)),
                 ),
 

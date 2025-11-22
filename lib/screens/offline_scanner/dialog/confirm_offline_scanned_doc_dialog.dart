@@ -45,16 +45,18 @@ class ConfirmOfflineScannedDocDialog extends ConsumerStatefulWidget {
 
 class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineScannedDocDialog> {
   final VersionedData data = VersionedData.offline();
+  static OfflineScannerController myOfflineScannerController = getIt<OfflineScannerController>();
 
   Timer? _autoCloseTimer;
 
   void _restartTimer() {
     _autoCloseTimer?.cancel();
-    _autoCloseTimer = Timer(const Duration(seconds: 500), () {
+    _autoCloseTimer = Timer( Duration(milliseconds: myOfflineScannerController.ref.read(confirmingTimerProvider)), () {
       if (!mounted) return;
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop(true);
-      }
+      myOfflineScannerController.onDoneConfirming();
+      // if (Navigator.of(context).canPop()) {
+      //   Navigator.of(context).pop(true);
+      // }
     });
   }
 
@@ -87,19 +89,21 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
 
     final documentDetail = ref.watch(confirmingOfflineDocProvider);
     if (documentDetail == null) return const SizedBox();
-    bool isExpired = documentDetail!.isExpired;
+    bool isExpired = documentDetail.isExpired;
+    bool isExpiring = documentDetail.isExpiring;
+    final expiringColor = Colors.yellow;
     return Material(
       child: Container(
-        decoration: BoxDecoration(color: isExpired ? Colors.red.withOpacity(0.4) : null),
+        decoration: BoxDecoration(color:isExpiring?expiringColor.withOpacity(0.4): isExpired ? Colors.red.withOpacity(0.4) : Colors.white.withOpacity(0.4)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ?isExpired
+            ?(isExpired || isExpiring)
                 ? Container(
-                    margin: context.getDialogPadding,
-                    padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+                    // margin: context.getDialogPadding,
+                    padding: EdgeInsets.symmetric(horizontal: 8,vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: isExpiring?expiringColor:Colors.red,
                       borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                     ),
                     child: Row(
@@ -107,63 +111,32 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
                         children: [
                           IcomoonLayeredCss.warning_2(colors: [Colors.white]),
                           const SizedBox(width: 8),
-                          Text("${expiryValidator("", documentDetail.documentExpiryDate)}",style: TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),)]),
+                          Text("${expiryValidator("", documentDetail.documentExpiryDate)}",style: TextStyle(color:isExpiring?Colors.black: Colors.white,fontSize: 25,fontWeight: FontWeight.bold),)]),
                   )
                 : null,
-            Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              insetPadding: context.getDialogPadding,
-              child: Container(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: (documentDetail.isExpired ? MyColors.red : documentDetail.getMatch(data)?.getColor)?.withOpacity(0.4),
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(documentDetail.getMatch(data)?.title ?? '', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                      ),
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: (documentDetail.isExpiring?expiringColor: documentDetail.isExpired ? MyColors.red : Colors.blueGrey).withOpacity(0.7),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                     ),
-                    ConfirmingOfflineItemRow(item: documentDetail, index: 0, isFirst: true, isLast: true),
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          MyButton(
-                            label: "Cancel",
-                            color: Colors.grey,
-                            reverse: true,
-                            borderSide: const BorderSide(color: Colors.grey),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          Expanded(
-                            child: MyButton(
-                              key: ButtonKeys.confirmDocKey,
-                              label: "Confirm",
-                              borderSide: BorderSide(color: context.mainColor),
-                              onPressed: () {
-                                Navigator.of(context).pop(true);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(documentDetail.getMatch(data)?.title ?? '', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  ConfirmingOfflineItemRow(item: documentDetail, index: 0, isFirst: true, isLast: true),
+                ],
               ),
             ),
           ],
@@ -227,13 +200,13 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
   );
 
   Widget? countryPrefixBuilder(String? a) {
+    log("${a} countryPrefixBuilder");
     if (a != null) {
       return Row(
         children: [
           const SizedBox(width: 4),
-          SizedBox(width: 15, height: 10, child: MyCountryFlagsPro.getFlag(a, width: 22, height: 16, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(width: 4),
-          Text(a, style: TextStyle(fontSize: 12)),
+          MyCountryFlagsPro.getFlag(a, width: 33, height: 22, borderRadius: BorderRadius.circular(2)),
+          // Text(a, style: TextStyle(fontSize: 12)),
         ],
       );
     }
@@ -247,6 +220,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
     DocumentDetail d = ref.watch(confirmingOfflineDocProvider) ?? DocumentDetail();
     final headerBg = Color(0xffFFFFFF);
     final bodyBg = Color(0xffF0F2Fa);
+    final expiringColor = Colors.yellow;
 
     DocumentType? typeMatch = d.getMatch(data);
     List<String> validCodes = data.documentCode.where((a) => a.type == d.shortType).map((a) => a.code!).toList();
@@ -262,127 +236,66 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
 
     log("birthDateVerified ${birthDateVerified}");
 
-    return Container(
-      decoration: BoxDecoration(
-        // color: Color(0xff324073).withOpacity(0.3),
-        border: Border(bottom: BorderSide(color: Colors.white)),
-      ),
-      child: MyExpansionTile(
-        tapOnTitleActive: false,
 
-        initiallyExpanded: true,
-        showFooter: false,
-        // backgroundColor: MyColors.scaffoldBg,
-        // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: (d.isExpired ? MyColors.mainRed : typeMatch?.getColor)?.withOpacity(0.2) ?? Colors.blueGrey,
-        collapsedBackgroundColor: (d.isExpired ? MyColors.mainRed : typeMatch?.getColor)?.withOpacity(0.2),
-        footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
-        shape: RoundedRectangleBorder(),
-        collapsedShape: RoundedRectangleBorder(),
-
-        tilePadding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        footerExtra: IndexedStack(index: isLast ? 0 : 1, children: [SizedBox()]),
-
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            Column(
-              spacing: 12,
-              children: [
-                MyFieldPicker<Country>(
-                  hasSearch: true,
-                  required: requiredFields.notionality,
-                  suffixIcon: natVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
-                  searchAutoFocus: true,
-                  // rowLabelRatio: [5, 4],
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  label: "Nationality",
-                  suggestion: data.country.where((a) => a.code3 == d.documentIssueCountry?.code3).toList(),
-
-                  prefixIcon: countryPrefixBuilder(d.nationality?.code3),
-                  placeholder: "Country",
-                  searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                  itemToWidget: countryBuilder,
-                  items: data.country,
-                  value: d.nationality,
-                  onChange: (a) {
-                    // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                    d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
-                    ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
-                  },
-                ),
-                MyFieldPicker<Country>(
-                  label: "Issued In",
-                  required: requiredFields.issuedIn,
-
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  searchAutoFocus: true,
-                  // rowLabelRatio: [5, 4],
-                  placeholder: "Country",
-                  suggestion: data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
-                  suffixIcon: issuingVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
-
-                  itemToWidget: countryBuilder,
-                  prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
-                  searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
-                  items: data.country,
-                  value: d.documentIssueCountry,
-                  onChange: (a) {
-                    d = d.copyWith(documentIssueCountry: a);
-                    ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
-                  },
-                ),
-                MyDatePicker(
-                  label: "Expiry Date",
-                  required: requiredFields.expiryDate,
-
-                  validator: (a) => expiryValidator(a, d.documentExpiryDate),
-                  validationColor: expiryValidationColor(d.documentExpiryDate),
-                  validationIcon: expiryValidationIcon(d.documentExpiryDate),
-                  placeholder: "Date",
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  value: d.documentExpiryDate,
-                  onChanged: (a) {
-                    d = d.copyWith(documentExpiryDate: a);
-                    ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
-                  },
-                ),
-              ],
-            ),
-          ],
+    return SafeArea(
+      bottom: true,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          // color: Color(0xff324073).withOpacity(0.3),
+          border: Border(bottom: BorderSide(color: Colors.white)),
         ),
+        child: Column(
+          spacing: 4,
+          children: [
+            MyTextFieldNew(required: requiredFields.documentNumber,
+                suffixIcon: docNoVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
 
-        childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
-        children: [
-          MyDatePicker(
-            required: requiredFields.birthDate,
-            label: "Birth Date",
-            placeholder: "Birth Date",
-            suffixIcon: birthDateVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
+                headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+            MyDatePicker(
+              required: requiredFields.birthDate,
+              label: "Birth Date",
+              placeholder: "Birth Date",
+              suffixIcon: birthDateVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
 
-            headerBgColor: headerBg,
-            bodyBgColor: bodyBg,
-            validator: (a) => birthDateValidator(a, d.birthDate),
-            validationColor: birthDateValidationColor(d.birthDate),
-            max: DateTime.now(),
-            validationIcon: ArtemisIcons.user_square,
-            value: d.birthDate,
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              validator: (a) => birthDateValidator(a, d.birthDate),
+              validationColor: birthDateValidationColor(d.birthDate),
+              max: DateTime.now(),
+              validationIcon: ArtemisIcons.user_square,
+              value: d.birthDate,
 
-            onChanged: (a) {
-              // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-              d = d.copyWith(birthDate: a);
-              ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
-            },
-          ),
-          d.birthdayWidget,
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: MyFieldPicker<Gender>(
+              onChanged: (a) {
+                // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                d = d.copyWith(birthDate: a);
+                ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
+              },
+            ),
+            MyFieldPicker<Country>(
+              hasSearch: true,
+              required: requiredFields.notionality,
+              suffixIcon: natVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
+              searchAutoFocus: true,
+              // rowLabelRatio: [5, 4],
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              label: "Nationality",
+              suggestion: data.country.where((a) => a.code3 == d.documentIssueCountry?.code3).toList(),
+              // prefix: countryPrefixBuilder(d.nationality?.code3),
+              prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+              placeholder: "Country",
+              searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+              itemToWidget: countryBuilder,
+              items: data.country,
+              value: d.nationality,
+              onChange: (a) {
+                // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
+                ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
+              },
+            ),
+            MyFieldPicker<Gender>(
               label: "Gender",
               headerBgColor: headerBg,
               suffixIcon: genderVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
@@ -400,63 +313,129 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
                 ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
               },
             ),
-          ),
+            MyFieldPicker<Country>(
+              label: "Issued In",
+              required: requiredFields.issuedIn,
 
-          // const SizedBox(height: 12),
-          MyTextFieldNew(required: requiredFields.documentNumber,
-              suffixIcon: docNoVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              searchAutoFocus: true,
+              // rowLabelRatio: [5, 4],
+              placeholder: "Country",
+              suggestion: data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
+              suffixIcon: issuingVerified ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white],size: 30) : null,
 
-              headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
-          const SizedBox(height: 12),
-          d.getMrzWidget,
-          // MyDatePicker(
-          //   label: "Issue Date",
-          //   placeholder: "Issue Date",
-          //   rowLabelRatio: [3, 7],
-          //   value: d.documentIssueDate,
-          //   onChanged: (a) {
-          //     d = d.copyWith(documentIssueDate: a);
-          //     ref.read(confirming.notifier).updateAt(widget.index, d);
-          //   },
-          // ),
-          // const SizedBox(height: 12),
+              itemToWidget: countryBuilder,
+              prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+              searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+              items: data.country,
+              value: d.documentIssueCountry,
+              onChange: (a) {
+                d = d.copyWith(documentIssueCountry: a);
+                ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
+              },
+            ),
+            MyDatePicker(
+              label: "Expiry Date",
+              required: requiredFields.expiryDate,
 
-          // const SizedBox(height: 12),
-          // Row(
-          //   children: [
-          //     // Expanded(
-          //     //   child: MyFieldPicker<Location>(
-          //     //     label: "Birth Place",
-          //     //     rowLabelRatio: [3, 4],
-          //     //     hasSearch: true,
-          //     //     placeholder: "Country",
-          //     //     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
-          //     //     items: tim.locations.of(LocationType.country),
-          //     //     itemToWidget: countryBuilder,
-          //     //     value: passengerDetails.birthCountry,
-          //     //     onChange: (a) {
-          //     //       ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
-          //     //     },
-          //     //   ),
-          //     // ),
-          //     // const SizedBox(width: 12),
-          //     Expanded(
-          //       child: MyFieldPicker<DocumentFeature>(
-          //         hasSearch: false,
-          //         rowLabelRatio: [3, 7],
-          //         label: "Feature",
-          //         placeholder: "Feature",
-          //         items: DocumentFeature.values,
-          //         value: d.documentFeature,
-          //         onChange: (a) {
-          //           d = d.copyWith(documentFeature: a);
-          //           ref.read(confirming.notifier).updateAt(widget.index, d);
-          //         },
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ],
+              // validator: (a) => expiryValidator(a, d.documentExpiryDate),
+              // validationColor: expiryValidationColor(d.documentExpiryDate),
+              // validationIcon: expiryValidationIcon(d.documentExpiryDate),
+              placeholder: "Date",
+              headerBgColor: headerBg,
+              bodyBgColor: bodyBg,
+              value: d.documentExpiryDate,
+              onChanged: (a) {
+                d = d.copyWith(documentExpiryDate: a);
+                ref.read(confirmingOfflineDocProvider.notifier).update((s) => d);
+              },
+            ),
+          ],
+        ),
+        // child: MyExpansionTile(
+        //   tapOnTitleActive: false,
+        //
+        //   initiallyExpanded: true,
+        //   showFooter: false,
+        //   // backgroundColor: MyColors.scaffoldBg,
+        //   // collapsedBackgroundColor: MyColors.scaffoldBg,
+        //   backgroundColor: (d.isExpiring?expiringColor: d.isExpired ? MyColors.mainRed : Colors.blueGrey)?.withOpacity(0.2) ?? Colors.blueGrey,
+        //   collapsedBackgroundColor: (d.isExpiring?expiringColor:d.isExpired ? MyColors.mainRed : Colors.blueGrey)?.withOpacity(0.2),
+        //   footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
+        //   shape: RoundedRectangleBorder(),
+        //   collapsedShape: RoundedRectangleBorder(),
+        //
+        //   tilePadding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        //   footerExtra: IndexedStack(index: isLast ? 0 : 1, children: [SizedBox()]),
+        //
+        //   title: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //
+        //     ],
+        //   ),
+        //
+        //   childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
+        //   children: [
+        //
+        //     d.birthdayWidget,
+        //     const SizedBox(height: 12),
+        //
+        //
+        //     // const SizedBox(height: 12),
+        //
+        //     const SizedBox(height: 12),
+        //     d.getMrzWidget,
+        //     // MyDatePicker(
+        //     //   label: "Issue Date",
+        //     //   placeholder: "Issue Date",
+        //     //   rowLabelRatio: [3, 7],
+        //     //   value: d.documentIssueDate,
+        //     //   onChanged: (a) {
+        //     //     d = d.copyWith(documentIssueDate: a);
+        //     //     ref.read(confirming.notifier).updateAt(widget.index, d);
+        //     //   },
+        //     // ),
+        //     // const SizedBox(height: 12),
+        //
+        //     // const SizedBox(height: 12),
+        //     // Row(
+        //     //   children: [
+        //     //     // Expanded(
+        //     //     //   child: MyFieldPicker<Location>(
+        //     //     //     label: "Birth Place",
+        //     //     //     rowLabelRatio: [3, 4],
+        //     //     //     hasSearch: true,
+        //     //     //     placeholder: "Country",
+        //     //     //     searchBuilder: (dynamic a) => "$a ${(a as Location).name}",
+        //     //     //     items: tim.locations.of(LocationType.country),
+        //     //     //     itemToWidget: countryBuilder,
+        //     //     //     value: passengerDetails.birthCountry,
+        //     //     //     onChange: (a) {
+        //     //     //       ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthCountry: a));
+        //     //     //     },
+        //     //     //   ),
+        //     //     // ),
+        //     //     // const SizedBox(width: 12),
+        //     //     Expanded(
+        //     //       child: MyFieldPicker<DocumentFeature>(
+        //     //         hasSearch: false,
+        //     //         rowLabelRatio: [3, 7],
+        //     //         label: "Feature",
+        //     //         placeholder: "Feature",
+        //     //         items: DocumentFeature.values,
+        //     //         value: d.documentFeature,
+        //     //         onChange: (a) {
+        //     //           d = d.copyWith(documentFeature: a);
+        //     //           ref.read(confirming.notifier).updateAt(widget.index, d);
+        //     //         },
+        //     //       ),
+        //     //     ),
+        //     //   ],
+        //     // ),
+        //   ],
+        // ),
       ),
     );
   }
