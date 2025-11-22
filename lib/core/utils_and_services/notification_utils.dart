@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/utils_and_services/button_keys.dart';
 import 'package:abds/initialize.dart';
@@ -6,22 +7,20 @@ import 'package:abds/screens/home/home_controller.dart';
 import 'package:abds/screens/inbox/inbox_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../../firebase_options.dart';
 
 /// Global instance for local notifications
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 /// Channel constants
 const String highImportanceChannelId = 'high_importance_channel';
 const String highImportanceChannelName = 'High Importance Notifications';
-const String highImportanceChannelDescription =
-    'Used for important notifications.';
+const String highImportanceChannelDescription = 'Used for important notifications.';
 
-const AndroidNotificationChannel highImportanceChannel =
-AndroidNotificationChannel(
+const AndroidNotificationChannel highImportanceChannel = AndroidNotificationChannel(
   highImportanceChannelId, // id
   highImportanceChannelName, // name
   description: highImportanceChannelDescription,
@@ -52,38 +51,22 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   // Optional: for DATA-ONLY messages in background you *can* show your own notification.
   if (message.data.isNotEmpty) {
-    const AndroidInitializationSettings androidInit =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    const AndroidInitializationSettings androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
-    const InitializationSettings initSettings = InitializationSettings(
-      android: androidInit,
-      iOS: iosInit,
-    );
+    const InitializationSettings initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
 
     await flutterLocalNotificationsPlugin.initialize(initSettings);
 
-    final String title =
-        message.data['title'] as String? ?? 'New message (background)';
-    final String body =
-        message.data['body'] as String? ?? 'You have a new notification';
+    final String title = message.data['title'] as String? ?? 'New message (background)';
+    final String body = message.data['body'] as String? ?? 'You have a new notification';
 
     await flutterLocalNotificationsPlugin.show(
       message.hashCode,
       title,
       body,
       const NotificationDetails(
-        android: AndroidNotificationDetails(
-          highImportanceChannelId,
-          highImportanceChannelName,
-          channelDescription: highImportanceChannelDescription,
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
+        android: AndroidNotificationDetails(highImportanceChannelId, highImportanceChannelName, channelDescription: highImportanceChannelDescription, importance: Importance.max, priority: Priority.high),
+        iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true),
       ),
       payload: message.data['route'] as String? ?? '',
     );
@@ -92,58 +75,40 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 /// Call this BEFORE runApp in main()
 Future<void> initFirebase() async {
+  if(kIsWeb || Platform.isMacOS || Platform.isWindows){
+    return;
+  }
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
     // Background handler MUST be set before any other messaging usage
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // iOS: how to present notifications when app is in foreground
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
 
     // Init local notifications (Android + iOS)
-    const AndroidInitializationSettings androidInit =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    const AndroidInitializationSettings androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
-    const InitializationSettings initSettings = InitializationSettings(
-      android: androidInit,
-      iOS: iosInit,
-    );
+    const InitializationSettings initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
 
     await flutterLocalNotificationsPlugin.initialize(initSettings);
 
     // Android: create channel
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(highImportanceChannel);
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(highImportanceChannel);
 
     // Ask for permission (iOS + Android 13+ behavior)
-    final NotificationSettings settings =
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
+    final NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(alert: true, badge: true, sound: true, provisional: false);
     log('🔐 Auth status: ${settings.authorizationStatus}');
 
     // Tokens
     final String? fcmToken = await FirebaseMessaging.instance.getToken();
     log('📲 FCM token: $fcmToken');
 
-    final String? apnsToken =
-    await FirebaseMessaging.instance.getAPNSToken();
+    final String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
     log('🍏 APNs token: $apnsToken');
 
-    final RemoteMessage? initMsg =
-    await FirebaseMessaging.instance.getInitialMessage();
+    final RemoteMessage? initMsg = await FirebaseMessaging.instance.getInitialMessage();
     log('🚀 init message: $initMsg');
 
     // Setup foreground / opened-app listeners
@@ -154,23 +119,14 @@ Future<void> initFirebase() async {
 }
 
 Future<void> checkNotificationPermission() async {
-  final NotificationSettings settings =
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-    provisional: false,
-  );
+  final NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(alert: true, badge: true, sound: true, provisional: false);
 
   log('🔐 Auth status (manual check): ${settings.authorizationStatus}');
 }
 
 Future<void> setupFcmDebug() async {
   // Android 13+ permission
-  final AndroidFlutterLocalNotificationsPlugin? androidImpl =
-  flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>();
+  final AndroidFlutterLocalNotificationsPlugin? androidImpl = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
   await androidImpl?.requestNotificationsPermission();
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
@@ -185,14 +141,8 @@ Future<void> setupFcmDebug() async {
     // so the user sees something even when app is open.
     // (System may or may not show one depending on settings.)
 
-    final String title =
-        notification?.title ??
-            message.data['title'] as String? ??
-            'New message';
-    final String body =
-        notification?.body ??
-            message.data['body'] as String? ??
-            'You have a new notification';
+    final String title = notification?.title ?? message.data['title'] as String? ?? 'New message';
+    final String body = notification?.body ?? message.data['body'] as String? ?? 'You have a new notification';
 
     // await flutterLocalNotificationsPlugin.show(
     //   notification?.hashCode ?? message.hashCode,
@@ -225,17 +175,15 @@ Future<void> setupFcmDebug() async {
     if (initialMessage != null) {
       log('🚀 getInitialMessage: ${initialMessage.messageId}');
     }
-    if(route == "login" ){
+    if (route == "login") {
       ButtonKeys.loginButtonKeyPhone.currentState?.triggerTap();
       // getIt<HomeController>().getRefHistoryLog(code: refCode, showCode: null);
-    }else{
-      if(refCode!=null){
+    } else {
+      if (refCode != null) {
         getIt<HomeController>().getRefHistoryLog(code: refCode, showCode: null);
       }
     }
     // getIt<HomeController>().getRefHistoryLog(code: refCode, showCode: null);
     // TODO: navigation if needed
   });
-
-
 }
