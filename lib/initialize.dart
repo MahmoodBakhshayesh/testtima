@@ -104,7 +104,11 @@ Future<void> _initWebListener() async {
           // print(data['payload']);
           String msg = data['payload'];
           if(getIt<LoginController>().ref.read(userProvider)!=null){
-            CuppsUtils.ocDataHandlerText(msg);
+            if(msg.startsWith("M1") || msg.startsWith("M2") || msg.startsWith("M3")){
+              getIt<BarcodeReaderController>().onBarcodeRead(msg,shouldPop: false);
+            }else {
+              CuppsUtils.ocDataHandlerText(msg);
+            }
           }
           // SuccessHandler.handle(ServerSuccess(code: 1, msg: msg));
           // اینجا دیتا رو پردازش کن
