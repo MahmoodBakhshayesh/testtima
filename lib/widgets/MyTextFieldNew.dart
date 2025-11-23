@@ -260,22 +260,22 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
 
                             // textAlignVertical: TextAlignVertical.top,
                             placeholder: widget.placeholder,
-                            suffix:
-                                widget.suffixIcon ??
-                                (!widget.isPassword
-                                    ? widget.locked
-                                          ? const Icon(Icons.lock)
-                                          : null
-                                    : ExcludeFocus(
-                                        child: IconButton(
-                                          onPressed: () {
-                                            obscureText = !obscureText;
-                                            setState(() {});
-                                          },
-                                          icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                                        ),
-                                      )) ??
-                                SizedBox(height: 30),
+                            // suffix:
+                            //     widget.suffixIcon ??
+                            //     (!widget.isPassword
+                            //         ? widget.locked
+                            //               ? const Icon(Icons.lock)
+                            //               : null
+                            //         : ExcludeFocus(
+                            //             child: IconButton(
+                            //               onPressed: () {
+                            //                 obscureText = !obscureText;
+                            //                 setState(() {});
+                            //               },
+                            //               icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                            //             ),
+                            //           )) ??
+                            //     SizedBox(height: 30),
                             prefix:widget.prefixIcon?? widget.prefix,
 
                             decoration: BoxDecoration(

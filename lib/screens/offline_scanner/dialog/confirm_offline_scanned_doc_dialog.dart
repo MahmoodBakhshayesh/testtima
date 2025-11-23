@@ -130,6 +130,7 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
                       children: [
                         Expanded(
                           child: Text(documentDetail.getMatch(data)?.title ?? '', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
+                          // child: Text("Document", style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
                         ),
                         const SizedBox(width: 8),
                       ],
