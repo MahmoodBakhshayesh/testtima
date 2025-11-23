@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/interfaces/failures_int.dart';
+import 'package:abds/core/utils_and_services/document_similariry.dart';
 import 'package:abds/core/utils_and_services/handlers/failure_handler.dart';
 import 'package:abds/screens/offline_scanner/dialog/confirm_offline_scanned_doc_dialog.dart';
 import 'package:abds/screens/offline_scanner/dialog/set_timer_dialog.dart';
@@ -52,7 +53,7 @@ class OfflineScannerController extends ControllerInterface {
     res.countryCode = res.countryCode;
     final nationality = constData!.getLocationWithCode(res.nationality);
     final issueCountry = constData!.getLocationWithCode(res.countryCode);
-    String short= res.documentCode.startsWith("P")?"P":res.documentCode.startsWith("V")?"V":"I";
+    String short= res.documentCode.startsWith("P")?"P":res.documentCode.startsWith("V")?"V":"P";
 
     DocumentDetail documentDetail = DocumentDetail(
       shortType: short,
@@ -73,6 +74,10 @@ class OfflineScannerController extends ControllerInterface {
 
     // if (!navigation.isDialogOpen) {
       ref.read(confirmingOfflineDocProvider.notifier).update((s) => documentDetail);
+    if(ref.read(offlineScannedDocsProvider).any((a)=>isSame2(a, ref.read(confirmingOfflineDocProvider)))){
+    }else{
+      ref.read(offlineScannedDocsProvider.notifier).update((s) => [...s, ref.read(confirmingOfflineDocProvider)!]);
+    }
       // Future.delayed(Duration(milliseconds: ref.read(confirmingTimerProvider)),(){
       // Future.delayed(Duration(milliseconds: 500000),(){
       //
@@ -92,10 +97,7 @@ class OfflineScannerController extends ControllerInterface {
   }
 
   onDoneConfirming(){
-    if(ref.read(offlineScannedDocsProvider).any((a)=>isSame2(a, ref.read(confirmingOfflineDocProvider)))){
-    }else{
-      ref.read(offlineScannedDocsProvider.notifier).update((s) => [...s, ref.read(confirmingOfflineDocProvider)!]);
-    }
+
     ref.read(confirmingOfflineDocProvider.notifier).update((s)=>null);
   }
 
@@ -109,13 +111,29 @@ class OfflineScannerController extends ControllerInterface {
     if(res == null || res2 == null){
       return false;
     }
+    // log("is same check");
+    // log("${res.documentExpiryDate?.format_yyMMdd}   vs   ${res2.documentExpiryDate?.format_yyMMdd}");
+    // log("${res.birthDate?.format_yyMMdd}   vs   ${res2.birthDate?.format_yyMMdd}");
+    // log("${res.documentNumber}   vs   ${res2.documentNumber}");
+    // log("${res.documentIssueCountry?.code3}   vs   ${res2.documentIssueCountry?.code3}");
+    final exact =  res.documentExpiryDate?.format_yyMMdd == res2.documentExpiryDate?.format_yyMMdd && res.birthDate?.format_yyMMdd == res2.birthDate?.format_yyMMdd && res.documentNumber == res2.documentNumber && res.documentIssueCountry?.code3 == res2.documentIssueCountry?.code3;
+    // log("exact -- ${exact}");
+    if(exact == true){
+      return true;
+    }
+    if(exact==false){
+      // log("should isSameDocument");
+      return isSameDocument(res, res2);
+    }
+
     return res.documentCode == res2.documentCode && res.documentExpiryDate?.format_yyMMdd == res2.documentExpiryDate?.format_yyMMdd && res.birthDate?.format_yyMMdd == res2.birthDate?.format_yyMMdd && res.documentNumber == res2.documentNumber;
   }
 
   void reset() {
-    ocrMrzController.resetSession();
     ref.read(offlineScannedDocsProvider.notifier).update((s) => []);
     ref.read(confirmingOfflineDocProvider.notifier).update((s) => null);
+    ocrMrzController.resetSession();
+
   }
 
   void setTimer() {
