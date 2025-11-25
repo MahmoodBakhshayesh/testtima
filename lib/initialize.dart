@@ -7,6 +7,7 @@ import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/offline_scanner/offline_scanner_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'core/utils_and_services/cross_helpers/mrz_message_listener.dart';
 import 'core/utils_and_services/cupps_util.dart';
 import 'core/utils_and_services/notification_utils.dart';
 import 'firebase_options.dart';
@@ -67,7 +68,6 @@ import 'screens/home/home_controller.dart';
 import 'screens/login/login_controller.dart';
 import 'core/interface_implementations/network_manager_imp.dart';
 import 'screens/performance/performance_controller.dart';
-import 'dart:html' as html;
 
 final getIt = GetIt.instance;
 final String apiVersion = "/v1";
@@ -90,37 +90,9 @@ Future<void> init() async {
   await _initDataBase();
   await _initConfig();
   await _initPackages();
-  await _initWebListener();
+  initMrzMessageListener();
 }
 
-Future<void> _initWebListener() async {
-  if(kIsWeb) {
-    html.window.onMessage.listen((event) {
-      try {
-        final data = event.data;
-
-        if (data is Map && data['type'] == 'MRZ_DATA') {
-          // print("📥 پیام دریافت شد از parent:");
-          // print(data['payload']);
-          String msg = data['payload'];
-          if(getIt<LoginController>().ref.read(userProvider)!=null){
-            if(msg.startsWith("M1") || msg.startsWith("M2") || msg.startsWith("M3")){
-              getIt<BarcodeReaderController>().onBarcodeRead(msg,shouldPop: false);
-            }else {
-              CuppsUtils.ocDataHandlerText(msg);
-            }
-          }
-          // SuccessHandler.handle(ServerSuccess(code: 1, msg: msg));
-          // اینجا دیتا رو پردازش کن
-          // handleDocData(data['payload']);
-        }
-      } catch (e) {
-        String errorMsg = "onMessage error: $e";
-        FailureHandler.handle(ServerFailure(code: -1, msg: errorMsg, traceMsg: errorMsg));
-      }
-    });
-  }
-}
 
 // Future<void> initFirebase() async {
 //   try {
