@@ -103,6 +103,10 @@ Future<String?> _downloadAndSaveImageFile(String? url, String fileName) async {
 /// Must be a top-level function and annotated with @pragma
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (!Platform.isAndroid) {
+    // iOS: let APNs + NSE handle it, don't show local notification
+    return;
+  }
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

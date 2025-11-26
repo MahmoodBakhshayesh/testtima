@@ -277,7 +277,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
       ? SizedBox()
       : Row(
           children: [
-            MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+            MyCountryFlagsPro.getFlag(a, width: 22, height: 16, borderRadius: BorderRadius.circular(2)),
             const SizedBox(width: 8),
             Text("$a (${(a as Country).name})"),
           ],
@@ -289,7 +289,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
           children: [
             Text("$a"),
             const SizedBox(width: 2),
-            MyCountryFlagsPro.getFlag(a.country!,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+            MyCountryFlagsPro.getFlag(a.country!, width: 22, height: 16, borderRadius: BorderRadius.circular(2)),
           ],
         );
 
@@ -325,6 +325,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
     bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 30;
     double additionalHeight = 120;
     final currentStatus = ref.watch(currentStatusProvider);
+    log("can unlock ${currentStatus.canUnlock}");
     return PopScope(
       canPop: false,
       child: Container(
@@ -392,17 +393,19 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                     title: Container(
                                                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                                                       child: Row(
+                                                        spacing: 12,
                                                         children: [
-
                                                           Visibility(
-                                                            visible: resultMode ,
-                                                            child:     CustomPopupMenu(
+                                                            visible: resultMode,
+                                                            child: CustomPopupMenu(
                                                               horizontalMargin: 96,
                                                               child: Container(
                                                                 height: 40,
                                                                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                                                 decoration: BoxDecoration(color: context.mainColor, borderRadius: BorderRadius.circular(10)),
-                                                                child: Center(child: Text("Options", style: TextStyle(color: Colors.white))),
+                                                                child: Center(
+                                                                  child: Text("Options", style: TextStyle(color: Colors.white)),
+                                                                ),
                                                               ),
                                                               menuBuilder: () => Container(
                                                                 width: 350,
@@ -417,8 +420,9 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                                   mainAxisSize: MainAxisSize.min,
                                                                   children: [
                                                                     DrawerAction(
+                                                                      visible: true,
                                                                       radius: 12,
-                                                                      tileColor: MyColors.mainBlue,
+                                                                      tileColor: MyColors.mainBlue.withOpacity(0.1),
                                                                       title: "Agent Decision",
                                                                       onTap: () async {
                                                                         String? logId = getIt<HomeController>().ref.read(refCodeProvider);
@@ -436,30 +440,31 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                                     ),
                                                                     ?ref.watch(currentStatusProvider).canAskSupervisor
                                                                         ? DrawerAction(
-                                                                      radius: 12,
-                                                                      tileColor: MyColors.mainBlue,
-                                                                      title: "Ask Supervisor",
-                                                                      onTap: () async {
-                                                                        List<Supervisor>? supervisors = await getIt<HomeController>().getSupervisors();
-                                                                        if (supervisors == null) return;
+                                                                      visible: ref.watch(currentStatusProvider).canAskSupervisor,
+                                                                            radius: 12,
+                                                                            tileColor: MyColors.mainBlue.withOpacity(0.1),
+                                                                            title: "Ask Supervisor",
+                                                                            onTap: () async {
+                                                                              List<Supervisor>? supervisors = await getIt<HomeController>().getSupervisors();
+                                                                              if (supervisors == null) return;
 
-                                                                        String? logId = getIt<HomeController>().ref.read(refCodeProvider);
-                                                                        if (logId != null) {
-                                                                          _controller.hideMenu();
-                                                                          showDialog(
-                                                                            context: context,
-                                                                            builder: (BuildContext context) {
-                                                                              return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+                                                                              String? logId = getIt<HomeController>().ref.read(refCodeProvider);
+                                                                              if (logId != null) {
+                                                                                _controller.hideMenu();
+                                                                                showDialog(
+                                                                                  context: context,
+                                                                                  builder: (BuildContext context) {
+                                                                                    return AskSupervisorSheet(logId: logId, supervisors: supervisors);
+                                                                                  },
+                                                                                );
+                                                                              }
                                                                             },
-                                                                          );
-                                                                        }
-                                                                      },
-                                                                      leadingIcon: ArtemisIcons.message_question,
-                                                                    )
+                                                                            leadingIcon: ArtemisIcons.message_question,
+                                                                          )
                                                                         : null,
                                                                     DrawerAction(
                                                                       radius: 12,
-                                                                      tileColor: MyColors.mainBlue,
+                                                                      tileColor: MyColors.mainBlue.withOpacity(0.1),
                                                                       title: "Airline Representative Decision",
                                                                       onTap: () async {
                                                                         String? logId = getIt<HomeController>().ref.read(refCodeProvider);
@@ -477,7 +482,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                                     ),
                                                                     DrawerAction(
                                                                       radius: 12,
-                                                                      tileColor: MyColors.mainBlue,
+                                                                      tileColor: MyColors.mainBlue.withOpacity(0.1),
                                                                       title: "Add Attachment",
                                                                       onTap: () async {
                                                                         String? logId = getIt<HomeController>().ref.read(refCodeProvider);
@@ -503,27 +508,41 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                           ),
                                                           Visibility(
                                                             visible: resultMode,
-                                                            child: Padding(
-                                                              padding: const EdgeInsets.only(left: 8.0),
-                                                              child: MyButton(
-                                                                label: "Unlock",
-                                                                fontSize: 12,
-                                                                iconSize: 15,
-                                                                reverse: true,
+                                                            child: currentStatus.isLocked
+                                                                ? MyButton(
+                                                                    label: "Unlock",
+                                                                    fontSize: 12,
+                                                                    iconSize: 15,
+                                                                    reverse: true,
 
-                                                                icon: ArtemisIcons.unlock,
-                                                                onPressed: !resultMode
-                                                                    ? null
-                                                                    : () async {
-                                                                  await getIt<HomeController>().setStatus(0);
-                                                                },
-                                                                radius: 10,
-                                                                borderSide: BorderSide(color: context.mainColor),
-                                                              ),
-                                                            ),
+                                                                    icon: ArtemisIcons.unlock,
+                                                                    onPressed: !resultMode
+                                                                        ? null
+                                                                        : () async {
+                                                                            await getIt<HomeController>().setStatus(0);
+                                                                          },
+                                                                    radius: 10,
+                                                                    borderSide: BorderSide(color: context.mainColor),
+                                                                  )
+                                                                : MyButton(
+                                                                    label: "Lock",
+                                                                    fontSize: 12,
+                                                                    iconSize: 15,
+                                                                    reverse: true,
+
+                                                                    icon: ArtemisIcons.unlock,
+                                                                    onPressed: !resultMode
+                                                                        ? null
+                                                                        : () async {
+                                                                            log("lock");
+                                                                            await getIt<HomeController>().setStatus(1);
+                                                                          },
+                                                                    radius: 10,
+                                                                    borderSide: BorderSide(color: context.mainColor),
+                                                                  ),
                                                           ),
                                                           Visibility(
-                                                            visible: !resultMode,
+                                                            visible: !resultMode || !currentStatus.isLocked,
                                                             child: MyButton(
                                                               label: "TIMATIC",
                                                               iconSize: 12,
@@ -752,7 +771,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
           children: [
             Text("$a"),
             const SizedBox(width: 2),
-            MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+            MyCountryFlagsPro.getFlag(a, width: 22, height: 16, borderRadius: BorderRadius.circular(2)),
           ],
         );
 

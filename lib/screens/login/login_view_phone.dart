@@ -246,7 +246,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                         LoginState state = ref.watch(loginProvider);
                         return MyButton(
                           height: 45,
-                          key: ButtonKeys.loginButtonKeyPhone,
+                          // key: ButtonKeys.loginButtonKeyPhone,
                           radius: 12,
                           onPressed: () async {
                             await myLoginController.login(usernameC.text, passwordC.text);

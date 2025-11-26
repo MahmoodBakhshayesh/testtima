@@ -279,7 +279,7 @@ class _MyOcrSettingDialogState extends State<ManagerApprovalSheet> {
                           onPressed: response == 0
                               ? null
                               : () async {
-                            final size = (context.width * 0.9).abs().floor();
+                            final size =context.isDesktop?(context.height*0.4).abs().floor(): (context.width * 0.9).abs().floor();
                             final byteData = await control.toImage(width: size, height: size, background: Colors.transparent);
                             if (byteData == null) {
                               return;

@@ -161,6 +161,24 @@ class DocumentDetail {
       verifiedDocNum: json["verifiedDocNum"],
     );
   }
+  factory DocumentDetail.fromMrzResult(OcrMrzResult res) {
+    return DocumentDetail(
+      documentNumber: res.documentNumber,
+      fullName: "${res.firstName} ${res.lastName}",
+      documentCode: null,
+      documentExpiryDate: res.expiryDate,
+      birthDate: res.birthDate,
+      documentIssueCountry: VersionedData.offline().getLocationWithCode(res.countryCode),
+      documentIssueDate: null,
+      nationality: VersionedData.offline().getLocationWithCode(res.nationality),
+      mrz: null,
+      ocrText: null,
+      shortType: res.documentCode.characters.first,
+      docCode:res.documentCode,
+      sex: res.sex,
+      verifiedDocNum: false,
+    );
+  }
 
 
   factory DocumentDetail.visa() {

@@ -219,6 +219,7 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 },
                                 leadingIcon: ArtemisIcons.attach_circle,
                               ),
+
                             ],
                           ),
                         )

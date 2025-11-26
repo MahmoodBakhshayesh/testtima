@@ -94,10 +94,9 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             width: 15,
             height: 10,
             child:  MyCountryFlagsPro.getFlag(a,width: 15,height: 10,borderRadius: BorderRadius.circular(2)),
-
           ),
-          const SizedBox(width: 4),
-          Text(a, style: TextStyle(fontSize: 12)),
+          // const SizedBox(width: 4),
+          // Text(a, style: TextStyle(fontSize: 12)),
         ],
       );
     }

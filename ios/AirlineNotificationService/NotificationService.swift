@@ -13,10 +13,14 @@ class NotificationService: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
+
+
         guard let bestAttemptContent = bestAttemptContent else {
             contentHandler(request.content)
             return
         }
+                bestAttemptContent.title = "[NSE] " + bestAttemptContent.title
+                bestAttemptContent.body  = "[NSE] " + bestAttemptContent.body
 
         let userInfo = bestAttemptContent.userInfo
 

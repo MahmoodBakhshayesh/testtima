@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class MyFieldPickerDesktop<T> extends StatefulWidget {
+import 'MyTextFieldNew.dart';
+
+class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
   // Mapping / data
   final String Function(T)? itemToString;
   final String Function(T)? valueToString;
@@ -92,10 +95,10 @@ class MyFieldPickerDesktop<T> extends StatefulWidget {
   });
 
   @override
-  State<MyFieldPickerDesktop<T>> createState() => _MyFieldPickerStateDesktop<T>();
+  ConsumerState<MyFieldPickerDesktop<T>> createState() => _MyFieldPickerStateDesktop<T>();
 }
 
-class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
+class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T>> {
   // constants
   static const double _kMenuHeight = 300;
   static const double _kItemExtent = 40;
@@ -539,6 +542,8 @@ class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
     final hasError = (valMsg.isNotEmpty) || reqError;
     final Color vColor = widget.validationColor ?? Colors.red;
     final bool showErrorBorder = widget.validationMode && hasError;
+    bool validationMode = ref.watch(globalFormValidationMode) && widget.required && displayText.isEmpty;
+    BoxBorder? boxBorder = validationMode ? BoxBorder.all(color: Colors.red) : BoxBorder.all(color: Colors.transparent);
 
     final InputBorder? border = showErrorBorder
         ? OutlineInputBorder(
@@ -577,6 +582,10 @@ class _MyFieldPickerStateDesktop<T> extends State<MyFieldPickerDesktop<T>> {
       child: InkWell(
         onTap: (widget.locked || widget.disabled) ? null : _toggleOverlay,
         child: Container(
+          decoration: BoxDecoration(
+            border: boxBorder,
+            borderRadius: BorderRadius.circular(5)
+          ),
           height: widget.height,
           alignment: Alignment.center,
           padding: widget.valuePadding,

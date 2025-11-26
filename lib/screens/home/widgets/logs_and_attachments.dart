@@ -657,6 +657,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                                             );
                                           },
                                           child: SizedBox(
+
                                             width: 120,
                                             height: 120,
                                             child: ClipRRect(
