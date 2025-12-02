@@ -26,3 +26,4 @@ windows   1:766257278398:web:67f580e87b502fad111def
 [log] 🍏 APNs token: DE026C4FC3447F969542402B56CF61C9589791B74D2F511F0428495BB8B838A5
 
 flutter build web --release --pwa-strategy=none --no-tree-shake-icons
+ 5894-6315-2985-0117

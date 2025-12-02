@@ -125,6 +125,17 @@ class OfflineScannerController extends ControllerInterface {
     if (res == null || res2 == null) {
       return false;
     }
+
+    bool exCheck = res.documentExpiryDate?.format_yyMMdd == res2.documentExpiryDate?.format_yyMMdd;
+    bool birthCheck = res.birthDate?.format_yyMMdd == res2.birthDate?.format_yyMMdd;
+    bool numCheck =  res.documentNumber == res2.documentNumber;
+    bool issueCheck =  res.documentIssueCountry?.code3 == res2.documentIssueCountry?.code3;
+    bool codeCheck = res.docCode?.characters.firstOrNull == res2.docCode?.characters.firstOrNull;
+
+    if(codeCheck && issueCheck && numCheck && birthCheck){
+      return true;
+    }
+
     // log("is same check");
     // log("${res.documentExpiryDate?.format_yyMMdd}   vs   ${res2.documentExpiryDate?.format_yyMMdd}");
     // log("${res.birthDate?.format_yyMMdd}   vs   ${res2.birthDate?.format_yyMMdd}");
@@ -151,8 +162,8 @@ class OfflineScannerController extends ControllerInterface {
   }
 
   void reset() {
-    ref.read(offlineScannedDocsProvider.notifier).update((s) => []);
     ref.read(confirmingOfflineDocProvider.notifier).update((s) => null);
+    ref.read(offlineScannedDocsProvider.notifier).update((s) => []);
     ocrMrzController.resetSession();
   }
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 String? iso3ToIso2(String iso3) {
@@ -809,9 +811,13 @@ class MyCountryFlagsPro {
 
     // Construct the asset path for the flag SVG
     String flagAsset = 'packages/country_flags_pro/assets/svg/$countryCode.svg';
-
+    // if(["br","bra"].contains(countryCode)){
+    //   flagAsset = 'packages/country_flags_pro/assets/svg/br.svg';
+    //   // log(flagAsset);
+    // }
     /// Helper widget to display an error message.
     return Container(
+
       key: Key(countryCode),
       width: width,
       height: height,

@@ -345,4 +345,8 @@ extension Formm on DateTime? {
   String get format_yyMMddSlash {
     return this == null ? "" : DateFormat("dd,MMM yyyy").format(this!);
   }
+
+  String get format_yyMMddSlashTrim {
+    return this == null ? "" : DateFormat("dd,MMMyyyy").format(this!);
+  }
 }

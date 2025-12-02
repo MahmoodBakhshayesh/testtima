@@ -70,11 +70,12 @@ class _ConfirmOfflineScannedDocDialogState extends ConsumerState<ConfirmOfflineS
   Widget build(BuildContext context) {
     // LISTEN here (legal for ConsumerStatefulWidget)
     ref.listen<DocumentDetail?>(confirmingOfflineDocProvider, (previous, next) {
-      if (!ref.read(offlineScannedDocsProvider).any((a) => getIt<OfflineScannerController>().isSame2(a, previous))) {
-        ref.read(offlineScannedDocsProvider.notifier).update((s) => [...s, previous!]);
-      }
+
       // Any time the document changes → restart the timer
       if (next != null) {
+        if (!ref.read(offlineScannedDocsProvider).any((a) => getIt<OfflineScannerController>().isSame2(a, previous))) {
+          ref.read(offlineScannedDocsProvider.notifier).update((s) => [...s, previous!]);
+        }
         _restartTimer();
       }
     });
@@ -533,14 +534,27 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingOfflineItemRow> {
 
 
 class VerifyIcon extends StatelessWidget {
-  const VerifyIcon({super.key});
+  final double size;
+  const VerifyIcon({super.key, this.size = 24});
 
   @override
   Widget build(BuildContext context) {
 
     return  Transform.rotate(
         angle: 0.3,
-        child: IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]));
+        child: IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white],size: size));
+  }
+}
+class ErrorIcon extends StatelessWidget {
+  final double size;
+  const ErrorIcon({super.key, this.size = 24});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return  Transform.rotate(
+        angle: 0.0,
+        child: IcomoonLayeredCss.warning_2(colors: [Colors.redAccent,Colors.white,Colors.white],size: size));
   }
 }
 
