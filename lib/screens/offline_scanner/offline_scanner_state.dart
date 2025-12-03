@@ -15,4 +15,4 @@ class OfflineScannerState extends ChangeNotifier {
 
 final offlineScannedDocsProvider = StateProvider<List<DocumentDetail>>((ref) => []);
 final confirmingOfflineDocProvider = StateProvider<DocumentDetail?>((ref) => null);
-final confirmingTimerProvider = StateProvider<int>((ref) => 5000);
+final confirmingTimerProvider = StateProvider<int>((ref) => 1000);

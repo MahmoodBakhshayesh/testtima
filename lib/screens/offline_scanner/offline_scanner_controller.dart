@@ -17,6 +17,7 @@ import '../../core/interfaces/controller_int.dart';
 import '../../core/utils_and_services/timatic/src/models/document_request.dart';
 import '../../core/utils_and_services/timatic/src/models/enums.dart';
 import '../../widgets/MyFieldPicker.dart';
+import 'dialog/timer_widget.dart';
 import 'offline_scanner_state.dart';
 
 class OfflineScannerController extends ControllerInterface {
@@ -24,6 +25,7 @@ class OfflineScannerController extends ControllerInterface {
   bool scanning = true;
   OcrMrzController ocrMrzController = OcrMrzController();
   VersionedData? constData = VersionedData.offline();
+  TimerController elapsedTimerController = TimerController();
 
   Future<void> onFoundMrz(OcrMrzResult res) async {
     if (!res.valid.birthDateValid || !res.valid.expiryDateValid || !res.valid.docNumberValid || !res.valid.countryValid) {
@@ -165,6 +167,7 @@ class OfflineScannerController extends ControllerInterface {
     ref.read(confirmingOfflineDocProvider.notifier).update((s) => null);
     ref.read(offlineScannedDocsProvider.notifier).update((s) => []);
     ocrMrzController.resetSession();
+    elapsedTimerController.reset();
   }
 
   void setTimer() {

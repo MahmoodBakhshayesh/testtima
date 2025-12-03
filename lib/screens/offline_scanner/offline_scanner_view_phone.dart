@@ -13,13 +13,13 @@ import 'package:ocr_mrz/ocr_mrz_settings_class.dart';
 import '../../core/constants/ui.dart';
 import '../../widgets/DotButton.dart';
 import 'dialog/confirm_offline_scanned_doc_dialog.dart';
+import 'dialog/timer_widget.dart';
 import 'offline_scanner_controller.dart';
 import 'offline_scanner_state.dart';
 import '../../initialize.dart';
 import '../../core/extenstions/context_exp.dart';
 
 class OfflineScannerViewPhone extends ConsumerStatefulWidget {
-  static OfflineScannerController myOfflineScannerController = getIt<OfflineScannerController>();
 
   const OfflineScannerViewPhone({super.key});
 
@@ -28,6 +28,8 @@ class OfflineScannerViewPhone extends ConsumerStatefulWidget {
 }
 
 class _OfflineScannerViewPhoneState extends ConsumerState<OfflineScannerViewPhone> {
+  static OfflineScannerController myOfflineScannerController = getIt<OfflineScannerController>();
+
   OcrMrzSetting setting = OcrMrzSetting(
     validateBirthDateValid: true,
     macro: true,
@@ -43,6 +45,14 @@ class _OfflineScannerViewPhoneState extends ConsumerState<OfflineScannerViewPhon
   );
 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      myOfflineScannerController.elapsedTimerController.start();
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final scanned = ref.watch(offlineScannedDocsProvider);
     final confirming = ref.watch(confirmingOfflineDocProvider);
@@ -53,7 +63,7 @@ class _OfflineScannerViewPhoneState extends ConsumerState<OfflineScannerViewPhon
           Expanded(
             child: Stack(
               children: [
-                OcrMrzReader(showFrame: false, setting: setting, controller: OfflineScannerViewPhone.myOfflineScannerController.ocrMrzController, onFoundMrz: OfflineScannerViewPhone.myOfflineScannerController.onFoundMrz),
+                OcrMrzReader(showFrame: false, setting: setting, controller: myOfflineScannerController.ocrMrzController, onFoundMrz: myOfflineScannerController.onFoundMrz),
                 Container(
                   constraints: BoxConstraints(maxHeight: context.height * .4),
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -88,7 +98,7 @@ class OfflineScannerAppBarPhone extends StatelessWidget implements PreferredSize
   const OfflineScannerAppBarPhone({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(108);
+  Size get preferredSize => const Size.fromHeight(118);
 
   @override
   Widget build(BuildContext context) {
@@ -97,37 +107,56 @@ class OfflineScannerAppBarPhone extends StatelessWidget implements PreferredSize
       color: Colors.white,
       alignment: Alignment.center,
       child: SafeArea(
-        child: Row(
+        child: Column(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      BackButton(),
-                      Text("Offline Scanner", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
-                      Spacer(),
-                      DotButton(
-                        icon: Icons.settings,
-                        onPressed: () async {
-                          mySettingMenuController.setTimer();
-                        },
+                      Row(
+                        children: [
+                          BackButton(),
+                          Text("Offline Scanner", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                          Spacer(),
+                          ElapsedTimer(controller: mySettingMenuController.elapsedTimerController, builder: (BuildContext context, Duration elapsed) {
+                            return Container(
+                                width: 40,
+                                height: 40,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: MyColors.green2.withOpacity(0.3)
+                                ),
+                                child: Text("${elapsed.inSeconds%99}".padLeft(2,"0"),style: GoogleFonts.spaceMono(fontWeight: FontWeight.bold,fontSize: 20,color: context.mainColor),));
+                          },),
+                          SizedBox(width: 8),
+                          DotButton(
+                            size: 40,
+                            icon: Icons.settings,
+                            onPressed: () async {
+                              mySettingMenuController.setTimer();
+                            },
+                          ),
+                          SizedBox(width: 8),
+                          DotButton(
+                            size: 40,
+                            icon: Icons.refresh,
+                            onPressed: () async {
+                              mySettingMenuController.reset();
+                            },
+                          ),
+                          SizedBox(width: 8),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      DotButton(
-                        icon: Icons.refresh,
-                        onPressed: () async {
-                          mySettingMenuController.reset();
-                        },
-                      ),
-                      SizedBox(width: 8),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+
           ],
         ),
       ),
