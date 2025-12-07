@@ -577,7 +577,8 @@ class _SegmentItemRowState extends ConsumerState<SegmentItemRow> {
                 ? Row(
                     spacing: 12,
                     children: [
-                      Expanded(
+                      SizedBox(
+                        width: 165,
                         child: MySwitchButton(
                           rowLabelRatio: [4,3],
                           value: seg.luggageCollected ?? false,

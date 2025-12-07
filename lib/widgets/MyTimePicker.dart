@@ -153,13 +153,13 @@ class _MyTimePickerState extends State<MyTimePicker> {
     return GestureDetector(
       onTap: () {
         if (context.isDesktop) {
-          showDatePicker(context: context, initialDate: widget.value.toDateTime() ?? DateTime.now(), firstDate: widget.min.toDateTime() ?? DateTime(1900), lastDate: widget.max.toDateTime() ?? DateTime(3000)).then((v) {
+          showTimePicker(context: context,initialTime: widget.value??TimeOfDay.now(),initialEntryMode: TimePickerEntryMode.input).then((v) {
            if(v is TimeOfDay){
              if(v == null){
                widget.onChanged(null);
                return;
              }
-             widget.onChanged(TimeOfDay.fromDateTime(v));
+             widget.onChanged(v);
              controller?.text = v.format_HHmm ?? '';
            }
           });

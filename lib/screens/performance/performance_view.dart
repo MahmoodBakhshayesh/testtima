@@ -13,7 +13,7 @@ class PerformanceView extends ConsumerWidget {
     @override
     Widget build(BuildContext context,WidgetRef ref) {
       if(context.isDesktop){
-        return PerformanceViewPhone();
+        return PerformanceViewDesktop();
       }else if(context.isMyTablet){
         return PerformanceViewPhone();
       }else{

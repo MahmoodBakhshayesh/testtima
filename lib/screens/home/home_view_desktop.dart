@@ -762,8 +762,8 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
 
 class HeaderSummaryWidgetDesktop extends ConsumerWidget {
   final Widget header;
-
-  const HeaderSummaryWidgetDesktop({super.key, required this.header});
+  final TimaticResponseNew? overrideResult;
+  const HeaderSummaryWidgetDesktop({super.key, required this.header,this.overrideResult});
 
   Widget countryBuilderHeader(dynamic a) => a == null
       ? SizedBox()
@@ -777,7 +777,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final timaticRes = ref.watch(timaticResultNewProvider);
+    final timaticRes =overrideResult?? ref.watch(timaticResultNewProvider);
     final bool resultMode = timaticRes != null;
     // log(tim.params.of(ParameterType.documentCode).map((a)=>"${a.code} -> ${a.name}").join("\n"));
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
@@ -829,7 +829,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                         Container(
                           child: Builder(
                             builder: (BuildContext context) {
-                              final res = ref.watch(timaticResultNewProvider)!;
+                              final res = timaticRes;
                               return Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),

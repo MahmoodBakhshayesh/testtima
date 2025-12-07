@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:abds/core/classes/log_report_detail_class.dart';
 import 'package:abds/core/classes/overall_performance_class.dart';
 import 'package:abds/core/classes/overall_report_tabel_class.dart';
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/screens/performance/usecases/get_report_usecase.dart';
 import 'package:dartx/dartx.dart';
@@ -63,14 +64,14 @@ class PerformanceController extends ControllerInterface {
       case Ok<GetReportResponse>():
         final r = result.value;
         details = r.reportDetails.reversed.toList();
-        // details = r.reportDetails.reversed.toList();
-        // details = [...r.reportDetails.reversed.toList(),...r.reportDetails.reversed.toList(),...r.reportDetails.reversed.toList()];
+      // details = r.reportDetails.reversed.toList();
+      // details = [...r.reportDetails.reversed.toList(),...r.reportDetails.reversed.toList(),...r.reportDetails.reversed.toList()];
     }
 
     return details;
   }
 
-  Future<OverallReportTable?> getOverallPerformances({DateTime? fromDate, DateTime? toDate, String? from, String? to,String? additionalQuery}) async {
+  Future<OverallReportTable?> getOverallPerformances({DateTime? fromDate, DateTime? toDate, String? from, String? to, String? additionalQuery}) async {
     OverallReportTable? table;
     GetOverallPerformancesUseCase getPerformanceLogUseCase = GetOverallPerformancesUseCase();
     GetOverallPerformancesRequest getReportRequest = GetOverallPerformancesRequest(from: from, to: to, fromDate: fromDate, toDate: toDate, additionalQuery: additionalQuery);
@@ -83,20 +84,24 @@ class PerformanceController extends ControllerInterface {
       case Ok<GetOverallPerformancesResponse>():
         final r = result.value;
         table = r.reportTable;
-        // table = r.reportTable.copyWith(data: [...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data]);
+      // table = r.reportTable.copyWith(data: [...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data,...r.reportTable.data]);
     }
 
     return table;
   }
 
   goMessageDetails(String refCode) async {
-    try {
-      final refHistory = await getRefHistoryLog(showCode: null, code: refCode);
-      if (refHistory != null) {
-        goNamed(Routes.resultReport);
+    if (navigation.context.isDesktop) {
+      final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: null, code: refCode);
+    } else {
+      try {
+        final refHistory = await getRefHistoryLog(showCode: null, code: refCode);
+        if (refHistory != null) {
+          goNamed(Routes.resultReport);
+        }
+      } catch (e) {
+        log("$e");
       }
-    }catch(e){
-      log("$e");
     }
   }
 
@@ -108,7 +113,7 @@ class PerformanceController extends ControllerInterface {
 
     switch (result) {
       case Err<GetRefCodeLogResponse>():
-        Future.delayed(Duration(milliseconds: 300),(){
+        Future.delayed(Duration(milliseconds: 300), () {
           FailureHandler.handle(result.error);
         });
         return null;
@@ -173,13 +178,13 @@ class PerformanceController extends ControllerInterface {
         }),
       );
 
-      if(passes.isNotEmpty){
-        passes[0]= passes[0].copyWith(sex: pd.gender?.value);
+      if (passes.isNotEmpty) {
+        passes[0] = passes[0].copyWith(sex: pd.gender?.value);
       }
-      ref.read(reportPassportsProvider.notifier).update((s)=>passes);
-      ref.read(reportVisasProvider.notifier).update((s)=>visas);
-      ref.read(reportResidentsProvider.notifier).update((s)=>residents);
-      ref.read(reportSegmentsProvider.notifier).update((s)=>allSegs);
+      ref.read(reportPassportsProvider.notifier).update((s) => passes);
+      ref.read(reportVisasProvider.notifier).update((s) => visas);
+      ref.read(reportResidentsProvider.notifier).update((s) => residents);
+      ref.read(reportSegmentsProvider.notifier).update((s) => allSegs);
       ref.read(reportPassengerProvider.notifier).update((s) => pd);
       ref.read(reportRefCodeShowProvider.notifier).update((s) => his.showCode);
       ref.read(reportRefCodeProvider.notifier).update((s) => his.refCode);

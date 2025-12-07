@@ -51,18 +51,20 @@ SettingMenu parseSettingMenu(dynamic source) => SettingMenu.fromDynamic(source);
 class MenuDescriptor {
   final String title;
   final String endpoint;
+  final List documentName;
   final SchemaNode schema;
 
-  const MenuDescriptor({required this.title, required this.endpoint, required this.schema});
+
+  const MenuDescriptor({required this.title, required this.endpoint, required this.schema, required this.documentName});
 
   factory MenuDescriptor.fromJson(Map<String, dynamic> json) {
-    return MenuDescriptor(title: _asString(json['title']), endpoint: _asString(json['endpoint']), schema: SchemaNode.fromJson(_asMap(json['schema'])));
+    return MenuDescriptor(title: _asString(json['title']), endpoint: _asString(json['endpoint']),documentName: _asList(json["documentName"]??[]), schema: SchemaNode.fromJson(_asMap(json['schema'])));
   }
 
-  Map<String, dynamic> toJson() => {'title': title, 'endpoint': endpoint, 'schema': schema.toJson()};
+  Map<String, dynamic> toJson() => {'title': title, 'endpoint': endpoint,'documentName': documentName, 'schema': schema.toJson()};
 
-  MenuDescriptor copyWith({String? title, String? endpoint, SchemaNode? schema}) {
-    return MenuDescriptor(title: title ?? this.title, endpoint: endpoint ?? this.endpoint, schema: schema ?? this.schema);
+  MenuDescriptor copyWith({String? title, String? endpoint, SchemaNode? schema,List? documentName}) {
+    return MenuDescriptor(title: title ?? this.title, endpoint: endpoint ?? this.endpoint, schema: schema ?? this.schema,documentName:documentName??this.documentName);
   }
 
   getValue(value) {

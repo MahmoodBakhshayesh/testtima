@@ -37,8 +37,17 @@ class _MenuSectionViewPhoneState extends ConsumerState<MenuSectionViewPhone> {
             child: ListView.builder(
               itemCount: items.length,
               itemBuilder: (c, i) {
-                String label = section.title.split(" ").last;
-                return SectionItemWidget(data: items[i], schema: section.schema, label: '${label} ${i + 1}');
+                // String label = section.title.split(" ").last;
+                String label = "";
+                if(items.isNotEmpty && items.first is Map){
+                  for (var a in section.documentName) {
+                    label = label + " ${items[i][a]}";
+                  }
+                }else{
+                  label = section.title.split(" ").last + " ${i + 1}";
+                }
+
+                return SectionItemWidget(data: items[i], schema: section.schema, label: label);
               },
             ),
           ),
@@ -155,6 +164,7 @@ class SectionItemWidget extends StatelessWidget {
           return SectionItemWidget(schema: array.items, data: itemValue, label: prettyLabel);
         }
         return MyExpansionTile(
+          initiallyExpanded: false,
           childrenPadding: EdgeInsets.symmetric(horizontal: 4.0 * level),
           title: Row(
             children: [

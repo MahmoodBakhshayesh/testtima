@@ -185,7 +185,7 @@ class _EditingItemWidgetState extends State<EditingItemWidget> {
         // final String showingLabel = widget.label.split(".").last;
         final Map<String, dynamic> v = _toStringKeyMap(tmp);
         return MyExpansionTile(
-          initiallyExpanded: true,
+          initiallyExpanded: false,
           // enabled: false,
           showTrailingIcon: true,
           childrenPadding: EdgeInsets.symmetric(horizontal: 1.0 * level),
@@ -227,8 +227,8 @@ class _EditingItemWidgetState extends State<EditingItemWidget> {
         // }
         // String showingLabel = widget.label.split(".").last;
         return MyExpansionTile(
-          initiallyExpanded: true,
-          enabled: false,
+          initiallyExpanded: false,
+          // enabled: false,
           childrenPadding: EdgeInsets.symmetric(horizontal: 1.0 * level),
           title: Row(
             children: [
