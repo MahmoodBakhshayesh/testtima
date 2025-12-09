@@ -21,6 +21,7 @@ import '../home/new_widgets/passenger_widget.dart';
 import '../home/new_widgets/passport_widget.dart';
 import '../home/new_widgets/resident_widget.dart';
 import '../home/new_widgets/visa_widget.dart';
+import '../home/widgets/header_summary_offline_widget.dart';
 import '../home/widgets/logs_and_attachments.dart';
 import '../home/widgets/timatic_response_widget.dart';
 import '../result_report/result_report_state.dart';
@@ -264,21 +265,38 @@ class InboxAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           children: [
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      BackButton(),
-                      Text("Inbox", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
-                      Spacer(),
-                      SizedBox(width: 8),
-                    ],
-                  ),
-                ],
+              child: Consumer(
+                builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                  return HeaderSummaryOfflineWidget(
+                    header: Row(
+                      children: [
+                        BackButton(),
+                        Text("Inbox", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+
+                        SizedBox(width: 8),
+                      ],
+                    ),
+                    summaryObject: ref.watch(reportHeaderSummaryObjectProvider),
+                  );
+                },
               ),
             ),
+            // Expanded(
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       Row(
+            //         children: [
+            //           BackButton(),
+            //           Text("Inbox", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+            //           Spacer(),
+            //           SizedBox(width: 8),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

@@ -66,4 +66,9 @@ class OutboxController extends ControllerInterface {
   // load(String messageCode) async {
   //   final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: messageCode,code: null);
   // }
+
+  Future<void> load(String messageCode) async {
+    final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: messageCode,code: null);
+
+  }
 }

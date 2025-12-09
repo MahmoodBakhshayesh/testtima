@@ -1,3 +1,4 @@
+import 'package:abds/core/classes/header_summary_object_class.dart';
 import 'package:abds/core/classes/timatic_response_new_class.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,4 +26,5 @@ final reportCurrentStatusProvider =  StateProvider<CurrentStatus>((ref) => Curre
 final reportRefCodeShowProvider =  StateProvider<String?>((ref) =>null);
 final reportRefCodeProvider =  StateProvider<String?>((ref) =>null);
 final reportTimaticResultNewProvider =  StateProvider<TimaticResponseNew?>((ref) =>null);
+final reportHeaderSummaryObjectProvider =  StateProvider<HeaderSummaryObject?>((ref) =>null);
 

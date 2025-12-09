@@ -150,6 +150,7 @@ class _VisaItemRowState extends ConsumerState<VisaItemRow> {
                   Expanded(
                     child: Text("Visa #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
+
                   DotButton(
                     icon: ArtemisIcons.eraser_1,
                     onPressed: () async {

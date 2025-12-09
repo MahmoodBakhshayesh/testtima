@@ -198,7 +198,6 @@ class _MyOcrSettingDialogState extends ConsumerState<OptionSheetDialog> {
                                 tileColor: Colors.blueAccent.withOpacity(0.18),
                                 borderColor: Colors.blueAccent,
                                 iconColor: Colors.blueAccent,
-
                                 radius: 8,
                                 title: "Add Attachment",
                                 onTap: () async {

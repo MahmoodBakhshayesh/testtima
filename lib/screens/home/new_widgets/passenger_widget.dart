@@ -170,8 +170,8 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
               child: MyCountryFlagsPro.getFlag(a),
             ),
           ),
-          const SizedBox(width: 4),
-          Text(a, style: TextStyle(fontSize: 12)),
+          // const SizedBox(width: 4),
+          // Text(a, style: TextStyle(fontSize: 12)),
         ],
       );
     }

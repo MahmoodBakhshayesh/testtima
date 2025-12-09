@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
@@ -119,7 +121,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
   @override
   void didUpdateWidget(covariant MyDatePicker oldWidget) {
     if (widget.value != oldWidget.value) {
-      controller?.text = widget.value==null?"":widget.valueFormat?.format(widget.value!)?? widget.value?.format_yyMMddSlash ?? '';
+      controller?.text = widget.value == null ? "" : widget.valueFormat?.format(widget.value!) ?? widget.value?.format_yyMMddSlash ?? '';
     }
 
     // setState(() {});
@@ -135,7 +137,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
       } else {
         controller = TextEditingController();
       }
-      controller?.text =widget.value==null?"": widget.valueFormat?.format(widget.value!)?? widget.value.format_yyMMddSlash;
+      controller?.text = widget.value == null ? "" : widget.valueFormat?.format(widget.value!) ?? widget.value.format_yyMMddSlash;
       controller?.addListener(() {
         _errorMsg = widget.validator?.call(controller!.text);
       });
@@ -157,11 +159,14 @@ class _MyDatePickerState extends State<MyDatePicker> {
     return GestureDetector(
       onTap: () {
         if (context.isDesktop) {
-          showDatePicker(context: context,
-              barrierDismissible: false,
-              initialDate: widget.value ?? DateTime.now(), firstDate: widget.min ?? DateTime(1900), lastDate: widget.max ?? DateTime(3000)).then((v) {
+          showDatePicker(context: context, barrierDismissible: false, initialDate: widget.value ?? DateTime.now(), firstDate: widget.min ?? DateTime(1900), lastDate: widget.max ?? DateTime(3000)).then((v) {
+            if (v == null) {
+              log("v is null just return");
+            }else{
+              log("v is no null is $v");
+            }
             widget.onChanged(v);
-            controller?.text = v?.format_HHmm ?? '';
+            controller?.text = v?.format_yyMMddSlash ?? '';
           });
         } else {
           showBoardDateTimePicker(
@@ -179,7 +184,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
             final newVal = v ?? widget.value;
             widget.onChanged(newVal);
             if (v == null) return;
-            controller?.text =newVal==null?"": widget.valueFormat?.format(newVal) ??  newVal.format_yyMMddSlash ?? '';
+            controller?.text = newVal == null ? "" : widget.valueFormat?.format(newVal) ?? newVal.format_yyMMddSlash ?? '';
           });
         }
         // showDatePicker(
@@ -216,7 +221,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
           placeholder: widget.placeholder,
           style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
           validator: widget.validator,
-          suffixIcon: widget.suffixIcon??SizedBox(height: 22,),
+          suffixIcon: widget.suffixIcon ?? SizedBox(height: 22),
           controller: controller,
         ),
       ),

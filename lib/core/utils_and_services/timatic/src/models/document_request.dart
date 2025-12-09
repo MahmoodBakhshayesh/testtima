@@ -332,6 +332,31 @@ class DocumentDetail {
       ],
     ),
   );
+  Widget get birthdayWidgetDesktop =>!isBirthday?SizedBox(): Container(
+    margin: EdgeInsets.only(top: 0),
+    padding: EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: Colors.purple.withOpacity(0.12),
+      borderRadius: BorderRadiusGeometry.circular(24),
+    ),
+    child: Row(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.purple,
+          ),
+          padding: EdgeInsets.all(8),
+          child: Image.asset(AssetImages.cake,width: 20,height: 20,),
+          // child: IcomoonLayeredCss.cake(colors: [Colors.white,Colors.white38,Colors.white38,Colors.white38],size: 20),
+          // child: IcomoonLayeredCss.cake(colors: [Colors.white,Colors.white38,Colors.white38,Colors.white38],size: 20),
+        ),
+        const SizedBox(width: 12),
+        Text("Happy Birthday $birthdayLabel",style: TextStyle(color: Colors.purple,fontWeight: FontWeight.bold),)
+      ],
+    ),
+  );
+
   Widget get birthdayWidgetHeader =>!isBirthday?SizedBox(): Container(
     padding: EdgeInsets.all(4),
     decoration: BoxDecoration(

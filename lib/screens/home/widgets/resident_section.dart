@@ -68,7 +68,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
 
   Widget countryBuilder(dynamic a) => Row(
     children: [
-      MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+      MyCountryFlagsPro.getFlag(a, width: 22, height: 16, borderRadius: BorderRadius.circular(2)),
 
       const SizedBox(width: 8),
       Text("$a (${(a as Country).name})"),
@@ -80,12 +80,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
       return Row(
         children: [
           const SizedBox(width: 4),
-          SizedBox(
-            width: 15,
-            height: 10,
-            child:             MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
-
-          ),
+          SizedBox(width: 15, height: 10, child: MyCountryFlagsPro.getFlag(a, width: 22, height: 16, borderRadius: BorderRadius.circular(2))),
           const SizedBox(width: 4),
           Text(a, style: TextStyle(fontSize: 12)),
         ],
@@ -104,7 +99,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
     final bodyBg = Color(0xffF4F8F7);
     List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == "I").map((a) => a.code!).toList();
     final requiredFields = BasicClass.constData.data.mandatory!.idCard!;
-    if(context.isDesktop){
+    if (context.isDesktop) {
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadiusGeometry.circular(20),
@@ -125,7 +120,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
           shape: RoundedRectangleBorder(),
           collapsedShape: RoundedRectangleBorder(),
-          tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 8),
+          tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
           footerExtra: IndexedStack(
             index: isLast ? 0 : 1,
             children: [
@@ -151,6 +146,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                   Expanded(
                     child: Text("ID / Residency Card #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
+
                   DotButton(
                     icon: ArtemisIcons.eraser_1,
                     onPressed: () async {
@@ -294,7 +290,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                 Expanded(
                   child: MyTextFieldNew(
                     required: requiredFields.documentNumber,
-                    inputFormatters:d.isScanned? [MaskMiddleFormatter()]:[],
+                    inputFormatters: d.isScanned ? [MaskMiddleFormatter()] : [],
                     headerBgColor: headerBg,
                     bodyBgColor: bodyBg,
                     controller: controller,
@@ -303,29 +299,28 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
                     labelInRow: true,
                   ),
                 ),
-              Expanded(
-                child: MyDatePicker(
-                  // required: true,
-                  label: "Birth Date",
-                  required: requiredFields.birthDate,
+                Expanded(
+                  child: MyDatePicker(
+                    // required: true,
+                    label: "Birth Date",
+                    required: requiredFields.birthDate,
 
-                  placeholder: "Birth Date",
-                  headerBgColor: headerBg,
-                  bodyBgColor: bodyBg,
-                  validator: (a) => birthDateValidator(a, d.birthDate),
-                  validationColor: birthDateValidationColor(d.birthDate),
-                  validationIcon: ArtemisIcons.user_square,
-                  value: d.birthDate,
-                  onChanged: (a) {
-                    // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
-                    d = d.copyWith(birthDate: a);
-                    ref.read(residentsProvider.notifier).updateAt(widget.index, d);
-                  },
+                    placeholder: "Birth Date",
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
+                    validator: (a) => birthDateValidator(a, d.birthDate),
+                    validationColor: birthDateValidationColor(d.birthDate),
+                    validationIcon: ArtemisIcons.user_square,
+                    value: d.birthDate,
+                    onChanged: (a) {
+                      // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                      d = d.copyWith(birthDate: a);
+                      ref.read(residentsProvider.notifier).updateAt(widget.index, d);
+                    },
+                  ),
                 ),
-              ),
-
-            ],)
-
+              ],
+            ),
           ],
         ),
       );
@@ -350,7 +345,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
-        tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 8),
+        tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         footerExtra: IndexedStack(
           index: isLast ? 0 : 1,
           children: [
@@ -548,7 +543,7 @@ class _ResidentItemRowState extends ConsumerState<ResidentItemRow> {
           const SizedBox(height: 12),
           MyTextFieldNew(
             required: requiredFields.documentNumber,
-            inputFormatters:d.isScanned? [MaskMiddleFormatter()]:[],
+            inputFormatters: d.isScanned ? [MaskMiddleFormatter()] : [],
             headerBgColor: headerBg,
             bodyBgColor: bodyBg,
             controller: controller,

@@ -100,8 +100,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.of(context).pop();
                             ref.read(inboxMessagesProvider.notifier).update((s) => []);
                             ref.read(nextMessageId.notifier).update((s) => null);
-                            ref.read(reportTimaticResultNewProvider.notifier).update((s) => null);
-
+                            myHomeController.resetReport();
                             myHomeController.goNamed(Routes.inbox);
                           },
                           leading:  IcomoonLayeredCss.direct_inbox(),
@@ -115,7 +114,8 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.of(context).pop();
                             ref.read(outboxMessagesProvider.notifier).update((s) => []);
                             ref.read(outboxNextMessageId.notifier).update((s) => null);
-                            ref.read(reportTimaticResultNewProvider.notifier).update((s) => null);
+                            myHomeController.resetReport();
+
                             myHomeController.goNamed(Routes.outbox);
                           },
                           leading:  IcomoonLayeredCss.direct_send(),

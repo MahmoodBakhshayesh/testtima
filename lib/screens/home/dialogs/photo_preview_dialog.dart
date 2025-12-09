@@ -43,7 +43,7 @@ class _PhotoPreviewDialogState extends ConsumerState<PhotoPreviewDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
-      insetPadding: EdgeInsets.symmetric(horizontal: 12),
+      insetPadding: context.getDialogPadding,
       child: Container(
         width: double.infinity,
         child: Column(
@@ -60,16 +60,18 @@ class _PhotoPreviewDialogState extends ConsumerState<PhotoPreviewDialog> {
             ),
             Divider(height: 1,),
             const SizedBox(height: 12),
-            SizedBox(
-              height: MediaQuery.of(context).size.height *0.6,
-              width: double.infinity,
-              child: PinchZoom(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                  child: Image.network(
-                    "${ref.read(selectedServerProvider)!.apiAddress}/v1/logs/attach/${widget.address}",
-                    fit: BoxFit.fitWidth,
-                    headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+            Center(
+              child: SizedBox(
+                height:context.isDesktop?400: MediaQuery.of(context).size.height *0.6,
+                width: context.isDesktop?400:double.infinity,
+                child: PinchZoom(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                    child: Image.network(
+                      "${ref.read(selectedServerProvider)!.apiAddress}/v1/logs/attach/${widget.address}",
+                      fit: BoxFit.fitWidth,
+                      headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"},
+                    ),
                   ),
                 ),
               ),

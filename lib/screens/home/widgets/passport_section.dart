@@ -130,7 +130,7 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
           footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
           shape: RoundedRectangleBorder(),
           collapsedShape: RoundedRectangleBorder(),
-          tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 8),
+          tilePadding: EdgeInsets.symmetric(horizontal: 0,vertical: 0),
           footerExtra: IndexedStack(
             index: isLast ? 0 : 1,
             children: [
@@ -151,13 +151,18 @@ class _PassportItemRowState extends ConsumerState<PassportItemRow> {
             ],
           ),
           title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 spacing: 12,
                 children: [
                   Expanded(
-                    child: Text("Passport #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: Row(
+                      children: [
+                        Text("Passport #${widget.index + 1}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                        const SizedBox(width: 8),
+
+                      ],
+                    ),
                   ),
 
                   DotButton(

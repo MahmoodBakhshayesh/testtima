@@ -190,7 +190,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                               child: Text(widget.his.user ?? '-', style: TextStyle(fontWeight: FontWeight.bold)),
                             ),
                             // Text(widget.his.at!.toLocal().format_HHmm, style: TextStyle(color: Colors.grey, fontSize: 12)),
-                            Text(widget.his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                            Text(widget.his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
                           ],
                         ),
                         Text(widget.his.payload!.message!),
@@ -231,7 +231,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                         children: [
                           Expanded(child: Text(widget.his.payload!.message!)),
                           // Text(widget.his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          Text(widget.his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text(widget.his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -375,12 +375,7 @@ class _AskSupervisorWidgetState extends ConsumerState<AskSupervisorWidget> {
                 : () async {
                     String sendingMsg = !response!.textEntry ? commentC.text : (msg ?? '');
                     // log("anser ${response!.textEntry} $sendingMsg ");
-                    await getIt<HomeController>().supervisorResponse(
-                      askId: widget.his.id ?? '',
-                      logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-',
-                      response: response!,
-                      msg:sendingMsg
-                    );
+                    await getIt<HomeController>().supervisorResponse(askId: widget.his.id ?? '', logId: getIt<HomeController>().ref.read(refCodeProvider) ?? '-', response: response!, msg: sendingMsg);
                   },
             radius: 12,
             icon: ArtemisIcons.send,
@@ -583,7 +578,7 @@ class ManagerApprovalWidget extends StatelessWidget {
                   ),
                 ),
                 // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -657,7 +652,6 @@ class ManagerApprovalWidget extends StatelessWidget {
                                             );
                                           },
                                           child: SizedBox(
-
                                             width: 120,
                                             height: 120,
                                             child: ClipRRect(
@@ -731,7 +725,7 @@ class AgentDecisionWidget extends StatelessWidget {
                   ),
                 ),
                 // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -753,11 +747,7 @@ class AgentDecisionWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(his.payload?.message ?? '', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
+                      Row(children: [Text(his.payload?.message ?? '', style: TextStyle(fontSize: 12))]),
                       (his.payload?.attachFiles ?? []).isEmpty
                           ? SizedBox()
                           : Row(
@@ -879,8 +869,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                   ),
                 ),
                 // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
-
+                Text(his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -927,8 +916,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                         children: [
                           Expanded(child: Text(ask.payload?.message ?? '')),
                           // Text(ask.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          Text(ask.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
-
+                          Text(ask.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -958,8 +946,7 @@ class SupervisorApprovalWidget extends StatelessWidget {
                         children: [
                           Expanded(child: Text(his.payload?.message ?? '')),
                           // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
-
+                          Text(his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -1030,8 +1017,7 @@ class AttachmentsWidget extends StatelessWidget {
                   ),
                 ),
                 // Text(hisList.last.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                Text(hisList.last.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
-
+                Text(hisList.last.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -1051,7 +1037,7 @@ class AttachmentsWidget extends StatelessWidget {
                   child: GridView(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 4, crossAxisSpacing: 4),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: context.isDesktop ? 12 : 2, mainAxisSpacing: 4, crossAxisSpacing: 4),
                     physics: NeverScrollableScrollPhysics(),
                     children: [
                       ...photos.map((img) {
@@ -1068,9 +1054,13 @@ class AttachmentsWidget extends StatelessWidget {
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(5),
-                            child: Container(
-                              decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3)),
-                              child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"}),
+                            child: SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Container(
+                                decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3)),
+                                child: Image.network("${api}/v1/logs/attach/$img", fit: BoxFit.fitHeight, headers: {"Authorization": "Bearer ${token}"}),
+                              ),
                             ),
                           ),
                         );
@@ -1142,8 +1132,7 @@ class EVisaWidget extends StatelessWidget {
                   ),
                 ),
                 // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
-
+                Text(his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -1222,8 +1211,7 @@ class CommentWidget extends StatelessWidget {
                   ),
                 ),
                 // Text(his.at?.toLocal().format_HHmm ?? '', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                Text(his.currentTime??'', style: TextStyle(color: Colors.grey, fontSize: 12)),
-
+                Text(his.currentTime ?? '', style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),

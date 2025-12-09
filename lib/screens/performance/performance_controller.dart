@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:abds/core/classes/current_status_class.dart';
+import 'package:abds/core/classes/header_summary_object_class.dart';
 import 'package:abds/core/classes/log_report_detail_class.dart';
 import 'package:abds/core/classes/overall_performance_class.dart';
 import 'package:abds/core/classes/overall_report_tabel_class.dart';
@@ -123,13 +125,13 @@ class PerformanceController extends ControllerInterface {
         historyLog = r.history;
         ref.read(reportCurrentStatusProvider.notifier).update((s) => r.currentStatus);
 
-        fillReportWithRefHistory(r.history, code, showCode);
+        fillReportWithRefHistory(r.history, code, showCode,r.currentStatus);
     }
 
     return historyLog;
   }
 
-  fillReportWithRefHistory(RefHistory his, String? code, String? showCode) {
+  fillReportWithRefHistory(RefHistory his, String? code, String? showCode,CurrentStatus currentStatus) {
     final timaticReqLog = (his.logs ?? []).firstWhereOrNull((a) => (a.type ?? '') == ("timaticCheck"));
     final showingLogs = (his.logs ?? []).where((a) => (a.type ?? '') != ("timaticCheck")).toList();
     ref.read(reportShowingLogsProvider.notifier).update((s) => showingLogs);
@@ -181,6 +183,9 @@ class PerformanceController extends ControllerInterface {
       if (passes.isNotEmpty) {
         passes[0] = passes[0].copyWith(sex: pd.gender?.value);
       }
+
+
+
       ref.read(reportPassportsProvider.notifier).update((s) => passes);
       ref.read(reportVisasProvider.notifier).update((s) => visas);
       ref.read(reportResidentsProvider.notifier).update((s) => residents);
@@ -189,8 +194,24 @@ class PerformanceController extends ControllerInterface {
       ref.read(reportRefCodeShowProvider.notifier).update((s) => his.showCode);
       ref.read(reportRefCodeProvider.notifier).update((s) => his.refCode);
       TimaticResponseNew result = TimaticResponseNew.fromJson(output);
-
       ref.read(reportTimaticResultNewProvider.notifier).update((s) => result);
+
+      HeaderSummaryObject headerSummaryObject = HeaderSummaryObject(
+        currentStatus: currentStatus,
+        airline: allSegs.first.operatingCarrier!.code,
+        flnb: allSegs.first.flnb,
+        dateTime: allSegs.first.departure.dateTime,
+        departure: allSegs.first.departure.point,
+        arrival: allSegs.first.arrival.point,
+        docNumber: passes.firstOrNull?.documentNumber,
+        showCode: showCode,
+        employeeId: currentStatus.employeeId,
+        nationality: passes.firstOrNull?.nationality?.code3,
+        resident:  visas.firstOrNull?.nationality?.code3,
+        issuing:  visas.firstOrNull?.documentIssueCountry?.code3,
+        segments: result.segments,
+      );
+      ref.read(reportHeaderSummaryObjectProvider.notifier).update((s)=>headerSummaryObject);
     }
   }
 }

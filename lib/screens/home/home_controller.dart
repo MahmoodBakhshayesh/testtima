@@ -60,6 +60,7 @@ import '../../core/utils_and_services/timatic/src/defaults.dart';
 import '../../initialize.dart';
 import '../../widgets/MyFieldPicker.dart';
 import '../mrz_reader/mrz_reader_state.dart';
+import '../result_report/result_report_state.dart';
 import 'dialogs/ask_supervisor_sheet.dart';
 import 'dialogs/image_pick_method_select_sheet.dart';
 import 'dialogs/option_sheet_dialog.dart';
@@ -633,6 +634,7 @@ class HomeController extends ControllerInterface {
         ref.read(refCodeProvider.notifier).update((s) => r.refCode);
         ref.read(refCodeShowProvider.notifier).update((s) => r.showCode);
         ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
+        ref.read(showingLogsProvider.notifier).update((s) => []);
     }
 
     return response;
@@ -918,6 +920,12 @@ class HomeController extends ControllerInterface {
       isScrollControlled: true,
     );
     log("");
+  }
+
+  void resetReport() {
+    ref.read(reportTimaticResultNewProvider.notifier).update((s) => null);
+    ref.read(reportHeaderSummaryObjectProvider.notifier).update((s) => null);
+
   }
 
   // UseCase UseCase = UseCase(repository: Repository());

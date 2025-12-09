@@ -508,7 +508,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                           ),
                                                           Visibility(
                                                             visible: resultMode,
-                                                            child: currentStatus.isLocked
+                                                            child: !currentStatus.canUnlock?SizedBox():currentStatus.isLocked
                                                                 ? MyButton(
                                                                     label: "Unlock",
                                                                     fontSize: 12,
@@ -567,20 +567,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                             ),
                                                           ),
                                                           Spacer(),
-                                                          CheckPermission(
-                                                            permission: TimaticUiPermission.read(),
-                                                            child: MyButton(
-                                                              label: "Restart",
-                                                              onPressed: () {
-                                                                getIt<HomeController>().clear();
-                                                                flightPaxController.expand();
-                                                              },
-                                                              radius: 12,
-                                                              reverse: true,
-                                                              borderSide: BorderSide(color: context.mainColor),
-                                                              icon: ArtemisIcons.eraser_1,
-                                                            ),
-                                                          ),
+
                                                         ],
                                                       ),
                                                     ),
@@ -734,6 +721,21 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                         );
                                       },
                                     ),
+                                    CheckPermission(
+                                      permission: TimaticUiPermission.read(),
+                                      child: MyButton(
+                                        label: "Restart",
+                                        onPressed: () {
+                                          getIt<HomeController>().clear();
+                                          flightPaxController.expand();
+                                        },
+                                        radius: 12,
+                                        reverse: true,
+                                        borderSide: BorderSide(color: context.mainColor),
+                                        icon: ArtemisIcons.eraser_1,
+                                      ),
+                                    ),
+                                   [...passports,...visas,...residents].firstWhereOrNull((a)=>a.isBirthday)?.birthdayWidgetDesktop??SizedBox(),
                                     Spacer(),
                                   ],
                                 ),
@@ -1110,6 +1112,20 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                               ),
                             );
                           },
+                        ),
+                        CheckPermission(
+                          permission: TimaticUiPermission.read(),
+                          child: MyButton(
+                            label: "Restart",
+                            onPressed: () {
+                              getIt<HomeController>().clear();
+                              // flightPaxController.expand();
+                            },
+                            radius: 12,
+                            reverse: true,
+                            borderSide: BorderSide(color: context.mainColor),
+                            icon: ArtemisIcons.eraser_1,
+                          ),
                         ),
 
                         Spacer(),
