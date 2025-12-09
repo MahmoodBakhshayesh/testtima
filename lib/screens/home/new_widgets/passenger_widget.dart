@@ -204,6 +204,7 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                   searchAutoFocus: true,
                   label: "Resident",
                   required:mandatories?.resident??false,
+
                   headerBgColor: headerBgColor,
                   bodyBgColor: bodyBgColor,
                   placeholder: "Country",
@@ -229,9 +230,9 @@ class _PassengerDetailsRowState extends ConsumerState<PassengerDetailsRow> {
                 headerBgColor: headerBgColor,
                 bodyBgColor: bodyBgColor,
                 prefixIcon: countryPrefixBuilder(details.birthCountry?.code3),
-
                 searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
                 items: BasicClass.constData.data.country,
+
                 itemToWidget: countryBuilder,
                 value: details.birthCountry,
                 onChange: (a) {

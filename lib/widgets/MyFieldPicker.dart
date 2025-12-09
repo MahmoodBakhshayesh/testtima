@@ -124,6 +124,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
         valueListenable: value,
         builder: (context, v, _) {
           return MyFieldPickerDesktop(
+            suggestionColor: Colors.greenAccent,
             headerBgColor: widget.headerBgColor,
             bodyBgColor: widget.bodyBgColor,
             rowLabelRatio: widget.rowLabelRatio,
@@ -137,6 +138,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             label: widget.label,
             itemToWidget: widget.itemToWidget,
             // builder: widget.itemToWidget,
+              suggestion: widget.suggestion,
             placeholder: widget.placeholder,
             onChange:(v){
               if (v == Null) {

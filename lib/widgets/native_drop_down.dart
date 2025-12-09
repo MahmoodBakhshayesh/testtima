@@ -1,4 +1,3 @@
-// FULL CODE WITH ONLY REQUIRED CHANGES
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,6 +33,9 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
   final double? suffixWidth;
   final EdgeInsetsGeometry? valuePadding;
 
+  // Suggestion visuals
+  final Color? suggestionColor;
+
   // Behavior
   final bool hasSearch;
   final bool searchAutoFocus;
@@ -51,6 +53,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
 
   const MyFieldPickerDesktop({
     super.key,
+    // mapping
     this.itemToString,
     this.valueToString,
     this.searchBuilder,
@@ -60,6 +63,8 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
     this.onChange,
     this.value,
     this.suggestion = const [],
+
+    // visuals
     required this.label,
     this.placeholder,
     this.rowLabelRatio = const [30, 70],
@@ -74,12 +79,19 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
     this.suffixIcon,
     this.suffixWidth,
     this.valuePadding = const EdgeInsets.symmetric(horizontal: 8),
+
+    // suggestion visuals
+    this.suggestionColor,
+
+    // behavior
     this.hasSearch = true,
     this.searchAutoFocus = true,
     this.supportNull = true,
     this.showClearButton = true,
     this.locked = false,
     this.disabled = false,
+
+    // validation
     this.required = false,
     this.validator,
     this.validationColor,
@@ -94,30 +106,40 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
 }
 
 class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T>> {
+  // constants
   static const double _kMenuHeight = 300;
   static const double _kItemExtent = 40;
   static const double _kGap = 4;
   static const double _kMenuRadius = 8;
 
+  // selected value & display
   late final ValueNotifier<T?> _value = ValueNotifier<T?>(widget.value);
 
+  // search state
   final _searchCtrl = TextEditingController();
   final _searchFocus = FocusNode();
   final GlobalKey _searchFieldKey = GlobalKey();
 
+  // when hasSearch == false, this node gets keyboard events
   final _overlayFocus = FocusNode(debugLabel: 'PickerOverlayFocus');
+
+  // list scroll
   final _listScroll = ScrollController();
 
+  // anchoring
   final _link = LayerLink();
-  final _valueBoxKey = GlobalKey();
+  final _valueBoxKey = GlobalKey(); // anchor to the right box (value area)
   Size _valueBoxSize = Size.zero;
 
+  // overlay
   OverlayEntry? _entry;
   bool _open = false;
 
+  // data
   int _highlight = -1;
   late List<T> _filtered = List<T>.from(widget.items);
 
+  // helpers
   String _itemToText(T item) =>
       widget.itemToString?.call(item) ?? item.toString();
 
@@ -134,7 +156,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     super.initState();
     _value.addListener(() {
       widget.onChange?.call(_value.value);
-      if (mounted) setState(() {});
+      if (mounted) setState(() {}); // refresh displayed text + validation box
       _rebuildOverlay();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _measureValueBox());
@@ -169,29 +191,65 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     setState(() => _valueBoxSize = box.size);
   }
 
-  // ================================================================
-  // === NEW: Highlight the current value inside the filtered list ===
-  // ================================================================
+  // === helper: partition filtered items into suggestions and the rest ===
+  List<T> _getSuggestionItems() {
+    if (widget.suggestion.isEmpty || _filtered.isEmpty) {
+      return <T>[];
+    }
+    final sugSet = widget.suggestion.toSet();
+    return _filtered.where((e) => sugSet.contains(e)).toList();
+  }
+
+  List<T> _getNonSuggestionItems() {
+    if (_filtered.isEmpty) return <T>[];
+    if (widget.suggestion.isEmpty) return List<T>.from(_filtered);
+    final sugSet = widget.suggestion.toSet();
+    return _filtered.where((e) => !sugSet.contains(e)).toList();
+  }
+
+  // === highlight current value according to ordering (None + suggestions + rest) ===
   void _updateHighlightFromValue() {
-    if (_filtered.isEmpty) {
+    final suggestionItems = _getSuggestionItems();
+    final otherItems = _getNonSuggestionItems();
+    final hasNullRow = widget.supportNull;
+
+    // no items at all
+    if (suggestionItems.isEmpty && otherItems.isEmpty) {
       _highlight = -1;
       return;
     }
 
+    // no value selected
     if (_value.value == null) {
-      _highlight = widget.supportNull ? 0 : -1;
+      _highlight = hasNullRow ? 0 : -1;
       return;
     }
 
-    final idx = _filtered.indexWhere((e) => e == _value.value);
-    if (idx == -1) {
-      _highlight = widget.supportNull ? 0 : 0;
+    final current = _value.value;
+
+    int rowIndex = -1;
+
+    // suggestion section
+    final sugIdx = suggestionItems.indexWhere((e) => e == current);
+    if (sugIdx != -1) {
+      rowIndex = (hasNullRow ? 1 : 0) + sugIdx;
     } else {
-      _highlight = widget.supportNull ? idx + 1 : idx;
+      // normal section
+      final otherIdx = otherItems.indexWhere((e) => e == current);
+      if (otherIdx != -1) {
+        rowIndex = (hasNullRow ? 1 : 0) + suggestionItems.length + otherIdx;
+      }
+    }
+
+    if (rowIndex == -1) {
+      // fallback
+      _highlight = hasNullRow ? 0 : 0;
+    } else {
+      _highlight = rowIndex;
     }
   }
-  // ================================================================
 
+  // overlay open/close
   void _toggleOverlay() => _open ? _closeOverlay() : _openOverlay();
 
   void _openOverlay() {
@@ -202,6 +260,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       builder: (_) {
         return Stack(
           children: [
+            // dim + click-away
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
@@ -209,6 +268,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
                 child: Container(color: Colors.black.withOpacity(0.12)),
               ),
             ),
+            // anchored menu below the value box
             CompositedTransformFollower(
               link: _link,
               showWhenUnlinked: false,
@@ -236,20 +296,20 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
 
     Overlay.of(context, rootOverlay: true).insert(_entry!);
 
+    // keep cached search & filter
     _applyFilter(_searchCtrl.text);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusManager.instance.primaryFocus?.unfocus();
 
-      // ================================================================
-      // === NEW: highlight the current selected value on open ==========
-      // ================================================================
       if (_filtered.isNotEmpty) {
-        setState(() => _updateHighlightFromValue());
+        setState(() {
+          _updateHighlightFromValue();
+        });
         _ensureHighlightedVisible();
       }
-      // ================================================================
 
+      // Focus handling (with/without search)
       if (widget.hasSearch && widget.searchAutoFocus) {
         final ctx = _searchFieldKey.currentContext;
         if (ctx != null) {
@@ -260,7 +320,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
         _searchCtrl.selection =
             TextSelection.fromPosition(TextPosition(offset: _searchCtrl.text.length));
       } else {
-        _overlayFocus.requestFocus();
+        _overlayFocus.requestFocus(); // ensure keyboard works without search
       }
 
       _rebuildOverlay();
@@ -269,8 +329,11 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
 
   void _closeOverlay() {
     if (!_open) return;
+
+    // Clear search on close
     _searchCtrl.clear();
     _applyFilter('');
+
     _entry?.remove();
     _entry = null;
     _open = false;
@@ -279,13 +342,13 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
 
   void _rebuildOverlay() => _entry?.markNeedsBuild();
 
+  // menu ui
   Widget _buildMenu() => Container(
     color: Colors.white,
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.hasSearch) _buildSearchBar(),
-        if (widget.suggestion.isNotEmpty) _buildSuggestionStrip(),
         const Divider(height: 1),
         Expanded(child: _buildListWithFocus()),
       ],
@@ -296,8 +359,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     onKeyEvent: (_, e) => _handleKeys(e),
     child: Container(
       height: widget.height,
-      color:
-      widget.headerBgColor ?? Theme.of(context).colorScheme.surfaceVariant,
+      color: widget.headerBgColor ?? Theme.of(context).colorScheme.surfaceVariant,
       child: TextField(
         key: _searchFieldKey,
         focusNode: _searchFocus,
@@ -328,6 +390,27 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     ),
   );
 
+  // (kept for compatibility; not used in menu anymore)
+  Widget _buildSuggestionStrip() => Container(
+    width: double.infinity,
+    color:
+    (widget.headerBgColor ?? Theme.of(context).colorScheme.surface).withOpacity(0.7),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    child: Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: widget.suggestion
+          .map(
+            (sug) => ActionChip(
+          label: Text(_itemToText(sug), overflow: TextOverflow.ellipsis),
+          onPressed: () => _selectValue(sug),
+        ),
+      )
+          .toList(),
+    ),
+  );
+
+  // Wrap the list with a Focus when search is disabled so it receives key events.
   Widget _buildListWithFocus() {
     if (widget.hasSearch) return _buildList();
     return Focus(
@@ -338,82 +421,83 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     );
   }
 
-  Widget _buildSuggestionStrip() => Container(
-    width: double.infinity,
-    color: (widget.headerBgColor ?? Theme.of(context).colorScheme.surface)
-        .withOpacity(0.7),
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-    child: Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: widget.suggestion
-          .map(
-            (sug) => ActionChip(
-          label:
-          Text(_itemToText(sug), overflow: TextOverflow.ellipsis),
-          onPressed: () => _selectValue(sug),
-        ),
-      )
-          .toList(),
-    ),
-  );
-
   Widget _buildList() {
-    final list = _filtered;
-    if (list.isEmpty) return const Center(child: Text('No results'));
+    final suggestionItems = _getSuggestionItems();
+    final otherItems = _getNonSuggestionItems();
+
+    final bool hasNullRow = widget.supportNull;
+    final int totalCount =
+        (hasNullRow ? 1 : 0) + suggestionItems.length + otherItems.length;
+
+    if (totalCount == 0) {
+      return const Center(child: Text('No results'));
+    }
+
     return Scrollbar(
       controller: _listScroll,
       child: ListView.builder(
         controller: _listScroll,
         padding: EdgeInsets.zero,
         itemExtent: _kItemExtent,
-        itemCount: list.length + (widget.supportNull ? 1 : 0),
+        itemCount: totalCount,
         itemBuilder: (context, idx) {
-          if (widget.supportNull) {
-            if (idx == 0) {
-              final selected = _value.value == null;
-              return InkWell(
-                onTap: () => _selectValue(null),
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  color: selected
-                      ? Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withOpacity(0.08)
-                      : null,
-                  child: const Text('— None —'),
-                ),
-              );
-            }
-            idx -= 1;
+          // 1) Optional "None" row
+          if (hasNullRow && idx == 0) {
+            final selected = _value.value == null;
+            final hover = _highlight == 0;
+            return InkWell(
+              onTap: () => _selectValue(null),
+              child: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                color: hover
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
+                    : null,
+                child: const Text('— None —'),
+              ),
+            );
           }
 
-          final item = list[idx];
-          final hiIdx = widget.supportNull ? idx + 1 : idx;
-          final hover = _highlight == hiIdx;
-          final bg = widget.itemToColor?.call(item);
+          // convert idx to section index (suggestions / others)
+          int displayIdx = idx;
+          if (hasNullRow) displayIdx -= 1;
+
+          final bool inSuggestions = displayIdx < suggestionItems.length;
+          final T item = inSuggestions
+              ? suggestionItems[displayIdx]
+              : otherItems[displayIdx - suggestionItems.length];
+
+          final bool hover = _highlight == idx;
+          final Color? customColor = widget.itemToColor?.call(item);
+
+          Color? rowColor;
+          if (inSuggestions) {
+            final base = widget.suggestionColor ??
+                Theme.of(context).colorScheme.primary;
+            rowColor = customColor ?? base.withOpacity(hover ? 0.20 : 0.10);
+          } else {
+            rowColor = customColor ??
+                (hover
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
+                    : null);
+          }
 
           return InkWell(
             onTap: () => _selectValue(item),
             onHover: (hov) {
-              if (hov) setState(() => _highlight = hiIdx);
+              if (hov) setState(() => _highlight = idx);
               _rebuildOverlay();
             },
             child: Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              color: bg ??
-                  (hover
-                      ? Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withOpacity(0.08)
-                      : null),
+              color: rowColor,
               child: widget.itemToWidget?.call(item) ??
-                  Text(_itemToText(item),
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(
+                    _itemToText(item),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
             ),
           );
         },
@@ -432,14 +516,11 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       _filtered = widget.items.where((e) => filter(query, e)).toList();
     }
 
-    // ================================================================
-    // === NEW: highlight current value after filtering ================
-    // ================================================================
     if (mounted) {
-      setState(() => _updateHighlightFromValue());
+      setState(() {
+        _updateHighlightFromValue();
+      });
     }
-    // ================================================================
-
     _rebuildOverlay();
     _ensureHighlightedVisible();
   }
@@ -496,7 +577,10 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   }
 
   void _moveHighlight(int delta) {
-    final max = _filtered.length + (widget.supportNull ? 1 : 0) - 1;
+    final suggestionItems = _getSuggestionItems();
+    final otherItems = _getNonSuggestionItems();
+    final max =
+        (widget.supportNull ? 1 : 0) + suggestionItems.length + otherItems.length - 1;
     if (max < 0) return;
     setState(() {
       if (_highlight < 0) {
@@ -510,7 +594,10 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   }
 
   void _jumpHighlight(bool toEnd) {
-    final max = _filtered.length + (widget.supportNull ? 1 : 0) - 1;
+    final suggestionItems = _getSuggestionItems();
+    final otherItems = _getNonSuggestionItems();
+    final max =
+        (widget.supportNull ? 1 : 0) + suggestionItems.length + otherItems.length - 1;
     if (max < 0) return;
     setState(() => _highlight = toEnd ? max : 0);
     _ensureHighlightedVisible();
@@ -519,6 +606,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
 
   void _ensureHighlightedVisible() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // SAFETY: must still be mounted, overlay open, and attached to list
       if (!mounted || !_open || !_listScroll.hasClients) return;
       try {
         final targetTop = (_highlight < 0 ? 0 : _highlight) * _kItemExtent;
@@ -528,22 +616,46 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
         if (targetTop < viewStart) {
           _listScroll.jumpTo(targetTop);
         } else if (targetTop + _kItemExtent > viewEnd) {
-          _listScroll.jumpTo(
-              targetTop - pos.viewportDimension + _kItemExtent);
+          _listScroll.jumpTo(targetTop - pos.viewportDimension + _kItemExtent);
         }
-      } catch (_) {}
+      } catch (_) {
+        /* race safe */
+      }
     });
   }
 
   void _pickHighlighted() {
-    if (_highlight < 0) return;
-    if (widget.supportNull && _highlight == 0) {
+    final suggestionItems = _getSuggestionItems();
+    final otherItems = _getNonSuggestionItems();
+    final hasNullRow = widget.supportNull;
+
+    // if nothing is highlighted, current value is null, and exactly 1 suggestion -> pick it
+    if (_highlight < 0) {
+      if (_value.value == null && suggestionItems.length == 1) {
+        _selectValue(suggestionItems.first);
+      }
+      return;
+    }
+
+    int idx = _highlight;
+
+    // "None" row
+    if (hasNullRow && idx == 0) {
       _selectValue(null);
       return;
     }
-    final idxInList = widget.supportNull ? _highlight - 1 : _highlight;
-    if (idxInList < 0 || idxInList >= _filtered.length) return;
-    _selectValue(_filtered[idxInList]);
+
+    if (hasNullRow) idx -= 1;
+
+    if (idx < suggestionItems.length) {
+      _selectValue(suggestionItems[idx]);
+      return;
+    }
+
+    final restIdx = idx - suggestionItems.length;
+    if (restIdx >= 0 && restIdx < otherItems.length) {
+      _selectValue(otherItems[restIdx]);
+    }
   }
 
   void _selectValue(T? v) {
@@ -551,10 +663,12 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     _closeOverlay();
   }
 
+  // ---- CUSTOM BOX RENDER (label + value) ----
   @override
   Widget build(BuildContext context) {
     final displayText = _valueToText(_value.value);
     final valMsg = widget.validator?.call(displayText) ?? '';
+
     bool validationMode =
         ref.watch(globalFormValidationMode) &&
             widget.required &&
@@ -572,6 +686,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     )
         : InputBorder.none;
 
+    // left label cell
     final labelCell = Container(
       height: widget.height,
       color: widget.headerBgColor,
@@ -597,6 +712,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       ),
     );
 
+    // right value cell (clickable) — anchor overlay here
     final valueCell = CompositedTransformTarget(
       key: _valueBoxKey,
       link: _link,
@@ -634,9 +750,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
                       onPressed: () => _selectValue(null),
                     ),
                   widget.suffixIcon ??
-                      Icon(_open
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down),
+                      Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
                 ],
               ),
             ),
@@ -648,13 +762,16 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
                   if (widget.prefix != null) widget.prefix!,
                   if (widget.prefixIcon != null) const SizedBox(width: 6),
                   Expanded(
-                    child: (widget.value != null &&
+                    // FIX: use _value.value instead of widget.value
+                    child: (_value.value != null &&
                         widget.valueToString != null)
-                        ? Text(displayText,
-                        overflow: TextOverflow.ellipsis)
-                        : widget.value != null &&
+                        ? Text(
+                      displayText,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                        : _value.value != null &&
                         (widget.itemToWidget != null)
-                        ? widget.itemToWidget!(widget.value!)
+                        ? widget.itemToWidget!(_value.value as T)
                         : Text(
                       displayText.isEmpty
                           ? (widget.placeholder ?? '')
@@ -682,8 +799,8 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       ),
     );
 
-    final validationBubble =
-    (widget.showError && valMsg.isNotEmpty)
+    // optional validation bubble (right side), shown only when showError && hasError
+    final validationBubble = (widget.showError && valMsg.isNotEmpty)
         ? Container(
       height: widget.height,
       margin: const EdgeInsets.only(left: 12),
@@ -700,13 +817,11 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
           if (widget.validationIcon != null)
             Padding(
               padding: const EdgeInsets.only(right: 4),
-              child: Icon(widget.validationIcon,
-                  color: vColor, size: 18),
+              child: Icon(widget.validationIcon, color: vColor, size: 18),
             ),
           Text(
             valMsg,
-            style:
-            TextStyle(color: vColor, fontSize: 10, height: 1),
+            style: TextStyle(color: vColor, fontSize: 10, height: 1),
             textAlign: TextAlign.center,
           ),
         ],
@@ -714,10 +829,8 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     )
         : const SizedBox.shrink();
 
-    final labelFlex =
-    widget.rowLabelRatio.isNotEmpty ? widget.rowLabelRatio[0] : 12;
-    final valueFlex =
-    (widget.rowLabelRatio.length > 1 ? widget.rowLabelRatio[1] : 33);
+    final labelFlex = widget.rowLabelRatio.isNotEmpty ? widget.rowLabelRatio[0] : 12;
+    final valueFlex = (widget.rowLabelRatio.length > 1 ? widget.rowLabelRatio[1] : 33);
 
     return ClipRRect(
       borderRadius: widget.radius ?? BorderRadius.circular(5),
