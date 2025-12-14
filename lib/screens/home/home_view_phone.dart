@@ -50,7 +50,6 @@ import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

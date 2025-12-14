@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

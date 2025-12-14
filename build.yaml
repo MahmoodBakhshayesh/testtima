@@ -1,0 +1,9 @@
+targets:
+  $default:
+    builders:
+      protoc_plugin:
+        options:
+          grpc: true
+          proto_path:
+            - protos
+          out_dir: lib/grpc/generated

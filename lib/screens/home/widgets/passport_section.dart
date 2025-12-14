@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:country_flags_pro/country_flags_pro.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

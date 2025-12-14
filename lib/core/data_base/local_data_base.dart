@@ -1,4 +1,3 @@
-import 'package:isar/isar.dart';
 
 import '../interfaces/local_data_base_int.dart';
 

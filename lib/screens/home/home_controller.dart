@@ -768,6 +768,7 @@ class HomeController extends ControllerInterface {
       case Ok<SupervisorResponseResponse>():
         final r = result.value;
         ref.read(showingLogsProvider.notifier).update((s) => [...r.logs, ...s]);
+        ref.read(reportShowingLogsProvider.notifier).update((s) => [...r.logs, ...s]);
     }
   }
 

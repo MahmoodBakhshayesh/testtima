@@ -72,6 +72,16 @@ abstract class Routes {
     name: 'profile',
     isShellRoute: false,
   );
+  static MyRouteInfo receiver = MyRouteInfo(
+    path: '/receiver',
+    name: 'receiver',
+    isShellRoute: false,
+  );
+  static MyRouteInfo sender = MyRouteInfo(
+    path: '/sender',
+    name: 'sender',
+    isShellRoute: false,
+  );
   static MyRouteInfo menuSetting = MyRouteInfo(
     path: '/menuSetting',
     name: 'menuSetting',

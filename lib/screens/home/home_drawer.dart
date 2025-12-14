@@ -92,7 +92,6 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-
                         DrawerAction(
                           title: 'Inbox',
                           // permission: LogUiPermission.read(),
@@ -103,7 +102,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             myHomeController.resetReport();
                             myHomeController.goNamed(Routes.inbox);
                           },
-                          leading:  IcomoonLayeredCss.direct_inbox(),
+                          leading: IcomoonLayeredCss.direct_inbox(),
                           trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
 
@@ -118,7 +117,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
 
                             myHomeController.goNamed(Routes.outbox);
                           },
-                          leading:  IcomoonLayeredCss.direct_send(),
+                          leading: IcomoonLayeredCss.direct_send(),
                           // trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
                         DrawerAction(
@@ -129,7 +128,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.of(context).pop();
                             myHomeController.goNamed(Routes.menuSetting);
                           },
-                          leading:  IcomoonLayeredCss.menu_1(),
+                          leading: IcomoonLayeredCss.menu_1(),
                           // trailing: Badge(isLabelVisible: ref.watch(notifCountProvider) > 0, label: Text("${ref.watch(notifCountProvider)}")),
                         ),
 
@@ -148,8 +147,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.of(context).pop();
                             myHomeController.goNamed(Routes.performance);
                           },
-                          leading:  IcomoonLayeredCss.chart_2(),
-
+                          leading: IcomoonLayeredCss.chart_2(),
                         ),
                         DrawerAction(
                           title: 'Search Track ID',
@@ -158,8 +156,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             Navigator.pop(context);
                             myHomeController.searchTrackId();
                           },
-                          leading:  IcomoonLayeredCss.search_normal(),
-
+                          leading: IcomoonLayeredCss.search_normal(),
                         ),
                         CheckPermission(
                           saveSpace: false,
@@ -170,7 +167,7 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                             onTap: () {
                               myHomeController.goNamed(Routes.users);
                             },
-                            leading:  IcomoonLayeredCss.profile_2user(),
+                            leading: IcomoonLayeredCss.profile_2user(),
                           ),
                         ),
                         CheckPermission(
@@ -184,10 +181,38 @@ class _LoginLeftDrawerState extends ConsumerState<HomeDrawer> {
                               Navigator.pop(context);
                               myHomeController.goNamed(Routes.cupps);
                             },
-                            leading:  Icon(Icons.connected_tv,color: Colors.grey,),
+                            leading: Icon(Icons.connected_tv, color: Colors.grey),
                           ),
                         ),
+                        CheckPermission(
+                          saveSpace: false,
+                          // permission: ConnectionUiPermission.connect(),
+                          permission: UserUiPermission.edit(),
 
+                          child: DrawerAction(
+                            title: 'Receiver',
+                            onTap: () {
+                              Navigator.pop(context);
+                              myHomeController.goNamed(Routes.receiver);
+
+                            },
+                            leading: Icon(Icons.call_received, color: Colors.grey),
+                          ),
+                        ),
+                        CheckPermission(
+                          saveSpace: false,
+                          // permission: ConnectionUiPermission.connect(),
+                          permission: UserUiPermission.edit(),
+
+                          child: DrawerAction(
+                            title: 'Sender',
+                            onTap: () {
+                              Navigator.pop(context);
+                              myHomeController.goNamed(Routes.sender);
+                            },
+                            leading: Icon(Icons.upload, color: Colors.grey),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -253,10 +278,23 @@ class DrawerAction extends StatefulWidget {
   final Color? tileColor;
   final double radius;
 
-
-  const DrawerAction({super.key,
+  const DrawerAction({
+    super.key,
     this.borderColor,
-    required this.title, this.leading, required this.onTap, this.leadingIcon, this.visible = true,  this.iconColor, this.dense = false, this.color, this.trailing, this.permission, this.leadingWidget, this.tileColor, this.radius =0.0});
+    required this.title,
+    this.leading,
+    required this.onTap,
+    this.leadingIcon,
+    this.visible = true,
+    this.iconColor,
+    this.dense = false,
+    this.color,
+    this.trailing,
+    this.permission,
+    this.leadingWidget,
+    this.tileColor,
+    this.radius = 0.0,
+  });
 
   @override
   State<DrawerAction> createState() => _DrawerActionState();
@@ -288,16 +326,17 @@ class _DrawerActionState extends State<DrawerAction> {
 
   @override
   Widget build(BuildContext context) {
-    if(!widget.visible){
+    if (!widget.visible) {
       return SizedBox();
     }
     Color c = widget.color ?? const Color(0xff0A1A3A);
     if (!validatePermission()) return SizedBox();
     return Container(
       decoration: BoxDecoration(
-          color: widget.tileColor?? (Color(0xffABABAB)).withOpacity(0.08),
-          borderRadius: BorderRadiusGeometry.circular(widget.radius),
-          border:widget.borderColor==null?BoxBorder.all(color: Colors.transparent): Border.all(color:  (widget.borderColor??Color(0xffABABAB)).withOpacity(1),)),
+        color: widget.tileColor ?? (Color(0xffABABAB)).withOpacity(0.08),
+        borderRadius: BorderRadiusGeometry.circular(widget.radius),
+        border: widget.borderColor == null ? BoxBorder.all(color: Colors.transparent) : Border.all(color: (widget.borderColor ?? Color(0xffABABAB)).withOpacity(1)),
+      ),
       width: double.infinity,
       child: ListTile(
         onTap: _onTap,
@@ -310,7 +349,7 @@ class _DrawerActionState extends State<DrawerAction> {
               : 0,
         ),
         dense: true,
-        leading:widget.leadingWidget??widget.leading?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color:widget.iconColor?? c),
+        leading: widget.leadingWidget ?? widget.leading ?? Icon(widget.leadingIcon, size: widget.dense ? 20 : 24, color: widget.iconColor ?? c),
         title: Row(
           children: [
             // ?widget.leadingWidget,

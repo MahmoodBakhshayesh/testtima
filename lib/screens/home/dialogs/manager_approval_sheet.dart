@@ -19,7 +19,6 @@ import 'package:abds/widgets/MyTextField.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

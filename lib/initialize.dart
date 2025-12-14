@@ -5,6 +5,8 @@ import 'package:abds/core/interfaces/success_int.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/offline_scanner/offline_scanner_controller.dart';
+import 'package:abds/screens/receiver/receiver_controller.dart';
+import 'package:abds/screens/sender/sender_controller.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'core/utils_and_services/cross_helpers/mrz_message_listener.dart';
@@ -84,7 +86,6 @@ Future<void> init() async {
   getIt.registerFactory(() => sp);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-
   await initFirebase(); // your function
 
   await _initDataBase();
@@ -92,7 +93,6 @@ Future<void> init() async {
   await _initPackages();
   initMrzMessageListener();
 }
-
 
 // Future<void> initFirebase() async {
 //   try {
@@ -136,10 +136,6 @@ Future<void> init() async {
 //     log("$e");
 //   }
 // }
-
-
-
-
 
 // initControllers() {
 //   LoginController loginController = LoginController();
@@ -325,7 +321,9 @@ Future<void> initNavigation() async {
   SettingMenuController settingMenuController = SettingMenuController();
   MenuSectionController menuSectionController = MenuSectionController();
   MenuItemAddEditController menuItemAddEditController = MenuItemAddEditController();
-    OfflineScannerController offlineScannerController = OfflineScannerController();
+  OfflineScannerController offlineScannerController = OfflineScannerController();
+  ReceiverController receiverController = ReceiverController();
+  SenderController senderController = SenderController();
 
   getIt.registerSingleton(loginController);
   getIt.registerSingleton(homeController);
@@ -346,6 +344,8 @@ Future<void> initNavigation() async {
   getIt.registerSingleton(menuSectionController);
   getIt.registerSingleton(menuItemAddEditController);
   getIt.registerSingleton(offlineScannerController);
+  getIt.registerSingleton(receiverController);
+  getIt.registerSingleton(senderController);
 
   TreeNavigation.navigator.registerAllControllers({
     Routes.login: loginController,

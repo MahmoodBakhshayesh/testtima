@@ -23,7 +23,6 @@ import 'package:abds/widgets/MyFieldPicker.dart';
 import 'package:abds/widgets/MyTextField.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:abds/widgets/primary_action_widget.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

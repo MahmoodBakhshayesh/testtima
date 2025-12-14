@@ -49,7 +49,6 @@ import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -396,7 +395,8 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                         spacing: 12,
                                                         children: [
                                                           Visibility(
-                                                            visible: resultMode,
+                                                            visible: resultMode && currentStatus.canUseOption,
+
                                                             child: CustomPopupMenu(
                                                               horizontalMargin: 96,
                                                               child: Container(

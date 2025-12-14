@@ -7,7 +7,6 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:abds/core/constants/ui.dart';
-import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

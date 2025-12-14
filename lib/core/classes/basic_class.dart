@@ -1,18 +1,15 @@
-import 'dart:developer';
 import 'dart:ui';
 import 'package:abds/core/classes/supported_language_class.dart';
 import 'package:abds/core/utils_and_services/time_picker/ui_permission.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import '../classes/config_class.dart';
 import '../constants/ui.dart';
+import '../interfaces/local_data_base_int.dart';
 import '../utils_and_services/settings_class.dart';
 import '../utils_and_services/timatic/artemis_timatic.dart';
 import '../utils_and_services/timatic/src/models/aggregates.dart';
 import 'constant_data_class.dart';
-import 'people_class.dart';
 import 'user_class.dart';
 import 'user_permission_class.dart';
 
@@ -32,7 +29,6 @@ class BasicClass {
 
   // ConstData? _constData;
   VersionedConstantData? _versionedConstantData;
-  PackageInfo? _packageInfo;
   UserPermission? _userPermission;
   Config? _appConfig;
 

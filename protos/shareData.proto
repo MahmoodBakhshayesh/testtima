@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package shareData;
+
+
+service ShareDataService {
+  rpc ShareData (stream ShareDataRequest) returns (stream ShareDataResponse);
+}
+
+// ---------- Messages ----------
+message ShareDataResponse {
+  bool    success   = 1;
+  int32   errorCode = 2;
+  string  message   = 3;
+  string  response  = 4;
+}
+
+message ShareDataRequest {
+
+}

@@ -19,7 +19,6 @@ import 'package:abds/widgets/primary_action_widget.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:dartx/dartx_io.dart';
-import 'package:ferry/typed_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get_utils/get_utils.dart';

@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.4.5+14530
+version: 1.4.5+14531
 
 
 
@@ -40,6 +40,7 @@ dependencies:
   flutter_sticky_header: ^0.8.0
   no_screenshot: ^0.3.2-beta.3
   easy_animated_indexed_stack: ^0.1.0
+
   record: ^6.1.1
   audioplayers: ^6.5.1
   hand_signature: ^3.1.0+2
@@ -51,7 +52,7 @@ dependencies:
   go_router: 14.2.0
   file_picker: ^10.3.6
   get_it: ^8.0.3
-  freezed: ^2.5.7
+#  freezed: ^2.5.7
   pinput: ^5.0.1
   hooks_riverpod: ^2.6.1
   freezed_annotation: ^2.4.4
@@ -87,10 +88,10 @@ dependencies:
   icons_plus: ^5.0.0
   http_parser: ^4.1.2
   tree_navigation: ^1.1.1
-  ferry: ^0.16.1+2
+#  ferry: ^0.16.1+2
   gql_http_link: ^1.1.0
   hive_flutter: ^1.1.0
-  ferry_hive_store: ^0.6.0
+#  ferry_hive_store: ^0.6.0
   logging: ^1.3.0
   dartx: ^1.2.0
   camera_kit_plus: ^0.0.34
@@ -117,6 +118,8 @@ dependencies:
   firebase_core: ^4.2.1
   firebase_messaging: ^16.0.4
   flutter_local_notifications: ^19.5.0
+  grpc: ^5.1.0
+  barcode_widget: ^2.0.4
 
 
 dev_dependencies:
@@ -124,10 +127,11 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.14
-  isar_generator: ^3.1.0+1
+  build_runner: ^2.10.4
+#  isar_generator: ^3.1.0+1
   json_serializable: ^6.7.1
-  ferry_generator: ^0.12.0+2
+#  ferry_generator: ^0.12.0+2
+  protoc_plugin: ^25.0.0
 
 
 flutter:
