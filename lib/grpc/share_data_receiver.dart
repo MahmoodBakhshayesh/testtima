@@ -2,15 +2,17 @@ import 'dart:async';
 import 'dart:math' hide log;
 import 'dart:developer';
 import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_connection_interface.dart';
 
 // ✅ adjust these to your generated files
 import 'generated/shareData.pbgrpc.dart';
+import 'grpc_channel.dart';
 
 enum GrpcStreamStatus { idle, connecting, connected, disconnected, error }
 
 class ShareDataReceiver {
   ShareDataReceiver({
-    required this.url,          // e.g. "sharedata.multidcs.com/grpc" or "https://sharedata.multidcs.com/grpc"
+    required this.url, // e.g. "sharedata.multidcs.com/grpc" or "https://sharedata.multidcs.com/grpc"
     required this.token,
     required this.yourId,
     required this.onMessage,
@@ -29,9 +31,10 @@ class ShareDataReceiver {
   final Duration maxBackoff;
 
   final _statusCtrl = StreamController<GrpcStreamStatus>.broadcast();
+
   Stream<GrpcStreamStatus> get statusStream => _statusCtrl.stream;
 
-  ClientChannel? _channel;
+  ClientChannelBase? _channel;
   StreamController<ShareDataRequest>? _outgoing;
   StreamSubscription<ShareDataResponse>? _sub;
   StreamSubscription<ConnectionState>? _channelStateSub;
@@ -116,13 +119,10 @@ class ShareDataReceiver {
     _statusCtrl.add(GrpcStreamStatus.disconnected);
   }
 
-
   // ---------------- Internals ----------------
 
   Uri _normalizeUri(String input) {
-    final fixed = input.startsWith('http://') || input.startsWith('https://')
-        ? input
-        : 'https://$input';
+    final fixed = input.startsWith('http://') || input.startsWith('https://') ? input : 'https://$input';
     return Uri.parse(fixed);
   }
 
@@ -166,13 +166,14 @@ class ShareDataReceiver {
     final host = uri.host;
     final port = uri.hasPort ? uri.port : 443;
 
-    _channel = ClientChannel(
-      host,
-      port: port,
-      options: const ChannelOptions(
-        credentials: ChannelCredentials.secure(),
-      ),
-    );
+    _channel = GrpcChannelFactory(GrpcConfig(host: host, port: 443)).create();
+    // _channel = ClientChannel(
+    //   host,
+    //   port: port,
+    //   options: const ChannelOptions(
+    //     credentials: ChannelCredentials.secure(),
+    //   ),
+    // );
 
     // Listen to channel state changes (reactive only)
     _channelStateSub = _channel!.onConnectionStateChanged.listen((state) {
@@ -180,8 +181,7 @@ class ShareDataReceiver {
       if (state == ConnectionState.ready) {
         _statusCtrl.add(GrpcStreamStatus.connected);
       }
-      if (state == ConnectionState.transientFailure ||
-          state == ConnectionState.shutdown) {
+      if (state == ConnectionState.transientFailure || state == ConnectionState.shutdown) {
         _scheduleReconnect(state);
       }
     });
@@ -215,7 +215,7 @@ class ShareDataReceiver {
       _outgoing!.add(ShareDataRequest());
 
       _sub = stream.listen(
-            (msg) {
+        (msg) {
           // first data received => connected
           _attempt = 0; // reset backoff on success
           _statusCtrl.add(GrpcStreamStatus.connected);

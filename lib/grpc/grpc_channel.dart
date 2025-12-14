@@ -1,4 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_web.dart';            // ✅ comes from grpc package
+import 'package:grpc/grpc_or_grpcweb.dart';
+import 'package:grpc/src/client/channel.dart' hide ClientChannel;     // ✅ comes from grpc package
 
 class GrpcConfig {
   final String host;
@@ -17,7 +21,14 @@ class GrpcChannelFactory {
 
   final GrpcConfig config;
 
-  ClientChannel create() {
+  ClientChannelBase create() {
+
+    if (kIsWeb) {
+      // Option A: direct grpc-web channel
+      final uri = Uri.parse( config.host.startsWith('http') ?  config.host : 'https://${ config.host}');
+
+      return GrpcWebClientChannel.xhr(uri);
+    }
     return ClientChannel(
       config.host,
       port: config.port,
