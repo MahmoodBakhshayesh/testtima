@@ -51,7 +51,12 @@ class _SenderViewPhoneState extends ConsumerState<SenderViewPhone> {
                     ],
                   ),
                 )
-              : Expanded(child: CameraKitPlusView(onBarcodeRead: mySenderController.onBarcodeRead)),
+              : Expanded(child: Column(
+                children: [
+                  Padding(padding: EdgeInsetsGeometry.all(12),child: Row(children: [Expanded(child: Center(child: Text("Scan receiver QR to connect!")))],),),
+                  Expanded(child: CameraKitPlusView(onBarcodeRead: mySenderController.onBarcodeRead)),
+                ],
+              )),
         ],
       ),
     );

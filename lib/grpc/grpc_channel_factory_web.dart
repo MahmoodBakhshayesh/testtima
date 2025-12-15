@@ -7,6 +7,8 @@ ClientChannelBase createChannelImpl(GrpcConfig config) {
   final url = (config.host == null || config.host!.isEmpty)
       ? (config.host.startsWith('http') ? config.host : 'https://${config.host}')
       : config.host!;
+      final uri = Uri.parse( config.host.startsWith('http') ?  config.host : 'https://${ config.host}');
 
+      return GrpcWebClientChannel.xhr(uri);
   return GrpcWebClientChannel.xhr(Uri.parse(url));
 }

@@ -169,7 +169,7 @@ class ReceiverController extends ControllerInterface {
             String? showCode = data["showCode"]?.toString();
             getIt<PerformanceController>().fillReportWithRefHistory(his, refCode, showCode, status);
             log("his ${his.showCode}");
-            if(navigation.context.isDesktop){
+            if(!navigation.context.isDesktop){
               goNamed(Routes.resultReport);
             }
           }

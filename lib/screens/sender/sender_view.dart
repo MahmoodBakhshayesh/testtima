@@ -15,7 +15,7 @@ class SenderView extends ConsumerWidget {
       if(context.isDesktop){
         return SenderViewDesktop();
       }else if(context.isMyTablet){
-        return SenderViewTablet();
+        return SenderViewPhone();
       }else{
         return SenderViewPhone();
       }
