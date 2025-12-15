@@ -9,10 +9,8 @@ service ShareDataService {
 
 // ---------- Messages ----------
 message ShareDataResponse {
-  bool    success   = 1;
-  int32   errorCode = 2;
-  string  message   = 3;
-  string  response  = 4;
+  string  command   = 1;
+  string  data      = 2;
 }
 
 message ShareDataRequest {

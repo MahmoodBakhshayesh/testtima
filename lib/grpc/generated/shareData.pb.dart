@@ -19,16 +19,12 @@ export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 /// ---------- Messages ----------
 class ShareDataResponse extends $pb.GeneratedMessage {
   factory ShareDataResponse({
-    $core.bool? success,
-    $core.int? errorCode,
-    $core.String? message,
-    $core.String? response,
+    $core.String? command,
+    $core.String? data,
   }) {
     final result = create();
-    if (success != null) result.success = success;
-    if (errorCode != null) result.errorCode = errorCode;
-    if (message != null) result.message = message;
-    if (response != null) result.response = response;
+    if (command != null) result.command = command;
+    if (data != null) result.data = data;
     return result;
   }
 
@@ -45,10 +41,8 @@ class ShareDataResponse extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'ShareDataResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'shareData'),
       createEmptyInstance: create)
-    ..aOB(1, _omitFieldNames ? '' : 'success')
-    ..aI(2, _omitFieldNames ? '' : 'errorCode', protoName: 'errorCode')
-    ..aOS(3, _omitFieldNames ? '' : 'message')
-    ..aOS(4, _omitFieldNames ? '' : 'response')
+    ..aOS(1, _omitFieldNames ? '' : 'command')
+    ..aOS(2, _omitFieldNames ? '' : 'data')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -71,40 +65,22 @@ class ShareDataResponse extends $pb.GeneratedMessage {
   static ShareDataResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.bool get success => $_getBF(0);
+  $core.String get command => $_getSZ(0);
   @$pb.TagNumber(1)
-  set success($core.bool value) => $_setBool(0, value);
+  set command($core.String value) => $_setString(0, value);
   @$pb.TagNumber(1)
-  $core.bool hasSuccess() => $_has(0);
+  $core.bool hasCommand() => $_has(0);
   @$pb.TagNumber(1)
-  void clearSuccess() => $_clearField(1);
+  void clearCommand() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  $core.int get errorCode => $_getIZ(1);
+  $core.String get data => $_getSZ(1);
   @$pb.TagNumber(2)
-  set errorCode($core.int value) => $_setSignedInt32(1, value);
+  set data($core.String value) => $_setString(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasErrorCode() => $_has(1);
+  $core.bool hasData() => $_has(1);
   @$pb.TagNumber(2)
-  void clearErrorCode() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get message => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set message($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessage() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessage() => $_clearField(3);
-
-  @$pb.TagNumber(4)
-  $core.String get response => $_getSZ(3);
-  @$pb.TagNumber(4)
-  set response($core.String value) => $_setString(3, value);
-  @$pb.TagNumber(4)
-  $core.bool hasResponse() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearResponse() => $_clearField(4);
+  void clearData() => $_clearField(2);
 }
 
 class ShareDataRequest extends $pb.GeneratedMessage {

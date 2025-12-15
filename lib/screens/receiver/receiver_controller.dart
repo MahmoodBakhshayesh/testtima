@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/classes/ref_history_log_class.dart';
+import 'package:abds/core/classes/sender_data_class.dart';
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/screens/performance/performance_controller.dart';
 import 'package:abds/screens/receiver/receiver_state.dart';
 import 'package:abds/screens/receiver/usecases/get_receiver_qr_usecase.dart';
@@ -13,6 +15,7 @@ import '../../core/classes/current_status_class.dart';
 import '../../core/classes/receiver_data_class.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/result_int.dart';
+import '../../core/navigation/routes.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
 import '../../grpc/clients/share_data_client.dart';
 import '../../grpc/generated/shareData.pbgrpc.dart';
@@ -152,23 +155,34 @@ class ReceiverController extends ControllerInterface {
         //   log("msg has response ${msg.response.runtimeType}");
         // }
         try{
-          log("${msg.response.runtimeType} ${msg.response}");
-          Map<String,dynamic> data = jsonDecode(msg.response.toString())["result"];
-          RefHistory his = RefHistory.fromJson(data);
-          CurrentStatus status = CurrentStatus.fromJson(data["result"]);
-          String? refCode = data["refCode"]?.toString();
-          String? showCode = data["showCode"]?.toString();
-          getIt<PerformanceController>().fillReportWithRefHistory(his, refCode, showCode, status);
-          log("his ${his.showCode}");
+          if(msg.command=="connect"){
+            SenderData senderData = SenderData.fromJson(jsonDecode(msg.data));
+            ref.read(senderDataProvider.notifier).update((s)=>senderData);
+            log("we set sender data");
+          }else if(msg.command =="disconnect"){
+            ref.read(senderDataProvider.notifier).update((s)=>null);
+          }else if(msg.command =="data"){
+            Map<String,dynamic> data = jsonDecode(msg.data.toString())["response"];
+            RefHistory his = RefHistory.fromJson(data);
+            CurrentStatus status = CurrentStatus.fromJson(data["result"]);
+            String? refCode = data["refCode"]?.toString();
+            String? showCode = data["showCode"]?.toString();
+            getIt<PerformanceController>().fillReportWithRefHistory(his, refCode, showCode, status);
+            log("his ${his.showCode}");
+            if(navigation.context.isDesktop){
+              goNamed(Routes.resultReport);
+            }
+          }
+
 
         }catch(e){
-            //
-            // log("e ${e.runtimeType}  ${e}");
-            // if(e is Error){
-            //   log(e.stackTrace.toString());
-            // }
+
+            log("e ${e.runtimeType}  ${e}");
+            if(e is Error){
+              log(e.stackTrace.toString());
+            }
         }
-        log('Response: ${msg.response}');
+        log('Response: ${msg}');
       },
     );
 

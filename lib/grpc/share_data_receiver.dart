@@ -7,6 +7,7 @@ import 'package:grpc/grpc_connection_interface.dart';
 // ✅ adjust these to your generated files
 import 'generated/shareData.pbgrpc.dart';
 import 'grpc_channel.dart';
+import 'grpc_channel_factory.dart';
 
 enum GrpcStreamStatus { idle, connecting, connected, disconnected, error }
 

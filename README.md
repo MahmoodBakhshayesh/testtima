@@ -27,3 +27,8 @@ windows   1:766257278398:web:67f580e87b502fad111def
 
 flutter build web --release --pwa-strategy=none --no-tree-shake-icons
  5894-6315-2985-0117
+
+protoc \                                  
+--proto_path=protos \
+--dart_out=grpc:lib/grpc/generated \
+$(find protos -name "*.proto");  

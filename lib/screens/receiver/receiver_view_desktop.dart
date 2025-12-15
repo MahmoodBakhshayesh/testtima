@@ -1,3 +1,4 @@
+import 'package:abds/core/constants/assest.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
   Widget build(BuildContext context) {
     final timaticRes = ref.watch(reportTimaticResultNewProvider);
     final receiverData = ref.watch(receiverDataProvider);
+    final senderData= ref.watch(senderDataProvider);
     bool resultMode = timaticRes != null;
     int index = 0;
     if (ref.watch(receiverDataProvider) == null) {
@@ -82,8 +84,10 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
                       SpinKitChasingDots(color: context.mainColor, size: 50),
                     ],
                   ),
+                  senderData==null?
                   Column(
                     children: [
+                      Text("No Sender Connected"),
                       Text("Scan Qr from Sender to Connect..."),
                       const SizedBox(height: 12),
                       SizedBox(
@@ -100,7 +104,19 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
                         },
                       ),
                     ],
-                  ),
+                  ):Column(children: [
+                    Text("${senderData.response.sender.username} Connected"),
+                    const SizedBox(height: 12),
+                    Image.asset(AssetImages.mobileSender),
+                    const SizedBox(height: 12),
+                    MyButton(
+                      label: "Disconnect",
+                      color: Colors.red,
+                      onPressed: () {
+                        myReceiverController.disconnect();
+                      },
+                    ),
+                  ],),
                   Column(
                     children: [
                       MyButton(

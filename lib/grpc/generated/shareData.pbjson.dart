@@ -19,18 +19,15 @@ import 'dart:typed_data' as $typed_data;
 const ShareDataResponse$json = {
   '1': 'ShareDataResponse',
   '2': [
-    {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
-    {'1': 'errorCode', '3': 2, '4': 1, '5': 5, '10': 'errorCode'},
-    {'1': 'message', '3': 3, '4': 1, '5': 9, '10': 'message'},
-    {'1': 'response', '3': 4, '4': 1, '5': 9, '10': 'response'},
+    {'1': 'command', '3': 1, '4': 1, '5': 9, '10': 'command'},
+    {'1': 'data', '3': 2, '4': 1, '5': 9, '10': 'data'},
   ],
 };
 
 /// Descriptor for `ShareDataResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List shareDataResponseDescriptor = $convert.base64Decode(
-    'ChFTaGFyZURhdGFSZXNwb25zZRIYCgdzdWNjZXNzGAEgASgIUgdzdWNjZXNzEhwKCWVycm9yQ2'
-    '9kZRgCIAEoBVIJZXJyb3JDb2RlEhgKB21lc3NhZ2UYAyABKAlSB21lc3NhZ2USGgoIcmVzcG9u'
-    'c2UYBCABKAlSCHJlc3BvbnNl');
+    'ChFTaGFyZURhdGFSZXNwb25zZRIYCgdjb21tYW5kGAEgASgJUgdjb21tYW5kEhIKBGRhdGEYAi'
+    'ABKAlSBGRhdGE=');
 
 @$core.Deprecated('Use shareDataRequestDescriptor instead')
 const ShareDataRequest$json = {

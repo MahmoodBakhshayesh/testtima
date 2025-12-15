@@ -6,6 +6,7 @@ class AssetImages {
   static const cake ="${assetsAddress}cake.gif";
   static const loginBg ="${assetsAddress}wall_pass.png";
   static const frame ="${assetsAddress}scan_frame.png";
+  static const mobileSender ="${assetsAddress}mobile_sender.png";
 }
 
 
