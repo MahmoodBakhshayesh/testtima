@@ -35,5 +35,7 @@ class GrpcChannelFactory {
   ClientChannelBase create() => createChannelImpl(config);
 }
 
-/// Public function implemented per platform via conditional imports
-ClientChannelBase createChannelImpl(GrpcConfig config) => throw UnimplementedError();
+// /// Public function implemented per platform via conditional imports
+// ClientChannelBase createChannelImpl(GrpcConfig config) {
+//       return createChannelImpl(config);
+// }
