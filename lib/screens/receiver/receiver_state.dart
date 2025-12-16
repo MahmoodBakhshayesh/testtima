@@ -2,6 +2,7 @@ import 'package:abds/core/classes/receiver_data_class.dart';
 import 'package:abds/core/classes/sender_data_class.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:signalr_netcore/hub_connection.dart';
 
 import '../../grpc/share_data_receiver.dart';
 
@@ -14,5 +15,7 @@ class ReceiverState extends ChangeNotifier {
 }
 
 final receiverDataProvider = StateProvider<ReceiverData?>((ref) => null);
-final receiverStatusProvider = StateProvider<GrpcStreamStatus>((ref) => GrpcStreamStatus.idle);
+// final receiverStatusProvider = StateProvider<GrpcStreamStatus>((ref) => GrpcStreamStatus.idle);
 final senderDataProvider = StateProvider<SenderData?>((ref) => null);
+final receiverStatusProvider = StateProvider<HubConnectionState>((ref) => HubConnectionState.Disconnected);
+
