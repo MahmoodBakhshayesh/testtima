@@ -17,5 +17,5 @@ class ReceiverState extends ChangeNotifier {
 final receiverDataProvider = StateProvider<ReceiverData?>((ref) => null);
 // final receiverStatusProvider = StateProvider<GrpcStreamStatus>((ref) => GrpcStreamStatus.idle);
 final senderDataProvider = StateProvider<SenderData?>((ref) => null);
-final receiverStatusProvider = StateProvider<HubConnectionState>((ref) => HubConnectionState.Disconnected);
+// final receiverStatusProvider = StateProvider<HubConnectionState>((ref) => HubConnectionState.Disconnected);
 

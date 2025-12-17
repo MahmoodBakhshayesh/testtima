@@ -9,6 +9,7 @@ import 'data_sources/setting_menu_remote_ds.dart';
 import 'usecases/add_section_menu_usecase.dart';
 import 'usecases/get_menu_usecase.dart';
 import 'usecases/load_section_menu_usecase.dart';
+import 'usecases/menu_get_template_usecase.dart';
 import 'usecases/save_section_menu_usecase.dart';
 
 class SettingMenuRepository implements SettingMenuRepositoryInterface {
@@ -77,4 +78,19 @@ class SettingMenuRepository implements SettingMenuRepositoryInterface {
       return Result.error(ServerFailure.fromAppException(e));
     }
   }
+
+    @override
+      Future<Result<MenuGetTemplateResponse>> menuGetTemplate(MenuGetTemplateRequest request) async {
+        try {
+          MenuGetTemplateResponse menuGetTemplateResponse;
+          if (await networkInfo.isConnected) {
+            menuGetTemplateResponse = await settingMenuRemoteDataSource.menuGetTemplate(request: request);
+          } else {
+            menuGetTemplateResponse = await settingMenuLocalDataSource.menuGetTemplate(request: request);
+          }
+          return Result.ok(menuGetTemplateResponse);
+        } on AppException catch (e) {
+          return Result.error(ServerFailure.fromAppException(e));
+        }
+      }
 }

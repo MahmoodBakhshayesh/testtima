@@ -19,6 +19,7 @@ class SettingMenu {
 
     if (data is List) {
       return SettingMenu(sections: data.map((e) => MenuDescriptor.fromJson(_asMap(e))).toList());
+
     }
     if (data is Map<String, dynamic>) {
       final secs = _asList(data['sections']);
@@ -44,27 +45,156 @@ class SettingMenu {
 /// Parse convenience for the raw array or object-with-sections.
 SettingMenu parseSettingMenu(dynamic source) => SettingMenu.fromDynamic(source);
 
+class CollectionAccess {
+  final bool add;
+  final bool getTemplate;
+  final bool addWithExcel;
+  final bool editDocument;
+  final bool duplicateDocument;
+  final bool updateCollectionWithExcel;
+  final bool getCollectionAsExcel;
+
+  CollectionAccess({
+    required this.add,
+    required this.getTemplate,
+    required this.addWithExcel,
+    required this.editDocument,
+    required this.duplicateDocument,
+    required this.updateCollectionWithExcel,
+    required this.getCollectionAsExcel,
+  });
+
+  CollectionAccess copyWith({
+    bool? add,
+    bool? getTemplate,
+    bool? addWithExcel,
+    bool? editDocument,
+    bool? duplicateDocument,
+    bool? updateCollectionWithExcel,
+    bool? getCollectionAsExcel,
+  }) => CollectionAccess(
+    add: add ?? this.add,
+    getTemplate: getTemplate ?? this.getTemplate,
+    addWithExcel: addWithExcel ?? this.addWithExcel,
+    editDocument: editDocument ?? this.editDocument,
+    duplicateDocument: duplicateDocument ?? this.duplicateDocument,
+    updateCollectionWithExcel: updateCollectionWithExcel ?? this.updateCollectionWithExcel,
+    getCollectionAsExcel: getCollectionAsExcel ?? this.getCollectionAsExcel,
+  );
+
+  factory CollectionAccess.fromJson(Map<String, dynamic> json) => CollectionAccess(
+    add: json["add"],
+    getTemplate: json["getTemplate"] ?? false,
+    addWithExcel: json["addWithExcel"] ?? false,
+    editDocument: json["editDocument"] ?? false,
+    duplicateDocument: json["duplicateDocument"] ?? false,
+    updateCollectionWithExcel: json["updateCollectionWithExcel"] ?? false,
+    getCollectionAsExcel: json["getCollectionAsExcel"] ?? false,
+  );
+
+  Map<String, dynamic> toJson() => {
+    "add": add,
+    "getTemplate": getTemplate,
+    "addWithExcel": addWithExcel,
+    "editDocument": editDocument,
+    "duplicateDocument": duplicateDocument,
+    "updateCollectionWithExcel": updateCollectionWithExcel,
+    "getCollectionAsExcel": getCollectionAsExcel,
+  };
+}
+
+class DocumentAccess {
+  final bool edit;
+  final bool getDocumentAsExcel;
+  final bool updateDocumentWithExcel;
+  final bool delete;
+
+  DocumentAccess({required this.edit, required this.getDocumentAsExcel, required this.updateDocumentWithExcel, required this.delete});
+
+  DocumentAccess copyWith({bool? edit, bool? getDocumentAsExcel, bool? updateDocumentWithExcel, bool? delete}) => DocumentAccess(
+    edit: edit ?? this.edit,
+    getDocumentAsExcel: getDocumentAsExcel ?? this.getDocumentAsExcel,
+    updateDocumentWithExcel: updateDocumentWithExcel ?? this.updateDocumentWithExcel,
+    delete: delete ?? this.delete,
+  );
+
+  factory DocumentAccess.fromJson(Map<String, dynamic> json) => DocumentAccess(
+    edit: json["edit"] ?? false,
+    getDocumentAsExcel: json["getDocumentAsExcel"] ?? false,
+    updateDocumentWithExcel: json["updateDocumentWithExcel"] ?? false,
+    delete: json["delete"] ?? false,
+  );
+
+  Map<String, dynamic> toJson() => {
+    "edit": edit,
+    "getDocumentAsExcel": getDocumentAsExcel,
+    "updateDocumentWithExcel": updateDocumentWithExcel,
+    "delete": delete,
+  };
+}
+
 /// ---------------------------
 /// Section model
 /// ---------------------------
 
 class MenuDescriptor {
   final String title;
+  final String fieldTitle;
+  final String fieldDescription;
   final String endpoint;
-  final List documentName;
+  final List fieldName;
   final SchemaNode schema;
+  final CollectionAccess collectionAccess;
+  final DocumentAccess documentAccess;
 
-
-  const MenuDescriptor({required this.title, required this.endpoint, required this.schema, required this.documentName});
+  const MenuDescriptor({
+    required this.title,
+    required this.fieldTitle,
+    required this.fieldDescription,
+    required this.endpoint,
+    required this.schema,
+    required this.fieldName,
+    required this.collectionAccess,
+    required this.documentAccess,
+  });
 
   factory MenuDescriptor.fromJson(Map<String, dynamic> json) {
-    return MenuDescriptor(title: _asString(json['title']), endpoint: _asString(json['endpoint']),documentName: _asList(json["documentName"]??[]), schema: SchemaNode.fromJson(_asMap(json['schema'])));
+    return MenuDescriptor(
+      fieldTitle: _asString(json['fieldTitle']),
+      fieldDescription: _asString(json['fieldDescription']),
+      title: _asString(json['title']),
+      endpoint: _asString(json['endpoint']),
+      fieldName: _asList(json["fieldName"] ?? []),
+      collectionAccess: json["collectionAccess"] == null
+          ? CollectionAccess(add: false, getTemplate: false, addWithExcel: false, editDocument: false, duplicateDocument: false, updateCollectionWithExcel: false, getCollectionAsExcel: false)
+          : CollectionAccess.fromJson(_asMap(json["collectionAccess"])),
+      documentAccess: json["documentAccess"] == null ? DocumentAccess(edit: false, getDocumentAsExcel: false, updateDocumentWithExcel: false, delete: false) : DocumentAccess.fromJson(_asMap(json["documentAccess"])),
+      schema: SchemaNode.fromJson(_asMap(json['schema'])),
+    );
   }
 
-  Map<String, dynamic> toJson() => {'title': title, 'endpoint': endpoint,'documentName': documentName, 'schema': schema.toJson()};
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    "documentAccess": documentAccess.toJson(),
+    "collectionAccess": collectionAccess.toJson(),
+    'fieldTitle': fieldTitle,
+    'fieldDescription': fieldDescription,
+    'endpoint': endpoint,
+    'fieldName': fieldName,
+    'schema': schema.toJson(),
+  };
 
-  MenuDescriptor copyWith({String? title, String? endpoint, SchemaNode? schema,List? documentName}) {
-    return MenuDescriptor(title: title ?? this.title, endpoint: endpoint ?? this.endpoint, schema: schema ?? this.schema,documentName:documentName??this.documentName);
+  MenuDescriptor copyWith({String? title, DocumentAccess? documentAccess, CollectionAccess? collectionAccess, String? fieldTitle, String? fieldDescription, String? endpoint, SchemaNode? schema, List? fieldName}) {
+    return MenuDescriptor(
+      title: title ?? this.title,
+      fieldTitle: fieldTitle ?? this.fieldTitle,
+      fieldDescription: fieldDescription ?? this.fieldDescription,
+      documentAccess: documentAccess ?? this.documentAccess,
+      collectionAccess: collectionAccess ?? this.collectionAccess,
+      endpoint: endpoint ?? this.endpoint,
+      schema: schema ?? this.schema,
+      fieldName: fieldName ?? this.fieldName,
+    );
   }
 
   getValue(value) {
@@ -121,7 +251,7 @@ abstract class SchemaNode {
       case 'array':
         final items = json['items'];
         if (items == null) throw FormatException('Array schema must contain "items".');
-        return ArraySchema(items: SchemaNode.fromJson(_asMap(items)),title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+        return ArraySchema(items: SchemaNode.fromJson(_asMap(items)), title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
 
       // ---- Extended types you asked for ----
       case 'enum':
@@ -139,7 +269,7 @@ abstract class SchemaNode {
           enumValues: _readEnumClassicOrList(json),
           format: _asString(json['format'], fallback: ''),
           title: json["title"] ?? json["fieldTitle"],
-            desc: json["fieldDescription"]
+          desc: json["fieldDescription"],
         );
 
       case 'number':
@@ -148,7 +278,7 @@ abstract class SchemaNode {
           enumValues: _readEnumClassicOrList(json),
           format: _asString(json['format'], fallback: ''),
           title: json["title"] ?? json["fieldTitle"],
-            desc: json["fieldDescription"]
+          desc: json["fieldDescription"],
         );
 
       case 'boolean':
@@ -157,7 +287,7 @@ abstract class SchemaNode {
           enumValues: _readEnumClassicOrList(json),
           format: _asString(json['format'], fallback: ''),
           title: json["title"] ?? json["fieldTitle"],
-            desc: json["fieldDescription"]
+          desc: json["fieldDescription"],
         );
 
       default:
@@ -355,7 +485,6 @@ List<String> validateAgainstSchema(SchemaNode schema, dynamic value, {String pat
   return errors;
 }
 
-
 /// Build a map of path -> list of messages (for inline errors).
 Map<String, List<String>> buildErrorIndex(List<String> flatErrors) {
   final map = <String, List<String>>{};
@@ -539,23 +668,20 @@ bool _isEmptyForRequired(SchemaNode schema, dynamic value) {
 
   switch (schema.kind) {
     case SchemaKind.string:
-    // Treat empty/whitespace string as empty
+      // Treat empty/whitespace string as empty
       return value is String ? value.trim().isEmpty : value.toString().trim().isEmpty;
 
     case SchemaKind.array:
-    // IMPORTANT: you said empty list is valid
+      // IMPORTANT: you said empty list is valid
       return false;
 
     case SchemaKind.object:
-    // Present object is considered non-empty at this level; children handle their own "required"
+      // Present object is considered non-empty at this level; children handle their own "required"
       return false;
 
     case SchemaKind.number:
     case SchemaKind.boolean:
-    // 0 and false are valid values
+      // 0 and false are valid values
       return false;
   }
 }
-
-
-

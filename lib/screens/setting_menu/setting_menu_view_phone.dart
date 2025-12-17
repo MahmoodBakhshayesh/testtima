@@ -59,7 +59,8 @@ class MenuSectionWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8),
       child: DrawerAction(
-        title: section.title,
+        title: section.fieldTitle,
+        subtitle: Text(section.fieldDescription),
         onTap: () async {
           final smC = getIt<SettingMenuController>();
           final items = await smC.loadData(section);

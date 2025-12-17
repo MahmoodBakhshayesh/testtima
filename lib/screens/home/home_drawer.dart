@@ -275,6 +275,7 @@ class DrawerAction extends StatefulWidget {
   final Widget? trailing;
   final UiPermission? permission;
   final Widget? leadingWidget;
+  final Widget? subtitle;
   final Color? tileColor;
   final double radius;
 
@@ -283,6 +284,7 @@ class DrawerAction extends StatefulWidget {
     this.borderColor,
     required this.title,
     this.leading,
+    this.subtitle,
     required this.onTap,
     this.leadingIcon,
     this.visible = true,
@@ -362,6 +364,7 @@ class _DrawerActionState extends State<DrawerAction> {
             _loading ? SizedBox(width: 40, child: SpinKitThreeBounce(color: c, size: 22)) : widget.trailing ?? SizedBox(),
           ],
         ),
+        subtitle: widget.subtitle,
       ),
     );
   }

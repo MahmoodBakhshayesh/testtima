@@ -142,7 +142,7 @@ class ReceiverController extends ControllerInterface {
   //   });
   // }
 
-  late ShareDataReceiver receiver;
+  // late ShareDataReceiver receiver;
 
   Future<void> initReceiverOld() async {
     // final receiveData = ref.read(receiverDataProvider);
@@ -222,7 +222,9 @@ class ReceiverController extends ControllerInterface {
   }
 
   Future<void> reconnect() async {
-    receiver.reconnectNow();
+    // receiver.reconnectNow();
+    await ReceiverSocket.reconnect();
+
   }
 
   Future<void> callIt({required String receiverId}) async {
@@ -230,7 +232,9 @@ class ReceiverController extends ControllerInterface {
     controller.add(ShareDataRequest());
   }
 
-  void disconnect() {
-    receiver.disconnect();
+  Future<void> disconnect() async {
+    await ReceiverSocket.disconnect();
+
+    // receiver.disconnect();
   }
 }

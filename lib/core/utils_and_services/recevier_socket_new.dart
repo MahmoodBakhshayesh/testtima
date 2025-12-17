@@ -11,7 +11,7 @@ import '../../screens/login/login_state.dart';
 import '../classes/basic_class.dart';
 import 'handlers/notify_handlers.dart';
 
-final webSocketStatusProvider = StateProvider<WebSocketConnectionState>((ref) => WebSocketConnectionState.disconnected);
+final receiverStatusProvider = StateProvider<WebSocketConnectionState>((ref) => WebSocketConnectionState.disconnected);
 
 enum WebSocketConnectionState { connecting, connected, disconnected }
 
@@ -52,7 +52,7 @@ class ReceiverSocket {
   static void _connectInternal([String? address]) {
     try {
       String url = address??_url;
-      ref.read(webSocketStatusProvider.notifier).state = WebSocketConnectionState.connecting;
+      ref.read(receiverStatusProvider.notifier).state = WebSocketConnectionState.connecting;
 
 
       final uri = Uri.parse(url).replace(queryParameters: {
@@ -72,17 +72,17 @@ class ReceiverSocket {
         _onMessage,
         onDone: () {
           log("WebSocket Disconnected");
-          ref.read(webSocketStatusProvider.notifier).state = WebSocketConnectionState.disconnected;
+          ref.read(receiverStatusProvider.notifier).state = WebSocketConnectionState.disconnected;
           if (!_manuallyDisconnected) _scheduleReconnect();
         },
         onError: (err) {
           log("WebSocket Error: $err");
-          ref.read(webSocketStatusProvider.notifier).state = WebSocketConnectionState.disconnected;
+          ref.read(receiverStatusProvider.notifier).state = WebSocketConnectionState.disconnected;
           if (!_manuallyDisconnected) _scheduleReconnect();
         },
       );
 
-      ref.read(webSocketStatusProvider.notifier).state = WebSocketConnectionState.connected;
+      ref.read(receiverStatusProvider.notifier).state = WebSocketConnectionState.connected;
       _rejoinGroups();
     } catch (e, st) {
       log('WebSocket connection failed: $e');
@@ -101,7 +101,7 @@ class ReceiverSocket {
     _retryTimer?.cancel();
     await _subscription?.cancel();
     await _channel?.sink.close(ws_status.goingAway);
-    ref.read(webSocketStatusProvider.notifier).state = WebSocketConnectionState.disconnected;
+    ref.read(receiverStatusProvider.notifier).state = WebSocketConnectionState.disconnected;
   }
 
   static Future<void> hold() => disconnect();
@@ -114,13 +114,13 @@ class ReceiverSocket {
       log(message);
       try {
         final decoded = jsonDecode(message);
-        NotifyHandlers.handleWebSocketEvent(decoded);
+        NotifyHandlers.handleWebSocketEvent(decoded,data!);
       } catch (e) {
         log('Invalid message: $e');
       }
       // return;
     }else if(message.runtimeType is Map<String,dynamic>){
-      NotifyHandlers.handleWebSocketEvent(message);
+      NotifyHandlers.handleWebSocketEvent(message,data!);
     }
 
   }
@@ -195,5 +195,12 @@ class ReceiverSocket {
     for (final group in groups.toSet()) {
       subscribeGroup(group);
     }
+  }
+
+  static Future<void> reconnect() async {
+    if(data==null){
+      return;
+    }
+    connect(data!);
   }
 }

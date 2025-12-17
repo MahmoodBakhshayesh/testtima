@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:abds/core/constants/assest.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:barcode_widget/barcode_widget.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../../core/utils_and_services/recevier_socket_new.dart';
 import '../../widgets/MyExpansionTile.dart';
 import '../home/new_widgets/flight_widget.dart';
 import '../home/new_widgets/passenger_widget.dart';
@@ -44,10 +47,12 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
     final senderData= ref.watch(senderDataProvider);
     bool resultMode = timaticRes != null;
     int index = 0;
+    log("${WebSocketConnectionState.values.map((a)=>"${a.name} - ${a.index}").join("\n")}");
+    log("${ref.watch(receiverStatusProvider)} == ${ref.watch(receiverStatusProvider).index}");
     if (ref.watch(receiverDataProvider) == null) {
       index = 0;
     } else {
-      index = ref.watch(receiverStatusProvider).index;
+      index = ref.watch(receiverStatusProvider).index+1;
     }
     return Scaffold(
       appBar: ReceiverAppBarDesktop(),
@@ -99,8 +104,8 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
                       MyButton(
                         label: "Disconnect",
                         color: Colors.red,
-                        onPressed: () {
-                          myReceiverController.disconnect();
+                        onPressed: () async {
+                          await myReceiverController.disconnect();
                         },
                       ),
                     ],
@@ -112,8 +117,8 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
                     MyButton(
                       label: "Disconnect",
                       color: Colors.red,
-                      onPressed: () {
-                        myReceiverController.disconnect();
+                      onPressed: () async {
+                        await myReceiverController.disconnect();
                       },
                     ),
                   ],),

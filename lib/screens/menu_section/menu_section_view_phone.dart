@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:abds/core/classes/menu_class.dart';
+import 'package:abds/screens/setting_menu/setting_menu_controller.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
@@ -40,14 +41,14 @@ class _MenuSectionViewPhoneState extends ConsumerState<MenuSectionViewPhone> {
                 // String label = section.title.split(" ").last;
                 String label = "";
                 if(items.isNotEmpty && items.first is Map){
-                  for (var a in section.documentName) {
+                  for (var a in section.fieldName) {
                     label = label + " ${items[i][a]}";
                   }
                 }else{
-                  label = section.title.split(" ").last + " ${i + 1}";
+                  label = section.fieldTitle.split(" ").last + " ${i + 1}";
                 }
-
-                return SectionItemWidget(data: items[i], schema: section.schema, label: label);
+                log("${section.fieldTitle} -- ${section.documentAccess.edit}");
+                return SectionItemWidget(data: items[i], schema: section.schema, label: label,section: section,);
               },
             ),
           ),
@@ -83,7 +84,7 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
                   Row(
                     children: [
                       BackButton(),
-                      Text("${section.title}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      Text("${section.fieldTitle}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
                       DotButton(
                         icon: Icons.add,
@@ -106,17 +107,18 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
 
 class SectionItemWidget extends StatelessWidget {
   final SchemaNode schema;
+  final MenuDescriptor? section;
   final String label;
   final dynamic data;
 
-  const SectionItemWidget({super.key, required this.schema, required this.data, required this.label});
+  const SectionItemWidget({super.key, required this.schema, required this.data, this.section, required this.label});
 
   @override
   Widget build(BuildContext context) {
     final level = label.split(".").length + 1;
     final bool isMainObject = level == 2;
     final String showingLabel = label.split(".").last;
-    // log("level $level");
+    // log("level $level ${section?.fieldTitle} ${section?.collectionAccess.editDocument}");
     // log(jsonEncode(data));
     // log(label);
     // log(section.schema.kind.name);
@@ -128,14 +130,53 @@ class SectionItemWidget extends StatelessWidget {
         return MyExpansionTile(
           childrenPadding: EdgeInsets.symmetric(horizontal: 4.0 * level),
           title: Row(
+            spacing: 8,
             children: [
               Expanded(child: Text(label.split(".").last)),
               Visibility(
-                visible: isMainObject,
+                visible: isMainObject ||  section?.collectionAccess.duplicateDocument == true,
+                child: DotButton(
+                  icon: Icons.copy,
+                  onPressed: () async {
+                    await getIt<MenuSectionController>().duplicateDocument(section,data["_id"]);
+                  },
+                ),
+              ),
+              Visibility(
+                visible: isMainObject ||  section?.documentAccess.getDocumentAsExcel == true,
+                child: DotButton(
+                  icon: Icons.download,
+                  onPressed: () async {
+                    await getIt<MenuSectionController>().getDocumentAsExcel(section,data["_id"]);
+                  },
+                ),
+              ),
+              Visibility(
+                visible: isMainObject ||  section?.documentAccess.updateDocumentWithExcel == true,
+                child: DotButton(
+                  icon: Icons.upload,
+                  color: Colors.green,
+                  onPressed: () async{
+                    await getIt<MenuSectionController>().updateDocumentWithExcel(section,data["_id"]);
+                  },
+                ),
+              ),
+              Visibility(
+                visible: isMainObject ||  section?.documentAccess.edit == true,
                 child: DotButton(
                   icon: Icons.edit,
                   onPressed: () {
                     getIt<MenuSectionController>().editItem(schema, data, showingLabel, context.isDesktop);
+                  },
+                ),
+              ),
+              Visibility(
+                visible: isMainObject ||  section?.documentAccess.delete == true,
+                child: DotButton(
+                  icon: Icons.delete,
+                  color: Colors.red,
+                  onPressed: () async {
+                    await getIt<MenuSectionController>().deleteDocument(section,data["_id"]);
                   },
                 ),
               ),
@@ -170,7 +211,7 @@ class SectionItemWidget extends StatelessWidget {
             children: [
               Expanded(child: Text(label.split(".").last)),
               Visibility(
-                visible: isMainObject,
+                visible: isMainObject && section?.documentAccess.edit!=true,
                 child: DotButton(
                   icon: Icons.edit,
                   onPressed: () {

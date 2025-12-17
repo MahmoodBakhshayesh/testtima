@@ -1,6 +1,7 @@
 import 'package:abds/screens/setting_menu/usecases/add_section_menu_usecase.dart';
 import 'package:abds/screens/setting_menu/usecases/get_menu_usecase.dart';
 import 'package:abds/screens/setting_menu/usecases/load_section_menu_usecase.dart';
+import 'package:abds/screens/setting_menu/usecases/menu_get_template_usecase.dart';
 import 'package:abds/screens/setting_menu/usecases/save_section_menu_usecase.dart';
 
 import '../../../core/data_base/local_data_base.dart';
@@ -32,6 +33,12 @@ class SettingMenuLocalDataSource implements SettingMenuDataSourceInterface {
   @override
   Future<AddSectionMenuResponse> addSectionMenu({required AddSectionMenuRequest request}) {
     // TODO: implement addSectionMenu
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<MenuGetTemplateResponse> menuGetTemplate({required MenuGetTemplateRequest request}) {
+    // TODO: implement menuGetTemplate
     throw UnimplementedError();
   }
 

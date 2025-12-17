@@ -6,6 +6,7 @@ import 'package:abds/screens/home/home_drawer.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../core/interfaces/failures_int.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
@@ -126,10 +127,14 @@ class _SettingMenuDesktopWidgetState extends ConsumerState<SettingMenuDesktopWid
                 width: 300,
                 child: DrawerAction(
                   radius: 10,
-                  title: s.title,
-                  trailing: Icon(Icons.arrow_forward_ios_sharp,size: 15,),
-                  tileColor: selected?Colors.blueAccent.withOpacity(0.3):null,
-                  borderColor: selected?Colors.blueAccent:null,
+                  title: s.fieldTitle,
+                  subtitle: Text(s.fieldDescription),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_sharp,
+                    size: 15,
+                  ),
+                  tileColor: selected ? Colors.blueAccent.withOpacity(0.3) : null,
+                  borderColor: selected ? Colors.blueAccent : null,
                   onTap: () async {
                     await getIt<SettingMenuController>().loadData(s);
                   },
@@ -178,12 +183,12 @@ class MenuSectionWidgetDesktop extends ConsumerStatefulWidget {
 }
 
 class _MenuSectionWidgetDesktopState extends ConsumerState<MenuSectionWidgetDesktop> {
+  static SettingMenuController mySettingMenuController = getIt<SettingMenuController>();
+
   @override
   Widget build(BuildContext context) {
     final section = ref.watch(menuSectionProvider)!;
     final items = ref.watch(sectionItemsProvider);
-    log("secion ${widget.section}");
-    log("items ${items.length}");
     return Container(
       decoration: BoxDecoration(color: Colors.blueAccent.withOpacity(0.05)),
       child: Column(
@@ -191,15 +196,35 @@ class _MenuSectionWidgetDesktopState extends ConsumerState<MenuSectionWidgetDesk
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
+              spacing: 8,
               children: [
-                Expanded(child: Text(section.title)),
-
-                MyButton(
-                  label: "Add",
-                  onPressed: () {
-                    getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
-                  },
-                ),
+                Expanded(child: Text(section.fieldTitle)),
+                ?section.collectionAccess.getTemplate
+                    ? MyButton(
+                        label: "Template",
+                        icon: Icons.download,
+                        onPressed: () async {
+                          await mySettingMenuController.getMenuTemplate(section);
+                        },
+                      )
+                    : null,
+                ?section.collectionAccess.addWithExcel
+                    ? MyButton(
+                        label: "Excel",
+                        icon: Icons.upload,
+                        onPressed: () async {
+                          await mySettingMenuController.addMenuWithExcel(section);
+                        },
+                      )
+                    : null,
+                ?section.collectionAccess.add
+                    ? MyButton(
+                        label: "Add",
+                        onPressed: () {
+                          getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
+                        },
+                      )
+                    : null,
               ],
             ),
           ),
@@ -209,14 +234,17 @@ class _MenuSectionWidgetDesktopState extends ConsumerState<MenuSectionWidgetDesk
               itemBuilder: (c, i) {
                 // String label = section.title.split(" ").last;
                 String label = "";
-                if(items.isNotEmpty && items.first is Map){
-                  for (var a in section.documentName) {
+                if (items.isNotEmpty && items.first is Map) {
+                  for (var a in section.fieldName) {
                     label = label + " ${items[i][a]}";
                   }
-                }else{
-                  label = section.title.split(" ").last + " ${i + 1}";
+                  if (section.fieldName.isEmpty) {
+                    label = section.fieldTitle;
+                  }
+                } else {
+                  label = section.fieldTitle.split(" ").last + " ${i + 1}";
                 }
-                return SectionItemWidget(data: items[i], schema: section.schema, label: label);
+                return SectionItemWidget(data: items[i], schema: section.schema, label: label,section: section,);
               },
             ),
           ),
@@ -244,25 +272,22 @@ class _EditingSectionWidgetDesktopState extends ConsumerState<EditingSectionWidg
       return;
     }
     log(changed.runtimeType.toString());
-    if(changed is Map){
-      log("changed is Map and ${(changed as Map).containsKey("_id") }");
+    if (changed is Map) {
+      log("changed is Map and ${(changed as Map).containsKey("_id")}");
       if ((changed as Map).containsKey("_id") && (changed as Map)["_id"].toString().isNotEmpty) {
-        await myMenuItemAddEditController.saveItem(schema, changed,context.isDesktop);
+        await myMenuItemAddEditController.saveItem(schema, changed, context.isDesktop);
       } else {
-        await myMenuItemAddEditController.addItem(schema, changed,context.isDesktop);
+        await myMenuItemAddEditController.addItem(schema, changed, context.isDesktop);
       }
-    }else if(changed is List){
+    } else if (changed is List) {
       log("changed is list Map and ${(changed[0] as Map).containsKey("_id")}");
 
       if ((changed[0] as Map).containsKey("_id") && (changed[0] as Map)["_id"].toString().isNotEmpty) {
-        await myMenuItemAddEditController.saveItem(schema, changed,context.isDesktop);
-
-
+        await myMenuItemAddEditController.saveItem(schema, changed, context.isDesktop);
       } else {
-        await myMenuItemAddEditController.addItem(schema, changed,context.isDesktop);
+        await myMenuItemAddEditController.addItem(schema, changed, context.isDesktop);
       }
     }
-
   }
 
   @override
@@ -270,7 +295,7 @@ class _EditingSectionWidgetDesktopState extends ConsumerState<EditingSectionWidg
     final editing = Map<String, dynamic>.from(ref.watch(editingMenuProvider) ?? {});
     final editingSchema = ref.watch(editingSchemaProvider);
     final editingLabel = ref.watch(editingLabelProvider);
-    if (editingSchema == null ) {
+    if (editingSchema == null) {
       return SizedBox();
     }
 
@@ -285,7 +310,7 @@ class _EditingSectionWidgetDesktopState extends ConsumerState<EditingSectionWidg
             child: Row(
               children: [
                 Spacer(),
-                MyButton(label: editing.containsKey("_id") ? "Edit" : "Add", onPressed:() async => await onSubmit(editingSchema!)),
+                MyButton(label: editing.containsKey("_id") ? "Edit" : "Add", onPressed: () async => await onSubmit(editingSchema!)),
               ],
             ),
           ),

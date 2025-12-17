@@ -21,7 +21,7 @@ class AddSectionMenuUseCase extends UseCase<AddSectionMenuResponse,AddSectionMen
 
 }
 
-class AddSectionMenuRequest extends RequestInterface {
+class  AddSectionMenuRequest extends RequestInterface {
   String endPoint;
   dynamic data;
   AddSectionMenuRequest({required this.endPoint,required this.data});

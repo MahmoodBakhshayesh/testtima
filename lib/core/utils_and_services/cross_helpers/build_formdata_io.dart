@@ -15,13 +15,15 @@ Future<FormData> buildFormDataFromPaths({
   required List<String> images,
   required List<String> voices,
   required Map<String, dynamic> data,
+  String attachFieldName = 'attachFiles',
+
 }) async {
   final imageFiles = await Future.wait(images.map(_fileFromPath));
   final voiceFiles = await Future.wait(voices.map(_fileFromPath));
   final attachings = [...imageFiles, ...voiceFiles];
 
   return FormData.fromMap({
-    "attachFiles": attachings,
+    attachFieldName: attachings,
     "data": jsonEncode(data),
   });
 }

@@ -7,9 +7,10 @@ Future<FormData> buildFormDataFromPaths({
   required List<String> images,
   required List<String> voices,
   required Map<String, dynamic> data,
+  String attachFieldName = 'attachFiles',
 }) async {
   return FormData.fromMap({
-    "attachFiles": const <MultipartFile>[],
+    attachFieldName: const <MultipartFile>[],
     "data": jsonEncode(data),
   });
 }
