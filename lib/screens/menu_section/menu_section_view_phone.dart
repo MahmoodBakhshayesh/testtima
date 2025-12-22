@@ -8,6 +8,7 @@ import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyTextFieldNew.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import '../../widgets/MyButton.dart';
 import 'menu_section_controller.dart';
 import 'menu_section_state.dart';
 import '../../initialize.dart';
@@ -34,21 +35,27 @@ class _MenuSectionViewPhoneState extends ConsumerState<MenuSectionViewPhone> {
       appBar: MenuSectionAppBarPhone(section: section),
       body: Column(
         children: [
+
           Expanded(
             child: ListView.builder(
               itemCount: items.length,
               itemBuilder: (c, i) {
                 // String label = section.title.split(" ").last;
                 String label = "";
-                if(items.isNotEmpty && items.first is Map){
+                if (items.isNotEmpty && items.first is Map) {
                   for (var a in section.fieldName) {
                     label = label + " ${items[i][a]}";
                   }
-                }else{
+                } else {
                   label = section.fieldTitle.split(" ").last + " ${i + 1}";
                 }
                 log("${section.fieldTitle} -- ${section.documentAccess.edit}");
-                return SectionItemWidget(data: items[i], schema: section.schema, label: label,section: section,);
+                return SectionItemWidget(
+                  data: items[i],
+                  schema: section.schema,
+                  label: label,
+                  section: section,
+                );
               },
             ),
           ),
@@ -65,7 +72,7 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
   const MenuSectionAppBarPhone({super.key, required this.section});
 
   @override
-  Size get preferredSize => const Size.fromHeight(108);
+  Size get preferredSize => const Size.fromHeight(150);
 
   @override
   Widget build(BuildContext context) {
@@ -74,27 +81,74 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
       color: Colors.white,
       alignment: Alignment.center,
       child: SafeArea(
-        child: Row(
+        child: Column(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      BackButton(),
-                      Text("${section.fieldTitle}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
-                      Spacer(),
-                      DotButton(
-                        icon: Icons.add,
-                        onPressed: () {
-                          getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
-                        },
+                      Row(
+                        children: [
+                          BackButton(),
+                          Text("${section.fieldTitle}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                          Spacer(),
+                          // DotButton(
+                          //   icon: Icons.add,
+                          //   onPressed: () {
+                          //     getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
+                          //   },
+                          // ),
+                          SizedBox(width: 8),
+                        ],
                       ),
-                      SizedBox(width: 8),
                     ],
                   ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                spacing: 8,
+                children: [
+                  ?section.collectionAccess.getTemplate
+                      ? Expanded(
+                    child: MyButton(
+                      label: "Template",
+                      icon: Icons.download,
+                      onPressed: () async {
+                        final mySettingMenuController = getIt<SettingMenuController>();
+                        await mySettingMenuController.getMenuTemplate(section);
+                      },
+                    ),
+                  )
+                      : null,
+                  ?section.collectionAccess.addWithExcel
+                      ? Expanded(
+                    child: MyButton(
+                      label: "Excel",
+                      icon: Icons.upload,
+                      onPressed: () async {
+                        final mySettingMenuController = getIt<SettingMenuController>();
+                        await mySettingMenuController.addMenuWithExcel(section);
+                      },
+                    ),
+                  )
+                      : null,
+                  ?section.collectionAccess.add
+                      ? Expanded(
+                    child: MyButton(
+                      icon: Icons.add,
+                      label: "Add",
+                      onPressed: () {
+                        getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
+                      },
+                    ),
+                  )
+                      : null,
                 ],
               ),
             ),
@@ -134,35 +188,35 @@ class SectionItemWidget extends StatelessWidget {
             children: [
               Expanded(child: Text(label.split(".").last)),
               Visibility(
-                visible: isMainObject ||  section?.collectionAccess.duplicateDocument == true,
+                visible: isMainObject || section?.collectionAccess.duplicateDocument == true,
                 child: DotButton(
                   icon: Icons.copy,
                   onPressed: () async {
-                    await getIt<MenuSectionController>().duplicateDocument(section,data["_id"]);
+                    await getIt<MenuSectionController>().duplicateDocument(section, data["_id"]);
                   },
                 ),
               ),
               Visibility(
-                visible: isMainObject ||  section?.documentAccess.getDocumentAsExcel == true,
+                visible: isMainObject || section?.documentAccess.getDocumentAsExcel == true,
                 child: DotButton(
                   icon: Icons.download,
                   onPressed: () async {
-                    await getIt<MenuSectionController>().getDocumentAsExcel(section,data["_id"]);
+                    await getIt<MenuSectionController>().getDocumentAsExcel(section, data["_id"]);
                   },
                 ),
               ),
               Visibility(
-                visible: isMainObject ||  section?.documentAccess.updateDocumentWithExcel == true,
+                visible: isMainObject || section?.documentAccess.updateDocumentWithExcel == true,
                 child: DotButton(
                   icon: Icons.upload,
                   color: Colors.green,
-                  onPressed: () async{
-                    await getIt<MenuSectionController>().updateDocumentWithExcel(section,data["_id"]);
+                  onPressed: () async {
+                    await getIt<MenuSectionController>().updateDocumentWithExcel(section, data["_id"]);
                   },
                 ),
               ),
               Visibility(
-                visible: isMainObject ||  section?.documentAccess.edit == true,
+                visible: isMainObject || section?.documentAccess.edit == true,
                 child: DotButton(
                   icon: Icons.edit,
                   onPressed: () {
@@ -171,12 +225,12 @@ class SectionItemWidget extends StatelessWidget {
                 ),
               ),
               Visibility(
-                visible: isMainObject ||  section?.documentAccess.delete == true,
+                visible: isMainObject || section?.documentAccess.delete == true,
                 child: DotButton(
                   icon: Icons.delete,
                   color: Colors.red,
                   onPressed: () async {
-                    await getIt<MenuSectionController>().deleteDocument(section,data["_id"]);
+                    await getIt<MenuSectionController>().deleteDocument(section, data["_id"]);
                   },
                 ),
               ),
@@ -211,7 +265,7 @@ class SectionItemWidget extends StatelessWidget {
             children: [
               Expanded(child: Text(label.split(".").last)),
               Visibility(
-                visible: isMainObject && section?.documentAccess.edit!=true,
+                visible: isMainObject && section?.documentAccess.edit != true,
                 child: DotButton(
                   icon: Icons.edit,
                   onPressed: () {

@@ -72,6 +72,7 @@ class _MenuItemAddEditViewPhoneState extends ConsumerState<MenuItemAddEditViewPh
       body: SingleChildScrollView(
         child: Column(
           children: [
+            editingLabel== null?SizedBox():
             EditingItemWidget(
               onChange: (up) {
                 changed = up;
