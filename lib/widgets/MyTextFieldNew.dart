@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:developer' as dev;
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
+import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_view_desktop.dart';
+import 'package:abds/widgets/DotButton.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -75,7 +77,7 @@ class MyTextFieldNew extends ConsumerStatefulWidget {
     this.validationColor,
     this.backgroundColor,
     this.prevFn,
-    this.labelInRow = false,
+    this.labelInRow = true,
     this.openNumberSheet = false,
     this.controller,
     this.labelStyle,
@@ -186,167 +188,278 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
         absorbing: widget.openNumberSheet,
         child: ClipRRect(
           borderRadius: widget.radius ?? BorderRadius.circular(5),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: widget.rowLabelRatio[0],
-                child: widget.label == null
-                    ? const SizedBox()
-                    : Container(
-                        height: widget.height,
-                        color: widget.headerBgColor,
-                        child: IgnorePointer(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                widget.label ?? '',
-                                style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
+          child: widget.labelInRow
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: widget.rowLabelRatio[0],
+                      child: widget.label == null
+                          ? const SizedBox()
+                          : Container(
+                              height: widget.height,
+                              color: widget.headerBgColor,
+                              child: IgnorePointer(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      widget.label ?? '',
+                                      style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: MyColors.black2),
+                                    ),
+                                    widget.required
+                                        ? Padding(
+                                            padding: const EdgeInsets.only(bottom: 10.0),
+                                            child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
+                                          )
+                                        : const SizedBox(),
+                                  ],
+                                ),
                               ),
-                              widget.required
-                                  ? Padding(
-                                      padding: const EdgeInsets.only(bottom: 10.0),
-                                      child: const Icon(Icons.star_rate_rounded, color: Colors.red, size: 8),
+                            ),
+                    ),
+                    Expanded(
+                      flex: widget.rowLabelRatio[1],
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: border,
+                          color: widget.bodyBgColor,
+                          borderRadius: BorderRadius.horizontal(right: Radius.circular(widget.radius?.topRight.x ?? 0)),
+                        ),
+
+                        // color:Colors.red,
+                        height: widget.height,
+                        child: Center(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CupertinoTextField(
+                                  textInputAction: widget.textInputAction ?? TextInputAction.done,
+                                  enabled: !widget.locked && !widget.disabled,
+                                  maxLines: obscureText
+                                      ? 1
+                                      : widget.maxLines == 0
+                                      ? null
+                                      : widget.maxLines,
+                                  minLines: widget.minLines,
+                                  maxLength: widget.maxLength,
+                                  focusNode: widget.focusNode,
+                                  onSubmitted: widget.onSubmit,
+                                  keyboardType: widget.keyboardType,
+                                  textAlign: widget.textAlign,
+                                  obscureText: obscureText,
+                                  autofocus: widget.autofocus,
+                                  // textAlignVertical: TextAlignVertical.center,
+                                  inputFormatters: widget.inputFormatters,
+                                  style:
+                                      widget.style ??
+                                      TextStyle(
+                                        fontSize: widget.fontSize,
+                                        color: Colors.black,
+                                        // height: 0.5
+                                        // height: 1,
+                                      ),
+
+                                  // textAlignVertical: TextAlignVertical.top,
+                                  placeholder: widget.placeholder,
+                                  // suffix:
+                                  //     widget.suffixIcon ??
+                                  //     (!widget.isPassword
+                                  //         ? widget.locked
+                                  //               ? const Icon(Icons.lock)
+                                  //               : null
+                                  //         : ExcludeFocus(
+                                  //             child: IconButton(
+                                  //               onPressed: () {
+                                  //                 obscureText = !obscureText;
+                                  //                 setState(() {});
+                                  //               },
+                                  //               icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                  //             ),
+                                  //           )) ??
+                                  //     SizedBox(height: 30),
+                                  prefix: widget.prefixIcon ?? widget.prefix,
+
+                                  decoration: BoxDecoration(
+                                    // border: border,
+                                    // borderRadius: widget.radius
+                                    // contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
+                                    // filled: false,
+
+                                    // fillColor: widget.bodyBgColor,
+                                    // hintText: widget.placeholder,
+
+                                    // counter: widget.showLimit ? null : SizedBox(),
+                                    // hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
+                                    // border: border,
+                                    // enabledBorder: border,
+                                    // disabledBorder: border,
+                                    // prefixIcon: widget.prefixIcon,
+                                    // suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200, maxHeight: 40),
+                                    //   suffixIcon:
+                                    //       widget.suffixIcon ??
+                                    //       (!widget.isPassword
+                                    //           ? widget.locked
+                                    //                 ? const Icon(Icons.lock)
+                                    //                 : null
+                                    //           : ExcludeFocus(
+                                    //               child: IconButton(
+                                    //                 onPressed: () {
+                                    //                   obscureText = !obscureText;
+                                    //                   setState(() {});
+                                    //                 },
+                                    //                 icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
+                                    //               ),
+                                    //             )) ??
+                                    //       SizedBox(height: 30),
+                                  ),
+                                  controller: widget.controller,
+                                ),
+                              ),
+                              (hasError) && widget.showError
+                                  ? Expanded(
+                                      child: Container(
+                                        height: widget.height,
+                                        margin: EdgeInsets.only(left: 12),
+                                        padding: EdgeInsets.symmetric(horizontal: 4),
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: validationColor),
+                                          color: validationColor.withOpacity(0.05),
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
+                                            Expanded(
+                                              child: Text(
+                                                "${widget.validator?.call(widget.controller?.text ?? '')}",
+                                                style: TextStyle(color: validationColor, fontSize: 9, height: 1),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     )
-                                  : const SizedBox(),
+                                  : SizedBox.shrink(),
+                              widget.showClearButton
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(.0),
+                                      child: DotButton(
+                                        flat: true,
+                                        color: Colors.black,
+                                        onPressed: () {
+                                          widget.controller?.clear();
+                                          widget.onChanged?.call('');
+                                        },
+                                        icon: Icons.clear,
+                                      ),
+                                    )
+                                  : SizedBox(),
                             ],
                           ),
                         ),
                       ),
-              ),
-              Expanded(
-                flex: widget.rowLabelRatio[1],
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: border,
-                    color: widget.bodyBgColor,
-                    borderRadius: BorderRadius.horizontal(right: Radius.circular(widget.radius?.topRight.x??0))
-                  ),
-
-                  // color:Colors.red,
-                  height: widget.height,
-                  child: Center(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: CupertinoTextField(
-                            textInputAction: widget.textInputAction ?? TextInputAction.done,
-                            enabled: !widget.locked && !widget.disabled,
-                            maxLines: obscureText
-                                ? 1
-                                : widget.maxLines == 0
-                                ? null
-                                : widget.maxLines,
-                            minLines: widget.minLines,
-                            maxLength: widget.maxLength,
-                            focusNode: widget.focusNode,
-                            onSubmitted: widget.onSubmit,
-                            keyboardType: widget.keyboardType,
-                            textAlign: widget.textAlign,
-                            obscureText: obscureText,
-                            autofocus: widget.autofocus,
-                            // textAlignVertical: TextAlignVertical.center,
-                            inputFormatters: widget.inputFormatters,
-                            style:
-                                widget.style ??
-                                TextStyle(
-                                  fontSize: widget.fontSize,
-                                  color: Colors.black,
-                                  // height: 0.5
-                                  // height: 1,
-                                ),
-
-                            // textAlignVertical: TextAlignVertical.top,
-                            placeholder: widget.placeholder,
-                            // suffix:
-                            //     widget.suffixIcon ??
-                            //     (!widget.isPassword
-                            //         ? widget.locked
-                            //               ? const Icon(Icons.lock)
-                            //               : null
-                            //         : ExcludeFocus(
-                            //             child: IconButton(
-                            //               onPressed: () {
-                            //                 obscureText = !obscureText;
-                            //                 setState(() {});
-                            //               },
-                            //               icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                            //             ),
-                            //           )) ??
-                            //     SizedBox(height: 30),
-                            prefix:widget.prefixIcon?? widget.prefix,
-
-                            decoration: BoxDecoration(
-                              // border: border,
-                              // borderRadius: widget.radius
-                              // contentPadding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 8),
-                              // filled: false,
-
-                              // fillColor: widget.bodyBgColor,
-                              // hintText: widget.placeholder,
-
-                              // counter: widget.showLimit ? null : SizedBox(),
-                              // hintStyle: TextStyle(color: MyColors.black.withOpacity(0.4), fontWeight: FontWeight.w400, fontSize: widget.fontSize),
-                              // border: border,
-                              // enabledBorder: border,
-                              // disabledBorder: border,
-                              // prefixIcon: widget.prefixIcon,
-                              // suffixIconConstraints: BoxConstraints(maxWidth: widget.suffixWidth ?? 200, maxHeight: 40),
-                              //   suffixIcon:
-                              //       widget.suffixIcon ??
-                              //       (!widget.isPassword
-                              //           ? widget.locked
-                              //                 ? const Icon(Icons.lock)
-                              //                 : null
-                              //           : ExcludeFocus(
-                              //               child: IconButton(
-                              //                 onPressed: () {
-                              //                   obscureText = !obscureText;
-                              //                   setState(() {});
-                              //                 },
-                              //                 icon: Icon(obscureText ? ArtemisIcons.eye : ArtemisIcons.eye_slash),
-                              //               ),
-                              //             )) ??
-                              //       SizedBox(height: 30),
-                            ),
-                            controller: widget.controller,
-                          ),
-                        ),
-                        (hasError) && widget.showError
-                            ? Expanded(
-                                child: Container(
-                                  height: widget.height,
-                                  margin: EdgeInsets.only(left: 12),
-                                  padding: EdgeInsets.symmetric(horizontal: 4),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: validationColor),
-                                    color: validationColor.withOpacity(0.05),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
-                                      Expanded(
-                                        child: Text(
-                                          "${widget.validator?.call(widget.controller?.text ?? '')}",
-                                          style: TextStyle(color: validationColor, fontSize: 9, height: 1),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : SizedBox.shrink(),
-                      ],
                     ),
+                  ],
+                )
+              : Container(
+                  decoration: BoxDecoration(
+                    borderRadius: widget.radius,
+                    border: border,
+                    color: widget.backgroundColor
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text("${widget.label}",style: TextStyle(fontSize: 12),),
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CupertinoTextField(
+                              textInputAction: widget.textInputAction ?? TextInputAction.done,
+                              enabled: !widget.locked && !widget.disabled,
+                              maxLines: obscureText
+                                  ? 1
+                                  : widget.maxLines == 0
+                                  ? null
+                                  : widget.maxLines,
+                              minLines: widget.minLines,
+                              maxLength: widget.maxLength,
+                              focusNode: widget.focusNode,
+                              onSubmitted: widget.onSubmit,
+                              keyboardType: widget.keyboardType,
+                              textAlign: widget.textAlign,
+                              obscureText: obscureText,
+                              autofocus: widget.autofocus,
+                              // textAlignVertical: TextAlignVertical.center,
+                              inputFormatters: widget.inputFormatters,
+                              style:
+                                  widget.style ??
+                                  TextStyle(
+                                    fontSize: widget.fontSize,
+                                    color: Colors.black,
+                                    // height: 0.5
+                                    // height: 1,
+                                  ),
+                              placeholder: widget.placeholder,
+                              prefix: widget.prefixIcon ?? widget.prefix,
+
+                              decoration: BoxDecoration(
+                              ),
+                              controller: widget.controller,
+                            ),
+                          ),
+                          (hasError) && widget.showError
+                              ? Expanded(
+                                  child: Container(
+                                    height: (widget.height??40)-12,
+                                    margin: EdgeInsets.only(left: 12),
+                                    padding: EdgeInsets.symmetric(horizontal: 4),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: validationColor),
+                                      color: validationColor.withOpacity(0.05),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
+                                        Expanded(
+                                          child: Text(
+                                            "${widget.validator?.call(widget.controller?.text ?? '')}",
+                                            style: TextStyle(color: validationColor, fontSize: 9, height: 1),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : SizedBox.shrink(),
+                          widget.showClearButton
+                              ? Padding(
+                                  padding: const EdgeInsets.all(.0),
+                                  child: DotButton(
+                                    flat: true,
+                                    color: Colors.black,
+                                    onPressed: () {
+                                      widget.controller?.clear();
+                                      widget.onChanged?.call('');
+                                    },
+                                    icon: Icons.clear,
+                                  ),
+                                )
+                              : SizedBox(),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );

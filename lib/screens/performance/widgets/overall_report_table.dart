@@ -17,11 +17,13 @@ class OverallReportListView extends StatefulWidget {
   final DateTime? fromDate;
   final DateTime? toDate;
   final EdgeInsetsGeometry cellPadding;
+  final List<ExpansibleController>? expansibleControllers;
   final bool enableHorizontalScroll; // if true, side-scroll when too many columns
 
   const OverallReportListView({super.key,
     required this.fromDate,
     required this.toDate,
+    this.expansibleControllers,
     required this.model, this.cellPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 10), this.enableHorizontalScroll = true});
 
   @override
@@ -90,7 +92,6 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                     final sectionHeader =section.header;
                     final sectionHeaderValues = sectionHeader.values.map((a) => a["value"].toString()).toList();
                     final sectionHeaderQueries = sectionHeader.values.map((a) => a["q"].toString()).toList();
-                    // return SizedBox();
                     return MyExpansionTile(
                       initiallyExpanded: true,
                       // collapsedBackgroundColor: Colors.red,
@@ -136,18 +137,7 @@ class _OverallReportListViewState extends State<OverallReportListView> {
                         }),
                       ],
                     );
-                    // return _RowStrip(
-                    //   texts: List.generate(header.column.length, (i) => i < row.length ? (row[i] ?? '') : ''),
-                    //   widthsPx: widthsPx,
-                    //   ratio: header.column.map((a) => a.width).toList(),
-                    //   alignments: header.column.map((a) => a.alignment).toList(),
-                    //   bg: _hex(stripe.color),
-                    //
-                    //   fgList: fg,
-                    //   fontSize: rowStyle.fontSize.toDouble(),
-                    //   fontWeight: FontWeight.w500,
-                    //   padding: widget.cellPadding,
-                    // );
+
                   },
                 ),
               ),

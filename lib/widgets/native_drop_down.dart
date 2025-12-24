@@ -50,6 +50,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
   final bool showError;
   final IconData? validationIcon;
   final bool validationMode;
+  final bool labelInRow;
 
   const MyFieldPickerDesktop({
     super.key,
@@ -61,6 +62,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
     this.itemToWidget,
     required this.items,
     this.onChange,
+    this.labelInRow = true,
     this.value,
     this.suggestion = const [],
 
@@ -369,20 +371,20 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
         decoration: InputDecoration(
           hintText: 'Search…',
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: IconButton(
-            tooltip: 'Clear search',
-            icon: const Icon(Icons.clear),
-            onPressed: () {
-              _searchCtrl.clear();
-              _applyFilter('');
-              final ctx = _searchFieldKey.currentContext;
-              if (ctx != null) {
-                FocusScope.of(ctx).requestFocus(_searchFocus);
-              } else {
-                _searchFocus.requestFocus();
-              }
-            },
-          ),
+          // suffix: IconButton(
+          //   tooltip: 'Clear search',
+          //   icon: const Icon(Icons.clear),
+          //   onPressed: () {
+          //     _searchCtrl.clear();
+          //     _applyFilter('');
+          //     final ctx = _searchFieldKey.currentContext;
+          //     if (ctx != null) {
+          //       FocusScope.of(ctx).requestFocus(_searchFocus);
+          //     } else {
+          //       _searchFocus.requestFocus();
+          //     }
+          //   },
+          // ),
           isDense: true,
           border: const OutlineInputBorder(),
         ),
@@ -711,7 +713,31 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
         ],
       ),
     );
-
+    final labelCellColumn = Container(
+      padding: EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+      color: widget.headerBgColor,
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            widget.label ?? '',
+            style: widget.labelStyle ??
+                const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87),
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (widget.required)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 10.0, left: 3),
+              child: Icon(Icons.star_rate_rounded, color: Colors.red, size: 10),
+            ),
+        ],
+      ),
+    );
+    double h = (widget.height)- (widget.labelInRow?0:15);
     // right value cell (clickable) — anchor overlay here
     final valueCell = CompositedTransformTarget(
       key: _valueBoxKey,
@@ -723,7 +749,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
             border: boxBorder,
             borderRadius: BorderRadius.circular(5),
           ),
-          height: widget.height,
+          height: h,
           alignment: Alignment.center,
           padding: widget.valuePadding,
           child: InputDecorator(
@@ -735,20 +761,20 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
               prefixIcon: widget.prefixIcon,
               suffixIconConstraints: BoxConstraints(
                 maxWidth: widget.suffixWidth ?? 200,
-                maxHeight: widget.height,
+                // maxHeight: widget.height,
               ),
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (widget.showClearButton &&
+                  (widget.showClearButton &&
                       _value.value != null &&
                       !widget.locked &&
-                      !widget.disabled)
-                    IconButton(
-                      tooltip: 'Clear',
-                      icon: const Icon(Icons.close),
-                      onPressed: () => _selectValue(null),
-                    ),
+                      !widget.disabled)?
+                    GestureDetector(
+                      // tooltip: 'Clear',
+                      child: const Icon(Icons.close),
+                      onTap: () => _selectValue(null),
+                    ):
                   widget.suffixIcon ??
                       Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
                 ],
@@ -756,7 +782,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
             ),
             child: Container(
               alignment: Alignment.centerLeft,
-              height: widget.height,
+              // height: widget.height,
               child: Row(
                 children: [
                   if (widget.prefix != null) widget.prefix!,
@@ -802,7 +828,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     // optional validation bubble (right side), shown only when showError && hasError
     final validationBubble = (widget.showError && valMsg.isNotEmpty)
         ? Container(
-      height: widget.height,
+      // height: widget.height,
       margin: const EdgeInsets.only(left: 12),
       padding: const EdgeInsets.symmetric(horizontal: 6),
       alignment: Alignment.center,
@@ -835,10 +861,10 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     return ClipRRect(
       borderRadius: widget.radius ?? BorderRadius.circular(5),
       child: Container(
-        height: widget.height,
+        // height: widget.height,
         color: widget.bodyBgColor,
         alignment: Alignment.center,
-        child: Row(
+        child:widget.labelInRow? Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(flex: labelFlex, child: labelCell),
@@ -852,7 +878,21 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
               ),
             ),
           ],
-        ),
+        ):Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+          Row(
+            children: [
+              labelCellColumn,
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(child: valueCell),
+              validationBubble,
+            ],
+          ),
+        ],),
       ),
     );
   }

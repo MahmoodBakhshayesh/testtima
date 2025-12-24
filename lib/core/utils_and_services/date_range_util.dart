@@ -59,7 +59,32 @@
 //   }
 // }
 
-enum DateRangeEnum { thisWeek, lastWeek, thisMonth, lastMonth }
+enum DateRangeEnum {
+  thisWeek,
+  lastWeek,
+  thisMonth,
+  lastMonth;
+
+  @override
+  toString() {
+    return label;
+  }
+}
+
+extension DateRangeEnumExt on DateRangeEnum {
+  String get label {
+    switch (this) {
+      case DateRangeEnum.thisWeek:
+        return "This Week";
+      case DateRangeEnum.lastWeek:
+        return "Last Week";
+      case DateRangeEnum.thisMonth:
+        return "This Month";
+      case DateRangeEnum.lastMonth:
+        return "Last Month";
+    }
+  }
+}
 
 /// Calendar ranges (ISO week = Monday..Sunday)
 /// - thisWeek  : current week start→end
@@ -67,15 +92,14 @@ enum DateRangeEnum { thisWeek, lastWeek, thisMonth, lastMonth }
 /// - thisMonth : current month start→end
 /// - lastMonth : previous month start→end
 ({DateTime start, DateTime end}) getDateRange(
-    DateRangeEnum type, {
-      DateTime? now,
-      bool dateOnly = true, // snap to 00:00:00.000 and 23:59:59.999999
-    }) {
+  DateRangeEnum type, {
+  DateTime? now,
+  bool dateOnly = true, // snap to 00:00:00.000 and 23:59:59.999999
+}) {
   final base = now ?? DateTime.now();
 
   DateTime startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
-  DateTime endOfDay(DateTime d) =>
-      DateTime(d.year, d.month, d.day + 1).subtract(const Duration(microseconds: 1));
+  DateTime endOfDay(DateTime d) => DateTime(d.year, d.month, d.day + 1).subtract(const Duration(microseconds: 1));
 
   // ISO week: 1=Mon ... 7=Sun
   DateTime startOfIsoWeek(DateTime d) {
@@ -110,10 +134,13 @@ enum DateRangeEnum { thisWeek, lastWeek, thisMonth, lastMonth }
   }
 
   switch (type) {
-    case DateRangeEnum.thisWeek:  return thisWeek();
-    case DateRangeEnum.lastWeek:  return lastWeek();
-    case DateRangeEnum.thisMonth: return thisMonth();
-    case DateRangeEnum.lastMonth: return lastMonth();
+    case DateRangeEnum.thisWeek:
+      return thisWeek();
+    case DateRangeEnum.lastWeek:
+      return lastWeek();
+    case DateRangeEnum.thisMonth:
+      return thisMonth();
+    case DateRangeEnum.lastMonth:
+      return lastMonth();
   }
 }
-

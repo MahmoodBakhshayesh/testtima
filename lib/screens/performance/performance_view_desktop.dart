@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:abds/core/classes/constant_data_class.dart';
 import 'package:abds/core/classes/log_report_detail_class.dart';
 import 'package:abds/core/classes/overall_performance_class.dart';
@@ -10,6 +9,7 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/date_range_util.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_view_desktop.dart';
+import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/performance/widgets/overall_report_table.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
 import 'package:abds/widgets/DotButton.dart';
@@ -17,6 +17,7 @@ import 'package:abds/widgets/MyButton.dart';
 import 'package:abds/widgets/MyDatePicker.dart';
 import 'package:abds/widgets/MyExpansionTile.dart';
 import 'package:abds/widgets/MyFieldPicker.dart';
+import 'package:abds/widgets/MyMultiFieldPicker.dart';
 import 'package:artemis_utils/artemis_utils.dart';
 import 'package:country_flags_pro/country_flags_pro.dart';
 import 'package:easy_animated_indexed_stack/easy_animated_indexed_stack.dart';
@@ -42,7 +43,6 @@ import '../result_report/result_report_state.dart';
 import 'performance_controller.dart';
 import 'performance_state.dart';
 import '../../initialize.dart';
-import '../../core/extenstions/context_exp.dart';
 
 class PerformanceViewDesktop extends ConsumerStatefulWidget {
   static PerformanceController myPerformanceController = getIt<PerformanceController>();
@@ -64,8 +64,14 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
 
   // List<OverallPerformance> overalls = [];
   List<LogReportDetail> reportDetails = [];
+  List<String> filteredAirports = [];
+  List<String> filteredAirlines = [];
   String? loadingKey;
   late TabController tabBarController;
+
+  final Map<String, ExpansibleController> _controllers = {};
+
+  ExpansibleController _c(String id) => _controllers.putIfAbsent(id, () => ExpansibleController());
 
   @override
   void initState() {
@@ -75,6 +81,20 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
     });
     // from = BasicClass.user?.attributes["defaultAirport"] ?? "";
     super.initState();
+  }
+
+  void expandAll(items) {
+    for (final it in items) {
+      _c(it).expand();
+      setState(() {});
+    }
+  }
+
+  void collapseAll(items) {
+    for (final it in items) {
+      _c(it).collapse();
+      setState(() {});
+    }
   }
 
   @override
@@ -87,12 +107,16 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
     final headerBg = MyColors.green2.withOpacity(0.26);
     final bodyBg = MyColors.green2.withOpacity(0.12);
 
-    List<String> detailsFrom = reportDetails.map((a) => a.airportAirline??'').toSet().toList();
+    List<String> detailsFrom = reportDetails.map((a) => a.airportAirline ?? '').toSet().toList();
+    List<String> airportsFilters = reportDetails.map((a) => a.from ?? '').toSet().toList();
+    List<String> airlinesFilter = reportDetails.map((a) => a.airline ?? '').toSet().toList();
     // List<OverallPerformance> timOk = overalls.where((a) => a.timaticResult == 1).toList();
     // List<OverallPerformance> timNotOk = overalls.where((a) => a.timaticResult == 2).toList();
     // List<OverallPerformance> timCon = overalls.where((a) => a.timaticResult == 3).toList();
-    final timaticRes= ref.watch(reportTimaticResultNewProvider);
-    bool resultMode = timaticRes !=null;
+
+    final timaticRes = ref.watch(reportTimaticResultNewProvider);
+    bool resultMode = timaticRes != null;
+    final fieldBgColor = Color(0xffF5F5F5);
     return Scaffold(
       appBar: PerformanceAppBar(
         overrideResult: timaticRes,
@@ -102,29 +126,53 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
           Navigator.pop(context);
         },
       ),
-      backgroundColor: Colors.white,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 12),
+
+      backgroundColor: Color(0xffF8F9FC),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 2,
               child: Column(
                 spacing: 8,
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 8,horizontal: 8),
-                    decoration: BoxDecoration(color: Color(0xffECECEC),borderRadius: BorderRadius.circular(8)),
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
                     child: Row(
-                      spacing: 8,
+                      spacing: 12,
                       children: [
-                        Text("Range",style: TextStyle(fontSize: 12),),
+                        Expanded(
+                          child: MyFieldPicker<DateRangeEnum>(
+                            label: "Date Range",
+                            items: DateRangeEnum.values,
+                            itemToString: (a) => a.label,
+                            valueToString: (a) => a.label,
+                            bodyBgColor: fieldBgColor,
+                            backgroundColor: fieldBgColor,
+                            showClearButton: false,
+                            onChange: (a) async {
+                              if (a == null) return;
+                              final sAndE = getDateRange(a!);
+                              fromDate = sAndE.start;
+                              toDate = sAndE.end;
+                              setState(() {});
+                              await getOverall(null);
+                            },
+                          ),
+                        ),
+                        Text(
+                          "Range",
+                          style: TextStyle(fontSize: 14),
+                        ),
                         Expanded(
                           flex: 1,
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: fieldBgColor, borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
                                 DotButton(
@@ -172,7 +220,7 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                           flex: 1,
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: fieldBgColor, borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
                                 DotButton(
@@ -216,349 +264,339 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                             ),
                           ),
                         ),
-                        DotButton(
-                          size: 30,
-                          icon: Icons.more_vert,
-                          onPressed: () {
-                            moreMode = !moreMode;
-                            setState(() {});
-                          },
-                        ),
                       ],
                     ),
                   ),
-                  ?moreMode?   Row(
-                    spacing: 8,
-                    children: [
-                      Expanded(
-                        child: MyButton(
-                          label: "This Week",
-                          fontSize: 11,
-                          onPressed: () async {
-                            final sAndE = getDateRange(DateRangeEnum.thisWeek);
-                            fromDate = sAndE.start;
-                            toDate = sAndE.end;
-                            setState(() {});
-                            await getOverall(null);
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: MyButton(
-                          label: "Last Week",
-                          fontSize: 11,
-                          onPressed: () async {
-                            final sAndE = getDateRange(DateRangeEnum.lastWeek);
-                            fromDate = sAndE.start;
-                            toDate = sAndE.end;
-                            setState(() {});
-                            await getOverall(null);
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: MyButton(
-                          label: "This Month",
-                          fontSize: 11,
-                          onPressed: () async {
-                            final sAndE = getDateRange(DateRangeEnum.thisMonth);
-                            fromDate = sAndE.start;
-                            toDate = sAndE.end;
-                            setState(() {});
-                            await getOverall(null);
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: MyButton(
-                          label: "Last Month",
-                          fontSize: 11,
 
-                          onPressed: () async {
-                            final sAndE = getDateRange(DateRangeEnum.lastMonth);
-                            fromDate = sAndE.start;
-                            toDate = sAndE.end;
-                            setState(() {});
-                            await getOverall(null);
-                          },
-                        ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ],
-                  ):null,
-                  // EasyAnimatedIndexedStack(
-                  //   index: moreMode ? 0 : 1,
-                  //   children: [
-                  //     Row(
-                  //       spacing: 12,
-                  //       children: [
-                  //         Expanded(
-                  //           child: MyButton(
-                  //             label: "This Week",
-                  //             fontSize: 11,
-                  //             onPressed: () async {
-                  //               final sAndE = getDateRange(DateRangeEnum.thisWeek);
-                  //               fromDate = sAndE.start;
-                  //               toDate = sAndE.end;
-                  //               setState(() {});
-                  //               await getOverall();
-                  //             },
-                  //           ),
-                  //         ),
-                  //         Expanded(
-                  //           child: MyButton(
-                  //             label: "Last Week",
-                  //             fontSize: 11,
-                  //             onPressed: () async {
-                  //               final sAndE = getDateRange(DateRangeEnum.lastWeek);
-                  //               fromDate = sAndE.start;
-                  //               toDate = sAndE.end;
-                  //               setState(() {});
-                  //               await getOverall();
-                  //             },
-                  //           ),
-                  //         ),
-                  //         Expanded(
-                  //           child: MyButton(
-                  //             label: "This Month",
-                  //             fontSize: 11,
-                  //             onPressed: () async {
-                  //               final sAndE = getDateRange(DateRangeEnum.thisMonth);
-                  //               fromDate = sAndE.start;
-                  //               toDate = sAndE.end;
-                  //               setState(() {});
-                  //               await getOverall();
-                  //             },
-                  //           ),
-                  //         ),
-                  //         Expanded(
-                  //           child: MyButton(
-                  //             label: "Last Month",
-                  //             fontSize: 11,
-                  //
-                  //             onPressed: () async {
-                  //               final sAndE = getDateRange(DateRangeEnum.lastMonth);
-                  //               fromDate = sAndE.start;
-                  //               toDate = sAndE.end;
-                  //               setState(() {});
-                  //               await getOverall();
-                  //             },
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //     SizedBox(),
-                  //   ],
-                  // ),
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       flex: 3,
-                  //       child: MyFieldPicker<Airport>(
-                  //         searchAutoFocus: true,
-                  //         backgroundColor: textFieldBG,
-                  //         headerBgColor: headerBg,
-                  //         bodyBgColor: bodyBg,
-                  //         label: "Route",
-                  //         placeholder: "City",
-                  //         rowLabelRatio: [2, 4],
-                  //         itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
-                  //         searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
-                  //         items: BasicClass.constData.data.airport,
-                  //         value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == from),
-                  //         onChange: (a) {
-                  //           from = a?.code3;
-                  //           setState(() {});
-                  //         },
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 12),
-                  //     Expanded(
-                  //       flex: 2,
-                  //       child: MyFieldPicker<Airport>(
-                  //         label: "",
-                  //         backgroundColor: textFieldBG,
-                  //         headerBgColor: headerBg,
-                  //         bodyBgColor: bodyBg,
-                  //         placeholder: "To",
-                  //         searchAutoFocus: true,
-                  //         rowLabelRatio: [1, 100],
-                  //         itemToWidget: (dynamic a) => Text("$a (${(a as Airport).name})"),
-                  //         items: BasicClass.constData.data.airport,
-                  //         searchBuilder: (dynamic a) => "$a ${(a as Airport).name}",
-                  //         value: BasicClass.constData.data.airport.firstWhereOrNull((a) => a.code3 == to),
-                  //         onChange: (a) {
-                  //           to = a?.code3;
-                  //           setState(() {});
-                  //         },
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  table == null && reportDetails.isEmpty
-                      ? Expanded(child: SizedBox())
-                      : Expanded(
-                    child: TabBarView(
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: tabBarController,
-                      children: [
-                        OverallReportListView(model: table, fromDate: fromDate, toDate: toDate),
-                        Column(
-                          spacing: 12,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: MyColors.white3,
-                                      border: Border(
-                                        top: BorderSide(color: MyColors.lineColor),
-                                        left: BorderSide(color: MyColors.lineColor),
-                                        right: BorderSide(color: MyColors.lineColor),
-                                      ),
-                                      borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 3,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(
-                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                            ),
-                                            child: Center(child: Text("FROM", style: TextStyle(fontSize: 10))),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(
-                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                            ),
-                                            child: Center(child: Text("DATE", style: TextStyle(fontSize: 9, wordSpacing: 0))),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(
-                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                            ),
-                                            child: Center(child: Text("DEST", style: TextStyle(fontSize: 10))),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(
-                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                            ),
-                                            child: Center(child: Text("FLNB", style: TextStyle(fontSize: 10))),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(
-                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                            ),
+                      padding: EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: table == null && reportDetails.isEmpty
+                                ? SizedBox()
+                                : Column(
+                                    children: [
+                                      Expanded(
+                                        child: TabBarView(
+                                          physics: NeverScrollableScrollPhysics(),
 
-                                            child: Center(child: Text("ID", style: TextStyle(fontSize: 10))),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(
-                                              border: Border(right: BorderSide(color: MyColors.lineColor)),
-                                            ),
-                                            child: Center(child: Text("TIM", style: TextStyle(fontSize: 10))),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 7,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(vertical: 12),
-                                            decoration: BoxDecoration(),
-                                            child: Center(child: Text("RESULT", style: TextStyle(fontSize: 10))),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  reportDetails.isEmpty
-                                      ? SizedBox()
-                                      : Expanded(
-                                    child: ListView.builder(
-                                      // shrinkWrap: true,
-                                      // physics: NeverScrollableScrollPhysics(),
-                                      itemCount: detailsFrom.length,
-                                      itemBuilder: (c, i) {
-                                        String from = detailsFrom[i];
-                                        final items = reportDetails.where((a) => a.airportAirline == from).toList();
-                                        return MyExpansionTile(
-                                          initiallyExpanded: true,
-                                          showFooter: false,
-                                          tilePadding: EdgeInsets.zero,
-                                          childrenPadding: EdgeInsets.zero,
-                                          showTrailingIcon: true,
-                                          backgroundColor: Colors.blueAccent.withOpacity(0.1),
-                                          collapsedBackgroundColor: Colors.blueAccent.withOpacity(0.1),
-                                          collapsedShape: RoundedRectangleBorder(side: BorderSide(color: MyColors.lineColor)),
-                                          shape: RoundedRectangleBorder(side: BorderSide(color: MyColors.lineColor)),
-                                          title: Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                            decoration: BoxDecoration(),
-                                            child: Row(
+                                          controller: tabBarController,
+                                          children: [
+                                            OverallReportListView(model: table, fromDate: fromDate, toDate: toDate),
+                                            Column(
+                                              spacing: 12,
                                               children: [
-                                                Expanded(child: Text(from, style: TextStyle(fontSize: 12))),
-                                                Text(items.length.toString(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                                Row(
+                                                  spacing: 12,
+                                                  children: [
+                                                    Expanded(
+                                                      child: MyMultiFieldPicker<String>(
+                                                        label: null,
+                                                        rowLabelRatio: [1, 100],
+                                                        items: airportsFilters,
+                                                        itemToString: (a) => a,
+                                                        valuesToString: (a) => a.isEmpty
+                                                            ? "Filter Airport"
+                                                            : a.length == airportsFilters.length
+                                                            ? "All Airport Selected"
+                                                            : "${a.length} Airport selected",
+                                                        bodyBgColor: fieldBgColor,
+                                                        backgroundColor: fieldBgColor,
+
+                                                        showClearButton: true,
+                                                        onChange: (a) async {
+                                                          filteredAirports = a;
+                                                          setState(() {});
+                                                        },
+                                                        values: filteredAirports,
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      child: MyMultiFieldPicker<String>(
+                                                        label: null,
+                                                        rowLabelRatio: [1, 100],
+                                                        items: airlinesFilter,
+
+                                                        itemToString: (a) => a,
+                                                        valuesToString: (a) => a.isEmpty
+                                                            ? "Filter Airlines"
+                                                            : a.length == airlinesFilter.length
+                                                            ? "All Airlines Selected"
+                                                            : "${a.length} Airlines selected",
+                                                        bodyBgColor: fieldBgColor,
+                                                        backgroundColor: fieldBgColor,
+                                                        showClearButton: true,
+                                                        onChange: (a) async {
+                                                          filteredAirlines = a;
+                                                          setState(() {});
+                                                        },
+                                                        values: filteredAirlines,
+                                                      ),
+                                                    ),
+                                                    MyButton(
+                                                      width: 140,
+                                                      color: Colors.white,
+                                                      borderSide: BorderSide(color: MyColors.lineColor),
+                                                      textColor: Colors.black,
+                                                      fontWeight: FontWeight.normal,
+                                                      fontSize: 14,
+                                                      iconInRight: true,
+                                                      iconSize: 15,
+                                                      icon: !_controllers.values.any((a) => a.isExpanded) ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                                                      label: _controllers.values.any((a) => a.isExpanded) ? "Collapse All" : "Expand All",
+                                                      onPressed: () {
+                                                        if (_controllers.values.any((a) => a.isExpanded)) {
+                                                          collapseAll(detailsFrom);
+                                                        } else {
+                                                          expandAll(detailsFrom);
+                                                        }
+                                                      },
+                                                    ),
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: SizedBox(),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Expanded(
+                                                  child: Column(
+                                                    children: [
+                                                      Container(
+                                                        decoration: BoxDecoration(
+                                                          color: MyColors.white3,
+                                                          border: Border(
+                                                            top: BorderSide(color: MyColors.lineColor),
+                                                            left: BorderSide(color: MyColors.lineColor),
+                                                            right: BorderSide(color: MyColors.lineColor),
+                                                          ),
+                                                          borderRadius: BorderRadiusDirectional.vertical(top: Radius.circular(12)),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Expanded(
+                                                              flex: 3,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(
+                                                                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                                                ),
+                                                                child: Center(child: Text("FROM", style: TextStyle(fontSize: 12))),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 3,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(
+                                                                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                                                ),
+                                                                child: Center(child: Text("DATE", style: TextStyle(fontSize: 12, wordSpacing: 0))),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 2,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(
+                                                                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                                                ),
+                                                                child: Center(child: Text("DEST", style: TextStyle(fontSize: 12))),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 4,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(
+                                                                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                                                ),
+                                                                child: Center(child: Text("FLIGHT NUMBER", style: TextStyle(fontSize: 12))),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 2,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(
+                                                                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                                                ),
+
+                                                                child: Center(child: Text("TRACKING ID", style: TextStyle(fontSize: 12))),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 2,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(
+                                                                  border: Border(right: BorderSide(color: MyColors.lineColor)),
+                                                                ),
+                                                                child: Center(child: Text("TIMATIC", style: TextStyle(fontSize: 12))),
+                                                              ),
+                                                            ),
+                                                            Expanded(
+                                                              flex: 7,
+                                                              child: Container(
+                                                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                                                decoration: BoxDecoration(),
+                                                                child: Center(child: Text("RESULT", style: TextStyle(fontSize: 12))),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      reportDetails.isEmpty
+                                                          ? SizedBox()
+                                                          : Expanded(
+                                                              child: ListView.builder(
+                                                                // shrinkWrap: true,
+                                                                // physics: NeverScrollableScrollPhysics(),
+                                                                itemCount: detailsFrom.length,
+                                                                itemBuilder: (c, i) {
+                                                                  String from = detailsFrom[i];
+                                                                  final items = reportDetails
+                                                                      .where(
+                                                                        (a) =>
+                                                                            a.airportAirline == from &&
+                                                                            (filteredAirports.isEmpty || filteredAirports.contains(a.from)) &&
+                                                                            (filteredAirlines.isEmpty || filteredAirlines.contains(a.airline)),
+                                                                      )
+                                                                      .toList();
+
+                                                                  return MyExpansionTile(
+                                                                    initiallyExpanded: true,
+                                                                    showFooter: false,
+                                                                    onExpansionChanged: (_) {
+                                                                      setState(() {});
+                                                                    },
+                                                                    controller: _c(from),
+                                                                    tilePadding: EdgeInsets.zero,
+                                                                    childrenPadding: EdgeInsets.zero,
+                                                                    showTrailingIcon: true,
+                                                                    backgroundColor: Colors.blueAccent.withOpacity(0.1),
+                                                                    collapsedBackgroundColor: Colors.blueAccent.withOpacity(0.1),
+                                                                    collapsedShape: RoundedRectangleBorder(side: BorderSide(color: MyColors.lineColor)),
+                                                                    shape: RoundedRectangleBorder(side: BorderSide(color: MyColors.lineColor)),
+                                                                    title: Container(
+                                                                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                                                      decoration: BoxDecoration(),
+                                                                      child: Row(
+                                                                        children: [
+                                                                          Expanded(child: Text(from, style: TextStyle(fontSize: 14))),
+                                                                          Text(items.length.toString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+
+                                                                    children: [...items.map((det) => ReportDetailsSummaryWidgetDesktop(key: PageStorageKey(det.refCode), index: items.indexOf(det), log: det))],
+                                                                  );
+                                                                  LogReportDetail det = reportDetails[i];
+                                                                  return ReportDetailsSummaryWidgetDesktop(index: i, log: det);
+                                                                },
+                                                              ),
+                                                            ),
+                                                    ],
+                                                  ),
+                                                ),
                                               ],
                                             ),
-                                          ),
-                                          children: [...items.map((det) => ReportDetailsSummaryWidget(index: items.indexOf(det), log: det))],
-                                        );
-                                        LogReportDetail det = reportDetails[i];
-                                        return ReportDetailsSummaryWidget(index: i, log: det);
-                                      },
-                                    ),
+                                            Column(
+                                              spacing: 0,
+                                              children: [
+                                                Row(
+                                                  spacing: 12,
+                                                  children: [
+                                                    Expanded(
+                                                      child: MyMultiFieldPicker<String>(
+                                                        label: null,
+                                                        rowLabelRatio: [1, 100],
+                                                        items: airportsFilters,
+                                                        itemToString: (a) => a,
+                                                        valuesToString: (a) => a.isEmpty
+                                                            ? "Filter Airport"
+                                                            : a.length == airportsFilters.length
+                                                            ? "All Airport Selected"
+                                                            : "${a.length} Airport selected",
+                                                        bodyBgColor: fieldBgColor,
+                                                        backgroundColor: fieldBgColor,
+
+                                                        showClearButton: true,
+                                                        onChange: (a) async {
+                                                          filteredAirports = a;
+                                                          setState(() {});
+                                                        },
+                                                        values: filteredAirports,
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      child: MyMultiFieldPicker<String>(
+                                                        label: null,
+                                                        rowLabelRatio: [1, 100],
+                                                        items: airlinesFilter,
+
+                                                        itemToString: (a) => a,
+                                                        valuesToString: (a) => a.isEmpty
+                                                            ? "Filter Airlines"
+                                                            : a.length == airlinesFilter.length
+                                                            ? "All Airlines Selected"
+                                                            : "${a.length} Airlines selected",
+                                                        bodyBgColor: fieldBgColor,
+                                                        backgroundColor: fieldBgColor,
+                                                        showClearButton: true,
+                                                        onChange: (a) async {
+                                                          filteredAirlines = a;
+                                                          setState(() {});
+                                                        },
+                                                        values: filteredAirlines,
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 140),
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: SizedBox(),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Expanded(
+                                                  child: SingleChildScrollView(
+                                                    child: Column(
+                                                      children: [
+                                                        reportDetails.isEmpty
+                                                            ? SizedBox()
+                                                            : ListView.builder(
+                                                                shrinkWrap: true,
+                                                                physics: NeverScrollableScrollPhysics(),
+                                                                itemCount: reportDetails.length,
+                                                                itemBuilder: (c, i) {
+                                                                  LogReportDetail det = reportDetails[i];
+                                                                  if ((filteredAirports.isNotEmpty || filteredAirlines.isNotEmpty)) {
+                                                                    if (!filteredAirports.contains(det.from) && !filteredAirlines.contains(det.airline)) {
+                                                                      return SizedBox();
+                                                                    }
+                                                                  }
+                                                                  return ReportDetailsDetailWidgetDesktop(index: i, log: det);
+                                                                },
+                                                              ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          spacing: 12,
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    reportDetails.isEmpty
-                                        ? SizedBox()
-                                        : ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: reportDetails.length,
-                                      itemBuilder: (c, i) {
-                                        LogReportDetail det = reportDetails[i];
-                                        return ReportDetailsDetailWidget(index: i, log: det);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -595,117 +633,16 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                 ],
               ),
             ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Visibility(
-              visible: ref.read(reportTimaticResultNewProvider)!=null,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    LogsAndAttachmentsWidget(report: true,),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 6),
-                      child: Column(
-                        children: [
-
-                          FlightWidget(report: true,), PassengerWidget(report: true,), PassportWidget(report: true,), VisaWidget(report: true,), ResidentWidget(report: true,)],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: timaticRes == null?SizedBox():SingleChildScrollView(
-              child: MyExpansionTile(
-                initiallyExpanded: true,
-                showTrailingIcon: true,
-                backgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
-                collapsedBackgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(28),
-                  side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                ),
-                collapsedShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(28),
-                  side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                ),
-                childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                title: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Text("TIMATIC ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                      resultMode
-                          ? Row(
-                        children: [
-                          timaticRes.getRes.getIconWidget,
-                          Text(timaticRes!.getRes.title + "  (${ref.watch(reportRefCodeShowProvider)})", style: TextStyle(color: timaticRes.getRes.getColor)),
-                          // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                        ],
-                      )
-                          : SizedBox(),
-                    ],
-                  ),
-                ),
-                showFooter: false,
-                children: resultMode
-                    ? [
-                  Consumer(
-                    builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                      final result = ref.watch(reportTimaticResultNewProvider);
-                      final refCode = ref.watch(reportRefCodeProvider);
-                      if (result == null) {
-                        return SizedBox();
-                      }
-                      // return SizedBox(height: 100);
-                      return Column(
-                        children: [
-                          TimaticTrueResultWidgetNew(res: result,refCode:refCode!),
-                          const SizedBox(height: 12),
-                        ],
-                      );
-                    },
-                  ),
-                ]
-                    : [
-                  Column(
-                    children: [
-                      const SizedBox(height: 300),
-                      Text("After filling out data, Click on"),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Spacer(),
-                          Expanded(
-                              flex: 2,
-                              child: SizedBox()
-                          ),
-                          Spacer(),
-                        ],
-                      ),
-                      const SizedBox(height: 300),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Future<void> getOverall(int? index) async {
-    int ri = index??reportIndex;
+    int ri = index ?? reportIndex;
     reportIndex = ri;
-    if(ri == 0) {
+    if (ri == 0) {
       final t = await getIt<PerformanceController>().getOverallPerformances(fromDate: fromDate, toDate: toDate, from: from, to: to);
       table = t;
       reportDetails.clear();
@@ -713,7 +650,7 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
       Future(() {
         tabBarController.animateTo(ri);
       });
-    }else{
+    } else {
       final rdl = await getIt<PerformanceController>().getPerformanceLog(fromDate: fromDate, toDate: toDate, from: from, to: to);
       if (rdl != null) {
         reportDetails = rdl;
@@ -732,7 +669,7 @@ class PerformanceAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TimaticResponseNew? overrideResult;
   static PerformanceController myPerformanceController = getIt<PerformanceController>();
 
-  const PerformanceAppBar({super.key, required this.onBack, required this.title,this.overrideResult});
+  const PerformanceAppBar({super.key, required this.onBack, required this.title, this.overrideResult});
 
   @override
   Size get preferredSize => const Size.fromHeight(108);
@@ -741,8 +678,17 @@ class PerformanceAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Container(
       height: preferredSize.height,
-      color: Colors.white,
       alignment: Alignment.center,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xffB3C5FF),
+            Color(0xffFEFEFE),
+          ],
+        ),
+      ),
       child: SafeArea(
         child: Row(
           children: [
@@ -804,7 +750,7 @@ class PerformanceLogWidget extends StatelessWidget {
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text("${log.dateTime}", style: TextStyle(fontSize: 10, wordSpacing: 0))),
+                child: Center(child: Text("${log.dateTime}", style: TextStyle(fontSize: 14, wordSpacing: 0))),
               ),
             ),
             Expanded(
@@ -814,7 +760,7 @@ class PerformanceLogWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text("${log.route}", style: TextStyle(fontSize: 10))),
+                child: Center(child: Text("${log.route}", style: TextStyle(fontSize: 14))),
               ),
             ),
             Expanded(
@@ -825,7 +771,7 @@ class PerformanceLogWidget extends StatelessWidget {
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
 
-                child: Center(child: Text((log.code ?? '').split("-").last, style: TextStyle(fontSize: 10))),
+                child: Center(child: Text((log.code ?? '').split("-").last, style: TextStyle(fontSize: 14))),
               ),
             ),
             Expanded(
@@ -836,7 +782,7 @@ class PerformanceLogWidget extends StatelessWidget {
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
                 child: Center(
-                  child: Text(partNames[log.result ?? 0], style: TextStyle(fontSize: 10, color: partColors[log.result ?? 0])),
+                  child: Text(partNames[log.result ?? 0], style: TextStyle(fontSize: 14, color: partColors[log.result ?? 0])),
                 ),
               ),
             ),
@@ -847,18 +793,18 @@ class PerformanceLogWidget extends StatelessWidget {
   }
 }
 
-class ReportDetailsSummaryWidget extends StatefulWidget {
+class ReportDetailsSummaryWidgetDesktop extends StatefulWidget {
   final LogReportDetail log;
   final int index;
   final void Function()? onTap;
 
-  const ReportDetailsSummaryWidget({super.key, required this.log, required this.index, this.onTap});
+  const ReportDetailsSummaryWidgetDesktop({super.key, required this.log, required this.index, this.onTap});
 
   @override
-  State<ReportDetailsSummaryWidget> createState() => _ReportDetailsSummaryWidgetState();
+  State<ReportDetailsSummaryWidgetDesktop> createState() => _ReportDetailsSummaryWidgetDesktopState();
 }
 
-class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget> {
+class _ReportDetailsSummaryWidgetDesktopState extends State<ReportDetailsSummaryWidgetDesktop> {
   bool loading = false;
 
   @override
@@ -881,7 +827,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text(widget.log.from == widget.log.airportAirline?'':widget.log.from, style: GoogleFonts.chivoMono(fontSize: 10))),
+                child: Center(child: Text(widget.log.from == widget.log.airportAirline ? '' : widget.log.from, style: GoogleFonts.chivoMono(fontSize: 14))),
               ),
             ),
             Expanded(
@@ -894,7 +840,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                     left: BorderSide(color: MyColors.lineColor),
                   ),
                 ),
-                child: Center(child: Text(DateFormat("dd MMM").format(widget.log.createdAt.toLocal()), style: GoogleFonts.chivoMono(fontSize: 9, wordSpacing: 0))),
+                child: Center(child: Text(DateFormat("dd MMM").format(widget.log.createdAt.toLocal()), style: GoogleFonts.roboto(fontSize: 12, wordSpacing: 0))),
               ),
             ),
             Expanded(
@@ -904,7 +850,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                 decoration: BoxDecoration(
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
-                child: Center(child: Text(widget.log.to, style: GoogleFonts.chivoMono(fontSize: 10))),
+                child: Center(child: Text(widget.log.to, style: GoogleFonts.chivoMono(fontSize: 14))),
               ),
             ),
             Expanded(
@@ -917,10 +863,10 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                 child: Center(
                   child: Row(
                     children: [
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 8),
                       AirlineLogo(widget.log.airline, size: 15, padding: EdgeInsets.symmetric(horizontal: 0)),
-                      const SizedBox(width: 4),
-                      Text("${widget.log.airline}${widget.log.flightNumber}", style: GoogleFonts.chivoMono(fontSize: 10)),
+                      const SizedBox(width: 8),
+                      Text("${widget.log.airline}${widget.log.flightNumber}", style: GoogleFonts.chivoMono(fontSize: 14)),
                     ],
                   ),
                 ),
@@ -949,9 +895,9 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                     child: loading
                         ? SpinKitThreeBounce(size: 12, color: Colors.blueAccent)
                         : Text(
-                      ("${widget.log.showCode}"),
-                      style: GoogleFonts.chivoMono(fontSize: 10, color: Colors.blueAccent, decoration: TextDecoration.underline),
-                    ),
+                            ("${widget.log.showCode}"),
+                            style: GoogleFonts.chivoMono(fontSize: 14, color: Colors.blueAccent, decoration: TextDecoration.underline),
+                          ),
                   ),
                 ),
               ),
@@ -967,7 +913,7 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                   spacing: 2,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    BasicClass.getResultOfCode(widget.log.timaticResult).getIconWidgetMini,
+                    BasicClass.getResultOfCode(widget.log.timaticResult).getIconWidget,
                     // Text(BasicClass.getResultOfCode(widget.log.timaticResult).title, style: TextStyle(fontSize: 8, color: BasicClass.getResultOfCode(widget.log.timaticResult).getColor)),
                   ],
                 ),
@@ -981,14 +927,14 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
                   border: Border(right: BorderSide(color: MyColors.lineColor)),
                 ),
                 child: Row(
-                  spacing: 4,
+                  spacing: 8,
                   children: [
                     SizedBox(),
                     Expanded(
-                      child: Text(widget.log.totalResultRole ?? '', style: TextStyle(fontSize: 10), overflow: TextOverflow.ellipsis),
+                      child: Text(widget.log.totalResultRole ?? '', style: TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis),
                     ),
                     // BasicClass.getResultOfCode(widget.log.totalResult).getIconWidgetMini,
-                    Text(BasicClass.getResultOfCode(widget.log.totalResult).title, style: TextStyle(fontSize: 8, color: BasicClass.getResultOfCode(widget.log.totalResult).getColor)),
+                    Text(BasicClass.getResultOfCode(widget.log.totalResult).title, style: TextStyle(fontSize: 12, color: BasicClass.getResultOfCode(widget.log.totalResult).getColor)),
                     SizedBox(),
                   ],
                 ),
@@ -1001,18 +947,18 @@ class _ReportDetailsSummaryWidgetState extends State<ReportDetailsSummaryWidget>
   }
 }
 
-class ReportDetailsDetailWidget extends StatefulWidget {
+class ReportDetailsDetailWidgetDesktop extends StatefulWidget {
   final LogReportDetail log;
   final int index;
   final void Function()? onTap;
 
-  const ReportDetailsDetailWidget({super.key, required this.log, required this.index, this.onTap});
+  const ReportDetailsDetailWidgetDesktop({super.key, required this.log, required this.index, this.onTap});
 
   @override
-  State<ReportDetailsDetailWidget> createState() => _ReportDetailsDetailWidgetState();
+  State<ReportDetailsDetailWidgetDesktop> createState() => _ReportDetailsDetailWidgetDesktopState();
 }
 
-class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
+class _ReportDetailsDetailWidgetDesktopState extends State<ReportDetailsDetailWidgetDesktop> {
   bool loading = false;
 
   @override
@@ -1031,7 +977,7 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       child: Material(
-        color: totalRes.getColor.withOpacity(0.12) ?? superResponse?.getColor.withOpacity(0.12) ?? Colors.black12,
+        color: totalRes.getColor.withOpacity(0.05) ?? superResponse?.getColor.withOpacity(0.12) ?? Colors.black12,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -1060,7 +1006,13 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
                         child: Row(
                           children: [
                             const SizedBox(width: 4),
-                            Text("From: ${widget.log.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                            Text("From: ${widget.log.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            const SizedBox(width: 8),
+                            Text(
+                              DateFormat("dd MMM, hh:mm").format(widget.log.createdAt!.toLocal()),
+                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
                           ],
                         ),
                       ),
@@ -1073,7 +1025,7 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
                           borderRadius: BorderRadiusGeometry.circular(12),
                           border: Border.all(color: Colors.white),
                         ),
-                        child: Text(totalRes?.title ?? response?.name2 ?? '', style: TextStyle(fontSize: 12, color: totalRes.getColor)),
+                        child: Text(totalRes?.title ?? response?.name2 ?? '', style: TextStyle(fontSize: 14, color: totalRes.getColor)),
                       ),
 
                       // Expanded(child: Text(widget.log.code ?? '')),
@@ -1083,69 +1035,99 @@ class _ReportDetailsDetailWidgetState extends State<ReportDetailsDetailWidget> {
                       Icon(Icons.arrow_forward_ios_rounded, size: 15),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  widget.log.getFlowWidget,
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            // AirlineLogo(widget.log.airline ?? '--', size: 30),
-                            Text("Flight: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                            Text("${widget.log.airline ?? ''}${widget.log.flightNumber ?? ''}", style: TextStyle(fontSize: 10)),
-                            Text(" / "),
-                            Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                            MyCountryFlagsPro.getFlag(widget.log.nationality, borderRadius: BorderRadius.circular(3), width: 15, height: 10),
-
-                            Text(" ${widget.log.nationality}", style: TextStyle(fontSize: 10)),
-                            Text(" / "),
-                            Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 10)),
-                            Text("${widget.log.from ?? ''}- ", style: TextStyle(fontSize: 10)),
-                            MyCountryFlagsPro.getFlag(BasicClass.getAirportByCode(widget.log.to)?.country ?? '', borderRadius: BorderRadius.circular(3), width: 15, height: 10),
-
-                            Text(" ${widget.log.to ?? ''}", style: TextStyle(fontSize: 10)),
-
-                            // Text("Nationality",style: TextStyle(color: Colors.grey),),
-                            // Text("${widget.log. ?? ''}-${widget.log.to ?? ''}", style: TextStyle(fontSize: 12)),
-                          ],
+                  const SizedBox(height: 8),
+                  // const SizedBox(height: 4),
+                  // widget.log.getFlowWidget,
+                  // const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: totalRes.getColor.withOpacity(0.02) ?? superResponse?.getColor.withOpacity(0.12) ?? Colors.black.withOpacity(0.04),
+                      borderRadius: BorderRadiusGeometry.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Text("Flight: ", style: TextStyle(color: Colors.grey, fontSize: 14)),
+                                    AirlineLogo(widget.log.airline ?? '--', size: 30),
+                                    Text("${widget.log.airline ?? ''}${widget.log.flightNumber ?? ''}", style: TextStyle(fontSize: 14)),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 14)),
+                                    MyCountryFlagsPro.getFlag(widget.log.nationality, borderRadius: BorderRadius.circular(3), width: 15, height: 10),
+                                    Text(" ${widget.log.nationality}", style: TextStyle(fontSize: 14)),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 14)),
+                                    Text("${widget.log.from ?? ''}- ", style: TextStyle(fontSize: 14)),
+                                    MyCountryFlagsPro.getFlag(BasicClass.getAirportByCode(widget.log.to)?.country ?? '', borderRadius: BorderRadius.circular(3), width: 15, height: 10),
+                                    Text(" ${widget.log.to ?? ''}", style: TextStyle(fontSize: 14)),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Employee ID: ",
+                                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Text(
+                                      widget.log.employeeId ?? "",
+                                      style: TextStyle(fontSize: 14, color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Tracking ID: ",
+                                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Text(
+                                      "${widget.log.showCode ?? ""}",
+                                      style: TextStyle(fontSize: 14, color: Colors.black),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "TIMATIC: ",
+                                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(baseTimaticResult.title, style: TextStyle(fontSize: 14, color: baseTimaticResult.getColor)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Employee ID: ",
-                        style: TextStyle(fontSize: 10, color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        widget.log.employeeId ?? "",
-                        style: TextStyle(fontSize: 10, color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(width: 8),
-                      Icon(Icons.circle, color: Colors.grey, size: 5),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Tracking ID: ",
-                        style: TextStyle(fontSize: 10, color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        "${widget.log.showCode ?? ""}",
-                        style: TextStyle(fontSize: 10, color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(width: 2),
-                      Spacer(),
-                      Text(
-                        DateFormat("dd MMM, hh:mm").format(widget.log.createdAt!.toLocal()),
-                        style: TextStyle(fontSize: 10, color: Colors.grey),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

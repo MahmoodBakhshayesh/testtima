@@ -18,6 +18,7 @@ import 'MyTextFieldNew.dart';
 class MyMultiFieldPicker<T> extends StatefulWidget {
   final String Function(T)? itemToString;
   final String Function(T)? valueToString;
+  final String Function(List<T>)? valuesToString;
   final String Function(T)? searchBuilder;
   final Color Function(T)? itemToColor;
   final Widget Function(T)? itemToWidget;
@@ -52,6 +53,7 @@ class MyMultiFieldPicker<T> extends StatefulWidget {
     this.suffixIcon,
     this.headerBgColor,
     this.bodyBgColor,
+    this.valuesToString,
     this.locked = false,
     this.required = false,
     this.labelInRow = false,
@@ -85,10 +87,10 @@ class _MyMultiFieldPickerState<T> extends State<MyMultiFieldPicker<T>> {
 
   @override
   void initState() {
-    controller = TextEditingController(text: widget.values.map((a) => a?.toString()).join(", ") ?? '');
+    controller = TextEditingController(text: widget.valuesToString?.call(widget.values) ?? widget.values.map((a) => a?.toString()).join(", ") ?? '');
     value.addListener(() {
       Future(() {
-        controller.text = value.value.map((a)=>a.toString()).join(", ");
+        controller.text = value.value.map((a) => a.toString()).join(", ");
         widget.onChange?.call(value.value);
         setState(() {});
       });
@@ -106,7 +108,7 @@ class _MyMultiFieldPickerState<T> extends State<MyMultiFieldPicker<T>> {
   @override
   void didUpdateWidget(covariant MyMultiFieldPicker<T> oldWidget) {
     if (widget.values != oldWidget.values && mounted) {
-      controller.text = widget.values.map((v) => widget.valueToString?.call(v) ?? v.toString()).join(", ");
+      controller.text = widget.valuesToString?.call(widget.values) ?? widget.values.map((v) => widget.valueToString?.call(v) ?? v.toString()).join(", ");
       value.value = widget.values;
       setState(() {});
     }
@@ -176,6 +178,14 @@ class _MyMultiFieldPickerState<T> extends State<MyMultiFieldPicker<T>> {
             rowLabelRatio: widget.rowLabelRatio,
             labelInRow: true,
             controller: controller,
+            onChanged: (a) {
+              if (a.isEmpty) {
+                value.value = [];
+                widget.onChange?.call([]);
+                setState(() {});
+              }
+            },
+            showClearButton: widget.values.isNotEmpty && widget.showClearButton,
             borderSide: BorderSide(color: Colors.white, width: 1),
             radius: BorderRadius.circular(8),
             label: widget.label,
@@ -436,29 +446,51 @@ class _MultiPickerSheetWidgetState<T> extends State<MultiPickerSheetWidget<T>> {
                   itemBuilder: (c, i) {
                     final item = items[i];
                     final isSelected = selected.contains(item);
-                    return InkWell(
-                      onTap: () {
-                        if (isSelected) {
-                          selected.remove(item);
-                        } else {
-                          selected.add(item);
-                        }
-                        setState(() {});
-                        // Navigator.of(context).pop(item);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isSelected ? Colors.blueAccent.withOpacity(0.3) : const Color(0xffF2F3F6),
-                          border: const Border(bottom: BorderSide(color: Colors.white)),
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8, top: 8),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          if (isSelected) {
+                            selected.remove(item);
+                          } else {
+                            selected.add(item);
+                          }
+                          setState(() {});
+                          // Navigator.of(context).pop(item);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.blueAccent.withOpacity(0.1) : const Color(0xffF2F3F6),
+                            border: const Border(bottom: BorderSide(color: Colors.white)),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
+                          child: Row(
+                            children: [
+                              IgnorePointer(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: Checkbox(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                    value: isSelected,
+                                    onChanged: (v) {},
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child:
+                                    widget.itemToWidget?.call(item) ??
+                                    Text(
+                                      item.toString(),
+                                      style: TextStyle(color: isSelected ? Color(0xff2A5CFF) : null),
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),
-                        child: Row(children: [
-                          IgnorePointer(child: SizedBox(
-                              width:20,
-                              height: 20,
-                              child: Checkbox(value: isSelected, onChanged: (v){}))),
-                          const SizedBox(width: 8),
-                          Expanded(child: widget.itemToWidget?.call(item) ?? Text(item.toString()))]),
                       ),
                     );
                   },

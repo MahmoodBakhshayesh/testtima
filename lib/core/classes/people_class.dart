@@ -41,6 +41,12 @@ class People {
     return p;
   }
 
+  String get name => "${firstname} ${lastname}";
+  String? get employeeId => userAttribute["employeeId"];
+  String? get userType => userAttribute["userType"];
+  String? get whatsappNumber => userAttribute["whatsappNumber"];
+  String? get station =>  "${(userAttribute["airportAirline"] as List).join(", ")}";
+
   Map<String, dynamic> toJson() => {
     "uId": uId,
     "username": username,

@@ -9,6 +9,8 @@ import 'package:abds/core/extenstions/response_ext.dart';
 import 'package:abds/core/interfaces/success_int.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
 import 'package:abds/screens/users/usecases/update_user_usecase.dart';
+import 'package:abds/screens/users/widgets/add_user_dialog.dart';
+import 'package:abds/screens/users/widgets/user_details_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -33,7 +35,11 @@ class UsersController extends ControllerInterface {
   final _log = Logger('UsersController');
 
   void showAddUserDialog() {
-    navigation.goNamed(Routes.addUser);
+   if(navigation.context.isDesktop){
+     navigation.openDialog(dialog: AddUserDialog());
+   }else {
+     navigation.goNamed(Routes.addUser);
+   }
   }
 
   Future<List<People>?> getUserList() async {
@@ -83,6 +89,8 @@ class UsersController extends ControllerInterface {
         updated.userPermission = permission;
         updated.userAttribute = attributes;
         updated.email = email ?? updated.email;
+        updated.firstname = firstName ?? updated.firstname;
+        updated.lastname = lastName ?? updated.lastname;
 
         int index = ref.read(peopleListProvider).indexWhere((a) => a.uId == updated!.uId);
         final copy = [...ref.read(peopleListProvider)];
@@ -91,6 +99,10 @@ class UsersController extends ControllerInterface {
     }
 
     return updated;
+  }
+
+  Future<People?> enableDisableUser({required People user, required bool enable}) async {
+    return updateUser(user: user, enable: enable, permission: user.userPermission, attributes: user.userAttribute);
   }
 
   Future<Uint8List?> loadUserAvatar(People? people) async {
@@ -303,5 +315,10 @@ class UsersController extends ControllerInterface {
       FailureHandler.handle(ServerFailure(code: -1, msg: "$e", traceMsg: "$e"));
       return false;
     }
+  }
+
+  void showUserDetailsDialog(People item) {
+
+    navigation.openDialog(dialog: UserDetailsDialog(user: item));
   }
 }

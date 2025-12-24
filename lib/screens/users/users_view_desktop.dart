@@ -17,6 +17,7 @@ import 'users_controller.dart';
 import 'users_state.dart';
 import '../../initialize.dart';
 import '../../core/extenstions/context_exp.dart';
+import 'widgets/new_user_list_desktop.dart';
 
 class UsersViewDesktop extends StatefulWidget {
   const UsersViewDesktop({super.key});
@@ -48,7 +49,6 @@ class _UsersViewDesktopState extends State<UsersViewDesktop> {
               radius: 12,
               size: 60,
               onPressed: () async {
-
                 await myUsersController.pickExcel();
               },
               icon: Icons.table_chart_outlined,
@@ -59,7 +59,7 @@ class _UsersViewDesktopState extends State<UsersViewDesktop> {
           DotButton(
             radius: 12,
             size: 60,
-            onPressed: ()async {
+            onPressed: () async {
               myUsersController.showAddUserDialog();
             },
             icon: Icons.person_add,
@@ -132,6 +132,7 @@ class PeopleListWidget extends ConsumerStatefulWidget {
 
 class _PeopleListWidgetState extends ConsumerState<PeopleListWidget> {
   final TextEditingController searchC = TextEditingController();
+  static UsersController myUsersController = getIt<UsersController>();
 
   @override
   void initState() {
@@ -170,31 +171,54 @@ class _PeopleListWidgetState extends ConsumerState<PeopleListWidget> {
           ),
         ),
         Expanded(
-          child: CustomMaterialIndicator(
-            onRefresh: () async {
-              await getIt<UsersController>().getUserList();
-            },
-            // Your refresh logic
-            backgroundColor: Colors.transparent,
-            useMaterialContainer: false,
-            indicatorBuilder: (context, controller) {
-              return Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: CircularProgressIndicator(color: context.mainColor, value: controller.state.isLoading ? null : math.min(controller.value, 1.0)),
-              );
-            },
-            child: ref.watch(loadingUsersProvider)
-                ? Center(child: SpinKitCubeGrid(size: 60, color: context.mainColor))
-                : ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 105.0),
-                    itemBuilder: (c, i) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: PeopleWidgetDesktop(people: peoples[i], index: i,attKeys: attKeys,),
-                    ),
-                    itemCount: peoples.length,
-                  ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: context.width * 0.2),
+            child: Container(
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              padding: EdgeInsets.all(12),
+              child: SimplePagedUserListView(
+                borderColor: MyColors.lineColor,
+                items: peoples,
+                onToggleActive: (index, active) async {
+                  await getIt<UsersController>().enableDisableUser(user: peoples[index], enable: active);
+                  // update your state / call api
+                },
+                onActionTap: (index, item) {
+                  log("123");
+                  myUsersController.showUserDetailsDialog(item);
+                  // open menu / dialog
+                },
+              ),
+            ),
           ),
         ),
+        const SizedBox(height: 70),
+        // Expanded(
+        //   child: CustomMaterialIndicator(
+        //     onRefresh: () async {
+        //       await getIt<UsersController>().getUserList();
+        //     },
+        //     // Your refresh logic
+        //     backgroundColor: Colors.transparent,
+        //     useMaterialContainer: false,
+        //     indicatorBuilder: (context, controller) {
+        //       return Padding(
+        //         padding: const EdgeInsets.all(6.0),
+        //         child: CircularProgressIndicator(color: context.mainColor, value: controller.state.isLoading ? null : math.min(controller.value, 1.0)),
+        //       );
+        //     },
+        //     child: ref.watch(loadingUsersProvider)
+        //         ? Center(child: SpinKitCubeGrid(size: 60, color: context.mainColor))
+        //         : ListView.builder(
+        //             padding: const EdgeInsets.only(bottom: 105.0),
+        //             itemBuilder: (c, i) => Padding(
+        //               padding: const EdgeInsets.only(bottom: 8.0),
+        //               child: PeopleWidgetDesktop(people: peoples[i], index: i,attKeys: attKeys,),
+        //             ),
+        //             itemCount: peoples.length,
+        //           ),
+        //   ),
+        // ),
       ],
     );
   }
@@ -257,7 +281,13 @@ class PeopleWidgetDesktop extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Row(
-                children: attKeys.map((a)=>Expanded(child: ArtemisCardField(title: a, value: "${people.userAttribute[a]??'-'}", scale: 0.89)),).toList()
+                children: attKeys
+                    .map(
+                      (a) => Expanded(
+                        child: ArtemisCardField(title: a, value: "${people.userAttribute[a] ?? '-'}", scale: 0.89),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
             DotButton(
