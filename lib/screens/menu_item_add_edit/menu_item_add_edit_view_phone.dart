@@ -67,6 +67,7 @@ class _MenuItemAddEditViewPhoneState extends ConsumerState<MenuItemAddEditViewPh
     final editing = Map<String, dynamic>.from(ref.watch(editingMenuProvider) ?? {});
     final editingSchema = ref.watch(editingSchemaProvider);
     final editingLabel = ref.watch(editingLabelProvider);
+    log("${editing}");
     return Scaffold(
       appBar: MenuItemAddEditAppBarPhone(section: editing.containsKey("_id") ? "Edit" : "Add", onSubmit: () async => await onSubmit(editingSchema!)),
       body: SingleChildScrollView(
@@ -257,6 +258,7 @@ class _EditingItemWidgetState extends State<EditingItemWidget> {
               itemBuilder: (_, index) {
                 final internalPath = '${widget.label}[$index]'; // stable
                 final prettyLabel = '${widget.label} ${index + 1}';
+
                 final itemValue = v[index];
                 final itemKey = ValueKey(internalPath);
                 final content = EditingItemWidget(

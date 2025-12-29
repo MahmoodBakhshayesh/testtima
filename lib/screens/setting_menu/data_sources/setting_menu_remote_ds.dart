@@ -36,7 +36,7 @@ class SettingMenuRemoteDataSource implements SettingMenuDataSourceInterface {
 
   @override
   Future<SaveSectionMenuResponse> saveSectionMenu({required SaveSectionMenuRequest request}) async {
-    final String api = "$apiVersion${request.endPoint}/${request.id}";
+    final String api = "$apiVersion${request.endPoint}/document/${request.id}";
     ResponseInterface res = await networkManager.put(request, api: api);
     SaveSectionMenuResponse response = await Parser().parse(SaveSectionMenuResponse.fromResponse, res, executionReq: request);
     return response;

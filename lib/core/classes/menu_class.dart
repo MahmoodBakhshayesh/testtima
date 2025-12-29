@@ -226,8 +226,11 @@ abstract class SchemaNode {
   final SchemaKind kind;
   final String? title;
   final String? desc;
+  final List<String>? fieldName;
+  final Map<String, SchemaProperty> properties;
 
-  const SchemaNode({required this.kind, this.title, this.desc});
+
+  const SchemaNode({required this.kind, this.title, this.desc,required this.properties,this.fieldName});
 
   factory SchemaNode.fromJson(Map<String, dynamic> json) {
     // normalize "type": ["string"] -> "string"
@@ -238,34 +241,44 @@ abstract class SchemaNode {
     }
 
     final type = _asString(json['type']).trim().toLowerCase();
-
+    final props = <String, SchemaProperty>{};
+    final rawProps = _asMap(json['properties'], allowNull: true);
+    rawProps.forEach((key, value) {
+      props[key] = SchemaProperty.fromJson(key, _asMap(value));
+    });
     switch (type) {
       case 'object':
-        final props = <String, SchemaProperty>{};
-        final rawProps = _asMap(json['properties'], allowNull: true);
-        rawProps.forEach((key, value) {
-          props[key] = SchemaProperty.fromJson(key, _asMap(value));
-        });
-        return ObjectSchema(properties: props, title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+        return ObjectSchema(properties: props, title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"],fieldName:  List<String>.from(json["fieldName"]??[]),);
 
       case 'array':
         final items = json['items'];
         if (items == null) throw FormatException('Array schema must contain "items".');
-        return ArraySchema(items: SchemaNode.fromJson(_asMap(items)), title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+
+        return ArraySchema(
+            properties: props,
+            fieldName: List<String>.from(json["fieldName"]??[]),
+            items: SchemaNode.fromJson(_asMap(items)), title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+
 
       // ---- Extended types you asked for ----
       case 'enum':
         // Treat as a string primitive with enum values from enumList (fallback to enum)
-        return PrimitiveSchema(kind: SchemaKind.string, enumValues: _readEnumList(json), format: null, title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+        return PrimitiveSchema(kind: SchemaKind.string,
+            fieldName:  List<String>.from(json["fieldName"]??[]),
+            enumValues: _readEnumList(json), format: null, title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"],properties: props);
 
       case 'objectid':
         // Treat as a string primitive with a format hint
-        return PrimitiveSchema(kind: SchemaKind.string, enumValues: null, format: 'objectId', title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"]);
+        return PrimitiveSchema(
+            fieldName: List<String>.from(json["fieldName"]??[]),
+            kind: SchemaKind.string, enumValues: null, format: 'objectId', title: json["title"] ?? json["fieldTitle"], desc: json["fieldDescription"],properties: props);
 
       // ---- Standard primitives ----
       case 'string':
         return PrimitiveSchema(
           kind: SchemaKind.string,
+          properties: props,
+          fieldName:  List<String>.from(json["fieldName"]??[]),
           enumValues: _readEnumClassicOrList(json),
           format: _asString(json['format'], fallback: ''),
           title: json["title"] ?? json["fieldTitle"],
@@ -274,6 +287,8 @@ abstract class SchemaNode {
 
       case 'number':
         return PrimitiveSchema(
+          properties: props,
+          fieldName:  List<String>.from(json["fieldName"]??[]),
           kind: SchemaKind.number,
           enumValues: _readEnumClassicOrList(json),
           format: _asString(json['format'], fallback: ''),
@@ -283,6 +298,8 @@ abstract class SchemaNode {
 
       case 'boolean':
         return PrimitiveSchema(
+          properties: props,
+          fieldName: List<String>.from(json["fieldName"]??[]),
           kind: SchemaKind.boolean,
           enumValues: _readEnumClassicOrList(json),
           format: _asString(json['format'], fallback: ''),
@@ -295,13 +312,14 @@ abstract class SchemaNode {
     }
   }
 
+  String get getFieldName => "${fieldName}";
+
   Map<String, dynamic> toJson();
 }
 
 class ObjectSchema extends SchemaNode {
-  final Map<String, SchemaProperty> properties;
 
-  ObjectSchema({required this.properties, required super.title, required super.desc, super.kind = SchemaKind.object});
+  ObjectSchema({required super.properties, required super.title, required super.desc, super.kind = SchemaKind.object,super.fieldName});
 
   @override
   Map<String, dynamic> toJson() => {'type': 'object', 'properties': properties.map((k, v) => MapEntry(k, v.toJson()))};
@@ -310,10 +328,10 @@ class ObjectSchema extends SchemaNode {
 class ArraySchema extends SchemaNode {
   final SchemaNode items;
 
-  ArraySchema({required this.items, super.kind = SchemaKind.array, super.title, super.desc});
+  ArraySchema({required this.items, super.kind = SchemaKind.array, super.title, super.desc,super.properties = const {},super.fieldName});
 
   @override
-  Map<String, dynamic> toJson() => {'type': 'array', 'items': items.toJson()};
+  Map<String, dynamic> toJson() => {'type': 'array', 'items': items.toJson(), 'properties': properties.map((k, v) => MapEntry(k, v.toJson()))};
 }
 
 class PrimitiveSchema extends SchemaNode {
@@ -323,7 +341,7 @@ class PrimitiveSchema extends SchemaNode {
   /// Optional format hint (e.g., 'objectId', 'email', 'timezone')
   final String? format;
 
-  const PrimitiveSchema({this.enumValues, this.format, required super.kind, super.title, super.desc});
+  const PrimitiveSchema({this.enumValues, this.format, required super.kind, super.title, super.desc,required super.properties,super.fieldName});
 
   bool get hasEnum => enumValues != null && enumValues!.isNotEmpty;
 
@@ -340,12 +358,12 @@ class PrimitiveSchema extends SchemaNode {
 
     // Preserve extended types where possible in output
     if ((format?.toLowerCase() ?? '') == 'objectid') {
-      return {'type': 'objectId'};
+      return {'type': 'objectId', 'properties': properties.map((k, v) => MapEntry(k, v.toJson()))};
     }
 
     if (hasEnum && kind == SchemaKind.string && (format == null || format!.isEmpty)) {
       // Prefer enumList in output, but also include classic enum for compatibility
-      return {'type': 'enum', 'enumList': enumValues, 'enum': enumValues};
+      return {'type': 'enum', 'enumList': enumValues, 'enum': enumValues, 'properties': properties.map((k, v) => MapEntry(k, v.toJson()))};
     }
 
     if (hasEnum) {

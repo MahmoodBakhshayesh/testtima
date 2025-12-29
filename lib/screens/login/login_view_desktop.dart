@@ -196,7 +196,7 @@ class _LoginPanelState extends ConsumerState<LoginPanel> {
                     const SizedBox(height: 24),
 
                     MyTextField(
-                      label: "Username or Email",
+                      label: "Username or Employee ID",
                       borderSide: BorderSide(color: Colors.white),
                       controller: usernameC,
                       focusNode: usernameFN,

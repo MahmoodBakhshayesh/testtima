@@ -102,6 +102,7 @@ dependencies:
   camera_kit_plus: ^0.0.34
 #  artemis_timatic: ^0.0.12
   dropdown_textfield: ^1.2.0
+
   flutter_widget_from_html: ^0.17.0
   ocr_mrz: ^0.0.69
   smart_overlay_menu: ^1.0.3

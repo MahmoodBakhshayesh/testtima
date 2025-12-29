@@ -35,7 +35,6 @@ class _MenuSectionViewPhoneState extends ConsumerState<MenuSectionViewPhone> {
       appBar: MenuSectionAppBarPhone(section: section),
       body: Column(
         children: [
-
           Expanded(
             child: ListView.builder(
               itemCount: items.length,
@@ -93,7 +92,7 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
                       Row(
                         children: [
                           BackButton(),
-                          Text("${section.fieldTitle}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                          Text(section.fieldTitle, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                           Spacer(),
                           // DotButton(
                           //   icon: Icons.add,
@@ -116,38 +115,38 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
                 children: [
                   ?section.collectionAccess.getTemplate
                       ? Expanded(
-                    child: MyButton(
-                      label: "Template",
-                      icon: Icons.download,
-                      onPressed: () async {
-                        final mySettingMenuController = getIt<SettingMenuController>();
-                        await mySettingMenuController.getMenuTemplate(section);
-                      },
-                    ),
-                  )
+                          child: MyButton(
+                            label: "Template",
+                            icon: Icons.download,
+                            onPressed: () async {
+                              final mySettingMenuController = getIt<SettingMenuController>();
+                              await mySettingMenuController.getMenuTemplate(section);
+                            },
+                          ),
+                        )
                       : null,
                   ?section.collectionAccess.addWithExcel
                       ? Expanded(
-                    child: MyButton(
-                      label: "Excel",
-                      icon: Icons.upload,
-                      onPressed: () async {
-                        final mySettingMenuController = getIt<SettingMenuController>();
-                        await mySettingMenuController.addMenuWithExcel(section);
-                      },
-                    ),
-                  )
+                          child: MyButton(
+                            label: "Excel",
+                            icon: Icons.upload,
+                            onPressed: () async {
+                              final mySettingMenuController = getIt<SettingMenuController>();
+                              await mySettingMenuController.addMenuWithExcel(section);
+                            },
+                          ),
+                        )
                       : null,
                   ?section.collectionAccess.add
                       ? Expanded(
-                    child: MyButton(
-                      icon: Icons.add,
-                      label: "Add",
-                      onPressed: () {
-                        getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
-                      },
-                    ),
-                  )
+                          child: MyButton(
+                            icon: Icons.add,
+                            label: "Add",
+                            onPressed: () {
+                              getIt<MenuSectionController>().addItem(section.schema, "New ${section.title.split(" ").last}", context.isDesktop);
+                            },
+                          ),
+                        )
                       : null,
                 ],
               ),
@@ -176,9 +175,12 @@ class SectionItemWidget extends StatelessWidget {
     // log(jsonEncode(data));
     // log(label);
     // log(section.schema.kind.name);
+    // log("----- ${schema.kind}  --> ${schema.title} ${schema.fieldName} +++${label}");
 
     switch (schema.kind) {
       case SchemaKind.object:
+        // log("----- ${schema.fieldName}");
+
         final o = schema as ObjectSchema;
         final Map<String, dynamic> v = _toStringKeyMap(data);
         return MyExpansionTile(
@@ -241,6 +243,7 @@ class SectionItemWidget extends StatelessWidget {
           children: o.properties.entries.map((entry) {
             final key = entry.key;
             final prop = entry.value;
+
             final nextPath = '$label.$key';
             final current = v[key] ?? emptyValueForSchema(prop.schema);
             return Padding(
@@ -250,12 +253,15 @@ class SectionItemWidget extends StatelessWidget {
           }).toList(),
         );
       case SchemaKind.array:
+        // log("----- array  --> ${schema.title} ${schema.fieldName}");
+
         final array = schema as ArraySchema;
         final List<dynamic> v = (data is List) ? data as List<dynamic> : <dynamic>[data];
         if (v.length == 1) {
           final internalPath = '$label[0]'; // stable
-          final prettyLabel = '$label';
           final itemValue = v[0];
+          final prettyLabel = (schema.fieldName == null || schema.fieldName!.isEmpty) ? 'label' : schema.fieldName!.map((a) => itemValue[a]).join(" ");
+
           return SectionItemWidget(schema: array.items, data: itemValue, label: prettyLabel);
         }
         return MyExpansionTile(
@@ -284,8 +290,11 @@ class SectionItemWidget extends StatelessWidget {
               itemCount: v.length,
               itemBuilder: (_, index) {
                 final internalPath = '$label[$index]'; // stable
-                final prettyLabel = '$label ${index + 1}';
+                // final prettyLabel = '$label ${index + 1}';
+
                 final itemValue = v[index];
+                final prettyLabel = (schema.fieldName == null || schema.fieldName!.isEmpty) ? 'label' : schema.fieldName!.map((a) => itemValue[a]).join(" ");
+
                 final itemKey = ValueKey(internalPath);
                 final content = SectionItemWidget(schema: array.items, data: itemValue, label: prettyLabel);
                 return content;
