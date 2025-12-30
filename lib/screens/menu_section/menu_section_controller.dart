@@ -1,10 +1,12 @@
 import 'dart:developer';
 
 import 'package:abds/core/classes/menu_class.dart';
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/interfaces/success_int.dart';
 import 'package:abds/core/navigation/routes.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
 import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_state.dart';
+import 'package:abds/screens/menu_section/menu_section_state.dart';
 import 'package:abds/screens/setting_menu/setting_menu_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -12,9 +14,11 @@ import 'package:logging/logging.dart';
 import 'package:network_manager/network_manager.dart';
 import '../../core/interfaces/controller_int.dart';
 import '../../core/interfaces/failures_int.dart';
+import '../../core/utils_and_services/artemis_icons_icons.dart';
 import '../../core/utils_and_services/cross_helpers/build_formdata.dart';
 import '../../core/utils_and_services/downloader/downloader_io.dart';
 import '../../core/utils_and_services/handlers/failure_handler.dart';
+import '../../core/utils_and_services/operations/confirm_operation.dart';
 import '../../initialize.dart';
 import '../login/login_state.dart';
 
@@ -96,6 +100,10 @@ class MenuSectionController extends ControllerInterface {
   }
 
   Future<void> deleteDocument(MenuDescriptor? menu, String id) async {
+    final confirm = await ConfirmOperation.getConfirm(
+      Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to delete! Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+    );
+    if (!confirm) return;
     String api = "${NetworkOption().baseUrl ?? ""}$apiVersion${menu?.endpoint}/document/$id";
     log("delete ${api}");
     final dio = Dio();
@@ -105,7 +113,16 @@ class MenuSectionController extends ControllerInterface {
         options: Options(headers: {"Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
       );
       if (response.statusCode == 200) {
+        if(navigation.context.isDesktop){
+
+        }else {
+          navigation.pop();
+        }
         SuccessHandler.handle(ServerSuccess(code: 1, msg: "Done"));
+        ref.read(editingMenuProvider.notifier).update((s) => null);
+        ref.read(editingSchemaProvider.notifier).update((s) => null);
+        ref.read(editingLabelProvider.notifier).update((s) => null);
+        getIt<SettingMenuController>().loadData(ref.read(menuSectionProvider)!);
       } else {
         FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
       }

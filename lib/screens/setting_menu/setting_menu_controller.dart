@@ -174,6 +174,51 @@ class SettingMenuController extends ControllerInterface {
     }
   }
 
+  Future<void> getMenuAsExcel(MenuDescriptor section) async {
+    String url = "${NetworkOption().baseUrl ?? ""}$apiVersion${section.endpoint}/collection";
+    log("$url");
+    try {
+      await DownloaderUtil.downloadSaveAndOpen(
+        url,
+        onProgress: (r, t) => log('$r / $t'),
+        fileName: "${section.fieldTitle}.xlsx",
+        headers: {"Authorization": "Bearer ${ref
+            .read(userProvider)
+            ?.token}"},
+      );
+    }catch(e){
+      log("$e");
+    }
+  }
+
+  Future<void> updateCollectionWithExcel(MenuDescriptor section) async {
+    final file = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ["xlsx"]);
+    if (file == null) return;
+    String api = "${NetworkOption().baseUrl ?? ""}$apiVersion${section.endpoint}/excel";
+    log(api);
+    final dio = Dio();
+    final formData = await buildFormDataFromPaths(
+        images: file.files.map((a)=>a.path!).toList(),
+        voices: [],
+        data: {},
+        attachFieldName: "excel"
+    );
+    try {
+      final response = await dio.put(
+        api,
+        data: formData,
+        options: Options(headers: {"Content-Type": "multipart/form-data", "Authorization": "Bearer ${ref.read(userProvider)!.token}"}),
+      );
+      if (response.statusCode == 200) {
+
+      } else {
+        FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
+      }
+    }catch(e){
+      log("$e");
+    }
+  }
+
   // Future<void> updateDocumentWithExcel(MenuDescriptor menu) async {
   //
   // }

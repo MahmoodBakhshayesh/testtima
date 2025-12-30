@@ -15,6 +15,7 @@ import '../../widgets/DotButton.dart';
 import '../../widgets/MyExpansionTile.dart';
 import '../../widgets/MyTextFieldNew.dart';
 import '../menu_section/menu_section_controller.dart';
+import '../menu_section/menu_section_state.dart';
 import 'menu_item_add_edit_controller.dart';
 import 'menu_item_add_edit_state.dart';
 import '../../initialize.dart';
@@ -69,7 +70,9 @@ class _MenuItemAddEditViewPhoneState extends ConsumerState<MenuItemAddEditViewPh
     final editingLabel = ref.watch(editingLabelProvider);
     log("${editing}");
     return Scaffold(
-      appBar: MenuItemAddEditAppBarPhone(section: editing.containsKey("_id") ? "Edit" : "Add", onSubmit: () async => await onSubmit(editingSchema!)),
+      appBar: MenuItemAddEditAppBarPhone(
+          id:editing["_id"],
+          title: editing.containsKey("_id") ? "Edit" : "Add", onSubmit: () async => await onSubmit(editingSchema!)),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -90,18 +93,21 @@ class _MenuItemAddEditViewPhoneState extends ConsumerState<MenuItemAddEditViewPh
   }
 }
 
-class MenuItemAddEditAppBarPhone extends StatelessWidget implements PreferredSizeWidget {
-  final String section;
+class MenuItemAddEditAppBarPhone extends ConsumerWidget implements PreferredSizeWidget {
+  final String title;
+  final String? id;
   final VoidCallback onSubmit;
   static MenuItemAddEditController myMenuItemAddEditController = getIt<MenuItemAddEditController>();
 
-  const MenuItemAddEditAppBarPhone({super.key, required this.section, required this.onSubmit});
+  const MenuItemAddEditAppBarPhone({super.key, required this.title, required this.onSubmit, required this.id});
 
   @override
   Size get preferredSize => const Size.fromHeight(108);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+    final section = ref.watch(menuSectionProvider);
+    
     return Container(
       height: preferredSize.height,
       color: Colors.white,
@@ -115,12 +121,45 @@ class MenuItemAddEditAppBarPhone extends StatelessWidget implements PreferredSiz
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Row(
+                    spacing: 8,
                     children: [
                       BackButton(),
-                      Text("${section}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+                      Text("${title}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
+                      Visibility(
+                        visible: section?.documentAccess.getDocumentAsExcel == true && id !=null,
+                        child: DotButton(
+                          size: 40,
+                          icon: Icons.download,
+                          onPressed: () async {
+                            await getIt<MenuSectionController>().getDocumentAsExcel(section,id!);
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: section?.documentAccess.updateDocumentWithExcel == true && id!=null,
+                        child: DotButton(
+                          size: 40,
+                          icon: Icons.upload,
+                          color: Colors.green,
+                          onPressed: () async {
+                            await getIt<MenuSectionController>().updateDocumentWithExcel(section, id!);
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible:  section?.documentAccess.delete == true && id!=null,
+                        child: DotButton(
+                          size: 40,
+                          icon: Icons.delete,
+                          color: Colors.red,
+                          onPressed: () async {
+                            await getIt<MenuSectionController>().deleteDocument(section, id!);
+                          },
+                        ),
+                      ),
                       MyButton(label: "Save", onPressed: onSubmit),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 1),
                     ],
                   ),
                 ],

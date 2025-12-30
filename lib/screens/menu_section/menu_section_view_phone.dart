@@ -125,6 +125,17 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
                           ),
                         )
                       : null,
+                  ?section.collectionAccess.getCollectionAsExcel
+                      ? DotButton(
+                          size: 40,
+                          color: Colors.green,
+                          icon: Icons.download,
+                          onPressed: () async {
+                            final mySettingMenuController = getIt<SettingMenuController>();
+                            await mySettingMenuController.getMenuAsExcel(section);
+                          },
+                        )
+                      : null,
                   ?section.collectionAccess.addWithExcel
                       ? Expanded(
                           child: MyButton(
@@ -133,6 +144,19 @@ class MenuSectionAppBarPhone extends StatelessWidget implements PreferredSizeWid
                             onPressed: () async {
                               final mySettingMenuController = getIt<SettingMenuController>();
                               await mySettingMenuController.addMenuWithExcel(section);
+                            },
+                          ),
+                        )
+                      : null,
+                  ?section.collectionAccess.updateCollectionWithExcel
+                      ? Expanded(
+                          child: MyButton(
+                            label: "Excel",
+                            icon: Icons.edit,
+                            color: Colors.green,
+                            onPressed: () async {
+                              final mySettingMenuController = getIt<SettingMenuController>();
+                              await mySettingMenuController.updateCollectionWithExcel(section);
                             },
                           ),
                         )
@@ -198,27 +222,27 @@ class SectionItemWidget extends StatelessWidget {
                   },
                 ),
               ),
+              // Visibility(
+              //   visible: isMainObject || section?.documentAccess.getDocumentAsExcel == true,
+              //   child: DotButton(
+              //     icon: Icons.download,
+              //     onPressed: () async {
+              //       await getIt<MenuSectionController>().getDocumentAsExcel(section, data["_id"]);
+              //     },
+              //   ),
+              // ),
+              // Visibility(
+              //   visible: isMainObject || section?.documentAccess.updateDocumentWithExcel == true,
+              //   child: DotButton(
+              //     icon: Icons.upload,
+              //     color: Colors.green,
+              //     onPressed: () async {
+              //       await getIt<MenuSectionController>().updateDocumentWithExcel(section, data["_id"]);
+              //     },
+              //   ),
+              // ),
               Visibility(
-                visible: isMainObject || section?.documentAccess.getDocumentAsExcel == true,
-                child: DotButton(
-                  icon: Icons.download,
-                  onPressed: () async {
-                    await getIt<MenuSectionController>().getDocumentAsExcel(section, data["_id"]);
-                  },
-                ),
-              ),
-              Visibility(
-                visible: isMainObject || section?.documentAccess.updateDocumentWithExcel == true,
-                child: DotButton(
-                  icon: Icons.upload,
-                  color: Colors.green,
-                  onPressed: () async {
-                    await getIt<MenuSectionController>().updateDocumentWithExcel(section, data["_id"]);
-                  },
-                ),
-              ),
-              Visibility(
-                visible: isMainObject || section?.documentAccess.edit == true,
+                visible: isMainObject || section?.collectionAccess.editDocument == true,
                 child: DotButton(
                   icon: Icons.edit,
                   onPressed: () {
@@ -226,16 +250,16 @@ class SectionItemWidget extends StatelessWidget {
                   },
                 ),
               ),
-              Visibility(
-                visible: isMainObject || section?.documentAccess.delete == true,
-                child: DotButton(
-                  icon: Icons.delete,
-                  color: Colors.red,
-                  onPressed: () async {
-                    await getIt<MenuSectionController>().deleteDocument(section, data["_id"]);
-                  },
-                ),
-              ),
+              // Visibility(
+              //   visible: isMainObject || section?.documentAccess.delete == true,
+              //   child: DotButton(
+              //     icon: Icons.delete,
+              //     color: Colors.red,
+              //     onPressed: () async {
+              //       await getIt<MenuSectionController>().deleteDocument(section, data["_id"]);
+              //     },
+              //   ),
+              // ),
             ],
           ),
           showFooter: false,
