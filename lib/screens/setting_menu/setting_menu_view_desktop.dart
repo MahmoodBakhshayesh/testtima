@@ -298,7 +298,6 @@ class _EditingSectionWidgetDesktopState extends ConsumerState<EditingSectionWidg
     if (editingSchema == null) {
       return SizedBox();
     }
-
     return MenuItemAddEditViewDesktop();
     return Container(
       decoration: BoxDecoration(color: Colors.greenAccent.withOpacity(.1)),

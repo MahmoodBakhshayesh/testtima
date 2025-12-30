@@ -19,6 +19,7 @@ import '../menu_item_add_edit/menu_item_add_edit_state.dart';
 import '../menu_section/menu_section_controller.dart';
 import '../../initialize.dart';
 import '../../core/extenstions/context_exp.dart';
+import '../menu_section/menu_section_state.dart';
 
 final headerBgColor = Colors.blue.withOpacity(0.3);
 final bodyBgColor = Colors.blue.withOpacity(0.15);
@@ -66,6 +67,7 @@ class _MenuItemAddEditViewDesktopState extends ConsumerState<MenuItemAddEditView
     final editingLabel = ref.watch(editingLabelProvider);
     return EditingItemWidgetDesktop(
       isRoot: true,
+
       onChange: (up) {
         changed = up;
         setState(() {});
@@ -78,18 +80,21 @@ class _MenuItemAddEditViewDesktopState extends ConsumerState<MenuItemAddEditView
   }
 }
 
-class MenuItemAddEditAppBarDesktop extends StatelessWidget implements PreferredSizeWidget {
-  final String section;
+class MenuItemAddEditAppBarDesktop extends ConsumerWidget implements PreferredSizeWidget {
+  final String title;
+  final String? id;
   final VoidCallback onSubmit;
   static MenuItemAddEditController myMenuItemAddEditController = getIt<MenuItemAddEditController>();
 
-  const MenuItemAddEditAppBarDesktop({super.key, required this.section, required this.onSubmit});
+  const MenuItemAddEditAppBarDesktop({super.key, required this.title, required this.onSubmit, this.id});
 
   @override
   Size get preferredSize => const Size.fromHeight(108);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+    final section = ref.watch(menuSectionProvider);
+
     return Container(
       height: preferredSize.height,
       color: Colors.white,
@@ -104,9 +109,42 @@ class MenuItemAddEditAppBarDesktop extends StatelessWidget implements PreferredS
                 children: [
                   Row(
                     children: [
+
                       BackButton(),
                       Text("${section}", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
                       Spacer(),
+                      Visibility(
+                        visible: section?.documentAccess.getDocumentAsExcel == true && id !=null,
+                        child: DotButton(
+                          size: 40,
+                          icon: Icons.download,
+                          onPressed: () async {
+                            await getIt<MenuSectionController>().getDocumentAsExcel(section,id!);
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible: section?.documentAccess.updateDocumentWithExcel == true && id!=null,
+                        child: DotButton(
+                          size: 40,
+                          icon: Icons.upload,
+                          color: Colors.green,
+                          onPressed: () async {
+                            await getIt<MenuSectionController>().updateDocumentWithExcel(section, id!);
+                          },
+                        ),
+                      ),
+                      Visibility(
+                        visible:  section?.documentAccess.delete == true && id!=null,
+                        child: DotButton(
+                          size: 40,
+                          icon: Icons.delete,
+                          color: Colors.red,
+                          onPressed: () async {
+                            await getIt<MenuSectionController>().deleteDocument(section, id!);
+                          },
+                        ),
+                      ),
                       MyButton(label: "Save", onPressed: onSubmit),
                       SizedBox(width: 8),
                     ],
@@ -186,7 +224,48 @@ class _EditingItemWidgetDesktopState extends State<EditingItemWidgetDesktop> {
                   child: Row(
                     children: [
                       Expanded(child: Text(showingLabel)),
-                      ?widget.onDelete != null ? DotButton(icon: Icons.delete, onPressed: widget.onDelete!, color: Colors.red) : null,
+                      // ?widget.onDelete != null ? DotButton(icon: Icons.delete, onPressed: widget.onDelete!, color: Colors.red) : null,
+                      Consumer(builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                        final section = ref.watch(menuSectionProvider);
+                        final String? id = tmp["_id"];
+                        return Row(
+                          spacing: 8,
+                          children: [
+                          Visibility(
+                            visible: section?.documentAccess.getDocumentAsExcel == true && id !=null,
+                            child: DotButton(
+                              size: 40,
+                              icon: Icons.download,
+                              onPressed: () async {
+                                await getIt<MenuSectionController>().getDocumentAsExcel(section,id!);
+                              },
+                            ),
+                          ),
+                          Visibility(
+                            visible: section?.documentAccess.updateDocumentWithExcel == true && id!=null,
+                            child: DotButton(
+                              size: 40,
+                              icon: Icons.upload,
+                              color: Colors.green,
+                              onPressed: () async {
+                                await getIt<MenuSectionController>().updateDocumentWithExcel(section, id!);
+                              },
+                            ),
+                          ),
+                          Visibility(
+                            visible:  section?.documentAccess.delete == true && id!=null,
+                            child: DotButton(
+                              size: 40,
+                              icon: Icons.delete,
+                              color: Colors.red,
+                              onPressed: () async {
+                                await getIt<MenuSectionController>().deleteDocument(section, id!);
+                              },
+                            ),
+                          ),
+                        ],);
+                      },),
+                      const SizedBox(width: 8),
                       MyButton(label: "Save",onPressed: widget.onSubmit,)
                     ],
                   ),

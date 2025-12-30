@@ -101,11 +101,10 @@ class MenuSectionController extends ControllerInterface {
 
   Future<void> deleteDocument(MenuDescriptor? menu, String id) async {
     final confirm = await ConfirmOperation.getConfirm(
-      Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to delete! Are you sure', title: "Clear", actions: ["Cancel", "Confirm"]),
+      Operation(type: OperationType.warning, icon: ArtemisIcons.eraser_1, message: 'You are about to delete! Are you sure', title: "Delete", actions: ["Cancel", "Confirm"]),
     );
     if (!confirm) return;
     String api = "${NetworkOption().baseUrl ?? ""}$apiVersion${menu?.endpoint}/document/$id";
-    log("delete ${api}");
     final dio = Dio();
     try {
       final response = await dio.delete(
@@ -122,6 +121,8 @@ class MenuSectionController extends ControllerInterface {
         ref.read(editingMenuProvider.notifier).update((s) => null);
         ref.read(editingSchemaProvider.notifier).update((s) => null);
         ref.read(editingLabelProvider.notifier).update((s) => null);
+        ref.read(sectionItemsProvider.notifier).update((s) => [...s.where((a)=>a["_id"]!= id)]);
+
         getIt<SettingMenuController>().loadData(ref.read(menuSectionProvider)!);
       } else {
         FailureHandler.handle(ServerFailure(code: response.statusCode ?? -1, msg: response.statusMessage ?? 'Unknown Error', traceMsg: response.statusMessage ?? 'Unknown Error'));
