@@ -104,7 +104,7 @@ dependencies:
   dropdown_textfield: ^1.2.0
 
   flutter_widget_from_html: ^0.17.0
-  ocr_mrz: ^0.0.69
+  ocr_mrz: ^0.0.74
   smart_overlay_menu: ^1.0.3
   dropdown_search: ^6.0.2
 #  country_flags: ^3.3.0

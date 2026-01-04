@@ -712,11 +712,16 @@ class TimaticResult {
   Color get getColor =>color=="FFFFFF"?Colors.black: HexColor(color!);
 
   EvalResult get getEvalRes {
-    log("or else not ${resultId}");
-    return EvalResult.values.firstWhere((a)=>a.index == (resultId!-1),orElse: () {
-    log("or else ${resultId}");
+    if(resultId == 1){
+      return EvalResult.YES;
+    }else if( resultId ==2){
+      return EvalResult.NO;
+    }else if( resultId ==3){
+      return EvalResult.CONDITIONAL;
+    }else if( resultId ==3){
+      return EvalResult.UNKNOWN;
+    }
     return EvalResult.UNKNOWN;
-  });
   }
 
   IconData? get getIconCircle => getEvalRes.getIconCircle;

@@ -53,5 +53,7 @@ class SubmitTimaticRequestResponse extends ResponseInterface {
           message: res.message,
           refCode: res.body["refCode"].toString(),
           showCode: res.body["showCode"].toString(),
-          response: TimaticResponseNew.fromJson(jsonDecode(res.body["logs"][0]["payload"]["output"])));
+          response: TimaticResponseNew.fromJson(jsonDecode(res.body["logs"][0]["payload"]["output"])
+
+          ));
 }

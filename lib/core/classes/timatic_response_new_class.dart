@@ -102,6 +102,30 @@ class Segment {
       ],
     ),
   );
+  Widget get routeWidgetBig => Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadiusGeometry.circular(4),
+      color: getRes.getColor,
+      border: Border.all(color: getRes.getColor),
+    ),
+    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+    child: Row(
+      children: [
+        // Icon(getRes.getIconCircle, color: Colors.white, size: 15),
+        // const SizedBox(width: 4),
+        Text(
+          "${from!.airport} ",
+          style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+        Icon(Icons.arrow_right_alt,color: Colors.white,),
+        MyCountryFlagsPro.getFlag(to!.country!,  borderRadius: BorderRadius.circular(4),width: 30,height: 24),
+        Text(
+          " ${to!.airport}",
+          style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+      ],
+    ),
+  );
 }
 
 class From {

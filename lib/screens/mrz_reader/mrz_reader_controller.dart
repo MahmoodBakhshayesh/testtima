@@ -12,12 +12,11 @@ import 'package:abds/core/utils_and_services/stateControllers/residents_state_co
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
 import 'package:abds/screens/mrz_reader/usecases/send_logs_usecase.dart';
-import 'package:dartx/dartx.dart';
 import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:get/get_utils/get_utils.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
@@ -227,7 +226,7 @@ class MrzReaderController extends ControllerInterface {
     final res = consensus.toResult();
     bool verified = false;
     List<String> passNumbers = ref.read(passportsProvider).map((a) => a.documentNumber ?? '').where((a) => a.isNotEmpty).toList();
-    verified = passNumbers.any((a) => ocrMrzController.getAggregator.sessionScannedData(a));
+    verified = passNumbers.any((a) => ocrMrzController.aggregator.sessionScannedData(a));
     if (setting.algorithm == ParseAlgorithm.method1 || setting.algorithm == ParseAlgorithm.method2) {
       // if(ocrMrzController.getAggregator.sessionScannedData(data))
       // res.ocrData = scanned.ocrData;

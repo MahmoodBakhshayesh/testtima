@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:abds/core/interfaces/failures_int.dart';
 import 'package:abds/core/utils_and_services/document_similariry.dart';
@@ -12,18 +13,26 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:logging/logging.dart';
 import 'package:ocr_mrz/mrz_result_class_fix.dart';
 import 'package:ocr_mrz/ocr_mrz.dart';
+import 'package:ocr_mrz/session_logger.dart';
+import '../../core/ ocr_log_util.dart';
 import '../../core/classes/constant_data_class.dart';
 import '../../core/interfaces/controller_int.dart';
+import '../../core/utils_and_services/cross_helpers/build_formdata_io.dart';
 import '../../core/utils_and_services/timatic/src/models/document_request.dart';
 import '../../core/utils_and_services/timatic/src/models/enums.dart';
 import '../../widgets/MyFieldPicker.dart';
 import 'dialog/timer_widget.dart';
 import 'offline_scanner_state.dart';
+import 'package:dio/dio.dart';
 
 class OfflineScannerController extends ControllerInterface {
   final _log = Logger('OfflineScannerController');
+  final dio = Dio();
+
   bool scanning = true;
-  OcrMrzController ocrMrzController = OcrMrzController();
+  late OcrMrzController ocrMrzController = OcrMrzController(
+    sessionLogger: SessionLogger(logInterval: Duration(seconds: 2), onLogBatch: onLogBatch),
+  );
   VersionedData? constData = VersionedData.offline();
   TimerController elapsedTimerController = TimerController();
 
@@ -130,11 +139,11 @@ class OfflineScannerController extends ControllerInterface {
 
     bool exCheck = res.documentExpiryDate?.format_yyMMdd == res2.documentExpiryDate?.format_yyMMdd;
     bool birthCheck = res.birthDate?.format_yyMMdd == res2.birthDate?.format_yyMMdd;
-    bool numCheck =  res.documentNumber == res2.documentNumber;
-    bool issueCheck =  res.documentIssueCountry?.code3 == res2.documentIssueCountry?.code3;
+    bool numCheck = res.documentNumber == res2.documentNumber;
+    bool issueCheck = res.documentIssueCountry?.code3 == res2.documentIssueCountry?.code3;
     bool codeCheck = res.docCode?.characters.firstOrNull == res2.docCode?.characters.firstOrNull;
 
-    if(codeCheck && issueCheck && numCheck && birthCheck){
+    if (codeCheck && issueCheck && numCheck && birthCheck) {
       return true;
     }
 
@@ -177,5 +186,33 @@ class OfflineScannerController extends ControllerInterface {
         ref.read(confirmingTimerProvider.notifier).update((s) => a);
       }
     });
+  }
+
+  Future<void> onLogBatch(List<SessionLogEntry> ll, LogFlushReason reason) async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      final lll = ll.where((a) => ((a.step ?? 0) > 0));
+      if (lll.isEmpty) {
+        return;
+      }
+
+      OcrApi api = OcrApi();
+      final token = "fjkwWRG3jrg3r5gv%#HBT\$gjf4iogh534HGJ\$^THBG(TB\$T\$HGBT\$\$TRGOVO%IJTT\$lg4t";
+      for (var a in lll) {
+        log("[${a.timestamp.toIso8601String()}] (Step: ${a.step ?? 'N/A'}) '${a.message}'");
+      }
+      final logRes = await api.postLog(
+        data: {
+          "logs": lll.map((a) => {"message": "[${a.timestamp.toIso8601String()}] (Step: ${a.step ?? 'N/A'}) '${a.message}'", "details": a.toString()}).toList(),
+        },
+        headers: {"Authorization": token},
+      );
+      if (logRes.statusCode == 200) {
+        log("log has been submitted");
+      } else {
+        log("loggin log error ${logRes.statusMessage}");
+      }
+
+      return;
+    }
   }
 }

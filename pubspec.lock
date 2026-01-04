@@ -269,10 +269,10 @@ packages:
     dependency: "direct main"
     description:
       name: camera_kit_plus
-      sha256: "16dfb7ec0e4bbb15d3bf5398e818892c220070be8132598452fc554a09dc9b26"
+      sha256: dba8399754732a6e76621d2b0f8f50fd005e40e7470b51054c853b0d01c32762
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.38"
+    version: "0.0.40"
   cc_signalr:
     dependency: "direct main"
     description:
@@ -1476,10 +1476,10 @@ packages:
     dependency: "direct main"
     description:
       name: ocr_mrz
-      sha256: fb2a9c2e7e47547387570c4830b4c2059d8d9b5096f7314efb55397ed4776446
+      sha256: "1a8f8fd0b2b7470ee2338ab7ef205737929983ecb59ac132b4c73e6d4ea0efa2"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.69"
+    version: "0.0.74"
   octo_image:
     dependency: transitive
     description:
