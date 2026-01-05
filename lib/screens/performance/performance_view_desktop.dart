@@ -279,7 +279,11 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                         children: [
                           Expanded(
                             child: table == null && reportDetails.isEmpty
-                                ? SizedBox()
+                                ? Row(
+                                  children: [
+                                    SizedBox(),
+                                  ],
+                                )
                                 : Column(
                                     children: [
                                       Expanded(
@@ -974,10 +978,11 @@ class _ReportDetailsDetailWidgetDesktopState extends State<ReportDetailsDetailWi
     // log("actionId ${response?.actionId.toString()} ${widget.log.supervisor?.lastOrNull?.action}");
     final totalRes = BasicClass.getResultOfCode(widget.log.totalResult);
     // log(jsonEncode(widget.log.toJson()));
+    bool unTotal = totalRes.color == "FFFFFF";
     return Container(
       margin: const EdgeInsets.only(top: 12),
       child: Material(
-        color: totalRes.getColor.withOpacity(0.05) ?? superResponse?.getColor.withOpacity(0.12) ?? Colors.black12,
+        color: unTotal?baseTimaticResult.getBgColor :totalRes.getColor.withOpacity(0.05) ?? baseTimaticResult?.getColor.withOpacity(0.12) ?? Colors.black12,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -1042,7 +1047,8 @@ class _ReportDetailsDetailWidgetDesktopState extends State<ReportDetailsDetailWi
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: totalRes.getColor.withOpacity(0.02) ?? superResponse?.getColor.withOpacity(0.12) ?? Colors.black.withOpacity(0.04),
+
+                      color: totalRes.getColor.withOpacity(0.02) ?? superResponse?.getColor.withOpacity(0.12) ??baseTimaticResult.getBgColor?? Colors.black.withOpacity(0.04),
                       borderRadius: BorderRadiusGeometry.circular(8),
                     ),
                     child: Row(

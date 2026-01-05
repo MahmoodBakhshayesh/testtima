@@ -77,6 +77,7 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
         ...widget.res.segments.map((segRes) {
           int index = widget.res.segments.indexOf(segRes);
           final exC = expansionControllers[index];
+          log("${segRes.getRes.getSolidColor}");
           return MyExpansionTile(
             key: Key(segRes.route),
             controller: exC,
@@ -85,16 +86,16 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
               setState(() {});
             },
             tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
-            collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(12)),
-            backgroundColor: segRes.getRes.getColor.withOpacity(0.08),
-            collapsedBackgroundColor: segRes.getRes.getColor.withOpacity(0.08),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(2)),
+            collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(2)),
+            backgroundColor: segRes.getRes.getBgColor,
+            collapsedBackgroundColor: segRes.getRes.getBgColor,
             showFooter: false,
             childrenPadding: EdgeInsets.all(0),
             title: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: segRes.getRes.getColor),
@@ -159,18 +160,23 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
                 }
                 return MyExpansionTile(
                   showFooter: false,
+                  // backgroundColor: sortedOk.firstOrNull?.getSolidColor,
+                  // collapsedBackgroundColor: sortedOk.firstOrNull?.getSolidColor,
                   title: Column(
                     children: [
+
                       ...(sortedNotOk).map(
                         (a) => RuleSetWidgetNewDesktop(
                           ruleSet: a,
                           refCode: widget.refCode,
+
                         ),
                       ),
                     ],
                   ),
                   childrenPadding: EdgeInsets.symmetric(horizontal: 12),
                   children: [
+
                     ...(sortedOk)
                         .where((a) => a.ruleSetResult == 1)
                         .map(
@@ -230,8 +236,8 @@ class RuleSetWidgetNewDesktop extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(color: ruleSet.getColor.withOpacity(0.12)),
         ),
-        backgroundColor: ruleSet.getColor.withOpacity(0.08),
-        collapsedBackgroundColor: ruleSet.getColor.withOpacity(0.08),
+        backgroundColor: ruleSet.getSolidColor,
+        collapsedBackgroundColor: ruleSet.getSolidColor,
         tilePadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         // childPreview: ruleSet.getRes.resultId! <2
         //     ? null
@@ -288,6 +294,8 @@ class RuleSetWidgetNewDesktop extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
+                     Icon( ruleSet.getIcon,color: ruleSet.getColor,size: 20,),
+                      const SizedBox(width: 4),
                       Text(
                         ruleSet.title ?? '',
                         // "${ruleSet.regulations.length}",
@@ -317,6 +325,7 @@ class RuleSetWidgetNewDesktop extends StatelessWidget {
                 // ),
               ],
             ),
+
             // Text("ada")
           ],
         ),
@@ -329,6 +338,8 @@ class RuleSetWidgetNewDesktop extends StatelessWidget {
                     (r) => RegulationWidgetNewDesktop(
                       regulation: r,
                       refCode: refCode,
+                      isLast: false,
+                      lineColor:ruleSet.getSolidLineColor
                     ),
                   )
                   .toList(),
@@ -337,6 +348,7 @@ class RuleSetWidgetNewDesktop extends StatelessWidget {
                     (r) => DocumentResultWidgetNewDesktop(
                       docRes: r,
                       refCode: refCode,
+                      lineColor: ruleSet.getSolidLineColor,
                     ),
                   )
                   .toList(),
@@ -350,9 +362,11 @@ class RuleSetWidgetNewDesktop extends StatelessWidget {
 
 class RegulationWidgetNewDesktop extends StatelessWidget {
   final String refCode;
+  final Color lineColor;
+  final bool isLast;
   late Regulation regulation;
 
-  RegulationWidgetNewDesktop({super.key, required this.regulation, required this.refCode});
+  RegulationWidgetNewDesktop({super.key, required this.regulation, required this.refCode, required this.isLast, required this.lineColor});
 
   //final TimaticController myTimaticController = getIt<TimaticController>();
 
@@ -369,10 +383,14 @@ class RegulationWidgetNewDesktop extends StatelessWidget {
             children: [
               ...(regulation.texts ?? [])
                   .map(
-                    (e) => Container(
+                    (e) {
+
+                      e = "${e.replaceFirst("<p>", "<span style = 'font-size:24px;font-weight: 900'>${regulation.title}</span><p style='display:inline; padding-left:12px;font-size:16px;font-weight:200'>")}";
+                      return Container(
+
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: MyColors.lineColor)),
+                        border:Border(bottom: BorderSide(color: lineColor,width: 4)),
                       ),
                       child: Row(
                         children: [
@@ -380,7 +398,8 @@ class RegulationWidgetNewDesktop extends StatelessWidget {
                             flex: 5,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[] + [HtmlWidget(e, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 16))],
+                              children: <Widget>[] + [HtmlWidget(e,
+                                  onTapUrl: (p0) => launch(p0))],
                             ),
                           ),
                           DotButton(
@@ -415,7 +434,8 @@ class RegulationWidgetNewDesktop extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
+                    );
+                    },
                   )
                   .toList(),
             ],
@@ -554,8 +574,8 @@ class RegulationWidgetNewDesktop extends StatelessWidget {
 class DocumentResultWidgetNewDesktop extends StatelessWidget {
   late DocumentResult docRes;
   final String refCode;
-
-  DocumentResultWidgetNewDesktop({super.key, required this.docRes, required this.refCode});
+  final Color lineColor;
+  DocumentResultWidgetNewDesktop({super.key, required this.docRes, required this.refCode, required this.lineColor});
 
   @override
   Widget build(BuildContext context) {
@@ -597,7 +617,9 @@ class DocumentResultWidgetNewDesktop extends StatelessWidget {
                   .map(
                     (s2) => RegulationWidgetNewDesktop(
                       regulation: s2,
-                      refCode: refCode,
+                      refCode: refCode, isLast: false,
+                      lineColor: lineColor
+
                     ),
                   )
                   .toList()),
@@ -614,7 +636,6 @@ class CommonBorderWidgetNewDesktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
     return MyExpansionTile(
       showFooter: false,
       title: Container(

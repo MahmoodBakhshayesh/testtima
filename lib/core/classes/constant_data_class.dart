@@ -710,6 +710,39 @@ class TimaticResult {
   };
 
   Color get getColor =>color=="FFFFFF"?Colors.black: HexColor(color!);
+  Color get getSolidColor {
+    if(resultId == 1 ){
+      return Color(0xffD8F3EB);
+    }else if(resultId == 2 ){
+      return Color(0xffFFD6D6);
+    }else{
+      return Color(0xffFFE6C6);
+    }
+
+    return color=="FFFFFF"?Colors.black: HexColor(color!);
+  }
+  Color get getBgColor {
+    if(resultId == 1 ){
+      return Color(0xffDBF2EC);
+    }else if(resultId == 2 ){
+      return Color(0xffFFE5E5);
+    }else{
+      return Color(0xffFFEED7);
+    }
+
+    return color=="FFFFFF"?Colors.black: HexColor(color!);
+  }
+  Color get getSolidLineColor {
+    if(resultId == 1 ){
+      return Color(0xffADD0C7);
+    }else if(resultId == 2 ){
+      return Color(0xffF7C6C6);
+    }else{
+      return Color(0xffE8C9A0);
+    }
+
+    return color=="FFFFFF"?Colors.black: HexColor(color!);
+  }
 
   EvalResult get getEvalRes {
     if(resultId == 1){

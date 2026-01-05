@@ -186,8 +186,13 @@ class RuleSetEvaluation {
   EvalResult get evaluationResult => EvalResult.values.firstWhere((a) => a.index == ruleSetResult - 1, orElse: () => EvalResult.UNKNOWN);
 
   Color get getColor => getRes.getColor;
+  Color get getSolidColor => getRes.getSolidColor;
+  Color get getSolidLineColor => getRes.getSolidLineColor;
 
-  IconData get getIcon => evaluationResult.getIcon;
+  IconData get getIcon {
+    return getRes.getIconCircle!;
+    return evaluationResult.getIcon;
+  }
 
   TimaticResult get getRes => BasicClass.getResultOfCode(ruleSetResult);
 }

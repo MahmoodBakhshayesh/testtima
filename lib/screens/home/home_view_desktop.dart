@@ -32,6 +32,7 @@ import 'package:abds/screens/login/login_controller.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_controller.dart';
 import 'package:abds/screens/mrz_reader/mrz_reader_state.dart';
+import 'package:abds/screens/result_report/result_report_state.dart';
 import 'package:abds/widgets/DotButton.dart';
 import 'package:abds/widgets/DurationOfStayPicker.dart';
 import 'package:abds/widgets/MyButton.dart';
@@ -436,6 +437,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                           // return SizedBox(height: 100);
                                                           return Column(
                                                             children: [
+                                                              LogsAndAttachmentsWidget(),
                                                               TimaticTrueResultWidgetNewDesktop(res: result, refCode: refCode!),
                                                               const SizedBox(height: 12),
                                                             ],
@@ -672,104 +674,104 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                   ),
                                                 ),
                                               ),
-                                              Expanded(
-                                                child: SingleChildScrollView(
-                                                  child: MyExpansionTile(
-                                                    initiallyExpanded: true,
-                                                    controller: timaticController,
-                                                    showTrailingIcon: resultMode,
-                                                    backgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
-                                                    collapsedBackgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadiusGeometry.circular(28),
-                                                      side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                                    ),
-                                                    collapsedShape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadiusGeometry.circular(28),
-                                                      side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                                    ),
-                                                    childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                                                    tilePadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                                    title: Padding(
-                                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                                      child: Row(
-                                                        children: [
-                                                          Text("TIMATIC ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                                                          resultMode
-                                                              ? Row(
-                                                                  children: [
-                                                                    timaticRes.getRes.getIconWidget,
-                                                                    Text(timaticRes!.getRes.title, style: TextStyle(color: timaticRes.getRes.getColor)),
-                                                                    // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                                                  ],
-                                                                )
-                                                              : SizedBox(),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    showFooter: false,
-                                                    children: resultMode
-                                                        ? [
-                                                            Consumer(
-                                                              builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                                                final result = ref.watch(timaticResultNewProvider);
-                                                                final refCode = ref.watch(refCodeProvider);
-                                                                if (result == null) {
-                                                                  return SizedBox();
-                                                                }
-                                                                // return SizedBox(height: 100);
-                                                                return Column(
-                                                                  children: [
-                                                                    TimaticTrueResultWidgetNew(res: result, refCode: refCode!),
-                                                                    const SizedBox(height: 12),
-                                                                  ],
-                                                                );
-                                                              },
-                                                            ),
-                                                          ]
-                                                        : [
-                                                            Column(
-                                                              children: [
-                                                                const SizedBox(height: 300),
-                                                                Text("After filling out data, Click on"),
-                                                                const SizedBox(height: 16),
-                                                                Row(
-                                                                  children: [
-                                                                    Spacer(),
-                                                                    Expanded(
-                                                                      flex: 2,
-                                                                      child: MyButton(
-                                                                        label: "TIMATIC",
-                                                                        iconSize: 12,
-                                                                        fontSize: 12,
-                                                                        icon: ArtemisIcons.user_square,
-                                                                        onPressed: !canCheck
-                                                                            ? () {
-                                                                                ref.read(globalFormValidationMode.notifier).update((s) => true);
-                                                                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please fill all required data!"), showCloseIcon: true));
-                                                                              }
-                                                                            : () async {
-                                                                                ref.read(globalFormValidationMode.notifier).update((s) => false);
-                                                                                final timResult = await getIt<HomeController>().timatic();
-                                                                                if (timResult != null) {
-                                                                                  ref.read(timaticResultNewProvider.notifier).update((s) => timResult);
-                                                                                  timaticController.expand();
-                                                                                  // scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
-                                                                                }
-                                                                              },
-                                                                        radius: 12,
-                                                                      ),
-                                                                    ),
-                                                                    Spacer(),
-                                                                  ],
-                                                                ),
-                                                                const SizedBox(height: 300),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                  ),
-                                                ),
-                                              ),
+                                              // Expanded(
+                                              //   child: SingleChildScrollView(
+                                              //     child: MyExpansionTile(
+                                              //       initiallyExpanded: true,
+                                              //       controller: timaticController,
+                                              //       showTrailingIcon: resultMode,
+                                              //       backgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
+                                              //       collapsedBackgroundColor: timaticRes == null ? Colors.white : timaticRes!.getRes.getColor.withOpacity(0.08),
+                                              //       shape: RoundedRectangleBorder(
+                                              //         borderRadius: BorderRadiusGeometry.circular(28),
+                                              //         side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                                              //       ),
+                                              //       collapsedShape: RoundedRectangleBorder(
+                                              //         borderRadius: BorderRadiusGeometry.circular(28),
+                                              //         side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                                              //       ),
+                                              //       childrenPadding: EdgeInsets.symmetric(horizontal: 12),
+                                              //       tilePadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                              //       title: Padding(
+                                              //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                              //         child: Row(
+                                              //           children: [
+                                              //             Text("TIMATIC ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                              //             resultMode
+                                              //                 ? Row(
+                                              //                     children: [
+                                              //                       timaticRes.getRes.getIconWidget,
+                                              //                       Text(timaticRes!.getRes.title, style: TextStyle(color: timaticRes.getRes.getColor)),
+                                              //                       // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                                              //                     ],
+                                              //                   )
+                                              //                 : SizedBox(),
+                                              //           ],
+                                              //         ),
+                                              //       ),
+                                              //       showFooter: false,
+                                              //       children: resultMode
+                                              //           ? [
+                                              //               Consumer(
+                                              //                 builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                              //                   final result = ref.watch(timaticResultNewProvider);
+                                              //                   final refCode = ref.watch(refCodeProvider);
+                                              //                   if (result == null) {
+                                              //                     return SizedBox();
+                                              //                   }
+                                              //                   // return SizedBox(height: 100);
+                                              //                   return Column(
+                                              //                     children: [
+                                              //                       TimaticTrueResultWidgetNew(res: result, refCode: refCode!),
+                                              //                       const SizedBox(height: 12),
+                                              //                     ],
+                                              //                   );
+                                              //                 },
+                                              //               ),
+                                              //             ]
+                                              //           : [
+                                              //               Column(
+                                              //                 children: [
+                                              //                   const SizedBox(height: 300),
+                                              //                   Text("After filling out data, Click on"),
+                                              //                   const SizedBox(height: 16),
+                                              //                   Row(
+                                              //                     children: [
+                                              //                       Spacer(),
+                                              //                       Expanded(
+                                              //                         flex: 2,
+                                              //                         child: MyButton(
+                                              //                           label: "TIMATIC",
+                                              //                           iconSize: 12,
+                                              //                           fontSize: 12,
+                                              //                           icon: ArtemisIcons.user_square,
+                                              //                           onPressed: !canCheck
+                                              //                               ? () {
+                                              //                                   ref.read(globalFormValidationMode.notifier).update((s) => true);
+                                              //                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please fill all required data!"), showCloseIcon: true));
+                                              //                                 }
+                                              //                               : () async {
+                                              //                                   ref.read(globalFormValidationMode.notifier).update((s) => false);
+                                              //                                   final timResult = await getIt<HomeController>().timatic();
+                                              //                                   if (timResult != null) {
+                                              //                                     ref.read(timaticResultNewProvider.notifier).update((s) => timResult);
+                                              //                                     timaticController.expand();
+                                              //                                     // scrollController.animateTo(0, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+                                              //                                   }
+                                              //                                 },
+                                              //                           radius: 12,
+                                              //                         ),
+                                              //                       ),
+                                              //                       Spacer(),
+                                              //                     ],
+                                              //                   ),
+                                              //                   const SizedBox(height: 300),
+                                              //                 ],
+                                              //               ),
+                                              //             ],
+                                              //     ),
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ),
@@ -859,7 +861,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
 class HeaderSummaryWidgetDesktop extends ConsumerWidget {
   final Widget header;
   final bool justData;
-  final CustomPopupMenuController controller;
+  final CustomPopupMenuController? controller;
 
   final TimaticResponseNew? overrideResult;
 
@@ -879,17 +881,20 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final timaticRes = overrideResult ?? ref.watch(timaticResultNewProvider);
     final bool resultMode = timaticRes != null;
+    bool reportMode = overrideResult != null;
     // log(tim.params.of(ParameterType.documentCode).map((a)=>"${a.code} -> ${a.name}").join("\n"));
     // final List<DocumentDetail> documentDetails = ref.watch(documentProvider);
     // final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    final List<DocumentDetail> passports = ref.watch(passportsProvider);
-    final List<DocumentDetail> visas = ref.watch(visasProvider);
-    final List<DocumentDetail> residents = ref.watch(residentsProvider);
-    final PassengerDetails passengerDetails = ref.watch(passengerProvider);
-    final List<ItinerarySegment> segments = ref.watch(segmentsProvider);
+    final List<DocumentDetail> passports = reportMode?ref.watch(reportPassportsProvider): ref.watch(passportsProvider);
+    final List<DocumentDetail> visas =reportMode?ref.watch(reportVisasProvider):  ref.watch(visasProvider);
+    final List<DocumentDetail> residents = reportMode?ref.watch(reportResidentsProvider): ref.watch(residentsProvider);
+    final PassengerDetails passengerDetails =reportMode?ref.watch(reportPassengerProvider):  ref.watch(passengerProvider);
+    final List<ItinerarySegment> segments =reportMode?ref.watch(reportSegmentsProvider):  ref.watch(segmentsProvider);
+    String tracking = (reportMode?ref.watch(reportRefCodeShowProvider):ref.watch(refCodeShowProvider)) ?? '';
+    String employeeId = (reportMode?ref.watch(reportCurrentStatusProvider).employeeId:ref.watch(currentStatusProvider).employeeId) ?? '';
     bool isClosed = !ref.watch(currentStatusProvider).canUseOption;
     Color color = MyColors.mainBlue;
-    final currentStatus = ref.watch(currentStatusProvider);
+    final currentStatus = overrideResult!=null?ref.watch(reportCurrentStatusProvider): ref.watch(currentStatusProvider);
 
     bool canCheck =
         segments.first.hasAllRequired() &&
@@ -989,14 +994,14 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                                             Row(
                                               children: [
                                                 Text("Tracking: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                                Text(ref.watch(refCodeShowProvider) ?? '', style: TextStyle(color: Colors.black)),
+                                                Text(tracking, style: TextStyle(color: Colors.black)),
                                               ],
                                             ),
                                             Text(" / "),
                                             Row(
                                               children: [
                                                 Text("EmployeeId: ", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                                                Text(ref.watch(currentStatusProvider)?.employeeId ?? '', style: TextStyle(color: Colors.black)),
+                                                Text(employeeId, style: TextStyle(color: Colors.black)),
                                               ],
                                             ),
                                             Text(" / "),
@@ -1046,6 +1051,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
               Row(
                 spacing: 8,
                 children: [
+                  controller==null?SizedBox():
                   Visibility(
                     visible: resultMode && currentStatus.canUseOption,
 
@@ -1079,7 +1085,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                               onTap: () async {
                                 String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                 if (logId != null) {
-                                  controller.hideMenu();
+                                  controller!.hideMenu();
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -1102,7 +1108,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
 
                                       String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                       if (logId != null) {
-                                        controller.hideMenu();
+                                        controller!.hideMenu();
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
@@ -1121,7 +1127,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                               onTap: () async {
                                 String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                 if (logId != null) {
-                                  controller.hideMenu();
+                                  controller!.hideMenu();
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -1139,7 +1145,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                               onTap: () async {
                                 String? logId = getIt<HomeController>().ref.read(refCodeProvider);
                                 if (logId != null) {
-                                  controller.hideMenu();
+                                  controller!.hideMenu();
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -1159,7 +1165,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                     ),
                   ),
                   Visibility(
-                    visible: resultMode,
+                    visible: resultMode && overrideResult==null,
                     child: !currentStatus.canUnlock
                         ? SizedBox()
                         : currentStatus.isLocked
@@ -1168,12 +1174,12 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                             fontSize: 12,
                             iconSize: 15,
                             reverse: true,
-
                             icon: ArtemisIcons.unlock,
                             onPressed: !resultMode
                                 ? null
                                 : () async {
                                     await getIt<HomeController>().setStatus(0);
+                                    ref.read(timaticResultNewProvider.notifier).update((s)=>null);
                                   },
                             radius: 10,
                             borderSide: BorderSide(color: context.mainColor),
@@ -1196,7 +1202,7 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                           ),
                   ),
                   Visibility(
-                    visible: !resultMode || !currentStatus.isLocked,
+                    visible:( !resultMode || !currentStatus.isLocked) && overrideResult==null,
                     child: MyButton(
                       label: "TIMATIC",
                       iconSize: 12,

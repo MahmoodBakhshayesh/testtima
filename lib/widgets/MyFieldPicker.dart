@@ -38,6 +38,7 @@ class MyFieldPicker<T> extends StatefulWidget {
   final bool required;
   final bool labelInRow;
   final bool searchAutoFocus;
+  final bool showPickerForDesktop;
   final TextStyle? style;
   final Color? backgroundColor;
   final Color? headerBgColor;
@@ -57,6 +58,7 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.locked = false,
     this.required = false,
     this.labelInRow = true,
+    this.showPickerForDesktop = true,
     this.style,
     this.backgroundColor,
     this.itemToColor,
@@ -123,38 +125,88 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
       return ValueListenableBuilder<T?>(
         valueListenable: value,
         builder: (context, v, _) {
-          return MyFieldPickerDesktop(
-            suggestionColor: Colors.greenAccent,
-            headerBgColor: widget.headerBgColor,
-            bodyBgColor: widget.bodyBgColor,
-              labelInRow: widget.labelInRow,
-            rowLabelRatio: widget.rowLabelRatio,
-            items: widget.items,
-            supportNull: false,
-            value: widget.value,
-            hasSearch: widget.hasSearch,
-            valueToString: widget.valueToString,
-            showClearButton: widget.showClearButton,
-            // autoFocus: widget.searchAutoFocus,
-            required: widget.required,
-            label: widget.label,
-            height: 45,
-            itemToWidget: widget.itemToWidget,
-            // builder: widget.itemToWidget,
-              suggestion: widget.suggestion,
-            placeholder: widget.placeholder,
-            onChange:(v){
-              if (v == Null) {
-                dev.log("should null value");
-                value.value = null;
-                widget.onChange?.call(null);
-                setState(() {});
-              } else if (v != null) {
-                dev.log(v.toString());
-                value.value = v;
-                // setState(() {});
+          return GestureDetector(
+            onTap: (){
+              if(widget.showPickerForDesktop){
+                if(!widget.locked){
+                  dev.log("pick item");
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Padding(
+                        // This moves content above the keyboard
+                        // padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                        padding: EdgeInsets.only(top: 0),
+                        child: PickerSheetWidget(
+                          suggestion: widget.suggestion,
+                          value: widget.value,
+                          searchAutoFocus: widget.searchAutoFocus,
+                          hasClear: widget.showClearButton,
+                          searchBuilder: widget.searchBuilder,
+                          items: widget.items,
+                          label: widget.placeholder ?? widget.label ?? '',
+                          itemToWidget: widget.itemToWidget,
+                          hasSearch: widget.hasSearch,
+                        ),
+                      );
+                      // return PickerSheetWidget(items: widget.items, label: widget.placeholder ?? widget.label ?? '', itemToWidget: widget.itemToWidget, hasSearch: widget.hasSearch);
+                    },
+                    elevation: 2,
+                  ).then((v) {
+                    if (v == Null) {
+                      dev.log("should null value");
+                      value.value = null;
+                      widget.onChange?.call(null);
+                      setState(() {});
+                    } else if (v != null) {
+                      dev.log(v.toString());
+                      value.value = v;
+                      setState(() {});
+                    }
+                  });
+                }
+                // dev.log("press");
+
               }
-            }
+
+            },
+            child: AbsorbPointer(
+              absorbing: widget.showPickerForDesktop,
+              child: MyFieldPickerDesktop(
+                suggestionColor: Colors.greenAccent,
+                headerBgColor: widget.headerBgColor,
+                bodyBgColor: widget.bodyBgColor,
+                  labelInRow: widget.labelInRow,
+                rowLabelRatio: widget.rowLabelRatio,
+                items: widget.items,
+                supportNull: false,
+                value: widget.value,
+                hasSearch: widget.hasSearch,
+                valueToString: widget.valueToString,
+                showClearButton: widget.showClearButton,
+                // autoFocus: widget.searchAutoFocus,
+                required: widget.required,
+                label: widget.label,
+                height: 45,
+                itemToWidget: widget.itemToWidget,
+                // builder: widget.itemToWidget,
+                  suggestion: widget.suggestion,
+                placeholder: widget.placeholder,
+                onChange:(v){
+                  if (v == Null) {
+                    dev.log("should null value");
+                    value.value = null;
+                    widget.onChange?.call(null);
+                    setState(() {});
+                  } else if (v != null) {
+                    dev.log(v.toString());
+                    value.value = v;
+                    // setState(() {});
+                  }
+                }
+              ),
+            ),
           );
         },
       );

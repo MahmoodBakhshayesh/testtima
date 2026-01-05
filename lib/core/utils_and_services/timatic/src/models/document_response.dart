@@ -88,6 +88,28 @@ extension EvalResultX on EvalResult {
     }
   }
 
+  Color get getSolidColor {
+    if(this == EvalResult.YES ){
+      return Color(0xffD8F3EB);
+    }else if(this == EvalResult.NO ){
+      return Color(0xffF7C6C6);
+    }else{
+      return Color(0xffFFE6C6);
+    }
+
+  }
+  Color get getSolidLineColor {
+    if(this == EvalResult.YES ){
+
+      return Color(0xffADD0C7);
+    }else if(this == EvalResult.NO ){
+      return Color(0xffF7C6C6);
+    }else{
+      return Color(0xffE8C9A0);
+    }
+
+  }
+
   String get getTitle {
     switch (this) {
       case EvalResult.YES:

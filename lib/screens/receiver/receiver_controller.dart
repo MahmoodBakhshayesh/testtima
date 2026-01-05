@@ -41,7 +41,9 @@ class ReceiverController extends ControllerInterface {
       case Ok<GetReceiverQrResponse>():
         final r = result.value;
         data = r.data;
+        log("new token ${jsonEncode(r.data.toJson())}");
         ref.read(receiverDataProvider.notifier).update((s) => r.data);
+
         initReceiver();
     }
 

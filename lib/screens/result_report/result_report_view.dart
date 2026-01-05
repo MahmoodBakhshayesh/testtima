@@ -12,11 +12,11 @@ class ResultReportView extends ConsumerWidget {
     const ResultReportView({super.key});
     @override
     Widget build(BuildContext context,WidgetRef ref) {
-      return ResultReportViewPhone();
+
       if(context.isDesktop){
         return ResultReportViewDesktop();
       }else if(context.isMyTablet){
-        return ResultReportViewTablet();
+        return ResultReportViewPhone();
       }else{
         return ResultReportViewPhone();
       }
