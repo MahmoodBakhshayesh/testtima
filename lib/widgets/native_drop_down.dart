@@ -32,6 +32,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
   final Widget? suffixIcon;
   final double? suffixWidth;
   final EdgeInsetsGeometry? valuePadding;
+  final BoxBorder? borderSide;
 
   // Suggestion visuals
   final Color? suggestionColor;
@@ -59,6 +60,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
     this.valueToString,
     this.searchBuilder,
     this.itemToColor,
+    this.borderSide,
     this.itemToWidget,
     required this.items,
     this.onChange,
@@ -103,8 +105,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<MyFieldPickerDesktop<T>> createState() =>
-      _MyFieldPickerStateDesktop<T>();
+  ConsumerState<MyFieldPickerDesktop<T>> createState() => _MyFieldPickerStateDesktop<T>();
 }
 
 class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T>> {
@@ -142,16 +143,11 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   late List<T> _filtered = List<T>.from(widget.items);
 
   // helpers
-  String _itemToText(T item) =>
-      widget.itemToString?.call(item) ?? item.toString();
+  String _itemToText(T item) => widget.itemToString?.call(item) ?? item.toString();
 
-  String _valueToText(T? v) =>
-      v == null
-          ? ''
-          : (widget.valueToString?.call(v as T) ?? _itemToText(v as T));
+  String _valueToText(T? v) => v == null ? '' : (widget.valueToString?.call(v as T) ?? _itemToText(v as T));
 
-  String _itemToSearchText(T item) =>
-      widget.searchBuilder?.call(item) ?? _itemToText(item);
+  String _itemToSearchText(T item) => widget.searchBuilder?.call(item) ?? _itemToText(item);
 
   @override
   void initState() {
@@ -319,8 +315,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
         } else {
           _searchFocus.requestFocus();
         }
-        _searchCtrl.selection =
-            TextSelection.fromPosition(TextPosition(offset: _searchCtrl.text.length));
+        _searchCtrl.selection = TextSelection.fromPosition(TextPosition(offset: _searchCtrl.text.length));
       } else {
         _overlayFocus.requestFocus(); // ensure keyboard works without search
       }
@@ -395,8 +390,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   // (kept for compatibility; not used in menu anymore)
   Widget _buildSuggestionStrip() => Container(
     width: double.infinity,
-    color:
-    (widget.headerBgColor ?? Theme.of(context).colorScheme.surface).withOpacity(0.7),
+    color: (widget.headerBgColor ?? Theme.of(context).colorScheme.surface).withOpacity(0.7),
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
     child: Wrap(
       spacing: 6,
@@ -404,10 +398,10 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       children: widget.suggestion
           .map(
             (sug) => ActionChip(
-          label: Text(_itemToText(sug), overflow: TextOverflow.ellipsis),
-          onPressed: () => _selectValue(sug),
-        ),
-      )
+              label: Text(_itemToText(sug), overflow: TextOverflow.ellipsis),
+              onPressed: () => _selectValue(sug),
+            ),
+          )
           .toList(),
     ),
   );
@@ -428,8 +422,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     final otherItems = _getNonSuggestionItems();
 
     final bool hasNullRow = widget.supportNull;
-    final int totalCount =
-        (hasNullRow ? 1 : 0) + suggestionItems.length + otherItems.length;
+    final int totalCount = (hasNullRow ? 1 : 0) + suggestionItems.length + otherItems.length;
 
     if (totalCount == 0) {
       return const Center(child: Text('No results'));
@@ -452,9 +445,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
               child: Container(
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                color: hover
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
-                    : null,
+                color: hover ? Theme.of(context).colorScheme.primary.withOpacity(0.08) : null,
                 child: const Text('— None —'),
               ),
             );
@@ -465,23 +456,17 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
           if (hasNullRow) displayIdx -= 1;
 
           final bool inSuggestions = displayIdx < suggestionItems.length;
-          final T item = inSuggestions
-              ? suggestionItems[displayIdx]
-              : otherItems[displayIdx - suggestionItems.length];
+          final T item = inSuggestions ? suggestionItems[displayIdx] : otherItems[displayIdx - suggestionItems.length];
 
           final bool hover = _highlight == idx;
           final Color? customColor = widget.itemToColor?.call(item);
 
           Color? rowColor;
           if (inSuggestions) {
-            final base = widget.suggestionColor ??
-                Theme.of(context).colorScheme.primary;
+            final base = widget.suggestionColor ?? Theme.of(context).colorScheme.primary;
             rowColor = customColor ?? base.withOpacity(hover ? 0.20 : 0.10);
           } else {
-            rowColor = customColor ??
-                (hover
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.08)
-                    : null);
+            rowColor = customColor ?? (hover ? Theme.of(context).colorScheme.primary.withOpacity(0.08) : null);
           }
 
           return InkWell(
@@ -494,7 +479,8 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               color: rowColor,
-              child: widget.itemToWidget?.call(item) ??
+              child:
+                  widget.itemToWidget?.call(item) ??
                   Text(
                     _itemToText(item),
                     maxLines: 1,
@@ -513,8 +499,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     if (query.isEmpty) {
       _filtered = List<T>.from(widget.items);
     } else {
-      final filter =
-          (String qq, T item) => _itemToSearchText(item).toLowerCase().contains(qq);
+      final filter = (String qq, T item) => _itemToSearchText(item).toLowerCase().contains(qq);
       _filtered = widget.items.where((e) => filter(query, e)).toList();
     }
 
@@ -581,8 +566,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   void _moveHighlight(int delta) {
     final suggestionItems = _getSuggestionItems();
     final otherItems = _getNonSuggestionItems();
-    final max =
-        (widget.supportNull ? 1 : 0) + suggestionItems.length + otherItems.length - 1;
+    final max = (widget.supportNull ? 1 : 0) + suggestionItems.length + otherItems.length - 1;
     if (max < 0) return;
     setState(() {
       if (_highlight < 0) {
@@ -598,8 +582,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   void _jumpHighlight(bool toEnd) {
     final suggestionItems = _getSuggestionItems();
     final otherItems = _getNonSuggestionItems();
-    final max =
-        (widget.supportNull ? 1 : 0) + suggestionItems.length + otherItems.length - 1;
+    final max = (widget.supportNull ? 1 : 0) + suggestionItems.length + otherItems.length - 1;
     if (max < 0) return;
     setState(() => _highlight = toEnd ? max : 0);
     _ensureHighlightedVisible();
@@ -671,73 +654,62 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     final displayText = _valueToText(_value.value);
     final valMsg = widget.validator?.call(displayText) ?? '';
 
-    bool validationMode =
-        ref.watch(globalFormValidationMode) &&
-            widget.required &&
-            displayText.isEmpty;
+    bool validationMode = ref.watch(globalFormValidationMode) && widget.required && displayText.isEmpty;
 
-    BoxBorder? boxBorder =
-    validationMode ? BoxBorder.all(color: Colors.red) : BoxBorder.all(color: Colors.transparent);
+    BoxBorder? boxBorder = validationMode ? BoxBorder.all(color: Colors.red) : BoxBorder.all(color: Colors.transparent);
 
     final Color vColor = widget.validationColor ?? Colors.red;
 
     final InputBorder? border = widget.validationMode && valMsg.isNotEmpty
         ? OutlineInputBorder(
-      borderSide: BorderSide(color: vColor),
-      borderRadius: widget.radius ?? BorderRadius.circular(8),
-    )
+            borderSide: BorderSide(color: vColor),
+            borderRadius: widget.radius ?? BorderRadius.circular(8),
+          )
         : InputBorder.none;
 
     // left label cell
     final labelCell = Container(
       height: widget.height,
-      color: widget.headerBgColor,
+      // color: widget.headerBgColor,
       alignment: Alignment.center,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             widget.label ?? '',
-            style: widget.labelStyle ??
-                const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87),
+            style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.black87),
             overflow: TextOverflow.ellipsis,
           ),
           if (widget.required)
             const Padding(
-              padding: EdgeInsets.only(bottom: 10.0, left: 3),
+              padding: EdgeInsets.only(bottom: 4.0, left: 3),
               child: Icon(Icons.star_rate_rounded, color: Colors.red, size: 10),
             ),
         ],
       ),
     );
     final labelCellColumn = Container(
-      padding: EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       color: widget.headerBgColor,
+
       alignment: Alignment.center,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             widget.label ?? '',
-            style: widget.labelStyle ??
-                const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87),
+            style: widget.labelStyle ?? const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.black87),
             overflow: TextOverflow.ellipsis,
           ),
           if (widget.required)
             const Padding(
-              padding: EdgeInsets.only(bottom: 10.0, left: 3),
+              padding: EdgeInsets.only(bottom: 4.0, left: 3),
               child: Icon(Icons.star_rate_rounded, color: Colors.red, size: 10),
             ),
         ],
       ),
     );
-    double h = (widget.height)- (widget.labelInRow?0:15);
+    double h = (widget.height) - (widget.labelInRow ? 0 : 15);
     // right value cell (clickable) — anchor overlay here
     final valueCell = CompositedTransformTarget(
       key: _valueBoxKey,
@@ -766,17 +738,13 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  (widget.showClearButton &&
-                      _value.value != null &&
-                      !widget.locked &&
-                      !widget.disabled)?
-                    GestureDetector(
-                      // tooltip: 'Clear',
-                      child: const Icon(Icons.close),
-                      onTap: () => _selectValue(null),
-                    ):
-                  widget.suffixIcon ??
-                      Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
+                  (widget.showClearButton && _value.value != null && !widget.locked && !widget.disabled)
+                      ? GestureDetector(
+                          // tooltip: 'Clear',
+                          child: const Icon(Icons.close),
+                          onTap: () => _selectValue(null),
+                        )
+                      : widget.suffixIcon ?? Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
                 ],
               ),
             ),
@@ -789,33 +757,24 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
                   if (widget.prefixIcon != null) const SizedBox(width: 6),
                   Expanded(
                     // FIX: use _value.value instead of widget.value
-                    child: (_value.value != null &&
-                        widget.valueToString != null)
+                    child: (_value.value != null && widget.valueToString != null)
                         ? Text(
-                      displayText,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                        : _value.value != null &&
-                        (widget.itemToWidget != null)
+                            displayText,
+                            overflow: TextOverflow.ellipsis,
+                            style: widget.valueStyle,
+                          )
+                        : _value.value != null && (widget.itemToWidget != null)
                         ? widget.itemToWidget!(_value.value as T)
                         : Text(
-                      displayText.isEmpty
-                          ? (widget.placeholder ?? '')
-                          : displayText,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: (displayText.isEmpty
-                          ? (widget.valueStyle ??
-                          const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black54))
-                          .copyWith(color: Colors.black45)
-                          : widget.valueStyle ??
-                          const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black))
-                          .copyWith(height: 1.1),
-                    ),
+                            displayText.isEmpty ? (widget.placeholder ?? '') : displayText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                (displayText.isEmpty
+                                        ? (widget.valueStyle ?? const TextStyle(fontSize: 13, color: Colors.black54)).copyWith(color: Colors.black45)
+                                        : widget.valueStyle ?? const TextStyle(fontSize: 13, color: Colors.black))
+                                    .copyWith(height: 1.1),
+                          ),
                   ),
                 ],
               ),
@@ -828,31 +787,31 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
     // optional validation bubble (right side), shown only when showError && hasError
     final validationBubble = (widget.showError && valMsg.isNotEmpty)
         ? Container(
-      // height: widget.height,
-      margin: const EdgeInsets.only(left: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: Border.all(color: vColor),
-        color: vColor.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.validationIcon != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Icon(widget.validationIcon, color: vColor, size: 18),
+            // height: widget.height,
+            margin: const EdgeInsets.only(left: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(color: vColor),
+              color: vColor.withOpacity(0.06),
+              borderRadius: BorderRadius.circular(6),
             ),
-          Text(
-            valMsg,
-            style: TextStyle(color: vColor, fontSize: 10, height: 1),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    )
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.validationIcon != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: Icon(widget.validationIcon, color: vColor, size: 18),
+                  ),
+                Text(
+                  valMsg,
+                  style: TextStyle(color: vColor, fontSize: 10, height: 1),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
         : const SizedBox.shrink();
 
     final labelFlex = widget.rowLabelRatio.isNotEmpty ? widget.rowLabelRatio[0] : 12;
@@ -862,37 +821,74 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       borderRadius: widget.radius ?? BorderRadius.circular(5),
       child: Container(
         // height: widget.height,
-        color: widget.bodyBgColor,
+        // color: widget.bodyBgColor,
         alignment: Alignment.center,
-        child:widget.labelInRow? Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(flex: labelFlex, child: labelCell),
-            Expanded(
-              flex: valueFlex,
-              child: Row(
+        child: widget.labelInRow
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: valueCell),
-                  validationBubble,
+                  Expanded(
+                    flex: labelFlex,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.headerBgColor,
+                        borderRadius: widget.headerBgColor == null ? widget.radius : BorderRadius.vertical(top: widget.radius?.bottomLeft ?? Radius.circular(0)),
+                      ),
+                      child: labelCell,
+                    ),
+                  ),
+                  Expanded(
+                    flex: valueFlex,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.bodyBgColor,
+                        border: widget.borderSide,
+                        borderRadius: widget.headerBgColor == null ? widget.radius : BorderRadius.vertical(bottom: widget.radius?.bottomLeft ?? Radius.circular(0)),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(child: valueCell),
+                          validationBubble,
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
+              )
+            : Container(
+                height: widget.height,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: widget.headerBgColor,
+                        borderRadius: widget.headerBgColor == null ? widget.radius : BorderRadius.vertical(top: widget.radius?.bottomLeft ?? Radius.circular(0)),
+                      ),
+                      child: Row(
+                        children: [
+                          labelCellColumn,
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: widget.bodyBgColor,
+                          border: widget.borderSide,
+                          borderRadius: widget.headerBgColor == null ? widget.radius : BorderRadius.vertical(bottom: widget.radius?.bottomLeft ?? Radius.circular(0)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(child: valueCell),
+                            validationBubble,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ):Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          Row(
-            children: [
-              labelCellColumn,
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(child: valueCell),
-              validationBubble,
-            ],
-          ),
-        ],),
       ),
     );
   }

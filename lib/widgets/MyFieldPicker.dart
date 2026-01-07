@@ -43,9 +43,12 @@ class MyFieldPicker<T> extends StatefulWidget {
   final Color? backgroundColor;
   final Color? headerBgColor;
   final Color? bodyBgColor;
+  final double? height;
   final TextStyle? labelStyle;
   final List<int> rowLabelRatio;
   final Widget? suffixIcon;
+  final BorderRadius? radius;
+  final BoxBorder? borderSide;
 
   const MyFieldPicker({
     super.key,
@@ -55,6 +58,9 @@ class MyFieldPicker<T> extends StatefulWidget {
     this.suffixIcon,
     this.headerBgColor,
     this.bodyBgColor,
+    this.height,
+    this.radius,
+    this.borderSide,
     this.locked = false,
     this.required = false,
     this.labelInRow = true,
@@ -121,14 +127,14 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    if(context.isDesktop){
+    if (context.isDesktop) {
       return ValueListenableBuilder<T?>(
         valueListenable: value,
         builder: (context, v, _) {
           return GestureDetector(
-            onTap: (){
-              if(widget.showPickerForDesktop){
-                if(!widget.locked){
+            onTap: () {
+              if (widget.showPickerForDesktop) {
+                if (!widget.locked) {
                   dev.log("pick item");
                   showModalBottomSheet(
                     isScrollControlled: true,
@@ -167,9 +173,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                   });
                 }
                 // dev.log("press");
-
               }
-
             },
             child: AbsorbPointer(
               absorbing: widget.showPickerForDesktop,
@@ -177,23 +181,27 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                 suggestionColor: Colors.greenAccent,
                 headerBgColor: widget.headerBgColor,
                 bodyBgColor: widget.bodyBgColor,
-                  labelInRow: widget.labelInRow,
+                labelInRow: widget.labelInRow,
                 rowLabelRatio: widget.rowLabelRatio,
                 items: widget.items,
                 supportNull: false,
+                labelStyle: widget.labelStyle,
                 value: widget.value,
+                borderSide: widget.borderSide,
+                valueStyle: widget.style,
                 hasSearch: widget.hasSearch,
                 valueToString: widget.valueToString,
                 showClearButton: widget.showClearButton,
                 // autoFocus: widget.searchAutoFocus,
                 required: widget.required,
                 label: widget.label,
-                height: 45,
+                height: widget.height??45,
+                radius: widget.radius,
                 itemToWidget: widget.itemToWidget,
                 // builder: widget.itemToWidget,
-                  suggestion: widget.suggestion,
+                suggestion: widget.suggestion,
                 placeholder: widget.placeholder,
-                onChange:(v){
+                onChange: (v) {
                   if (v == Null) {
                     dev.log("should null value");
                     value.value = null;
@@ -204,7 +212,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                     value.value = v;
                     // setState(() {});
                   }
-                }
+                },
               ),
             ),
           );
@@ -258,7 +266,7 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                 },
           child: MyTextFieldNew(
             showError: false,
-
+            style: widget.style,
             headerBgColor: widget.headerBgColor,
             bodyBgColor: widget.bodyBgColor,
             disabled: true,
@@ -266,7 +274,6 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
             labelStyle: widget.labelStyle,
             required: widget.required,
             prefix: widget.prefix,
-
             prefixIcon: widget.prefixIcon,
             rowLabelRatio: widget.rowLabelRatio,
             labelInRow: widget.labelInRow,
@@ -496,8 +503,8 @@ class _PickerSheetWidgetState<T> extends State<PickerSheetWidget<T>> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   controller: searchC,
                   autofocus: widget.searchAutoFocus,
-                  onSubmitted: (a){
-                    if(a.isEmpty && widget.suggestion.isNotEmpty){
+                  onSubmitted: (a) {
+                    if (a.isEmpty && widget.suggestion.isNotEmpty) {
                       Navigator.of(context).pop(widget.suggestion.first);
                     }
                   },

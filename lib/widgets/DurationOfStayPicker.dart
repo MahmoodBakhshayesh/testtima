@@ -33,10 +33,12 @@ class MyDurationOfStayPicker extends StatefulWidget {
   final bool hasSearch;
   final bool required;
   final bool labelInRow;
+  final double? height;
   final Color? headerBgColor;
   final Color? bodyBgColor;
   final TextStyle? style;
   final List<int>  rowLabelRatio;
+  final BorderRadius? radius;
 
   const MyDurationOfStayPicker({
     super.key,
@@ -45,6 +47,8 @@ class MyDurationOfStayPicker extends StatefulWidget {
     this.required = false,
     this.labelInRow = false,
     this.style,
+    this.height,
+    this.radius,
     this.headerBgColor,
     this.bodyBgColor,
     required this.label,
@@ -230,16 +234,20 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
             child: MyTextFieldNew(
               rowLabelRatio: widget.rowLabelRatio,
               showError: false,
+              height: widget.height,
+
               headerBgColor: widget.headerBgColor,
               bodyBgColor: widget.bodyBgColor,
               required: widget.required,
-              fontSize: 12,
-              labelInRow: true,
+              backgroundColor: widget.bodyBgColor,
+              fontSize: 14,
+              labelInRow: widget.labelInRow,
               controller: controller,
               borderSide: BorderSide(color: Colors.white, width: 1),
-              radius: BorderRadius.circular(8),
+              radius:widget.radius?? BorderRadius.circular(5),
               label: widget.label,
               placeholder: widget.placeholder,
+              style: widget.style,
               suffixIcon: SizedBox(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

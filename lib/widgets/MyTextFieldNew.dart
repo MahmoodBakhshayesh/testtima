@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:developer' as dev;
+import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/screens/menu_item_add_edit/menu_item_add_edit_view_desktop.dart';
 import 'package:abds/widgets/DotButton.dart';
@@ -334,7 +335,7 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                                             Expanded(
                                               child: Text(
                                                 "${widget.validator?.call(widget.controller?.text ?? '')}",
-                                                style: TextStyle(color: validationColor, fontSize: 9, height: 1),
+                                                style: TextStyle(color: validationColor, fontSize:context.isDesktop?12: 9, height: 1),
                                                 textAlign: TextAlign.center,
                                               ),
                                             ),
@@ -365,97 +366,110 @@ class _MyTextFieldNewState extends ConsumerState<MyTextFieldNew> {
                   ],
                 )
               : Container(
+                  height: widget.height,
                   decoration: BoxDecoration(
                     borderRadius: widget.radius,
                     border: border,
-                    color: widget.backgroundColor
+                    // color: widget.backgroundColor
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text("${widget.label}",style: TextStyle(fontSize: 12),),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: widget.headerBgColor,
+                            borderRadius: widget.headerBgColor==null?widget.radius:BorderRadius.vertical(top: widget.radius?.bottomLeft??Radius.circular(0))
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 4),
+                        child: Text("${widget.label}",style: TextStyle(fontSize: 12,height: 1),),
                       ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CupertinoTextField(
-                              textInputAction: widget.textInputAction ?? TextInputAction.done,
-                              enabled: !widget.locked && !widget.disabled,
-                              maxLines: obscureText
-                                  ? 1
-                                  : widget.maxLines == 0
-                                  ? null
-                                  : widget.maxLines,
-                              minLines: widget.minLines,
-                              maxLength: widget.maxLength,
-                              focusNode: widget.focusNode,
-                              onSubmitted: widget.onSubmit,
-                              keyboardType: widget.keyboardType,
-                              textAlign: widget.textAlign,
-                              obscureText: obscureText,
-                              autofocus: widget.autofocus,
-                              // textAlignVertical: TextAlignVertical.center,
-                              inputFormatters: widget.inputFormatters,
-                              style:
-                                  widget.style ??
-                                  TextStyle(
-                                    fontSize: widget.fontSize,
-                                    color: Colors.black,
-                                    // height: 0.5
-                                    // height: 1,
-                                  ),
-                              placeholder: widget.placeholder,
-                              prefix: widget.prefixIcon ?? widget.prefix,
-
-                              decoration: BoxDecoration(
-                              ),
-                              controller: widget.controller,
-                            ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: widget.bodyBgColor,
+                              borderRadius: widget.headerBgColor==null?widget.radius:BorderRadius.vertical(bottom: widget.radius?.bottomLeft??Radius.circular(0))
                           ),
-                          (hasError) && widget.showError
-                              ? Expanded(
-                                  child: Container(
-                                    height: (widget.height??40)-12,
-                                    margin: EdgeInsets.only(left: 12),
-                                    padding: EdgeInsets.symmetric(horizontal: 4),
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: validationColor),
-                                      color: validationColor.withOpacity(0.05),
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
-                                        Expanded(
-                                          child: Text(
-                                            "${widget.validator?.call(widget.controller?.text ?? '')}",
-                                            style: TextStyle(color: validationColor, fontSize: 9, height: 1),
-                                            textAlign: TextAlign.center,
-                                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: CupertinoTextField(
+                                  textInputAction: widget.textInputAction ?? TextInputAction.done,
+                                  enabled: !widget.locked && !widget.disabled,
+                                  maxLines: obscureText
+                                      ? 1
+                                      : widget.maxLines == 0
+                                      ? null
+                                      : widget.maxLines,
+                                  minLines: widget.minLines,
+                                  maxLength: widget.maxLength,
+                                  focusNode: widget.focusNode,
+                                  onSubmitted: widget.onSubmit,
+                                  keyboardType: widget.keyboardType,
+                                  textAlign: widget.textAlign,
+                                  obscureText: obscureText,
+                                  autofocus: widget.autofocus,
+                                  // textAlignVertical: TextAlignVertical.center,
+                                  inputFormatters: widget.inputFormatters,
+                                  style:
+                                      widget.style ??
+                                      TextStyle(
+                                        fontSize: widget.fontSize,
+                                        color: Colors.black,
+                                        // height: 0.5
+                                        // height: 1,
+                                      ),
+                                  placeholder: widget.placeholder,
+                                  prefix: widget.prefixIcon ?? widget.prefix,
+
+                                  decoration: BoxDecoration(
+                                  ),
+                                  controller: widget.controller,
+                                ),
+                              ),
+                              (hasError) && widget.showError
+                                  ? Expanded(
+                                      child: Container(
+                                        height: (widget.height??45)-12,
+                                        margin: EdgeInsets.only(left: 12),
+                                        padding: EdgeInsets.symmetric(horizontal: 4),
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: validationColor),
+                                          color: validationColor.withOpacity(0.05),
+                                          borderRadius: BorderRadius.circular(5),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : SizedBox.shrink(),
-                          widget.showClearButton
-                              ? Padding(
-                                  padding: const EdgeInsets.all(.0),
-                                  child: DotButton(
-                                    flat: true,
-                                    color: Colors.black,
-                                    onPressed: () {
-                                      widget.controller?.clear();
-                                      widget.onChanged?.call('');
-                                    },
-                                    icon: Icons.clear,
-                                  ),
-                                )
-                              : SizedBox(),
-                        ],
+                                        child: Row(
+                                          children: [
+                                            widget.validationIcon == null ? SizedBox() : Icon(widget.validationIcon!, color: validationColor, size: 20),
+                                            Expanded(
+                                              child: Text(
+                                                "${widget.validator?.call(widget.controller?.text ?? '')}",
+                                                style: TextStyle(color: validationColor, fontSize: context.isDesktop?12: 9, height: 1),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
+                              widget.showClearButton
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(.0),
+                                      child: DotButton(
+                                        flat: true,
+                                        color: Colors.black,
+                                        onPressed: () {
+                                          widget.controller?.clear();
+                                          widget.onChanged?.call('');
+                                        },
+                                        icon: Icons.clear,
+                                      ),
+                                    )
+                                  : SizedBox(),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),

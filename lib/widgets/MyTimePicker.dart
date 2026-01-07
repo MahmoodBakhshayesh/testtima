@@ -47,6 +47,7 @@ class MyTimePicker extends StatefulWidget {
   final void Function(TimeOfDay? dt) onChanged;
   final bool showClearButton;
   final bool locked;
+  final bool labelInRow;
   final bool required;
   final double height;
   final TimeOfDay? value;
@@ -58,7 +59,8 @@ class MyTimePicker extends StatefulWidget {
   final Color? headerBgColor;
   final Color? bodyBgColor;
   final IconData? validationIcon;
-  final List<int>  rowLabelRatio;
+  final List<int> rowLabelRatio;
+  final BorderRadius? radius;
 
   const MyTimePicker({
     Key? key,
@@ -66,7 +68,8 @@ class MyTimePicker extends StatefulWidget {
     this.value,
     this.headerBgColor,
     this.bodyBgColor,
-    this.rowLabelRatio=const[12,33],
+    this.radius,
+    this.rowLabelRatio = const [12, 33],
     this.controller,
     this.focusNode,
     this.maxLength,
@@ -92,6 +95,7 @@ class MyTimePicker extends StatefulWidget {
     this.border = BorderSide.none,
     this.locked = false,
     this.required = false,
+    this.labelInRow = true,
     this.validator,
     this.prefix,
     this.prefixIcon,
@@ -153,15 +157,15 @@ class _MyTimePickerState extends State<MyTimePicker> {
     return GestureDetector(
       onTap: () {
         if (context.isDesktop) {
-          showTimePicker(context: context,initialTime: widget.value??TimeOfDay.now(),initialEntryMode: TimePickerEntryMode.input).then((v) {
-           if(v is TimeOfDay){
-             if(v == null){
-               widget.onChanged(null);
-               return;
-             }
-             widget.onChanged(v);
-             controller?.text = v.format_HHmm ?? '';
-           }
+          showTimePicker(context: context, initialTime: widget.value ?? TimeOfDay.now(), initialEntryMode: TimePickerEntryMode.input).then((v) {
+            if (v is TimeOfDay) {
+              if (v == null) {
+                widget.onChanged(null);
+                return;
+              }
+              widget.onChanged(v);
+              controller?.text = v.format_HHmm ?? '';
+            }
           });
         } else {
           showBoardDateTimePickerForTime(
@@ -172,9 +176,9 @@ class _MyTimePickerState extends State<MyTimePicker> {
             // headerWidget: MyTextField(),
             options: BoardDateTimeOptions(boardTitle: widget.label),
           ).then((v) {
-            final newVal = v??widget.value.toDateTime();
+            final newVal = v ?? widget.value.toDateTime();
             log("new val ${v.format_HHmm}");
-            if(newVal == null){
+            if (newVal == null) {
               widget.onChanged(null);
               return;
             }
@@ -203,14 +207,17 @@ class _MyTimePickerState extends State<MyTimePicker> {
         disabled: true,
         required: widget.required,
         showError: true,
+        height: widget.height,
         placeholder: widget.placeholder,
         label: widget.label,
+        backgroundColor: widget.bodyBgColor,
+        radius: widget.radius,
         rowLabelRatio: widget.rowLabelRatio,
-        labelInRow: true,
+        labelInRow: widget.labelInRow,
         validationColor: widget.validationColor,
         validationIcon: widget.validationIcon,
         suffixIcon: SizedBox(height: 16),
-        style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
+        style: widget.style ?? const TextStyle(color: Colors.black, height: 1, fontSize: 12),
         validator: widget.validator,
         controller: controller,
       ),

@@ -34,16 +34,72 @@ import '../../../widgets/auto_link_text.dart';
 import '../home_view_phone.dart';
 
 class ConfirmScannedDocDialog extends ConsumerWidget {
-
   const ConfirmScannedDocDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final documentDetail= ref.watch(confirmingDocumentProvider);
-    if(documentDetail== null){
+    final documentDetail = ref.watch(confirmingDocumentProvider);
+    if (documentDetail == null) {
       return SizedBox();
     }
-    log(documentDetail.shortType?? '');
+
+    if (context.isDesktop) {
+      return Dialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 96, vertical: 128),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: (documentDetail.isExpired ? MyColors.red : documentDetail.getMatch()?.getColor)?.withOpacity(0.4),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ConfirmingItemRow(title: documentDetail.getMatch()?.title ?? '', item: documentDetail, index: 0, isFirst: true, isLast: true),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Spacer(),
+                    MyButton(
+                      height: 60,
+                      label: "Cancel",
+                      color: Color(0xff858A99),
+                      reverse: true,
+                      fontSize: 24,
+                      radius: 16,
+                      borderSide: BorderSide(color: Color(0xff858A99)),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    MyButton(
+                      height: 60,
+                      width: 240,
+                      radius: 16,
+                      key: ButtonKeys.confirmDocKey,
+                      label: "Confirm",
+                      fontSize: 24,
+                      // reverse: true,
+                      borderSide: BorderSide(color: context.mainColor),
+                      onPressed: !documentDetail.hasAllRequired()
+                          ? null
+                          : () {
+                              // log(documentDetail.docCode??'');
+                              Navigator.of(context).pop(true);
+                            },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
@@ -58,14 +114,14 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 // color: MyColors.scaffoldHeader,
-                color: (documentDetail.isExpired?MyColors.red: documentDetail.getMatch()?.getColor)?.withOpacity(0.4),
+                color: (documentDetail.isExpired ? MyColors.red : documentDetail.getMatch()?.getColor)?.withOpacity(0.4),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      documentDetail.getMatch()?.title??'',
+                      documentDetail.getMatch()?.title ?? '',
                       style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
                     ),
                   ),
@@ -73,7 +129,7 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                 ],
               ),
             ),
-            ConfirmingItemRow(item: documentDetail, index: 0, isFirst: true, isLast: true),
+            ConfirmingItemRow(title: documentDetail.getMatch()?.title ?? '', item: documentDetail, index: 0, isFirst: true, isLast: true),
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Row(
@@ -94,11 +150,12 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
                       label: "Confirm",
                       // reverse: true,
                       borderSide: BorderSide(color: context.mainColor),
-                      onPressed:!documentDetail.hasAllRequired()?null: () {
-
-                        // log(documentDetail.docCode??'');
-                        Navigator.of(context).pop(true);
-                      },
+                      onPressed: !documentDetail.hasAllRequired()
+                          ? null
+                          : () {
+                              // log(documentDetail.docCode??'');
+                              Navigator.of(context).pop(true);
+                            },
                     ),
                   ),
                 ],
@@ -112,8 +169,9 @@ class ConfirmScannedDocDialog extends ConsumerWidget {
 }
 
 class ConfirmingItemRow extends ConsumerStatefulWidget {
-  const ConfirmingItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst});
+  const ConfirmingItemRow({super.key, required this.index, required this.item, required this.isLast, required this.isFirst, required this.title});
 
+  final String title;
   final bool isFirst;
   final bool isLast;
   final int index;
@@ -132,7 +190,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     controller = TextEditingController(text: widget.item.documentNumber);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.addListener(() {
-        Future((){
+        Future(() {
           ref.read(confirmingDocumentProvider.notifier).update((s) => widget.item.copyWith(documentNumber: controller.text));
         });
       });
@@ -157,9 +215,9 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
 
   Widget countryBuilder(dynamic a) => Row(
     children: [
-      MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+      MyCountryFlagsPro.getFlag(a, width:context.isDesktop?66: 22, height: context.isDesktop?48:16, borderRadius: BorderRadius.circular(2)),
       const SizedBox(width: 8),
-      Text("$a (${(a as Country).name})"),
+      Text("$a (${(a as Country).name})" ,style: TextStyle(fontSize: context.isDesktop?30: 12)),
     ],
   );
 
@@ -171,10 +229,10 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
           SizedBox(
             width: 15,
             height: 10,
-            child: MyCountryFlagsPro.getFlag(a,width: 22,height: 16,borderRadius: BorderRadius.circular(2)),
+            child: MyCountryFlagsPro.getFlag(a, width:context.isDesktop?66: 22, height: context.isDesktop?48:16, borderRadius: BorderRadius.circular(2)),
           ),
           const SizedBox(width: 4),
-          Text(a, style: TextStyle(fontSize: 12)),
+          Text(a, style: TextStyle(fontSize: context.isDesktop?30: 12)),
         ],
       );
     }
@@ -186,8 +244,8 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     bool isFirst = widget.isFirst;
     int index = widget.index;
     DocumentDetail d = ref.watch(confirmingDocumentProvider) ?? DocumentDetail();
-    final headerBg = Color(0xffFFFFFF);
-    final bodyBg = Color(0xffF0F2Fa);
+    var headerBg = Color(0xffFFFFFF);
+    var bodyBg = Color(0xffF0F2Fa);
 
     final PassengerDetails passengerDetails = ref.watch(passengerProvider);
     // final tim = BasicClass.timData;
@@ -196,9 +254,231 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
     DocumentType? typeMatch = d.getMatch();
     List<String> validCodes = BasicClass.constData.data.documentCode.where((a) => a.type == d.shortType).map((a) => a.code!).toList();
     final requiredFields = d.getRequiredFields;
-    bool isBirthday = d.birthDate!=null &&  DateFormat("MM-dd").format(d.birthDate!) == DateFormat("MM-dd").format(DateTime.now());
-    bool isBirthdayTom = d.birthDate!=null &&  DateFormat("MM-dd").format(d.birthDate!) == DateFormat("MM-dd").format(DateTime.now().add(Duration(days: 1)));
+    bool isBirthday = d.birthDate != null && DateFormat("MM-dd").format(d.birthDate!) == DateFormat("MM-dd").format(DateTime.now());
+    bool isBirthdayTom = d.birthDate != null && DateFormat("MM-dd").format(d.birthDate!) == DateFormat("MM-dd").format(DateTime.now().add(Duration(days: 1)));
 
+    if (context.isDesktop) {
+      var headerBg = Colors.white.withOpacity(0.48);
+      var bodyBg = Colors.white;
+      final labelStyle = TextStyle(fontSize: 30,fontWeight: FontWeight.w200);
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border(bottom: BorderSide(color: Colors.white)),
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                child: RotatedBox(
+                  quarterTurns: 3,
+                  child: Text(
+                    "${widget.title}",
+                    style: TextStyle(fontSize: 32),
+                  ),
+                ),
+              ),
+              VerticalDivider(width: 2, color: MyColors.black3),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      Column(
+                        spacing: 12,
+                        children: [
+                          MyFieldPicker<DocumentCode>(
+                            label: "Code",
+                            height: 80,
+                            style: TextStyle(fontSize: 32),
+                            labelStyle: labelStyle,
+                            required: requiredFields.code,
+                            // locked: d.verifiedDocCode,
+                            suffixIcon: d.verifiedDocCode ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
+                            // suggestion: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList().sublist(1,3),
+                            placeholder: "Code",
+                            headerBgColor: headerBg,
+                            bodyBgColor: bodyBg,
+                            items: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList(),
+                            valueToString: docCodeToString,
+                            value: d.documentCode,
+                            onChange: (a) {
+                              d = d.copyWith(documentCode: a);
+                              ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                            },
+                          ),
+                          ?(match?.note != null)
+                              ? Container(
+                                  decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                                  padding: EdgeInsets.all(12),
+                                  child: Row(
+                                    children: [
+                                      Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : null,
+                          Row(
+                            spacing: 12,
+                            children: [
+                              Expanded(
+                                child: MyFieldPicker<Country>(
+                                  label: "Issued In",
+                                  labelStyle: labelStyle,
+                                  required: requiredFields.issuedIn,
+                                  height: 80,
+                                  style: TextStyle(fontSize: 32),
+                                  headerBgColor: headerBg,
+                                  bodyBgColor: bodyBg,
+                                  searchAutoFocus: true,
+                                  placeholder: "Country",
+                                  suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
+
+                                  itemToWidget: countryBuilder,
+                                  prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
+                                  searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                                  items: BasicClass.constData.data.country,
+                                  value: d.documentIssueCountry,
+                                  onChange: (a) {
+                                    d = d.copyWith(documentIssueCountry: a);
+                                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: MyFieldPicker<Country>(
+                                  hasSearch: true,
+                                  required: requiredFields.notionality,
+                                  height: 80,
+                                  labelStyle: labelStyle,
+                                  style: TextStyle(fontSize: 32),
+                                  searchAutoFocus: true,
+                                  headerBgColor: headerBg,
+                                  bodyBgColor: bodyBg,
+                                  label: "Nationality",
+                                  suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.documentIssueCountry?.code3).toList(),
+                                  prefixIcon: countryPrefixBuilder(d.nationality?.code3),
+                                  placeholder: "Country",
+                                  searchBuilder: (dynamic a) => "$a ${(a as Country).name}",
+                                  itemToWidget: countryBuilder,
+                                  items: BasicClass.constData.data.country,
+                                  value: d.nationality,
+                                  onChange: (a) {
+                                    // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
+                                    d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
+                                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            spacing: 12,
+                            children: [
+                              Expanded(
+                                child: MyDatePicker(
+                                  label: "Expiry Date",
+                                  height: 80,
+                                  labelStyle: labelStyle,
+                                  style: TextStyle(fontSize: 32),
+                                  required: requiredFields.expiryDate,
+                                  validator: (a) => expiryValidator(a, d.documentExpiryDate),
+                                  validationColor: expiryValidationColor(d.documentExpiryDate),
+                                  validationIcon: expiryValidationIcon(d.documentExpiryDate),
+                                  placeholder: "Date",
+                                  headerBgColor: headerBg,
+                                  bodyBgColor: bodyBg,
+                                  value: d.documentExpiryDate,
+                                  onChanged: (a) {
+                                    d = d.copyWith(documentExpiryDate: a);
+                                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: MyDatePicker(
+                                  required: requiredFields.birthDate,
+                                  label: "Birth Date",
+                                  height: 80,
+                                  labelStyle: labelStyle,
+                                  placeholder: "Birth Date",
+                                  style: TextStyle(fontSize: 32),
+                                  headerBgColor: headerBg,
+                                  bodyBgColor: bodyBg,
+                                  validator: (a) => birthDateValidator(a, d.birthDate),
+                                  validationColor: birthDateValidationColor(d.birthDate),
+                                  max: DateTime.now(),
+                                  validationIcon: ArtemisIcons.user_square,
+                                  value: d.birthDate,
+
+                                  onChanged: (a) {
+                                    // ref.read(passengerProvider.notifier).update((s) => s.copyWith(birthDate: a));
+                                    d = d.copyWith(birthDate: a);
+                                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            spacing: 12,
+                            children: [
+                              Expanded(
+                                child: MyFieldPicker<Gender>(
+                                  label: "Gender",
+                                  height: 80,
+                                  labelStyle: labelStyle,
+                                  style: TextStyle(fontSize: 32),
+                                  headerBgColor: headerBg,
+                                  bodyBgColor: bodyBg,
+                                  placeholder: "Gender",
+                                  valueToString: (a) => a.title,
+                                  items: Gender.values,
+                                  hasSearch: false,
+                                  value: d.gender,
+                                  onChange: (a) {
+                                    // var pd = passengerDetails.copyWith(gender: a);
+                                    // ref.read(passengerProvider.notifier).update((s) => pd);
+                                    d = d.copyWith(sex: a?.value);
+                                    ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                                  },
+                                ),
+                              ),
+                              Expanded(
+                                child: MyTextFieldNew(
+                                  height: 80,
+                                  labelStyle: labelStyle,
+                                  style: TextStyle(fontSize: 32),
+                                  required: requiredFields.documentNumber,
+                                  headerBgColor: headerBg,
+                                  bodyBgColor: bodyBg,
+                                  controller: controller,
+                                  label: "Document #",
+                                  placeholder: "Number",
+                                  labelInRow: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                          d.getMrzWidget,
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         // color: Color(0xff324073).withOpacity(0.3),
@@ -212,13 +492,13 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
         enabled: false,
         // backgroundColor: MyColors.scaffoldBg,
         // collapsedBackgroundColor: MyColors.scaffoldBg,
-        backgroundColor: (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2)??Colors.blueGrey,
-        collapsedBackgroundColor:  (d.isExpired?MyColors.mainRed: typeMatch?.getColor)?.withOpacity(0.2),
+        backgroundColor: (d.isExpired ? MyColors.mainRed : typeMatch?.getColor)?.withOpacity(0.2) ?? Colors.blueGrey,
+        collapsedBackgroundColor: (d.isExpired ? MyColors.mainRed : typeMatch?.getColor)?.withOpacity(0.2),
         footerRadius: BorderRadius.vertical(bottom: Radius.circular(!isLast ? 0 : 12)),
         shape: RoundedRectangleBorder(),
         collapsedShape: RoundedRectangleBorder(),
 
-        tilePadding: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
+        tilePadding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         footerExtra: IndexedStack(index: isLast ? 0 : 1, children: [SizedBox()]),
 
         title: Column(
@@ -232,7 +512,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                   label: "Code",
                   required: requiredFields.code,
                   // locked: d.verifiedDocCode,
-                  suffixIcon: d.verifiedDocCode?IcomoonLayeredCss.verify(colors: [Colors.green,Colors.white]):null,
+                  suffixIcon: d.verifiedDocCode ? IcomoonLayeredCss.verify(colors: [Colors.green, Colors.white]) : null,
                   // suggestion: BasicClass.constData.data.documentCode.where((a) => validCodes.contains(a.code)).toList().sublist(1,3),
                   placeholder: "Code",
                   headerBgColor: headerBg,
@@ -248,18 +528,18 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                 ),
                 ?(match?.note != null)
                     ? Container(
-                  decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
-                  padding: EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
-                      ),
-                    ],
-                  ),
-                )
+                        decoration: BoxDecoration(color: Color(0xff2A5Cff).withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                        padding: EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Icon(ArtemisIcons.note_2, color: Color(0xff2A5Cff)),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: HtmlWidget(match!.note!, onTapUrl: (p0) => launch(p0), textStyle: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      )
                     : null,
                 Row(
                   spacing: 12,
@@ -274,7 +554,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         searchAutoFocus: true,
                         rowLabelRatio: [5, 4],
                         placeholder: "Country",
-                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.nationality?.code3).toList(),
+                        suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.nationality?.code3).toList(),
 
                         itemToWidget: countryBuilder,
                         prefixIcon: countryPrefixBuilder(d.documentIssueCountry?.code3),
@@ -297,7 +577,7 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         headerBgColor: headerBg,
                         bodyBgColor: bodyBg,
                         label: "Nationality",
-                        suggestion: BasicClass.constData.data.country.where((a)=>a.code3 == d.documentIssueCountry?.code3).toList(),
+                        suggestion: BasicClass.constData.data.country.where((a) => a.code3 == d.documentIssueCountry?.code3).toList(),
 
                         prefixIcon: countryPrefixBuilder(d.nationality?.code3),
                         placeholder: "Country",
@@ -307,16 +587,13 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
                         value: d.nationality,
                         onChange: (a) {
                           // ref.read(passengerProvider.notifier).update((s) => s.copyWith(nationality: a));
-                          d = d.copyWith(nationality: a, documentIssueCountry:  d.documentIssueCountry??a);
+                          d = d.copyWith(nationality: a, documentIssueCountry: d.documentIssueCountry ?? a);
                           ref.read(confirmingDocumentProvider.notifier).update((s) => d);
                         },
                       ),
                     ),
                   ],
                 ),
-
-
-
 
                 MyDatePicker(
                   label: "Expiry Date",
@@ -340,7 +617,6 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
 
         childrenPadding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 12),
         children: [
-
           MyDatePicker(
             required: requiredFields.birthDate,
             label: "Birth Date",
@@ -362,32 +638,30 @@ class _ConfirmingItemRowState extends ConsumerState<ConfirmingItemRow> {
           ),
           d.birthdayWidget,
           const SizedBox(height: 12),
-          ?d.shortType =="P"?
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: MyFieldPicker<Gender>(
-              label: "Gender",
-              headerBgColor: headerBg,
-              bodyBgColor: bodyBg,
-              placeholder: "Gender",
-              valueToString: (a)=>a.title,
-              items: Gender.values,
-              hasSearch: false,
-              value: d.gender,
-              onChange: (a) {
-                // var pd = passengerDetails.copyWith(gender: a);
-                // ref.read(passengerProvider.notifier).update((s) => pd);
-                d = d.copyWith(sex: a?.value);
-                ref.read(confirmingDocumentProvider.notifier).update((s) => d);
-              },
-            ),
-          ):null,
+          ?d.shortType == "P"
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: MyFieldPicker<Gender>(
+                    label: "Gender",
+                    headerBgColor: headerBg,
+                    bodyBgColor: bodyBg,
+                    placeholder: "Gender",
+                    valueToString: (a) => a.title,
+                    items: Gender.values,
+                    hasSearch: false,
+                    value: d.gender,
+                    onChange: (a) {
+                      // var pd = passengerDetails.copyWith(gender: a);
+                      // ref.read(passengerProvider.notifier).update((s) => pd);
+                      d = d.copyWith(sex: a?.value);
+                      ref.read(confirmingDocumentProvider.notifier).update((s) => d);
+                    },
+                  ),
+                )
+              : null,
 
           // const SizedBox(height: 12),
-          MyTextFieldNew(
-              required: requiredFields.documentNumber,
-
-              headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
+          MyTextFieldNew(required: requiredFields.documentNumber, headerBgColor: headerBg, bodyBgColor: bodyBg, controller: controller, label: "Document #", placeholder: "Number", labelInRow: true),
           const SizedBox(height: 12),
           d.getMrzWidget,
           // MyDatePicker(

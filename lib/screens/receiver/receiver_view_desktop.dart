@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:abds/core/constants/assest.dart';
+import 'package:abds/screens/home/home_view_desktop.dart';
 import 'package:abds/widgets/MyButton.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import '../home/new_widgets/resident_widget.dart';
 import '../home/new_widgets/visa_widget.dart';
 import '../home/widgets/logs_and_attachments.dart';
 import '../home/widgets/timatic_response_widget.dart';
+import '../home/widgets/timatic_response_widget_new_desktop.dart';
 import '../result_report/result_report_state.dart';
 import 'receiver_controller.dart';
 import 'receiver_state.dart';
@@ -54,6 +56,7 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
     } else {
       index = ref.watch(receiverStatusProvider).index+1;
     }
+    String? refCode = ref.watch(reportRefCodeProvider);
     return Scaffold(
       appBar: ReceiverAppBarDesktop(),
       body: Row(
@@ -146,65 +149,7 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
               ),
             ),
           ),
-          // Expanded(
-          //   child: Column(
-          //     children: [
-          //       MyButton(
-          //         label: "Get Data",
-          //         onPressed: () {
-          //           ReceiverViewDesktop.myReceiverController.getReceiverData();
-          //         },
-          //       ),
-          //
-          //       Consumer(
-          //         builder: (BuildContext context, WidgetRef ref, Widget? child) {
-          //           final receiverData = ref.watch(receiverDataProvider);
-          //           if (receiverData != null) {
-          //             return Column(
-          //               children: [
-          //                 Padding(padding: const EdgeInsets.all(8.0), child: Text("Scan Qr to Connect")),
-          //                 Text("${ref.watch(receiverStatusProvider).name}"),
-          //                 SizedBox(
-          //                   width: 200,
-          //                   height: 200,
-          //                   child: BarcodeWidget(data: receiverData.yourId, barcode: Barcode.aztec()),
-          //                 ),
-          //                 Padding(
-          //                   padding: const EdgeInsets.all(8.0),
-          //                   child: MyButton(
-          //                     label: "Start Listen",
-          //                     onPressed: () async {
-          //                       await ReceiverViewDesktop.myReceiverController.initReceiver();
-          //                     },
-          //                   ),
-          //                 ),
-          //                 Padding(
-          //                   padding: const EdgeInsets.all(8.0),
-          //                   child: MyButton(
-          //                     label: "Send",
-          //                     onPressed: () async {
-          //                       await ReceiverViewDesktop.myReceiverController.sendToReceiver(receiverId: receiverData.yourId);
-          //                     },
-          //                   ),
-          //                 ),
-          //                 Padding(
-          //                   padding: const EdgeInsets.all(8.0),
-          //                   child: MyButton(
-          //                     label: "Call it",
-          //                     onPressed: () async {
-          //                       await ReceiverViewDesktop.myReceiverController.callIt(receiverId: receiverData.yourId);
-          //                     },
-          //                   ),
-          //                 ),
-          //               ],
-          //             );
-          //           }
-          //           return Column();
-          //         },
-          //       ),
-          //     ],
-          //   ),
-          // ),
+
           Expanded(
             flex: 3,
             child: Visibility(
@@ -214,116 +159,14 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
                 child: Column(
                   children: [
                     LogsAndAttachmentsWidget(report: true),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                      child: MyExpansionTile(
-                        initiallyExpanded: true,
-                        backgroundColor: Colors.white.withOpacity(0.5),
-                        collapsedBackgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(28),
-                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                        ),
-                        collapsedShape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(28),
-                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                        ),
-                        childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                        tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        showTrailingIcon: true,
-                        title: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(children: []),
-                        ),
-                        showFooter: false,
-                        children: [FlightWidget(report: true), PassengerWidget(report: true), PassportWidget(report: true), VisaWidget(report: true), ResidentWidget(report: true)],
-                      ),
-                    ),
+                    HeaderSummaryWidgetDesktop(header: SizedBox(), controller: null,justData: true,overrideResult: timaticRes,),
+                    TimaticTrueResultWidgetNewDesktop(res: timaticRes!, refCode: refCode!),
                   ],
                 ),
               ),
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: timaticRes == null
-                ? SizedBox()
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: MyExpansionTile(
-                        initiallyExpanded: true,
-                        showTrailingIcon: true,
-                        backgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
-                        collapsedBackgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(28),
-                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                        ),
-                        collapsedShape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(28),
-                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                        ),
-                        childrenPadding: EdgeInsets.symmetric(horizontal: 12),
-                        tilePadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        title: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            children: [
-                              Text("TIMATIC ${ref.watch(reportRefCodeShowProvider)} ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                              resultMode
-                                  ? Row(
-                                      children: [
-                                        timaticRes.getRes.getIconWidget,
-                                        Text(timaticRes!.getRes.title, style: TextStyle(color: timaticRes.getRes.getColor)),
-                                        // Text("${ref.watch(timaticResultProvider)!.refCode}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                                      ],
-                                    )
-                                  : SizedBox(),
-                            ],
-                          ),
-                        ),
-                        showFooter: false,
-                        children: resultMode
-                            ? [
-                                Consumer(
-                                  builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                    final result = ref.watch(reportTimaticResultNewProvider);
-                                    final refCode = ref.watch(reportRefCodeProvider);
-                                    if (result == null) {
-                                      return SizedBox();
-                                    }
-                                    // return SizedBox(height: 100);
-                                    return Column(
-                                      children: [
-                                        TimaticTrueResultWidgetNew(res: result, refCode: refCode!),
-                                        const SizedBox(height: 12),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ]
-                            : [
-                                Column(
-                                  children: [
-                                    const SizedBox(height: 300),
-                                    Text("After filling out data, Click on"),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      children: [
-                                        Spacer(),
-                                        Expanded(flex: 2, child: SizedBox()),
-                                        Spacer(),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 300),
-                                  ],
-                                ),
-                              ],
-                      ),
-                    ),
-                  ),
-          ),
+
         ],
       ),
     );

@@ -25,6 +25,7 @@ class MyDatePicker extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final TextInputAction? textInputAction;
   final TextStyle? style;
+  final TextStyle? labelStyle;
   final StrutStyle? strutStyle;
   final TextDirection? textDirection;
   final TextAlign textAlign;
@@ -48,6 +49,7 @@ class MyDatePicker extends StatefulWidget {
   final bool showClearButton;
   final bool locked;
   final bool required;
+  final bool labelInRow;
   final double height;
   final DateTime? value;
   final DateTime? min;
@@ -68,6 +70,7 @@ class MyDatePicker extends StatefulWidget {
     this.label,
     this.value,
     this.valueFormat,
+    this.labelStyle,
     this.bodyBgColor,
     this.headerBgColor,
     this.rowLabelRatio = const [12, 33],
@@ -88,6 +91,7 @@ class MyDatePicker extends StatefulWidget {
     this.textInputAction,
     this.validationIcon,
     this.style,
+
     this.min,
     this.max,
     this.strutStyle,
@@ -97,6 +101,7 @@ class MyDatePicker extends StatefulWidget {
     this.showClearButton = false,
     this.border = BorderSide.none,
     this.locked = false,
+    this.labelInRow = true,
     this.required = false,
     this.validator,
     this.prefix,
@@ -202,28 +207,27 @@ class _MyDatePickerState extends State<MyDatePicker> {
         //   controller?.text = v?.format_yyMMddSlash ?? '';
         // });
       },
-      child: Container(
+      child: MyTextFieldNew(
+        headerBgColor: widget.headerBgColor,
+        bodyBgColor: widget.bodyBgColor,
+        radius: widget.radius,
+        disabled: true,
         height: widget.height,
-        child: MyTextFieldNew(
-          headerBgColor: widget.headerBgColor,
-          bodyBgColor: widget.bodyBgColor,
-          radius: widget.radius,
-          disabled: true,
-          textAlign: widget.textAlign,
-          required: widget.required,
-          showError: true,
-          label: widget.label,
-          rowLabelRatio: widget.rowLabelRatio,
-          labelInRow: true,
-          backgroundColor: widget.backgroundColor,
-          validationColor: widget.validationColor,
-          validationIcon: widget.validationIcon,
-          placeholder: widget.placeholder,
-          style: const TextStyle(color: Colors.black, height: 1, fontSize: 12),
-          validator: widget.validator,
-          suffixIcon: widget.suffixIcon ?? SizedBox(height: 22),
-          controller: controller,
-        ),
+        textAlign: widget.textAlign,
+        required: widget.required,
+        showError: true,
+        label: widget.label,
+        labelStyle: widget.labelStyle,
+        rowLabelRatio: widget.rowLabelRatio,
+        labelInRow: widget.labelInRow,
+        backgroundColor: widget.bodyBgColor,
+        validationColor: widget.validationColor,
+        validationIcon: widget.validationIcon,
+        placeholder: widget.placeholder,
+        style: widget.style??const TextStyle(color: Colors.black, height: 1, fontSize: 12),
+        validator: widget.validator,
+        suffixIcon: widget.suffixIcon ?? SizedBox(height: 22),
+        controller: controller,
       ),
     );
     // return SizedBox(
