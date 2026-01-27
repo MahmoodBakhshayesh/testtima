@@ -336,16 +336,17 @@ class _UserDetailsDialogState extends ConsumerState<AddUserDialog> {
                       radius: 12,
                       onPressed: () async {
                         final addUserController = getIt<AddUserController>();
-                        // await addUserController.addUser(
-                        //   user: tmp,
-                        //   enable: tmp.enable,
-                        //   permission: tmp.userPermission,
-                        //   attributes: tmp.userAttribute,
-                        //   firstName: fNameC.text,
-                        //   lastName: lNameC.text,
-                        //   password: passwordC.text,
-                        //   email: emailC.text,
-                        // );
+                        await addUserController.addUserNew(
+                          type: userType,
+                          firstname: fNameC.text,
+                          lastname: lNameC.text,
+                          password: passwordC.text,
+                          email: emailC.text,
+                          username: usernameC.text,
+                          employeeId: employeeIdC.text,
+                          station: station,
+                          whatsappNumber: whatsappNumberC.text
+                        );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -353,7 +354,7 @@ class _UserDetailsDialogState extends ConsumerState<AddUserDialog> {
                           IcomoonLayeredCss.edit(colors: [Colors.white.withOpacity(0.34), Colors.white, Colors.white]),
                           const SizedBox(width: 8),
                           Text(
-                            "Edit User",
+                            "Add User",
                             style: TextStyle(color: Colors.white),
                           ),
                         ],

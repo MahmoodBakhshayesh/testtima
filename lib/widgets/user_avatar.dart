@@ -26,6 +26,7 @@ class UserAvatar extends ConsumerWidget {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     bool loading = ref.watch(updatingAvatarProvider);
+    log(("hasImage $hasImage"));
     return GestureDetector(
       onTap: () {
         if (canEdit && people == null) {
@@ -97,10 +98,11 @@ class UserAvatarWithUsername extends ConsumerWidget {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     bool loading = ref.watch(updatingAvatarProvider);
-    String api = '${ref.read(selectedServerProvider).apiAddress}/user/image';
+    String api = '${ref.read(selectedServerProvider).apiAddress}${apiVersion}/user/image';
     if (people != null) {
-      api = "${ref.read(selectedServerProvider).apiAddress}/user/myUsers/image/${people!.username}";
+      api = "${ref.read(selectedServerProvider).apiAddress}${apiVersion}/user/myUsers/image/${people!.username}";
     }
+    log(api);
     return ClipRRect(
       borderRadius: BorderRadius.circular(40),
       child: Container(

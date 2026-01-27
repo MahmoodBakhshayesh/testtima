@@ -93,7 +93,7 @@ class PerformanceController extends ControllerInterface {
   }
 
   goMessageDetails(String refCode) async {
-    if (navigation.context.isDesktop && false) {
+    if (navigation.context.isDesktop ) {
       final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: null, code: refCode);
     } else {
       try {

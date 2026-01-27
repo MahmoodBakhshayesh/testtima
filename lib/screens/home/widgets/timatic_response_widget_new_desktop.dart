@@ -77,7 +77,8 @@ class _TimaticTrueResultWidgetNewState extends ConsumerState<TimaticTrueResultWi
         ...widget.res.segments.map((segRes) {
           int index = widget.res.segments.indexOf(segRes);
           final exC = expansionControllers[index];
-          log("${segRes.getRes.getSolidColor}");
+
+
           return MyExpansionTile(
             key: Key(segRes.route),
             controller: exC,

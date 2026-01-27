@@ -8,6 +8,7 @@ import 'package:abds/core/extenstions/context_exp.dart';
 import 'package:abds/core/extenstions/response_ext.dart';
 import 'package:abds/core/interfaces/success_int.dart';
 import 'package:abds/core/utils_and_services/handlers/success_handler.dart';
+import 'package:abds/initialize.dart';
 import 'package:abds/screens/users/usecases/update_user_usecase.dart';
 import 'package:abds/screens/users/widgets/add_user_dialog.dart';
 import 'package:abds/screens/users/widgets/user_details_dialog.dart';
@@ -173,7 +174,7 @@ class UsersController extends ControllerInterface {
   }
 
   Future<void> evictImage() async {
-    String url = "${ref.read(selectedServerProvider).apiAddress}/user/image";
+    String url = "${ref.read(selectedServerProvider).apiAddress}${apiVersion}/user/image";
     await CachedNetworkImage.evictFromCache(url);
     final NetworkImage provider = NetworkImage(url);
     await provider.evict();
@@ -191,8 +192,9 @@ class UsersController extends ControllerInterface {
     });
 
     final serverAddress = ref.watch(selectedServerProvider)!.apiAddress;
-    String apiAddress = "$serverAddress/user/image";
-    // log(apiAddress);
+
+    String apiAddress = "$serverAddress${apiVersion}/user/image";
+    log(apiAddress);
     try {
       final dio = Dio(BaseOptions(receiveTimeout: Duration(minutes: 10), sendTimeout: Duration(minutes: 10), connectTimeout: Duration(minutes: 10)));
       final response = await dio.put(
@@ -232,7 +234,7 @@ class UsersController extends ControllerInterface {
     try {
       updatingAvatarPN.update((state) => true);
       final serverAddress = ref.watch(selectedServerProvider)!.apiAddress;
-      String apiAddress = "$serverAddress/user/image";
+      String apiAddress = "$serverAddress${apiVersion}/user/image";
       // log(apiAddress);
       final dio = Dio();
 

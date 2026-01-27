@@ -9,6 +9,7 @@ import 'package:abds/core/utils_and_services/artemis_icons_icons.dart';
 import 'package:abds/core/utils_and_services/date_range_util.dart';
 import 'package:abds/core/utils_and_services/timatic/artemis_timatic.dart';
 import 'package:abds/screens/home/home_view_desktop.dart';
+import 'package:abds/screens/home/widgets/timatic_response_widget_new_desktop.dart';
 import 'package:abds/screens/login/login_state.dart';
 import 'package:abds/screens/performance/widgets/overall_report_table.dart';
 import 'package:abds/widgets/AirlineLogo.dart';
@@ -280,10 +281,10 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                           Expanded(
                             child: table == null && reportDetails.isEmpty
                                 ? Row(
-                                  children: [
-                                    SizedBox(),
-                                  ],
-                                )
+                                    children: [
+                                      SizedBox(),
+                                    ],
+                                  )
                                 : Column(
                                     children: [
                                       Expanded(
@@ -568,27 +569,54 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                                                   ],
                                                 ),
                                                 Expanded(
-                                                  child: SingleChildScrollView(
-                                                    child: Column(
-                                                      children: [
-                                                        reportDetails.isEmpty
-                                                            ? SizedBox()
-                                                            : ListView.builder(
-                                                                shrinkWrap: true,
-                                                                physics: NeverScrollableScrollPhysics(),
-                                                                itemCount: reportDetails.length,
-                                                                itemBuilder: (c, i) {
-                                                                  LogReportDetail det = reportDetails[i];
-                                                                  if ((filteredAirports.isNotEmpty || filteredAirlines.isNotEmpty)) {
-                                                                    if (!filteredAirports.contains(det.from) && !filteredAirlines.contains(det.airline)) {
-                                                                      return SizedBox();
-                                                                    }
-                                                                  }
-                                                                  return ReportDetailsDetailWidgetDesktop(index: i, log: det);
-                                                                },
-                                                              ),
-                                                      ],
-                                                    ),
+                                                  child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Expanded(
+                                                        flex: 4,
+                                                        child: SingleChildScrollView(
+                                                          child: Column(
+                                                            children: [
+                                                              reportDetails.isEmpty
+                                                                  ? SizedBox()
+                                                                  : ListView.builder(
+                                                                      shrinkWrap: true,
+                                                                      physics: NeverScrollableScrollPhysics(),
+                                                                      itemCount: reportDetails.length,
+                                                                      itemBuilder: (c, i) {
+                                                                        LogReportDetail det = reportDetails[i];
+                                                                        if ((filteredAirports.isNotEmpty || filteredAirlines.isNotEmpty)) {
+                                                                          if (!filteredAirports.contains(det.from) && !filteredAirlines.contains(det.airline)) {
+                                                                            return SizedBox();
+                                                                          }
+                                                                        }
+                                                                        bool isSelected = ref.watch(reportRefCodeProvider)==det.refCode.toString();
+                                                                        log("is selected ${isSelected}");
+                                                                        return ReportDetailsDetailWidgetDesktop(index: i, log: det, isSelected: isSelected,);
+                                                                      },
+                                                                    ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        flex: 5,
+                                                        child: Consumer(
+                                                          builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                                            final timaticRes = ref.watch(reportTimaticResultNewProvider);
+                                                            final refCode = ref.watch(reportRefCodeProvider);
+                                                            if (timaticRes == null || refCode == null) {
+                                                              return SizedBox();
+                                                            }
+                                                            return SingleChildScrollView(
+                                                              padding: EdgeInsets.only(top: 12),
+                                                              child: TimaticTrueResultWidgetNewDesktop(res: timaticRes!, refCode: refCode!),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
@@ -954,9 +982,10 @@ class _ReportDetailsSummaryWidgetDesktopState extends State<ReportDetailsSummary
 class ReportDetailsDetailWidgetDesktop extends StatefulWidget {
   final LogReportDetail log;
   final int index;
+  final bool isSelected;
   final void Function()? onTap;
 
-  const ReportDetailsDetailWidgetDesktop({super.key, required this.log, required this.index, this.onTap});
+  const ReportDetailsDetailWidgetDesktop({super.key, required this.log, required this.isSelected, required this.index, this.onTap});
 
   @override
   State<ReportDetailsDetailWidgetDesktop> createState() => _ReportDetailsDetailWidgetDesktopState();
@@ -979,10 +1008,200 @@ class _ReportDetailsDetailWidgetDesktopState extends State<ReportDetailsDetailWi
     final totalRes = BasicClass.getResultOfCode(widget.log.totalResult);
     // log(jsonEncode(widget.log.toJson()));
     bool unTotal = totalRes.color == "FFFFFF";
+    final Color c = unTotal ? baseTimaticResult.getColor : totalRes.getColor;
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadiusGeometry.circular(12),
+        border: Border.all(color:widget.isSelected? c:Colors.transparent,width: 4)
+      ),
+      margin: const EdgeInsets.only(top: 12),
+      child: Material(
+        color: unTotal ? baseTimaticResult.getBgColor : totalRes.getColor.withOpacity(0.05) ?? baseTimaticResult?.getColor.withOpacity(0.12) ?? Colors.black12,
+        borderRadius: BorderRadiusGeometry.circular(12),
+        child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
+
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () async {
+              if (loading) {
+                return;
+              }
+              loading = true;
+              setState(() {});
+              await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString());
+              loading = false;
+              setState(() {});
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+
+              // decoration: BoxDecoration(color: response?.getColor.withOpacity(0.12)??Colors.white,borderRadius: BorderRadiusGeometry.circular(12)),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 4),
+                            Text("From: ${widget.log.user}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            const SizedBox(width: 8),
+                            Text(
+                              DateFormat("dd MMM, hh:mm").format(widget.log.createdAt!.toLocal()),
+                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                      loading ? SpinKitThreeBounce(color: Colors.black, size: 12) : SizedBox(),
+                      const SizedBox(width: 4),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadiusGeometry.circular(12),
+                          border: Border.all(color: Colors.white),
+                        ),
+                        child: Text(totalRes?.title ?? response?.name2 ?? '', style: TextStyle(fontSize: 14, color: totalRes.getColor)),
+                      ),
+
+                      // Expanded(child: Text(widget.log.code ?? '')),
+                      // loading?SpinKitThreeBounce(color: context.mainColor,size: 20,):
+                      // Text("${widget.log.user?.username ?? widget.log?.user?.email}"),
+                      const SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_ios_rounded, size: 15),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: totalRes.getColor.withOpacity(0.02) ?? superResponse?.getColor.withOpacity(0.12) ?? baseTimaticResult.getBgColor ?? Colors.black.withOpacity(0.04),
+                      borderRadius: BorderRadiusGeometry.circular(8),
+                    ),
+                    child: Column(
+                      spacing: 4,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text("Flight: ", style: TextStyle(color: Colors.grey, fontSize: 20)),
+                                        AirlineLogo(widget.log.airline ?? '--', size: 24),
+                                        Text("${widget.log.airline ?? ''}${widget.log.flightNumber ?? ''}", style: TextStyle(fontSize: 20)),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text("Nationality: ", style: TextStyle(color: Colors.grey, fontSize: 20)),
+                                        MyCountryFlagsPro.getFlag(widget.log.nationality, borderRadius: BorderRadius.circular(3), width: 30, height: 20),
+                                        Text(" ${widget.log.nationality}", style: TextStyle(fontSize: 20)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text("Route: ", style: TextStyle(color: Colors.grey, fontSize: 20)),
+                                        Text("${widget.log.from ?? ''}- ", style: TextStyle(fontSize: 20)),
+                                        MyCountryFlagsPro.getFlag(BasicClass.getAirportByCode(widget.log.to)?.country ?? '', borderRadius: BorderRadius.circular(3), width: 30, height: 20),
+                                        Text(" ${widget.log.to ?? ''}", style: TextStyle(fontSize: 20)),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Employee ID: ",
+                                          style: TextStyle(fontSize: 20, color: Colors.grey),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          widget.log.employeeId ?? "",
+                                          style: TextStyle(fontSize: 20, color: Colors.black),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Tracking ID: ",
+                                          style: TextStyle(fontSize: 20, color: Colors.grey),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Text(
+                                          "${widget.log.showCode ?? ""}",
+                                          style: TextStyle(fontSize: 20, color: Colors.black),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "TIMATIC: ",
+                                          style: TextStyle(fontSize: 20, color: Colors.grey),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(baseTimaticResult.title, style: TextStyle(fontSize: 20, color: baseTimaticResult.getColor)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
     return Container(
       margin: const EdgeInsets.only(top: 12),
       child: Material(
-        color: unTotal?baseTimaticResult.getBgColor :totalRes.getColor.withOpacity(0.05) ?? baseTimaticResult?.getColor.withOpacity(0.12) ?? Colors.black12,
+        color: unTotal ? baseTimaticResult.getBgColor : totalRes.getColor.withOpacity(0.05) ?? baseTimaticResult?.getColor.withOpacity(0.12) ?? Colors.black12,
         borderRadius: BorderRadiusGeometry.circular(12),
         child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(12)),
@@ -1047,8 +1266,7 @@ class _ReportDetailsDetailWidgetDesktopState extends State<ReportDetailsDetailWi
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-
-                      color: totalRes.getColor.withOpacity(0.02) ?? superResponse?.getColor.withOpacity(0.12) ??baseTimaticResult.getBgColor?? Colors.black.withOpacity(0.04),
+                      color: totalRes.getColor.withOpacity(0.02) ?? superResponse?.getColor.withOpacity(0.12) ?? baseTimaticResult.getBgColor ?? Colors.black.withOpacity(0.04),
                       borderRadius: BorderRadiusGeometry.circular(8),
                     ),
                     child: Row(

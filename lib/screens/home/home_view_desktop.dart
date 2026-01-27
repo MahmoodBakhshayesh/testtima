@@ -362,103 +362,100 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                 SizedBox(height: 124 + (0)),
                                 resultMode
                                     ? Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 108.0),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              spacing: 8,
-                                              children: [
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            spacing: 8,
+                                            children: [
 
-                                                Expanded(
-                                                  child: SingleChildScrollView(
-                                                    child: Column(
-                                                      children: [
-                                                        FlightPaxWidgetDesktop(),
-                                                        MyExpansionTile(
-                                                          initiallyExpanded: true,
-                                                          controller: timaticController,
-                                                          showTrailingIcon: resultMode,
-                                                          backgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
-                                                          collapsedBackgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadiusGeometry.circular(12),
-                                                            side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                                          ),
-                                                          collapsedShape: RoundedRectangleBorder(
-                                                            borderRadius: BorderRadiusGeometry.circular(12),
-                                                            side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
-                                                          ),
-                                                          tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                                          trailing: SizedBox(),
-                                                          title: Column(
-                                                            children: [
-                                                              HeaderSummaryWidgetDesktop(
-                                                                header: SizedBox(),
-                                                                justData: true,
-                                                                controller: _controller,
-                                                              ),
-                                                              Padding(
-                                                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Expanded(
-                                                                      child: Row(
-                                                                        spacing: 12,
-                                                                        children: timaticRes.segments.map((seg) => seg.routeWidgetBig).toList(),
-                                                                      ),
-                                                                    ),
-                                                                    Column(
-                                                                      children: [
-                                                                        Row(
-                                                                          children: [
-                                                                            Text(
-                                                                              timaticRes.getRes.title,
-                                                                              style: TextStyle(color: timaticRes.getRes.getColor, fontSize: 22, fontWeight: FontWeight.bold),
-                                                                            ),
-                                                                            const SizedBox(width: 4),
-                                                                            timaticRes.getRes.getIconWidget,
-                                                                          ],
-                                                                        ),
-                                                                        Text(
-                                                                          timaticRes.getRes.getTitle,
-                                                                          style: TextStyle(fontSize: 10, color: timaticRes.getRes.getColor, fontWeight: FontWeight.w400),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          showFooter: false,
+                                              Expanded(
+                                                child: SingleChildScrollView(
+                                                  child: Column(
+                                                    children: [
+                                                      FlightPaxWidgetDesktop(),
+                                                      MyExpansionTile(
+                                                        initiallyExpanded: true,
+                                                        controller: timaticController,
+                                                        showTrailingIcon: resultMode,
+                                                        backgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
+                                                        collapsedBackgroundColor: timaticRes!.getRes.getColor.withOpacity(0.08),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadiusGeometry.circular(12),
+                                                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                                                        ),
+                                                        collapsedShape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadiusGeometry.circular(12),
+                                                          side: BorderSide(color: Colors.white.withOpacity(0.48), width: 1),
+                                                        ),
+                                                        tilePadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                                                        trailing: SizedBox(),
+                                                        title: Column(
                                                           children: [
-                                                            Consumer(
-                                                              builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                                                                final result = ref.watch(timaticResultNewProvider);
-                                                                final refCode = ref.watch(refCodeProvider);
-                                                                if (result == null) {
-                                                                  return SizedBox();
-                                                                }
-                                                                // return SizedBox(height: 100);
-                                                                return Column(
-                                                                  children: [
-                                                                    LogsAndAttachmentsWidget(),
-                                                                    TimaticTrueResultWidgetNewDesktop(res: result, refCode: refCode!),
-                                                                    const SizedBox(height: 12),
-                                                                  ],
-                                                                );
-                                                              },
+                                                            HeaderSummaryWidgetDesktop(
+                                                              header: SizedBox(),
+                                                              justData: true,
+                                                              controller: _controller,
+                                                            ),
+                                                            Padding(
+                                                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
+                                                              child: Row(
+                                                                children: [
+                                                                  Expanded(
+                                                                    child: Row(
+                                                                      spacing: 12,
+                                                                      children: timaticRes.segments.map((seg) => seg.routeWidgetBig).toList(),
+                                                                    ),
+                                                                  ),
+                                                                  Column(
+                                                                    children: [
+                                                                      Row(
+                                                                        children: [
+                                                                          Text(
+                                                                            timaticRes.getRes.title,
+                                                                            style: TextStyle(color: timaticRes.getRes.getColor, fontSize: 22, fontWeight: FontWeight.bold),
+                                                                          ),
+                                                                          const SizedBox(width: 4),
+                                                                          timaticRes.getRes.getIconWidget,
+                                                                        ],
+                                                                      ),
+                                                                      Text(
+                                                                        timaticRes.getRes.getTitle,
+                                                                        style: TextStyle(fontSize: 10, color: timaticRes.getRes.getColor, fontWeight: FontWeight.w400),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                              ),
                                                             ),
                                                           ],
                                                         ),
-                                                      ],
-                                                    ),
+                                                        showFooter: false,
+                                                        children: [
+                                                          Consumer(
+                                                            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                                                              final result = ref.watch(timaticResultNewProvider);
+                                                              final refCode = ref.watch(refCodeProvider);
+                                                              if (result == null) {
+                                                                return SizedBox();
+                                                              }
+                                                              // return SizedBox(height: 100);
+                                                              return Column(
+                                                                children: [
+                                                                  LogsAndAttachmentsWidget(),
+                                                                  TimaticTrueResultWidgetNewDesktop(res: result, refCode: refCode!),
+                                                                  const SizedBox(height: 12),
+                                                                ],
+                                                              );
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       )
@@ -476,10 +473,7 @@ class _HomeViewDesktopState extends ConsumerState<HomeViewDesktop> {
                                                       child: Column(
                                                         children: <Widget>[
                                                           LogsAndAttachmentsWidget(),
-                                                          Padding(
-                                                            padding: const EdgeInsets.symmetric(horizontal: 108.0),
-                                                            child: FlightPaxWidgetDesktop(),
-                                                          ),
+                                                          FlightPaxWidgetDesktop(),
                                                           const SizedBox(height: 64),
                                                         ],
                                                       ),
