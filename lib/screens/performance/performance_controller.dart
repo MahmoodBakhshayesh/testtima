@@ -92,9 +92,14 @@ class PerformanceController extends ControllerInterface {
     return table;
   }
 
-  goMessageDetails(String refCode) async {
+  goMessageDetails(String refCode,{bool naviagte = false}) async {
     if (navigation.context.isDesktop ) {
       final refHistory = await getIt<PerformanceController>().getRefHistoryLog(showCode: null, code: refCode);
+      if(naviagte){
+        if (refHistory != null) {
+          goNamed(Routes.resultReport);
+        }
+      }
     } else {
       try {
         final refHistory = await getRefHistoryLog(showCode: null, code: refCode);

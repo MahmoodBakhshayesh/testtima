@@ -62,7 +62,7 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
   bool moreMode = false;
   OverallReportTable? table;
   int reportIndex = 0;
-
+  DateRangeEnum? dateRange;
   // List<OverallPerformance> overalls = [];
   List<LogReportDetail> reportDetails = [];
   List<String> filteredAirports = [];
@@ -155,11 +155,14 @@ class _PerformanceViewDesktopState extends ConsumerState<PerformanceViewDesktop>
                             bodyBgColor: fieldBgColor,
                             backgroundColor: fieldBgColor,
                             showClearButton: false,
+                            value: dateRange,
+
                             onChange: (a) async {
                               if (a == null) return;
                               final sAndE = getDateRange(a!);
                               fromDate = sAndE.start;
                               toDate = sAndE.end;
+                              dateRange = a;
                               setState(() {});
                               await getOverall(null);
                             },
@@ -913,7 +916,7 @@ class _ReportDetailsSummaryWidgetDesktopState extends State<ReportDetailsSummary
                   }
                   loading = true;
                   setState(() {});
-                  await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString());
+                  await getIt<PerformanceController>().goMessageDetails(widget.log.refCode.toString(),naviagte: true);
                   loading = false;
                   setState(() {});
                 },

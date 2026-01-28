@@ -635,6 +635,11 @@ class HomeController extends ControllerInterface {
         ref.read(refCodeShowProvider.notifier).update((s) => r.showCode);
         ref.read(currentStatusProvider.notifier).update((s) => r.currentStatus);
         ref.read(showingLogsProvider.notifier).update((s) => []);
+        Future.delayed(Duration(milliseconds: 500),(){
+          if(flightPaxExpandController.isExpanded){
+            flightPaxExpandController.collapse();
+          }
+        });
     }
 
     return response;

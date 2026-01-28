@@ -19,7 +19,7 @@ extension BuldContextMore on BuildContext {
           : isDesktop
           ? width * .3
           : 12,
-      vertical: isDesktop ? (height * 0.25) : 0,
+      vertical: isDesktop ? (height * 0.1) : 0,
     );
   }
 

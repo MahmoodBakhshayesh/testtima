@@ -89,6 +89,7 @@ class _MyOcrSettingDialogState extends State<AskSupervisorSheet> {
                       headerBgColor: Colors.white,
                       bodyBgColor: Color(0xffF4F4f4),
                       placeholder: "Select",
+                      value: supervisor,
                       onChange: (a) {
                         supervisor = a;
                         setState(() {});

@@ -117,6 +117,7 @@ class _UserDetailsDialogState extends ConsumerState<AddUserDialog> {
                       Expanded(
                         child: MyFieldPicker<UserType>(
                           label: "User Type",
+                          showClearButton: true,
                           items: UserType.values,
                           headerBgColor: headerBg,
                           bodyBgColor: bodyBg,

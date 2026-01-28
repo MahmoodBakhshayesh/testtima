@@ -1235,8 +1235,12 @@ class HeaderSummaryWidgetDesktop extends ConsumerWidget {
                             onPressed: !resultMode
                                 ? null
                                 : () async {
+                                    getIt<HomeController>().flightPaxExpandController.expand();
                                     await getIt<HomeController>().setStatus(0);
                                     ref.read(timaticResultNewProvider.notifier).update((s) => null);
+                                    // Future.delayed(Duration(milliseconds: 500),(){
+                                    //   getIt<HomeController>().flightPaxExpandController.expand();
+                                    // });
                                   },
                             radius: 10,
                             borderSide: BorderSide(color: context.mainColor),

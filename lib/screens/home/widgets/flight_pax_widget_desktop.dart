@@ -50,6 +50,8 @@ class _FlightPaxWidgetDesktopState extends ConsumerState<FlightPaxWidgetDesktop>
   @override
   Widget build(BuildContext context) {
     return MyExpansionTile(
+      initiallyExpanded: true,
+      controller: getIt<HomeController>().flightPaxExpandController,
       tilePadding: EdgeInsets.all(0),
       backgroundColor: Color(0xffD0DBFF).withOpacity(0.08),
       collapsedBackgroundColor: Color(0xffD0DBFF).withOpacity(0.08),

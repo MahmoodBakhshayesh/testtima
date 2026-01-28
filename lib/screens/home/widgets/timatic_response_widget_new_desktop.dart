@@ -412,10 +412,9 @@ class RegulationWidgetNewDesktop extends StatelessWidget {
                               log(e);
                               final regex = RegExp(r'<p[^>]*>(.*?)<\/p>', dotAll: true);
                               final match = regex.firstMatch(e);
-
+                              log("mathc ${match}");
                               if (match != null) {
                                 final innerText = match.group(1);
-                                log(innerText.toString());
                                 final regex = RegExp(r'<[^>]*>');
                                 final plainText = e.replaceAll(regex, '').trim();
                                 final allLangs = BasicClass.getAllSupportedLanguages();
@@ -427,6 +426,15 @@ class RegulationWidgetNewDesktop extends StatelessWidget {
                                 );
 
                                 // Output: Passengers with a re-entry permit or a residence permit issued by Algeria do not need a visa.
+                              }else{
+                                final plainText = e.trim();
+                                final allLangs = BasicClass.getAllSupportedLanguages();
+                                allLangs.sort((a, b) => langs.map((l) => l.country).toList().indexOf(a.country).compareTo(langs.map((l) => l.country).toList().indexOf(b.country)));
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (c) => PartialTranslateSheet(allLangs: allLangs, languages: langs, text: plainText ?? ''),
+                                );
                               }
                               // log(matches.length.toString());
 

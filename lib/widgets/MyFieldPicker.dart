@@ -175,45 +175,60 @@ class _MyFieldPickerState<T> extends State<MyFieldPicker<T>> {
                 // dev.log("press");
               }
             },
-            child: AbsorbPointer(
-              absorbing: widget.showPickerForDesktop,
-              child: MyFieldPickerDesktop(
-                suggestionColor: Colors.greenAccent,
-                headerBgColor: widget.headerBgColor,
-                bodyBgColor: widget.bodyBgColor,
-                labelInRow: widget.labelInRow,
-                rowLabelRatio: widget.rowLabelRatio,
-                items: widget.items,
-                supportNull: false,
-                labelStyle: widget.labelStyle,
-                value: widget.value,
-                borderSide: widget.borderSide,
-                valueStyle: widget.style,
-                hasSearch: widget.hasSearch,
-                valueToString: widget.valueToString,
-                showClearButton: widget.showClearButton,
-                // autoFocus: widget.searchAutoFocus,
-                required: widget.required,
-                label: widget.label,
-                height: widget.height??45,
-                radius: widget.radius,
-                itemToWidget: widget.itemToWidget,
-                // builder: widget.itemToWidget,
-                suggestion: widget.suggestion,
-                placeholder: widget.placeholder,
-                onChange: (v) {
-                  if (v == Null) {
-                    dev.log("should null value");
-                    value.value = null;
-                    widget.onChange?.call(null);
-                    setState(() {});
-                  } else if (v != null) {
-                    dev.log(v.toString());
-                    value.value = v;
-                    // setState(() {});
-                  }
-                },
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AbsorbPointer(
+                    absorbing: false,
+                    child: MyFieldPickerDesktop(
+                      suggestionColor: Colors.greenAccent,
+                      headerBgColor: widget.headerBgColor,
+                      bodyBgColor: widget.bodyBgColor,
+                      labelInRow: widget.labelInRow,
+                      rowLabelRatio: widget.rowLabelRatio,
+                      items: widget.items,
+                      supportNull: false,
+                      absorbing: true,
+                      labelStyle: widget.labelStyle,
+                      value: widget.value,
+                      borderSide: widget.borderSide,
+                      valueStyle: widget.style,
+                      hasSearch: widget.hasSearch,
+                      valueToString: widget.valueToString,
+                      showClearButton: widget.showClearButton,
+                      // autoFocus: widget.searchAutoFocus,
+                      required: widget.required,
+                      label: widget.label,
+                      height: widget.height??45,
+                      radius: widget.radius,
+                      itemToWidget: widget.itemToWidget,
+                      // builder: widget.itemToWidget,
+                      suggestion: widget.suggestion,
+                      placeholder: widget.placeholder,
+                      onChange: (v) {
+                        if (v == Null || v.toString() =="null") {
+                          dev.log("should null value");
+                          value.value = null;
+                          widget.onChange?.call(null);
+                          setState(() {});
+                        } else if (v != null) {
+                          dev.log(v.toString());
+                          value.value = v;
+                          // setState(() {});
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                // if (widget.showClearButton)
+                //   Container(
+                //     height: widget.height,
+                //     decoration: BoxDecoration(
+                //       color: Colors.white
+                //     ),
+                //       padding: EdgeInsets.symmetric(horizontal: 12),
+                //       child: DotButton(icon: Icons.clear,))
+              ],
             ),
           );
         },

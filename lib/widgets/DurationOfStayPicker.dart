@@ -107,128 +107,9 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
       valueListenable: dosNotifier,
       builder: (context, v, _) {
         return InkWell(
+
           onTap: () {
-            var adapter = PickerDataAdapter(
-              isArray: true,
-              pickerData: [List.generate(999, (index) => index), durationUnitsArray],
-              //value: value?.timeUnit,
-            );
-
-            List<int> initialSelection = (dosNotifier.value == null) ? [] : [dosNotifier.value!.duration, durationUnitsArray.indexOf(dosNotifier.value!.timeUnit)];
-
-            Picker picker = Picker(
-                selecteds: initialSelection,
-                height: 200,
-                builderHeader: (context) => Column(
-                  children: [
-                    // Row(children: [
-                    //   MyButton(
-                    //     flat: true,
-                    //     color: Colors.grey,
-                    //     onPressed: () {
-                    //       adapter.picker!.doCancel(context);
-                    //     },
-                    //     label: "Cancel",
-                    //     fontSize: 11,
-                    //   ),
-                    //   const SizedBox(width: 12),
-                    //   Expanded(
-                    //     child: MyButton(
-                    //       onPressed: () {
-                    //         adapter.picker!.doConfirm(context);
-                    //       },
-                    //       label: "Confirm",
-                    //       fontSize: 11,
-                    //     ),
-                    //   ),
-                    // ],),
-                    // Divider(),
-                    const SizedBox(height: 12),
-                    const Text('Duration Of Stay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Divider(),
-                  ],
-                ),
-                // confirm: MyButton(
-                //   fade: true,
-                //   onPressed: () {
-                //     adapter.picker!.doConfirm(context);
-                //   },
-                //   label: "Confirm",
-                //   fontSize: 11,
-                // ),
-                // cancel: MyButton(
-                //   flat: true,
-                //   color: Colors.grey,
-                //   onPressed: () {
-                //     adapter.picker!.doCancel(context);
-                //   },
-                //   label: "Cancel",
-                //   fontSize: 11,
-                // ),
-                //confirmTextStyle: const TextStyle(fontSize: 13, color: Colors.redAccent, backgroundColor: Colors.white),
-                // confirm: SizedBox(),
-                cancel: SizedBox(),
-                changeToFirst:false,
-                adapter: adapter,
-                footer: SafeArea(
-                  bottom: true,
-                  top: false,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Row(children: [
-                          MyButton(
-                            flat: true,
-                            color: Colors.black,
-                            onPressed: () {
-                              adapter.picker!.doCancel(context);
-                              dosNotifier.value = null;
-                              setState((){});
-                            },
-                            label: "Clear",
-                            fontSize: 11,
-                          ),
-                          Spacer(),
-                          MyButton(
-                            flat: true,
-                            color: Colors.grey,
-                            onPressed: () {
-                              adapter.picker!.doCancel(context);
-                            },
-                            label: "Cancel",
-                            fontSize: 11,
-                          ),
-                          const SizedBox(width: 12),
-                          MyButton(
-                            onPressed: () {
-                              adapter.picker!.doConfirm(context);
-                            },
-                            label: "Confirm",
-                            fontSize: 11,
-                          ),
-                        ],),
-                      ),
-                    ],
-                  ),
-                ),
-                textAlign: TextAlign.left,
-                columnPadding: const EdgeInsets.all(8.0),
-                onConfirm: (Picker picker, List value) {
-                  DurationOfStay durationOfStay = DurationOfStay(
-                    duration: value[0],
-                    timeUnit: durationUnitsArray[value[1]],
-                  );
-                  if (durationOfStay.timeUnit == "HOURS" && durationOfStay.duration > 24) {
-                    durationOfStay.timeUnit = "DAYS";
-                    durationOfStay.duration = (durationOfStay.duration / 24).floor();
-                  }
-                  dosNotifier.value = durationOfStay;
-                  setState((){});
-                  // onChange?.call(durationOfStay);
-                });
-            // picker.showDialog(context);
-            picker.showModal(context);
+            _showWebPicker(context);
           },
           child: AbsorbPointer(
             child: MyTextFieldNew(
@@ -260,5 +141,120 @@ class _MyDurationOfStayPickerState<T> extends State<MyDurationOfStayPicker> {
       },
     );
   }
-}
 
+  void _showWebPicker(BuildContext context) {
+    int? selectedDuration = dosNotifier.value?.duration;
+    String? selectedUnit = dosNotifier.value?.timeUnit;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              height: 400,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Duration Of Stay', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  ),
+                  Divider(),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: 100,
+                            itemBuilder: (context, index) {
+                              final duration = index + 1;
+                              return ListTile(
+                                title: Text('$duration'),
+                                onTap: () {
+                                  setState(() {
+                                    selectedDuration = duration;
+                                  });
+                                },
+                                selected: selectedDuration == duration,
+                                selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: durationUnitsArray.length,
+                            itemBuilder: (context, index) {
+                              final unit = durationUnitsArray[index];
+                              return ListTile(
+                                title: Text(unit),
+                                onTap: () {
+                                  setState(() {
+                                    selectedUnit = unit;
+                                  });
+                                },
+                                selected: selectedUnit == unit,
+                                selectedTileColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                    child: Row(
+                      children: [
+                        MyButton(
+                          flat: true,
+                          color: Colors.black,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            dosNotifier.value = null;
+                          },
+                          label: "Clear",
+                          fontSize: 11,
+                        ),
+                        Spacer(),
+                        MyButton(
+                          flat: true,
+                          color: Colors.grey,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          label: "Cancel",
+                          fontSize: 11,
+                        ),
+                        const SizedBox(width: 12),
+                        MyButton(
+                          onPressed: () {
+                            if (selectedDuration != null && selectedUnit != null) {
+                              DurationOfStay durationOfStay = DurationOfStay(
+                                duration: selectedDuration!,
+                                timeUnit: selectedUnit!,
+                              );
+                              if (durationOfStay.timeUnit == "HOURS" && durationOfStay.duration > 24) {
+                                durationOfStay.timeUnit = "DAYS";
+                                durationOfStay.duration = (durationOfStay.duration / 24).floor();
+                              }
+                              dosNotifier.value = durationOfStay;
+                            }
+                            Navigator.pop(context);
+                          },
+                          label: "Confirm",
+                          fontSize: 11,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}

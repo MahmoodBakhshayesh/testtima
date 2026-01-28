@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,6 +22,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
   final String? label;
   final String? placeholder;
   final bool required;
+  final bool absorbing;
   final List<int> rowLabelRatio;
   final double height;
   final BorderRadius? radius;
@@ -65,6 +68,7 @@ class MyFieldPickerDesktop<T> extends ConsumerStatefulWidget {
     required this.items,
     this.onChange,
     this.labelInRow = true,
+    this.absorbing = false,
     this.value,
     this.suggestion = const [],
 
@@ -251,6 +255,9 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
   void _toggleOverlay() => _open ? _closeOverlay() : _openOverlay();
 
   void _openOverlay() {
+    // if(widget.absorbing){
+    //   return;
+    // }
     if (_open || widget.locked || widget.disabled) return;
     _open = true;
 
@@ -715,7 +722,7 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
       key: _valueBoxKey,
       link: _link,
       child: InkWell(
-        onTap: (widget.locked || widget.disabled) ? null : _toggleOverlay,
+        onTap:widget.absorbing ?null: (widget.locked || widget.disabled) ? null : _toggleOverlay,
         child: Container(
           decoration: BoxDecoration(
             border: boxBorder,
@@ -742,41 +749,49 @@ class _MyFieldPickerStateDesktop<T> extends ConsumerState<MyFieldPickerDesktop<T
                       ? GestureDetector(
                           // tooltip: 'Clear',
                           child: const Icon(Icons.close),
-                          onTap: () => _selectValue(null),
+                          onTap: () {
+
+                            // log("should clear");
+                            widget.onChange?.call(null);
+                            _selectValue(null);
+                          },
                         )
                       : widget.suffixIcon ?? Icon(_open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
                 ],
               ),
             ),
-            child: Container(
-              alignment: Alignment.centerLeft,
-              // height: widget.height,
-              child: Row(
-                children: [
-                  if (widget.prefix != null) widget.prefix!,
-                  if (widget.prefixIcon != null) const SizedBox(width: 6),
-                  Expanded(
-                    // FIX: use _value.value instead of widget.value
-                    child: (_value.value != null && widget.valueToString != null)
-                        ? Text(
-                            displayText,
-                            overflow: TextOverflow.ellipsis,
-                            style: widget.valueStyle,
-                          )
-                        : _value.value != null && (widget.itemToWidget != null)
-                        ? widget.itemToWidget!(_value.value as T)
-                        : Text(
-                            displayText.isEmpty ? (widget.placeholder ?? '') : displayText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style:
-                                (displayText.isEmpty
-                                        ? (widget.valueStyle ?? const TextStyle(fontSize: 13, color: Colors.black54)).copyWith(color: Colors.black45)
-                                        : widget.valueStyle ?? const TextStyle(fontSize: 13, color: Colors.black))
-                                    .copyWith(height: 1.1),
-                          ),
-                  ),
-                ],
+            child: IgnorePointer(
+              ignoring: true,
+              child: Container(
+                alignment: Alignment.centerLeft,
+                // height: widget.height,
+                child: Row(
+                  children: [
+                    if (widget.prefix != null) widget.prefix!,
+                    if (widget.prefixIcon != null) const SizedBox(width: 6),
+                    Expanded(
+                      // FIX: use _value.value instead of widget.value
+                      child: (_value.value != null && widget.valueToString != null)
+                          ? Text(
+                              displayText,
+                              overflow: TextOverflow.ellipsis,
+                              style: widget.valueStyle,
+                            )
+                          : _value.value != null && (widget.itemToWidget != null)
+                          ? widget.itemToWidget!(_value.value as T)
+                          : Text(
+                              displayText.isEmpty ? (widget.placeholder ?? '') : displayText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style:
+                                  (displayText.isEmpty
+                                          ? (widget.valueStyle ?? const TextStyle(fontSize: 13, color: Colors.black54)).copyWith(color: Colors.black45)
+                                          : widget.valueStyle ?? const TextStyle(fontSize: 13, color: Colors.black))
+                                      .copyWith(height: 1.1),
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

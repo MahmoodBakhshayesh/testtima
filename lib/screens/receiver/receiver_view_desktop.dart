@@ -153,8 +153,8 @@ class _ReceiverViewDesktopState extends ConsumerState<ReceiverViewDesktop> {
           Expanded(
             flex: 3,
             child: Visibility(
-              visible: ref.read(reportTimaticResultNewProvider) != null,
-              child: SingleChildScrollView(
+              visible: timaticRes != null,
+              child:timaticRes==null?SizedBox(): SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                 child: Column(
                   children: [

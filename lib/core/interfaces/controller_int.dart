@@ -13,6 +13,7 @@ GlobalKey scaffoldMessageKey = GlobalKey<ScaffoldMessengerState>();
 
 class ControllerInterface extends tree.ControllerInterface {
   AnyDrawerController drawerController = AnyDrawerController();
+  ExpansibleController flightPaxExpandController = ExpansibleController();
 
   late SharedPreferencesImp sharedPref;
   late WidgetRef ref;
